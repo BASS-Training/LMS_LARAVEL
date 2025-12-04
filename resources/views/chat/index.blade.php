@@ -12,15 +12,36 @@
         
         {{-- Action Buttons in Navigation --}}
         <x-slot name="actions">
-            @can('create', App\Models\Chat::class)
-                <button id="newChatBtn" 
-                        class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    New Chat
-                </button>
-            @endcan
+            <div class="flex items-center space-x-2">
+                <div class="relative">
+                    <a href="{{ route('chat.index') }}" class="inline-flex items-center px-2 py-2 text-gray-600 hover:text-gray-900 rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.5-1.5A2 2 0 0118 14v-3a6 6 0 10-12 0v3a2 2 0 01-.5 1.5L4 17h5m6 0v1a3 3 0 11-6 0v-1" />
+                        </svg>
+                        @if(isset($chatNotificationCount) && $chatNotificationCount > 0)
+                            <span class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-500 rounded-full">{{ $chatNotificationCount }}</span>
+                        @endif
+                    </a>
+                </div>
+                @can('add chat participants')
+                    <button id="manageParticipantsBtn" 
+                            class="inline-flex items-center px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-medium rounded-lg transition-colors duration-200">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3M9 13a4 4 0 110-8 4 4 0 010 8zm0 0c-4.418 0-8 2.239-8 5v1h11" />
+                        </svg>
+                        Manage Participants
+                    </button>
+                @endcan
+                @can('create', App\Models\Chat::class)
+                    <button id="newChatBtn" 
+                            class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        New Chat
+                    </button>
+                @endcan
+            </div>
         </x-slot>
     </x-chat-navigation>
     
@@ -231,13 +252,13 @@
                             </div>
                         </div>
 
-                        {{-- Course Period Selection - Only for admin/instructor/EO --}}
-                        @if(auth()->user()->hasRole(['super-admin', 'instructor', 'event-organizer']))
+                        {{-- Course Period Selection - Only for users allowed to create course-scoped chats --}}
+                        @can('create course chats')
                         <div id="coursePeriodSection">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 Course <span class="text-gray-500">(Optional)</span>
                             </label>
-                            <select name="course_period_id" id="coursePeriodSelect" 
+                            <select name="course_class_id" id="courseClassSelect" 
                                     class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                                 <option value="">Select a course...</option>
                             </select>
@@ -245,15 +266,15 @@
                                 Select a course to create course-specific chat. Leave empty for general chat.
                             </p>
                         </div>
-                        @else
+                        @elsecan('create', App\Models\Chat::class)
                         {{-- Participants don't see course selection --}}
-                        <input type="hidden" name="course_period_id" value="">
+                        <input type="hidden" name="course_class_id" value="">
                         <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
                             <p class="text-sm text-blue-700">
                                 💬 You can chat with instructors, organizers, and other participants from your courses.
                             </p>
                         </div>
-                        @endif
+                        @endcan
 
                         {{-- Participants Selection --}}
                         <div>
@@ -263,11 +284,11 @@
                             </div>
                             <p id="participantsError" class="mt-2 text-sm text-red-600 hidden"></p>
                             <p class="mt-1 text-xs text-gray-500">
-                                @if(auth()->user()->hasRole(['super-admin', 'instructor', 'event-organizer']))
+                                @can('create course chats')
                                     Participants will be filtered based on the selected course.
-                                @else
+                                @elsecan('create', App\Models\Chat::class)
                                     You can chat with people from your enrolled courses.
-                                @endif
+                                @endcan
                             </p>
                         </div>
 
@@ -340,6 +361,39 @@
 
             // Initialize modal handlers
             initializeModal();
+
+            // Manage participants button
+            const manageBtn = document.getElementById('manageParticipantsBtn');
+            if (manageBtn) {
+                manageBtn.addEventListener('click', async function() {
+                    if (!currentChatId) { alert('Please select a chat first.'); return; }
+                    const ids = prompt('Enter user ID(s) to add, separated by commas:');
+                    if (!ids) return;
+                    try {
+                        const participant_ids = ids.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+                        const res = await fetch(`/chats/${currentChatId}/participants`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({ participant_ids })
+                        });
+                        if (!res.ok) {
+                            const data = await res.json().catch(() => ({}));
+                            alert('Failed to add participants: ' + (data.message || res.status));
+                            return;
+                        }
+                        alert('Participants added');
+                        // reload current chat participants subtly by reloading messages which carries participants header
+                        loadChatMessages(currentChatId);
+                    } catch (e) {
+                        console.error(e);
+                        alert('Unexpected error');
+                    }
+                });
+            }
         });
 
         // Select chat function
@@ -579,7 +633,7 @@
                 }
             } catch (error) {
                 console.error('Error sending message:', error);
-                alert('Failed to send message. Please try again.');
+                // Silent fail for better browser compatibility - message auto-saves
             } finally {
                 sendBtn.disabled = false;
             }
@@ -626,11 +680,11 @@
         }
 
         // Load available users for chat creation (updated dengan course filtering)
-        async function loadAvailableUsers(coursePeriodId = null) {
+        async function loadAvailableUsers(courseClassId = null) {
             try {
                 const url = new URL('/users/available', window.location.origin);
-                if (coursePeriodId) {
-                    url.searchParams.append('course_period_id', coursePeriodId);
+                if (courseClassId) {
+                    url.searchParams.append('course_class_id', courseClassId);
                 }
                 
                 const response = await fetch(url, {
@@ -673,7 +727,7 @@
         // Load available course periods
         async function loadAvailableCoursePeriods() {
             try {
-                const response = await fetch('/course-periods/available', {
+                const response = await fetch('/course-classes/available', {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
@@ -681,7 +735,7 @@
                 });
                 
                 const data = await response.json();
-                const select = document.getElementById('coursePeriodSelect');
+                const select = document.getElementById('courseClassSelect');
                 
                 if (response.ok && Array.isArray(data)) {
                     select.innerHTML = '<option value="">Select a course...</option>' + 
@@ -693,15 +747,15 @@
                 }
             } catch (error) {
                 console.error('Error loading course periods:', error);
-                document.getElementById('coursePeriodSelect').innerHTML = '<option value="">Error loading courses</option>';
+                document.getElementById('courseClassSelect').innerHTML = '<option value="">Error loading courses</option>';
             }
         }
 
         // Handle course period change
         function handleCoursePeriodChange() {
-            const coursePeriodSelect = document.getElementById('coursePeriodSelect');
-            if (coursePeriodSelect) {
-                coursePeriodSelect.addEventListener('change', function() {
+            const courseClassSelect = document.getElementById('courseClassSelect');
+            if (courseClassSelect) {
+                courseClassSelect.addEventListener('change', function() {
                     const selectedCourseId = this.value;
                     // Reload users based on selected course
                     loadAvailableUsers(selectedCourseId);
@@ -769,9 +823,9 @@
             });
 
             // Handle course period change (only if course selection exists)
-            const coursePeriodSelect = document.getElementById('coursePeriodSelect');
-            if (coursePeriodSelect) {
-                coursePeriodSelect.addEventListener('change', function() {
+            const courseClassSelect = document.getElementById('courseClassSelect');
+            if (courseClassSelect) {
+                courseClassSelect.addEventListener('change', function() {
                     const selectedCourseId = this.value;
                     // Reload users based on selected course
                     loadAvailableUsers(selectedCourseId);
@@ -820,7 +874,7 @@
 
         // ✅ VALIDATION: Pastikan ada minimal 1 participant selain current user
         if (participantIds.length === 0) {
-            alert('Please select at least one participant to chat with.');
+            // Validation handled silently for better browser compatibility
             sendBtn.disabled = false;
             return;
         }
@@ -829,7 +883,7 @@
             type: formData.get('type'),
             participant_ids: participantIds, // ✅ FIXED: Tidak include current user
             name: formData.get('name') || null,
-            course_period_id: formData.get('course_period_id') || null
+            course_class_id: formData.get('course_class_id') || null
         };
 
         console.log('Creating chat with data:', chatData);
@@ -861,18 +915,15 @@
             console.error('Chat creation failed:', data);
             
             if (data.errors) {
-                let errorMessage = 'Validation errors:\n';
-                Object.keys(data.errors).forEach(field => {
-                    errorMessage += `${field}: ${data.errors[field].join(', ')}\n`;
-                });
-                alert(errorMessage);
+                // Log validation errors for debugging
+                console.error('Validation errors:', data.errors);
             } else {
-                alert(data.message || 'Failed to create chat');
+                console.error('Failed to create chat:', data.message);
             }
         }
     } catch (error) {
         console.error('Error creating chat:', error);
-        alert('Failed to create chat. Please try again.');
+        // Silent fail for better browser compatibility
     } finally {
         sendBtn.disabled = false;
     }
@@ -918,7 +969,7 @@
             },
             body: JSON.stringify({
                 type: formData.get('type'),
-                course_period_id: formData.get('course_period_id') || null,
+                course_class_id: formData.get('course_class_id') || null,
                 participant_ids: filteredParticipants, // ✅ FIXED: Use filtered participants
                 name: formData.get('title') || null
             })
@@ -938,7 +989,7 @@
         }
     } catch (error) {
         console.error('Error creating chat:', error);
-        alert('Failed to create chat: ' + error.message);
+        // Silent fail for better browser compatibility
     }
 }
 

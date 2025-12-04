@@ -32,6 +32,7 @@ class QuizController extends Controller
             'showResult',
             'checkTimeRemaining',
             'saveProgress',
+            'leaderboard',
         ]);
     }
 
@@ -41,15 +42,20 @@ class QuizController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $this->authorize('viewAny', Quiz::class);
 
-        if (!$user->can('view any quiz')) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        if ($user->hasRole('super-admin')) {
+        if ($user->can('manage all courses')) {
             $quizzes = Quiz::with('instructor', 'lesson.course')->latest()->get();
-        } elseif ($user->hasRole('instructor')) {
-            $quizzes = Quiz::where('user_id', $user->id)->with('instructor', 'lesson.course')->latest()->get();
+        } elseif ($user->can('view quizzes')) {
+            $quizzes = Quiz::where(function ($q) use ($user) {
+                    $q->where('user_id', $user->id)
+                      ->orWhereHas('lesson.course.instructors', function ($sub) use ($user) {
+                          $sub->where('user_id', $user->id);
+                      });
+                })
+                ->with('instructor', 'lesson.course')
+                ->latest()
+                ->get();
         } else {
             abort(403, 'Unauthorized action.');
         }
@@ -90,10 +96,10 @@ class QuizController extends Controller
             'lesson_id' => 'required|exists:lessons,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'total_marks' => 'required|integer|min:0',
-            'pass_marks' => 'required|integer|min:0|lte:total_marks',
+            'passing_percentage' => 'required|integer|min:0|max:100',
             'show_answers_after_attempt' => 'boolean',
-            'time_limit' => 'nullable|integer|min:1|max:1440', // ✅ BARU: Validasi time limit (max 24 jam)
+            'enable_leaderboard' => 'boolean',
+            'time_limit' => 'nullable|integer|min:1|max:1440',
             'status' => ['required', Rule::in(['draft', 'published'])],
             'questions' => 'required|array|min:1',
             'questions.*.question_text' => 'required|string',
@@ -110,10 +116,10 @@ class QuizController extends Controller
             'lesson_id' => $validatedData['lesson_id'],
             'title' => $validatedData['title'],
             'description' => $validatedData['description'],
-            'total_marks' => $validatedData['total_marks'],
-            'pass_marks' => $validatedData['pass_marks'],
+            'passing_percentage' => $validatedData['passing_percentage'],
             'show_answers_after_attempt' => $request->has('show_answers_after_attempt'),
-            'time_limit' => $validatedData['time_limit'], // ✅ BARU: Simpan time limit
+            'enable_leaderboard' => $request->has('enable_leaderboard'),
+            'time_limit' => $validatedData['time_limit'],
             'status' => $validatedData['status'],
         ]);
 
@@ -171,10 +177,10 @@ class QuizController extends Controller
             'lesson_id' => 'required|exists:lessons,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'total_marks' => 'required|integer|min:0',
-            'pass_marks' => 'required|integer|min:0|lte:total_marks',
+            'passing_percentage' => 'required|integer|min:0|max:100',
             'show_answers_after_attempt' => 'boolean',
-            'time_limit' => 'nullable|integer|min:1|max:1440', // ✅ BARU: Validasi time limit
+            'enable_leaderboard' => 'boolean',
+            'time_limit' => 'nullable|integer|min:1|max:1440',
             'status' => ['required', Rule::in(['draft', 'published'])],
             'questions_to_delete' => 'array',
             'questions_to_delete.*' => 'exists:questions,id',
@@ -196,10 +202,10 @@ class QuizController extends Controller
             'lesson_id' => $validatedData['lesson_id'],
             'title' => $validatedData['title'],
             'description' => $validatedData['description'],
-            'total_marks' => $validatedData['total_marks'],
-            'pass_marks' => $validatedData['pass_marks'],
+            'passing_percentage' => $validatedData['passing_percentage'],
             'show_answers_after_attempt' => $request->has('show_answers_after_attempt'),
-            'time_limit' => $validatedData['time_limit'], // ✅ BARU: Update time limit
+            'enable_leaderboard' => $request->has('enable_leaderboard'),
+            'time_limit' => $validatedData['time_limit'],
             'status' => $validatedData['status'],
         ]);
 
@@ -269,39 +275,70 @@ class QuizController extends Controller
         $quiz->load('lesson.course');
         $user = Auth::user();
 
-        if (!$user->hasRole('participant')) {
+        // Bypass for users with full course management
+        $canBypass = $user->can('manage all courses');
+
+        if (!$canBypass && !$user->can('attempt quizzes')) {
             abort(403, 'Anda tidak memiliki izin untuk mengerjakan kuis.');
         }
-        
+
         // =================================================================
         // PERUBAHAN DIMULAI DI SINI
         // =================================================================
         // Cek apakah pengguna sudah pernah lulus kuis ini dari percobaan sebelumnya.
-        $hasPassedQuizBefore = $user->quizAttempts()
-                                    ->where('quiz_id', $quiz->id)
-                                    ->where('passed', true)
-                                    ->exists();
+        // Super-admin bisa mengerjakan ulang untuk testing
+        if (!$canBypass) {
+            $hasPassedQuizBefore = $user->quizAttempts()
+                                        ->where('quiz_id', $quiz->id)
+                                        ->where('passed', true)
+                                        ->exists();
 
-        // Jika sudah pernah lulus, blokir dan arahkan ke halaman hasil.
-        if ($hasPassedQuizBefore) {
-            $lastPassedAttempt = $user->quizAttempts()
-                                      ->where('quiz_id', $quiz->id)
-                                      ->where('passed', true)
-                                      ->latest('completed_at')
-                                      ->first();
-            
-            return redirect()->route('quizzes.result', ['quiz' => $quiz, 'attempt' => $lastPassedAttempt])
-                   ->with('info', 'Anda sudah lulus kuis ini dan tidak dapat mengerjakannya kembali.');
+            // Jika sudah pernah lulus, blokir dan arahkan ke halaman hasil.
+            if ($hasPassedQuizBefore) {
+                $lastPassedAttempt = $user->quizAttempts()
+                                          ->where('quiz_id', $quiz->id)
+                                          ->where('passed', true)
+                                          ->latest('completed_at')
+                                          ->first();
+
+                return redirect()->route('quizzes.result', ['quiz' => $quiz, 'attempt' => $lastPassedAttempt])
+                       ->with('info', 'Anda sudah lulus kuis ini dan tidak dapat mengerjakannya kembali.');
+            }
         }
         // =================================================================
         // PERUBAHAN SELESAI DI SINI
         // =================================================================
 
+        // ✅ DEBUG: Log quiz access attempt
+        \Log::info('Quiz access attempt', [
+            'user_id' => $user->id,
+            'quiz_id' => $quiz->id,
+            'quiz_status' => $quiz->status,
+            'quiz_lesson_id' => $quiz->lesson_id,
+            'lesson_id' => $quiz->lesson->id ?? 'null',
+            'lesson_course_id' => $quiz->lesson->course_id ?? 'null',
+            'course_id' => $quiz->lesson->course->id ?? 'null',
+            'is_enrolled' => $quiz->lesson && $quiz->lesson->course ? $user->isEnrolled($quiz->lesson->course) : false,
+        ]);
+
         if ($quiz->status !== 'published') {
+            \Log::warning('Quiz access denied - not published', [
+                'user_id' => $user->id,
+                'quiz_id' => $quiz->id,
+                'status' => $quiz->status,
+            ]);
             return redirect()->back()->with('error', 'Kuis ini belum dipublikasikan.');
         }
 
-        if (!$quiz->lesson || !$quiz->lesson->course || !$user->isEnrolled($quiz->lesson->course)) {
+        // Managers bypass enrollment check
+        if (!$canBypass && (!$quiz->lesson || !$quiz->lesson->course || !$user->isEnrolled($quiz->lesson->course))) {
+            \Log::warning('Quiz access denied - not enrolled or missing lesson/course', [
+                'user_id' => $user->id,
+                'quiz_id' => $quiz->id,
+                'has_lesson' => !is_null($quiz->lesson),
+                'has_course' => $quiz->lesson ? !is_null($quiz->lesson->course) : false,
+                'is_enrolled' => $quiz->lesson && $quiz->lesson->course ? $user->isEnrolled($quiz->lesson->course) : false,
+            ]);
             return redirect()->back()->with('error', 'Anda harus terdaftar di kursus ini untuk memulai kuis.');
         }
 
@@ -492,9 +529,19 @@ class QuizController extends Controller
             }
         }
 
+        // ✅ FIX: Hitung pass_marks dari passing_percentage
+        // Kolom pass_marks sudah dihapus, gunakan passing_percentage
+        // ⚠️ CRITICAL FIX: Load questions jika belum ter-load untuk menghindari totalMarks = 0
+        if (!$quiz->relationLoaded('questions')) {
+            $quiz->load('questions');
+        }
+
+        $totalMarks = $quiz->questions->sum('marks');
+        $passingMarks = ($totalMarks * ($quiz->passing_percentage ?? 70)) / 100;
+
         $attempt->update([
             'score' => $score,
-            'passed' => ($score >= $quiz->pass_marks),
+            'passed' => ($score >= $passingMarks),
             'completed_at' => now(),
         ]);
 
@@ -585,8 +632,17 @@ class QuizController extends Controller
             }
         }
 
+        // ✅ FIX: Hitung pass_marks dari passing_percentage
+        // ⚠️ CRITICAL FIX: Load questions jika belum ter-load untuk menghindari totalMarks = 0
+        if (!$quiz->relationLoaded('questions')) {
+            $quiz->load('questions');
+        }
+
+        $totalMarks = $quiz->questions->sum('marks');
+        $passingMarks = ($totalMarks * ($quiz->passing_percentage ?? 70)) / 100;
+
         $attempt->score = $score;
-        $attempt->passed = ($score >= $quiz->pass_marks);
+        $attempt->passed = ($score >= $passingMarks);
         $attempt->completed_at = now();
         $attempt->save();
 
@@ -624,11 +680,17 @@ class QuizController extends Controller
         
         // Ambil skor dari attempt yang sudah disimpan
         $score = $attempt->score;
-        $total_marks = $quiz->total_marks;
+        // ✅ FIX: Hitung total_marks dari questions karena kolom total_marks sudah dihapus
+        // ⚠️ CRITICAL FIX: Load questions jika belum ter-load
+        if (!$quiz->relationLoaded('questions')) {
+            $quiz->load('questions');
+        }
+
+        $total_marks = $quiz->questions->sum('marks');
         $score_percentage = ($total_marks > 0) ? ($score / $total_marks) * 100 : 0;
         
         // Cek apakah attempt saat ini lulus
-        $passed = $attempt->passed;
+        $isPassed = $attempt->passed;
 
         // Cek apakah pengguna PERNAH lulus kuis ini sebelumnya dari semua attempt
         $hasPassedQuizBefore = $user->quizAttempts()
@@ -638,13 +700,13 @@ class QuizController extends Controller
 
         // Kirim semua data yang dibutuhkan ke view
         return view('quizzes.result', compact(
-            'quiz', 
-            'attempt', 
-            'content', 
+            'quiz',
+            'attempt',
+            'content',
             'score',
             'total_marks',
             'score_percentage',
-            'passed',
+            'isPassed',
             'hasPassedQuizBefore' // Variabel baru untuk view
         ));
         
@@ -672,37 +734,69 @@ class QuizController extends Controller
 
     public function start(Quiz $quiz)
     {
-        $this->authorize('start', $quiz);
+        // ✅ FIX: Eager load lesson and course untuk authorization
+        // Ini penting untuk quiz yang baru diduplikasi agar lesson relationship fresh dari database
+        $quiz->load('lesson.course');
+
+        $user = Auth::user();
+
+        // Bypass authorization for managers
+        if (!$user->can('manage all courses')) {
+            $this->authorize('start', $quiz);
+        }
+
         return view('quizzes.start', compact('quiz'));
+    }
+
+    /**
+     * Show leaderboard for quiz
+     */
+    public function leaderboard(Quiz $quiz)
+    {
+        // Check if leaderboard is enabled
+        if (!$quiz->enable_leaderboard) {
+            abort(404, 'Leaderboard tidak tersedia untuk quiz ini.');
+        }
+
+        // Get leaderboard data (best attempts per user)
+        $leaderboard = $quiz->getLeaderboardWithBestAttempts();
+
+        return view('quizzes.leaderboard', compact('quiz', 'leaderboard'));
     }
 
     public function attempt(Quiz $quiz)
     {
-        $this->authorize('start', $quiz);
-
         $user = Auth::user();
-        
-        // =================================================================
-        // PENAMBAHAN LOGIKA YANG SAMA DI SINI
-        // =================================================================
-        $hasPassedQuizBefore = $user->quizAttempts()
-                                    ->where('quiz_id', $quiz->id)
-                                    ->where('passed', true)
-                                    ->exists();
 
-        if ($hasPassedQuizBefore) {
-            $lastPassedAttempt = $user->quizAttempts()
-                                      ->where('quiz_id', $quiz->id)
-                                      ->where('passed', true)
-                                      ->latest('completed_at')
-                                      ->first();
-            
-            return redirect()->route('quizzes.result', ['quiz' => $quiz, 'attempt' => $lastPassedAttempt])
-                   ->with('info', 'Anda sudah lulus kuis ini dan tidak dapat mengerjakannya kembali.');
+        // Bypass authorization for managers
+        if (!$user->can('manage all courses')) {
+            $this->authorize('start', $quiz);
         }
-        // =================================================================
-        // AKHIR PENAMBAHAN
-        // =================================================================
+
+        // Managers bypass check
+        if (!$user->can('manage all courses')) {
+            // =================================================================
+            // PENAMBAHAN LOGIKA YANG SAMA DI SINI
+            // =================================================================
+            $hasPassedQuizBefore = $user->quizAttempts()
+                                        ->where('quiz_id', $quiz->id)
+                                        ->where('passed', true)
+                                        ->exists();
+
+            if ($hasPassedQuizBefore) {
+                $lastPassedAttempt = $user->quizAttempts()
+                                          ->where('quiz_id', $quiz->id)
+                                          ->where('passed', true)
+                                          ->latest('completed_at')
+                                          ->first();
+
+                return redirect()->route('quizzes.result', ['quiz' => $quiz, 'attempt' => $lastPassedAttempt])
+                       ->with('info', 'Anda sudah lulus kuis ini dan tidak dapat mengerjakannya kembali.');
+            }
+            // =================================================================
+            // AKHIR PENAMBAHAN
+            // =================================================================
+        }
 
         if ($quiz->status !== 'published') {
             return redirect()->back()->with('error', 'Kuis ini belum dipublikasikan.');
@@ -715,5 +809,178 @@ class QuizController extends Controller
         ]);
 
         return view('quizzes.attempt', compact('quiz', 'attempt'));
+    }
+
+    /**
+     * Show import form
+     */
+    public function showImport()
+    {
+        $this->authorize('create', Quiz::class);
+
+        $lessons = Lesson::whereHas('course', function ($query) {
+            $query->where('user_id', Auth::id())
+                  ->orWhereHas('instructors', function ($q) {
+                      $q->where('user_id', Auth::id());
+                  });
+        })->get();
+
+        return view('quizzes.import', compact('lessons'));
+    }
+
+    /**
+     * Import quizzes from Excel
+     */
+    public function import(Request $request)
+    {
+        $this->authorize('create', Quiz::class);
+
+        $request->validate([
+            'lesson_id' => 'required|exists:lessons,id',
+            'file' => 'required|mimes:xlsx,xls,csv|max:2048',
+        ]);
+
+        try {
+            $import = new \App\Imports\QuizImport($request->lesson_id, Auth::id());
+            \Maatwebsite\Excel\Facades\Excel::import($import, $request->file('file'));
+
+            $errors = $import->getErrors();
+            $successCount = $import->getSuccessCount();
+
+            if ($successCount > 0) {
+                $message = "{$successCount} quiz berhasil diimport.";
+
+                if (count($errors) > 0) {
+                    $message .= " Namun terdapat " . count($errors) . " error.";
+                    session()->flash('import_errors', $errors);
+                }
+
+                return redirect()->route('quizzes.index')
+                    ->with('success', $message);
+            } else {
+                return redirect()->back()
+                    ->with('error', 'Tidak ada quiz yang berhasil diimport.')
+                    ->with('import_errors', $errors);
+            }
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Download Excel template
+     */
+    public function downloadTemplate()
+    {
+        // Skip authorization for template download - anyone can download template
+        // $this->authorize('create', Quiz::class);
+
+        $headers = [
+            'quiz_title',
+            'quiz_description',
+            'passing_percentage',
+            'time_limit',
+            'show_answers_after_attempt',
+            'enable_leaderboard',
+            'status',
+            'question_text',
+            'question_type',
+            'marks',
+            'option_1',
+            'option_2',
+            'option_3',
+            'option_4',
+            'option_5',
+            'option_6',
+            'option_7',
+            'option_8',
+            'option_9',
+            'option_10',
+            'correct_answer',
+        ];
+
+        $sampleData = [
+            [
+                'quiz_title' => 'Sample Quiz - Matematika Dasar',
+                'quiz_description' => 'Quiz ini berisi pertanyaan matematika dasar',
+                'passing_percentage' => 70,
+                'time_limit' => 30,
+                'show_answers_after_attempt' => 'yes',
+                'enable_leaderboard' => 'yes',
+                'status' => 'draft',
+                'question_text' => 'Berapa hasil dari 2 + 2?',
+                'question_type' => 'multiple_choice',
+                'marks' => 10,
+                'option_1' => '3',
+                'option_2' => '4',
+                'option_3' => '5',
+                'option_4' => '6',
+                'option_5' => '',
+                'option_6' => '',
+                'option_7' => '',
+                'option_8' => '',
+                'option_9' => '',
+                'option_10' => '',
+                'correct_answer' => '4',
+            ],
+            [
+                'quiz_title' => 'Sample Quiz - Matematika Dasar',
+                'quiz_description' => 'Quiz ini berisi pertanyaan matematika dasar',
+                'passing_percentage' => 70,
+                'time_limit' => 30,
+                'show_answers_after_attempt' => 'yes',
+                'enable_leaderboard' => 'yes',
+                'status' => 'draft',
+                'question_text' => 'Apakah 5 adalah bilangan prima?',
+                'question_type' => 'true_false',
+                'marks' => 10,
+                'option_1' => '',
+                'option_2' => '',
+                'option_3' => '',
+                'option_4' => '',
+                'option_5' => '',
+                'option_6' => '',
+                'option_7' => '',
+                'option_8' => '',
+                'option_9' => '',
+                'option_10' => '',
+                'correct_answer' => 'true',
+            ],
+            [
+                'quiz_title' => 'Sample Quiz - Matematika Dasar',
+                'quiz_description' => 'Quiz ini berisi pertanyaan matematika dasar',
+                'passing_percentage' => 70,
+                'time_limit' => 30,
+                'show_answers_after_attempt' => 'yes',
+                'enable_leaderboard' => 'yes',
+                'status' => 'draft',
+                'question_text' => 'Berapa hasil dari 10 x 5?',
+                'question_type' => 'multiple_choice',
+                'marks' => 10,
+                'option_1' => '45',
+                'option_2' => '50',
+                'option_3' => '55',
+                'option_4' => '60',
+                'option_5' => '',
+                'option_6' => '',
+                'option_7' => '',
+                'option_8' => '',
+                'option_9' => '',
+                'option_10' => '',
+                'correct_answer' => '50',
+            ],
+        ];
+
+        try {
+            return \Maatwebsite\Excel\Facades\Excel::download(
+                new \App\Exports\QuizTemplateExport($headers, $sampleData),
+                'quiz_import_template.xlsx'
+            );
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal download template: ' . $e->getMessage());
+        }
     }
 }

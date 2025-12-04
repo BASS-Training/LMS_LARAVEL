@@ -2,13 +2,13 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
             <div class="space-y-2">
-                <a href="{{ route('courses.show', $lesson->course) }}"
+                <a href="javascript:void(0)" onclick="window.history.back()"
                    class="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium transition-colors duration-200 group">
                     <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform duration-200"
                          fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                     </svg>
-                    Kembali ke Detail Kursus
+                    Kembali
                 </a>
                 <h1 class="text-3xl font-bold text-gray-900">
                     ✨ Buat Konten Baru
@@ -351,30 +351,138 @@
                                         </button>
                                     </div>
                                 </div>
+
+                                <!-- Multiple Documents Uploader (untuk tipe document) -->
+                                <div class="mt-6" x-show="document.querySelector('input[name=\"type\"]:checked')?.value === 'document'">
+                                    <label for="documents" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Lampirkan Beberapa Dokumen (opsional)
+                                    </label>
+                                    <input type="file" name="documents[]" id="documents" multiple
+                                           accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain,application/rtf"
+                                           class="block w-full text-sm text-gray-600">
+                                    <p class="text-xs text-gray-500 mt-1">Maks 20 file, masing-masing hingga 100MB.</p>
+                                    <div id="documents_preview" class="mt-3 space-y-2"></div>
+                                </div>
+
+                                <!-- Multiple Images Uploader (untuk tipe image) -->
+                                <div class="mt-6">
+                                    <label for="images" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        🖼️ Unggah Beberapa Gambar (opsional)
+                                    </label>
+                                    <input type="file" name="images[]" id="images" accept="image/*" multiple class="block w-full text-sm text-gray-600">
+                                    <p class="text-xs text-gray-500 mt-1">Anda dapat memilih lebih dari satu gambar. Setiap gambar maksimal 10MB.</p>
+                                    <div id="images_preview" class="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+                                </div>
                             </div>
                         </div>
 
                         <div id="quiz_form_fields" class="content-field hidden">
                             <div class="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-6 border border-orange-100">
                                 <h3 class="text-lg font-semibold text-gray-900 mb-4">🧠 Pengaturan Kuis</h3>
-                                
-                                <div class="mb-4">
-                                    <label for="time_limit" class="block text-sm font-semibold text-gray-700 mb-2">
-                                        ⏱️ Durasi Pengerjaan (Menit)
+
+                                <!-- Quiz Creation Method Toggle -->
+                                <div class="mb-6">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                        📋 Cara Membuat Kuis
                                     </label>
-                                    <input 
-                                        type="text"                      {{-- 1. Ubah tipe --}}
-                                        inputmode="numeric"              {{-- Keyboard numerik di mobile --}}
-                                        name="time_limit"                {{-- 2. Ganti nama agar sesuai Controller --}}
-                                        id="time_limit"                  {{-- Ganti id agar sesuai label --}}
-                                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"  {{-- 3. Tambah filter JS --}}
-                                        class="w-full max-w-xs px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-300"
-                                        placeholder="Contoh: 60"
-                                        value="{{ old('time_limit') }}"> {{-- Sesuaikan juga 'old' helper --}}
-                                    <p class="text-sm text-gray-500 mt-2">Biarkan kosong atau isi 0 jika tidak ada batas waktu.</p>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="quiz_method" value="manual" class="sr-only" onchange="toggleQuizMethod()" checked>
+                                            <div class="p-4 border-2 border-gray-200 rounded-xl hover:border-orange-300 transition-all duration-300 text-center quiz-method-card">
+                                                <div class="text-3xl mb-2">✍️</div>
+                                                <h4 class="font-semibold text-gray-900">Manual</h4>
+                                                <p class="text-xs text-gray-500 mt-1">Buat nanti di edit</p>
+                                            </div>
+                                        </label>
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="quiz_method" value="import" class="sr-only" onchange="toggleQuizMethod()">
+                                            <div class="p-4 border-2 border-gray-200 rounded-xl hover:border-orange-300 transition-all duration-300 text-center quiz-method-card">
+                                                <div class="text-3xl mb-2">📊</div>
+                                                <h4 class="font-semibold text-gray-900">Import Excel</h4>
+                                                <p class="text-xs text-gray-500 mt-1">Upload file Excel</p>
+                                            </div>
+                                        </label>
+                                    </div>
                                 </div>
 
-                                <p class="text-center text-gray-600 italic">Pengaturan pertanyaan lebih lanjut tersedia dalam mode edit.</p>
+                                <!-- Manual Method Fields -->
+                                <div id="manual_quiz_fields">
+                                    <div class="mb-4">
+                                        <label for="time_limit" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            ⏱️ Durasi Pengerjaan (Menit)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            inputmode="numeric"
+                                            name="time_limit"
+                                            id="time_limit"
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                            class="w-full max-w-xs px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-300"
+                                            placeholder="Contoh: 60"
+                                            value="{{ old('time_limit') }}">
+                                        <p class="text-sm text-gray-500 mt-2">Biarkan kosong atau isi 0 jika tidak ada batas waktu.</p>
+                                    </div>
+
+                                    <p class="text-center text-gray-600 italic">Pengaturan pertanyaan lebih lanjut tersedia dalam mode edit.</p>
+                                </div>
+
+                                <!-- Import Method Fields -->
+                                <div id="import_quiz_fields" class="hidden">
+                                    <!-- Download Template Section -->
+                                    <div class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-4 mb-4 text-white">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-3">
+                                                <div class="bg-white/20 p-3 rounded-lg">
+                                                    <i class="fas fa-download text-xl"></i>
+                                                </div>
+                                                <div>
+                                                    <h4 class="font-bold">Template Excel</h4>
+                                                    <p class="text-xs text-green-100">Download template terlebih dahulu</p>
+                                                </div>
+                                            </div>
+                                            <a href="{{ route('quizzes.download-template') }}" target="_blank"
+                                               class="bg-white text-green-600 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-50 transition-all duration-200 flex items-center space-x-2">
+                                                <i class="fas fa-file-excel"></i>
+                                                <span>Download</span>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <!-- File Upload Section -->
+                                    <div class="mb-4">
+                                        <label for="quiz_excel_file" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            <i class="fas fa-file-upload mr-2 text-orange-600"></i>Upload File Excel
+                                        </label>
+                                        <div class="flex items-center justify-center w-full">
+                                            <label for="quiz_excel_file" class="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition-all duration-200">
+                                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
+                                                    <p class="mb-1 text-sm text-gray-500"><span class="font-semibold">Klik untuk upload</span> atau drag and drop</p>
+                                                    <p class="text-xs text-gray-500">File Excel (XLSX, XLS) maksimal 2MB</p>
+                                                    <p class="text-xs text-gray-400 mt-2" id="quiz_file_name"></p>
+                                                </div>
+                                                <input id="quiz_excel_file" name="quiz_excel_file" type="file" class="hidden" accept=".xlsx,.xls" onchange="updateQuizFileName(this)" />
+                                            </label>
+                                        </div>
+                                        <p class="text-xs text-gray-500 mt-2">
+                                            <i class="fas fa-info-circle text-blue-500"></i>
+                                            File Excel harus sesuai dengan format template yang telah didownload
+                                        </p>
+                                    </div>
+
+                                    <!-- Instructions -->
+                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                        <h5 class="font-semibold text-blue-900 mb-2 flex items-center">
+                                            <i class="fas fa-lightbulb mr-2"></i>Panduan Cepat
+                                        </h5>
+                                        <ul class="text-sm text-blue-800 space-y-1">
+                                            <li>• Download template Excel terlebih dahulu</li>
+                                            <li>• Isi data quiz sesuai format yang ada</li>
+                                            <li>• Satu quiz bisa memiliki banyak pertanyaan</li>
+                                            <li>• Upload file Excel yang sudah diisi</li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -436,6 +544,65 @@
     </style>
 
     <script>
+        // Util: compress image using Canvas
+        async function compressImageFile(file, { maxWidth = 1600, quality = 0.8 } = {}) {
+            if (!(file && file.type && file.type.startsWith('image/'))) return file;
+
+            // Skip tiny files (< 300KB) to save time
+            if (file.size < 300 * 1024) return file;
+
+            const bitmap = await createImageBitmap(file).catch(() => null);
+            if (!bitmap) return file;
+
+            let { width, height } = bitmap;
+            if (width > maxWidth) {
+                const ratio = maxWidth / width;
+                width = Math.round(width * ratio);
+                height = Math.round(height * ratio);
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width; canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(bitmap, 0, 0, width, height);
+
+            // Prefer JPEG for photos; keep PNG to preserve transparency
+            const targetType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, targetType, quality));
+            if (!blob) return file;
+            const newName = file.name.replace(/\.(png|jpg|jpeg|webp)$/i, targetType === 'image/png' ? '.png' : '.jpg');
+            return new File([blob], newName, { type: targetType, lastModified: Date.now() });
+        }
+
+        async function compressImageInputsIfNeeded(form) {
+            try {
+                const selectedType = (form.querySelector('input[name="type"]:checked') || {}).value;
+                if (selectedType !== 'image') return; // only for image content
+
+                // Handle single file_upload if it's an image
+                const single = form.querySelector('#file_upload');
+                if (single && single.files && single.files[0] && single.files[0].type.startsWith('image/')) {
+                    const compressed = await compressImageFile(single.files[0]);
+                    const dt = new DataTransfer();
+                    dt.items.add(compressed);
+                    single.files = dt.files;
+                }
+
+                // Handle multiple images[]
+                const multi = form.querySelector('#images');
+                if (multi && multi.files && multi.files.length) {
+                    const dt = new DataTransfer();
+                    for (const f of Array.from(multi.files)) {
+                        const cf = await compressImageFile(f);
+                        dt.items.add(cf);
+                    }
+                    multi.files = dt.files;
+                }
+            } catch (e) {
+                console.warn('Compression skipped due to error:', e);
+            }
+        }
         function submitCreateForm() {
             document.getElementById('contentForm').submit();
         }
@@ -474,20 +641,11 @@
                 document.getElementById('body_label').textContent = '📝 Isi Konten';
                 document.getElementById('body_hint').textContent = 'Gunakan editor untuk memformat teks dengan rich content';
                 
-                // Initialize summernote for text
+                // Initialize summernote for text with File Manager
                 setTimeout(() => {
-                    $('#body_text').summernote({
+                    initSummernoteWithFileManager('#body_text', {
                         height: 300,
-                        toolbar: [
-                            ['style', ['style']],
-                            ['font', ['bold', 'underline', 'clear']],
-                            ['fontname', ['fontname']],
-                            ['color', ['color']],
-                            ['para', ['ul', 'ol', 'paragraph']],
-                            ['table', ['table']],
-                            ['insert', ['link', 'picture', 'video']],
-                            ['view', ['fullscreen', 'help']]
-                        ]
+                        placeholder: 'Tulis konten pembelajaran di sini...'
                     });
                 }, 100);
 
@@ -527,6 +685,46 @@
             preview.classList.add('hidden');
         }
 
+        // Preview untuk multiple images
+        (function(){
+            const input = document.getElementById('images');
+            const container = document.getElementById('images_preview');
+            if (input && container) {
+                input.addEventListener('change', function() {
+                    container.innerHTML = '';
+                    const files = Array.from(this.files || []);
+                    files.slice(0, 20).forEach(file => {
+                        if (!file.type.startsWith('image/')) return;
+                        const url = URL.createObjectURL(file);
+                        const el = document.createElement('img');
+                        el.src = url;
+                        el.className = 'w-full h-32 object-cover rounded-lg border';
+                        container.appendChild(el);
+                    });
+                });
+            }
+        })();
+        // Preview untuk multiple documents (tampilkan nama file)
+        (function(){
+            const input = document.getElementById('documents');
+            const container = document.getElementById('documents_preview');
+            if (input && container) {
+                input.addEventListener('change', function() {
+                    container.innerHTML = '';
+                    const files = Array.from(this.files || []);
+                    files.slice(0, 20).forEach(file => {
+                        const row = document.createElement('div');
+                        row.className = 'flex items-center justify-between p-2 rounded border';
+                        const name = document.createElement('span');
+                        name.className = 'text-sm text-gray-700 truncate';
+                        name.textContent = file.name + ` (${Math.round(file.size/1024)} KB)`;
+                        row.appendChild(name);
+                        container.appendChild(row);
+                    });
+                });
+            }
+        })();
+
         function formatFileSize(bytes) {
             if (bytes === 0) return '0 Bytes';
             const k = 1024;
@@ -543,11 +741,63 @@
                 document.querySelector('input[name="type"][value="text"]').checked = true;
             }
             toggleContentTypeFields();
+
+            // Hook form submit for client-side compression
+            const form = document.getElementById('contentForm');
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    await compressImageInputsIfNeeded(form);
+                    form.submit();
+                });
+            }
         });
 
         // Add event listeners for radio buttons
         document.querySelectorAll('input[name="type"]').forEach(input => {
             input.addEventListener('change', toggleContentTypeFields);
         });
+
+        // Toggle quiz method (manual vs import)
+        function toggleQuizMethod() {
+            const method = document.querySelector('input[name="quiz_method"]:checked').value;
+            const manualFields = document.getElementById('manual_quiz_fields');
+            const importFields = document.getElementById('import_quiz_fields');
+
+            if (method === 'manual') {
+                manualFields.classList.remove('hidden');
+                importFields.classList.add('hidden');
+                // Clear excel file input
+                document.getElementById('quiz_excel_file').value = '';
+                document.getElementById('quiz_file_name').textContent = '';
+            } else {
+                manualFields.classList.add('hidden');
+                importFields.classList.remove('hidden');
+            }
+
+            // Update card styling
+            document.querySelectorAll('.quiz-method-card').forEach(card => {
+                card.classList.remove('border-orange-500', 'bg-orange-50', 'shadow-lg');
+            });
+            const selectedCard = document.querySelector('input[name="quiz_method"]:checked').parentElement.querySelector('.quiz-method-card');
+            selectedCard.classList.add('border-orange-500', 'bg-orange-50', 'shadow-lg');
+        }
+
+        // Update quiz file name display
+        function updateQuizFileName(input) {
+            const fileName = input.files[0]?.name;
+            const fileNameDisplay = document.getElementById('quiz_file_name');
+            if (fileName) {
+                fileNameDisplay.textContent = 'File terpilih: ' + fileName;
+                fileNameDisplay.classList.remove('text-gray-400');
+                fileNameDisplay.classList.add('text-orange-600', 'font-semibold');
+            }
+        }
     </script>
+
+    <style>
+        .quiz-method-card input:checked + div {
+            @apply border-orange-500 bg-orange-50 shadow-lg;
+        }
+    </style>
 </x-app-layout>

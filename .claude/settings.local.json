@@ -2,13 +2,18 @@
   "permissions": {
     "allow": [
       "Bash(php artisan route:list:*)",
-      "Bash(php artisan config:clear:*)",
       "Bash(php artisan view:clear:*)",
       "Bash(php:*)",
-      "Bash(grep:*)",
       "mcp__ide__getDiagnostics",
+      "Bash(powershell:*)",
+      "Bash(findstr \"upload_max_filesize\\|post_max_size\\|max_file_uploads\")",
+      "Read(//c/tools/php84/**)",
       "Bash(findstr:*)",
-      "Bash(powershell:*)"
+      "Bash(rm:*)",
+      "Bash(composer require:*)",
+      "Bash(NUL)",
+      "Bash(dir:*)",
+      "Bash(storage/logs/laravel.log)"
     ],
     "deny": [],
     "ask": []

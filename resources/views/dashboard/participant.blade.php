@@ -280,31 +280,7 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Quiz Performance -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-purple-500 dashboard-card hover-lift">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0">
-                                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 2h.01M9 8h.01M9 16h.01M12 16h.01M16 16h.01M16 8h.01"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-500">Kuis Lulus</p>
-                                <p class="text-2xl font-semibold text-gray-900 stat-number">{{ number_format($stats['quizzes']['passed']) }}</p>
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <div class="text-xs text-gray-600">
-                                dari {{ $stats['quizzes']['completed'] }} kuis selesai
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+                
                 <!-- Content Completed -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-orange-500 dashboard-card hover-lift">
                     <div class="p-6">
@@ -328,6 +304,36 @@
                         </div>
                     </div>
                 </div>
+
+                <a href="https://www.canva.com/design/DAG5HIUQIaU/VAbTGdpZDQvnnIVmqBGgjA/edit?utm_content=DAG5HIUQIaU&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton" target="_blank" class="block">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-purple-500 dashboard-card hover-lift cursor-pointer">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                                            <!-- ICON USER GUIDE (Book) -->
+                                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-lg font-semibold text-gray-900">User Guide</p>
+                                        <p class="text-sm text-gray-600">Panduan penggunaan aplikasi</p>
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <!-- ICON ARROW -->
+                                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
             </div>
 
             <!-- Main Content Grid -->
@@ -379,9 +385,16 @@
                                             </div>
                                         </div>
                                         <div class="flex justify-between items-center mt-4">
-                                            <a href="{{ route('courses.show', $course['id']) }}" class="text-green-600 hover:underline font-medium text-sm">
-                                                {{ $course['status'] === 'not_started' ? 'Mulai Belajar' : 'Lanjutkan Belajar' }}
-                                            </a>
+                                            <div class="flex items-center gap-4">
+                                                <a href="{{ route('courses.show', $course['id']) }}" 
+                                                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium text-sm rounded-lg transition-colors duration-200">
+                                                    {{ $course['status'] === 'not_started' ? 'Mulai Belajar' : 'Lanjutkan Belajar' }}
+                                                </a>
+                                                <a href="{{ route('courses.my-scores', $course['id']) }}" 
+                                                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg transition-colors duration-200">
+                                                    Nilai & Hasil
+                                                </a>
+                                            </div>
                                             
                                             @php
                                                 // Improved logic dengan error handling
@@ -432,7 +445,7 @@
                                                     </div>
                                                 @elseif($certificateButtonType === 'generate')
                                                     {{-- Eligible tapi belum generate --}}
-                                                    <a href="{{ route('certificates.create', $courseModel) }}" 
+                                                    <a href="{{ route('my-certificates.generate', $courseModel) }}"
                                                     class="px-3 py-1.5 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 text-xs font-semibold transition-colors duration-200"
                                                     title="Generate your certificate">
                                                         🎓 Cetak Sertifikat
@@ -458,22 +471,6 @@
                                 <p class="text-gray-600 mb-4">Anda belum terdaftar di kursus manapun.</p>
                             </div>
                             @endforelse
-                        </div>
-                    </div>
-
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-4">
-                        <div class="px-6 py-4 border-b border-gray-200">
-                            <h3 class="text-lg font-medium text-gray-900">Chat Room</h3>
-                        </div>
-                        <div class="p-6">
-                            <div class="space-y-4">
-                                <a href="{{ route('chat.index') }}" class="flex items-center w-full px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors hover-lift">
-                                    <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                                    </svg>
-                                    Chat & Diskusi Periode
-                                </a>
-                            </div>
                         </div>
                     </div>
 
@@ -543,6 +540,75 @@
                                     <span class="text-sm text-gray-600">Diskusi Dimulai</span>
                                     <span class="text-sm font-medium text-gray-900">{{ $stats['discussions']['started'] }}</span>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-4">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900">Chat Room</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <a href="{{ route('chat.index') }}" class="flex items-center w-full px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors hover-lift">
+                                    <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                    </svg>
+                                    Chat Private
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Token Enrollment Section -->
+                    <div class="mb-4">
+                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                            <div class="px-5 py-3">
+                                <div class="flex items-center">
+                                    <h3 class="text-lg font-medium text-gray-900">Gabung Kelas</h3>
+                                </div>
+                            </div>
+
+                            <div class="px-4 pb-3">
+                                <!-- Unified Token Form -->
+                                <form action="{{ route('enroll') }}" method="POST" class="w-full">
+                                    @csrf
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        <svg class="w-4 h-4 inline mr-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z">
+                                            </path>
+                                        </svg>
+                                        Token Pendaftaran
+                                    </label>
+
+                                    <div class="flex w-full overflow-hidden rounded-xl border border-gray-300 focus-within:ring-2 focus-within:ring-green-500 focus-within:border-green-500">
+                                        <input
+                                            type="text"
+                                            name="token"
+                                            placeholder="Masukkan token kelas"
+                                            maxlength="20"
+                                            required
+                                            class="flex-1 h-11 px-3 placeholder-gray-400 focus:outline-none" />
+                                        <button type="submit"
+                                            class="h-11 px-4 bg-green-600 hover:bg-green-700 text-white font-medium transition-colors duration-200 flex items-center justify-center">
+                                            <span class="sr-only">Gabung</span>
+                                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                                <path d="M13.172 12l-4.95-4.95 1.414-1.414L16 12l-6.364 6.364-1.414-1.414z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    @if($errors->has('token'))
+                                        <div class="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                                            <p class="text-sm text-red-600">{{ $errors->first('token') }}</p>
+                                        </div>
+                                    @endif
+
+                                    <p class="mt-2 text-xs text-gray-500">
+                                        Masukkan token yang diberikan admin untuk memasuki kelas
+                                    </p>
+                                </form>
                             </div>
                         </div>
                     </div>

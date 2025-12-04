@@ -2,12 +2,12 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
-                <a href="{{ route('courses.show', $course) }}"
+                <a href="javascript:void(0)" onclick="window.history.back()"
                    class="inline-flex items-center text-indigo-600 hover:text-indigo-800 text-sm font-medium mb-2 transition-colors duration-200">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
-                    {{ __('Kembali ke Kursus') }}
+                    {{ __('Kembali') }}
                 </a>
                 <h2 class="font-bold text-2xl text-gray-900 leading-tight">
                     {{ __('Edit Periode') }}
@@ -65,9 +65,9 @@
                                     Tanggal Mulai
                                     <span class="text-red-500">*</span>
                                 </label>
-                                <input type="datetime-local" name="start_date" id="start_date" 
-                                       value="{{ old('start_date', $period->start_date->format('Y-m-d\TH:i')) }}"
-                                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 bg-gray-50 focus:bg-white" 
+                                <input type="datetime-local" name="start_date" id="start_date"
+                                       value="{{ old('start_date', $period->start_date ? $period->start_date->format('Y-m-d\TH:i') : '') }}"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 bg-gray-50 focus:bg-white"
                                        required>
                                 @error('start_date')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -79,9 +79,9 @@
                                     Tanggal Selesai
                                     <span class="text-red-500">*</span>
                                 </label>
-                                <input type="datetime-local" name="end_date" id="end_date" 
-                                       value="{{ old('end_date', $period->end_date->format('Y-m-d\TH:i')) }}"
-                                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 bg-gray-50 focus:bg-white" 
+                                <input type="datetime-local" name="end_date" id="end_date"
+                                       value="{{ old('end_date', $period->end_date ? $period->end_date->format('Y-m-d\TH:i') : '') }}"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 bg-gray-50 focus:bg-white"
                                        required>
                                 @error('end_date')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>

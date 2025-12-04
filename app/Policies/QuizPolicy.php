@@ -16,9 +16,7 @@ class QuizPolicy
      */
     public function before(User $user, string $ability): bool|null
     {
-        if ($user->hasRole(['super-admin', 'admin'])) {
-            return true;
-        }
+        // Super-admin handled by Gate::before in AuthServiceProvider
         return null;
     }
 
@@ -31,21 +29,52 @@ class QuizPolicy
      */
     public function start(User $user, Quiz $quiz): bool
     {
+        // Users with full course management can start any quiz (e.g., reviewers)
+        if ($user->can('manage all courses')) {
+            return true;
+        }
+
+        // ✅ CRITICAL FIX: Force refresh lesson relationship from database
+        // Ini penting untuk quiz yang baru diduplikasi agar tidak menggunakan cached/stale data
+        $quiz->unsetRelation('lesson');
+        $quiz->load('lesson.course');
+
         // Pastikan kuis terhubung ke kursus
         if (!$quiz->lesson || !$quiz->lesson->course) {
+            \Log::warning('Quiz policy failed: Quiz not connected to lesson/course', [
+                'quiz_id' => $quiz->id,
+                'lesson_id' => $quiz->lesson_id,
+                'has_lesson' => !is_null($quiz->lesson),
+                'lesson_loaded' => $quiz->relationLoaded('lesson'),
+            ]);
             return false;
         }
 
         $course = $quiz->lesson->course;
 
-        // PERBAIKAN: Izinkan instruktur yang assigned ke course ini atau pemilik quiz
-        if ($user->hasRole('instructor')) {
-            return $quiz->user_id === $user->id || 
-                   $course->instructors()->where('user_id', $user->id)->exists();
-        }
+        // Check if user is enrolled in the course
+        $isEnrolled = $user->courses()->where('course_id', $course->id)->exists();
 
-        // Izinkan peserta jika terdaftar di kursus
-        return $user->courses()->where('course_id', $course->id)->exists();
+        // Instructors and quiz owners can preview (must also check if instructor of this course)
+        $isInstructor = $user->can('view quizzes') && (
+            $quiz->user_id === $user->id ||
+            $course->instructors()->where('user_id', $user->id)->exists()
+        );
+
+        // ✅ DEBUG: Log authorization decision
+        \Log::info('Quiz policy start() check', [
+            'user_id' => $user->id,
+            'quiz_id' => $quiz->id,
+            'quiz_lesson_id' => $quiz->lesson_id,
+            'lesson_id' => $quiz->lesson->id ?? null,
+            'course_id' => $course->id ?? null,
+            'is_enrolled' => $isEnrolled,
+            'is_instructor' => $isInstructor,
+            'result' => $isEnrolled || $isInstructor,
+        ]);
+
+        // Allow if enrolled OR is instructor
+        return $isEnrolled || $isInstructor;
     }
 
     /**
@@ -53,7 +82,7 @@ class QuizPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole(['instructor']);
+        return $user->can('view quizzes');
     }
 
     /**
@@ -61,6 +90,10 @@ class QuizPolicy
      */
     public function view(User $user, Quiz $quiz): bool
     {
+        // ✅ CRITICAL FIX: Force refresh lesson relationship
+        $quiz->unsetRelation('lesson');
+        $quiz->load('lesson.course');
+
         // Pastikan kuis terhubung ke kursus
         if (!$quiz->lesson || !$quiz->lesson->course) {
             return false;
@@ -68,14 +101,14 @@ class QuizPolicy
 
         $course = $quiz->lesson->course;
 
-        // PERBAIKAN: Instruktur bisa melihat quiz jika pemilik quiz atau assigned ke course ini
-        if ($user->hasRole('instructor')) {
+        // Instructors (by permission) can view if owner or assigned to course
+        if ($user->can('view quizzes')) {
             return $quiz->user_id === $user->id || 
                    $course->instructors()->where('user_id', $user->id)->exists();
         }
 
-        // Peserta bisa melihat kuis jika terdaftar di kursus.
-        if($user->hasRole('participant')){
+        // Participants can view if allowed to attempt and enrolled in course
+        if ($user->can('attempt quizzes')) {
             return $this->start($user, $quiz);
         }
 
@@ -87,7 +120,7 @@ class QuizPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole(['instructor']);
+        return $user->can('create quizzes');
     }
 
     /**
@@ -95,15 +128,22 @@ class QuizPolicy
      */
     public function update(User $user, Quiz $quiz): bool
     {
+        // ✅ CRITICAL FIX: Force refresh lesson relationship
+        $quiz->unsetRelation('lesson');
+        $quiz->load('lesson.course');
+
         // Pastikan kuis terhubung ke kursus
         if (!$quiz->lesson || !$quiz->lesson->course) {
-            return $user->hasRole('instructor') && $quiz->user_id === $user->id;
+            return $user->can('update quizzes') && $quiz->user_id === $user->id;
         }
 
         $course = $quiz->lesson->course;
 
-        // PERBAIKAN: Instruktur bisa update quiz jika pemilik quiz atau assigned ke course ini
-        return $user->hasRole('instructor') && 
+        // Update if permitted and either owner or assigned instructor
+        if ($user->can('manage all courses')) {
+            return true;
+        }
+        return $user->can('update quizzes') && 
                ($quiz->user_id === $user->id || 
                 $course->instructors()->where('user_id', $user->id)->exists());
     }
@@ -113,21 +153,31 @@ class QuizPolicy
      */
     public function delete(User $user, Quiz $quiz): bool
     {
+        // ✅ CRITICAL FIX: Force refresh lesson relationship
+        $quiz->unsetRelation('lesson');
+        $quiz->load('lesson.course');
+
         // Pastikan kuis terhubung ke kursus
         if (!$quiz->lesson || !$quiz->lesson->course) {
-            return $user->hasRole('instructor') && $quiz->user_id === $user->id;
+            return $user->can('delete quizzes') && $quiz->user_id === $user->id;
         }
 
         $course = $quiz->lesson->course;
 
-        // PERBAIKAN: Instruktur bisa delete quiz jika pemilik quiz atau assigned ke course ini
-        return $user->hasRole('instructor') && 
+        if ($user->can('manage all courses')) {
+            return true;
+        }
+        return $user->can('delete quizzes') && 
                ($quiz->user_id === $user->id || 
                 $course->instructors()->where('user_id', $user->id)->exists());
     }
 
     public function attempt(User $user, Quiz $quiz)
     {
+        // ✅ CRITICAL FIX: Force refresh lesson relationship
+        $quiz->unsetRelation('lesson');
+        $quiz->load('lesson.course');
+
         // Pastikan kuis terhubung ke kursus
         if (!$quiz->lesson || !$quiz->lesson->course) {
             return false;
@@ -135,8 +185,8 @@ class QuizPolicy
 
         $course = $quiz->lesson->course;
 
-        // Izinkan jika pengguna adalah peserta dan terdaftar di kursus ini
-        return $user->hasRole('participant') && 
+        // Allow if user has permission and is enrolled
+        return $user->can('attempt quizzes') && 
                $user->courses()->where('course_id', $course->id)->exists();
-    }
+}
 }

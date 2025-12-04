@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\Duplicateable; // Import Trait
+use App\Services\TokenGenerator;
 
 class Course extends Model
 {
@@ -17,12 +18,22 @@ class Course extends Model
         'thumbnail',
         'status',
         'certificate_template_id',
+        'enrollment_token',
+        'token_enabled',
+        'token_expires_at',
+        'token_type',
+    ];
+
+    protected $casts = [
+        'token_enabled' => 'boolean',
+        'token_expires_at' => 'datetime',
     ];
 
     /**
      * Define which relations to duplicate.
      * PERBAIKAN: Hanya duplikasi lessons, TIDAK duplikasi users (instructors, eventOrganizers, participants)
      * agar course duplikat tidak membawa data user dari course asli.
+     * Ini untuk kelas/batch baru dengan peserta baru.
      * @var array
      */
     protected $duplicateRelations = ['lessons'];
@@ -100,29 +111,41 @@ class Course extends Model
     // ========================================
 
     /**
-     * Course periods - one course can have multiple periods/batches
+     * Course classes - one course can have multiple classes
      */
+    public function classes()
+    {
+        return $this->hasMany(CourseClass::class)->orderBy('start_date');
+    }
+
+    // Alias for backward compatibility
     public function periods()
     {
-        return $this->hasMany(CoursePeriod::class)->orderBy('start_date');
+        return $this->classes();
     }
 
     /**
-     * Currently active period
+     * Currently active class
      */
-    public function activePeriod()
+    public function activeClass()
     {
-        return $this->hasOne(CoursePeriod::class)->where('status', 'active')
+        return $this->hasOne(CourseClass::class)->where('status', 'active')
             ->where('start_date', '<=', now())
             ->where('end_date', '>=', now());
     }
 
+    // Alias for backward compatibility
+    public function activePeriod()
+    {
+        return $this->activeClass();
+    }
+
     /**
-     * All chats related to this course through periods
+     * All chats related to this course through classes
      */
     public function chats()
     {
-        return $this->hasManyThrough(Chat::class, CoursePeriod::class);
+        return $this->hasManyThrough(Chat::class, CourseClass::class);
     }
 
     // ========================================
@@ -299,5 +322,115 @@ class Course extends Model
             }
         }
         return $count;
+    }
+
+    // ========================================
+    // TOKEN METHODS
+    // ========================================
+
+    /**
+     * Generate enrollment token (random or custom)
+     *
+     * @param string $type 'random' or 'custom'
+     * @param string|null $customToken Token kustom jika type = 'custom'
+     * @param int $length Panjang token jika type = 'random'
+     * @param string $format Format token: 'alphanumeric', 'numeric', 'alpha'
+     * @return array ['success' => bool, 'token' => string, 'message' => string]
+     */
+    public function generateEnrollmentToken(
+        string $type = 'random',
+        ?string $customToken = null,
+        int $length = 8,
+        string $format = 'alphanumeric'
+    ): array {
+        try {
+            if ($type === 'custom') {
+                if (empty($customToken)) {
+                    return [
+                        'success' => false,
+                        'token' => '',
+                        'message' => 'Custom token tidak boleh kosong'
+                    ];
+                }
+
+                $validation = TokenGenerator::validateUniqueCustomToken(
+                    static::class,
+                    $customToken,
+                    'enrollment_token',
+                    $this->id
+                );
+
+                if (!$validation['valid']) {
+                    return [
+                        'success' => false,
+                        'token' => $validation['token'],
+                        'message' => $validation['message']
+                    ];
+                }
+
+                $token = $validation['token'];
+            } else {
+                // Generate random token
+                $token = TokenGenerator::generateUniqueRandom(
+                    static::class,
+                    $length,
+                    $format,
+                    'enrollment_token'
+                );
+            }
+
+            $this->enrollment_token = $token;
+            $this->token_type = $type;
+            $this->token_enabled = true;
+            $this->save();
+
+            return [
+                'success' => true,
+                'token' => $token,
+                'message' => 'Token berhasil dibuat'
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'token' => '',
+                'message' => 'Gagal membuat token: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    public function disableToken(): void
+    {
+        $this->token_enabled = false;
+        $this->save();
+    }
+
+    public function isTokenValid(): bool
+    {
+        if (!$this->token_enabled || !$this->enrollment_token) {
+            return false;
+        }
+
+        if ($this->token_expires_at && $this->token_expires_at->isPast()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function validateToken(string $token): bool
+    {
+        return $this->enrollment_token === strtoupper($token) && $this->isTokenValid();
+    }
+
+    /**
+     * Get token type label
+     */
+    public function getTokenTypeLabel(): string
+    {
+        return match($this->token_type) {
+            'custom' => 'Custom',
+            'random' => 'Random',
+            default => 'Random',
+        };
     }
 }

@@ -1,36 +1,57 @@
 <?php
-// app/Models/CoursePeriod.php
+// app/Models/CourseClass.php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
+use App\Services\TokenGenerator;
 
-class CoursePeriod extends Model
+class CourseClass extends Model
 {
     use HasFactory;
+
+    protected $table = 'course_classes';
 
     protected $fillable = [
         'course_id',
         'name',
+        'class_code',
         'start_date',
         'end_date',
         'status',
         'description',
-        'max_participants'
+        'max_participants',
+        'enrollment_token',
+        'token_enabled',
+        'token_expires_at',
+        'token_type'
     ];
 
     protected $casts = [
         'start_date' => 'datetime',
         'end_date' => 'datetime',
+        'token_enabled' => 'boolean',
+        'token_expires_at' => 'datetime',
     ];
 
     // Auto-update status when saving
     protected static function booted()
     {
-        static::saving(function ($period) {
-            $period->updateStatusBasedOnDates();
+        static::saving(function ($class) {
+            // Auto-update status based on dates if dates exist
+            if ($class->start_date && $class->end_date) {
+                $class->updateStatusBasedOnDates();
+            }
+        });
+
+        static::creating(function ($class) {
+            // Auto-generate class_code if not provided
+            if (empty($class->class_code)) {
+                $class->class_code = strtoupper(Str::random(8));
+            }
         });
     }
 
@@ -50,12 +71,12 @@ class CoursePeriod extends Model
 
     public function instructors()
     {
-        return $this->belongsToMany(User::class, 'course_period_instructor');
+        return $this->belongsToMany(User::class, 'course_class_instructor');
     }
 
     public function participants()
     {
-        return $this->belongsToMany(User::class, 'course_period_user')->withPivot('feedback')->withTimestamps();
+        return $this->belongsToMany(User::class, 'course_class_user')->withPivot('feedback')->withTimestamps();
     }
 
     public function enrolledUsers()
@@ -107,6 +128,11 @@ class CoursePeriod extends Model
 
     public function isActive(): bool
     {
+        // If no dates set, rely on status only
+        if (!$this->start_date || !$this->end_date) {
+            return $this->status === 'active';
+        }
+
         return $this->status === 'active' &&
             $this->start_date <= now() &&
             $this->end_date >= now();
@@ -114,11 +140,21 @@ class CoursePeriod extends Model
 
     public function isUpcoming(): bool
     {
+        // If no start date set, rely on status only
+        if (!$this->start_date) {
+            return $this->status === 'upcoming';
+        }
+
         return $this->status === 'upcoming' && $this->start_date > now();
     }
 
     public function isCompleted(): bool
     {
+        // If no end date set, rely on status only
+        if (!$this->end_date) {
+            return $this->status === 'completed';
+        }
+
         return $this->status === 'completed' || $this->end_date < now();
     }
 
@@ -129,6 +165,11 @@ class CoursePeriod extends Model
 
     public function updateStatusBasedOnDates(): void
     {
+        // Don't auto-update status if dates are not set
+        if (!$this->start_date || !$this->end_date) {
+            return;
+        }
+
         $now = now();
 
         if ($now < $this->start_date) {
@@ -193,6 +234,10 @@ class CoursePeriod extends Model
 
     public function getDurationInDays(): int
     {
+        if (!$this->start_date || !$this->end_date) {
+            return 0;
+        }
+
         return $this->start_date->diffInDays($this->end_date);
     }
 
@@ -202,6 +247,120 @@ class CoursePeriod extends Model
             return 0;
         }
 
+        if (!$this->end_date) {
+            return 0;
+        }
+
         return now()->diffInDays($this->end_date, false);
+    }
+
+    // ========================================
+    // TOKEN METHODS
+    // ========================================
+
+    /**
+     * Generate enrollment token (random or custom)
+     *
+     * @param string $type 'random' or 'custom'
+     * @param string|null $customToken Token kustom jika type = 'custom'
+     * @param int $length Panjang token jika type = 'random'
+     * @param string $format Format token: 'alphanumeric', 'numeric', 'alpha'
+     * @return array ['success' => bool, 'token' => string, 'message' => string]
+     */
+    public function generateEnrollmentToken(
+        string $type = 'random',
+        ?string $customToken = null,
+        int $length = 8,
+        string $format = 'alphanumeric'
+    ): array {
+        try {
+            if ($type === 'custom') {
+                if (empty($customToken)) {
+                    return [
+                        'success' => false,
+                        'token' => '',
+                        'message' => 'Custom token tidak boleh kosong'
+                    ];
+                }
+
+                $validation = TokenGenerator::validateUniqueCustomToken(
+                    static::class,
+                    $customToken,
+                    'enrollment_token',
+                    $this->id
+                );
+
+                if (!$validation['valid']) {
+                    return [
+                        'success' => false,
+                        'token' => $validation['token'],
+                        'message' => $validation['message']
+                    ];
+                }
+
+                $token = $validation['token'];
+            } else {
+                // Generate random token
+                $token = TokenGenerator::generateUniqueRandom(
+                    static::class,
+                    $length,
+                    $format,
+                    'enrollment_token'
+                );
+            }
+
+            $this->enrollment_token = $token;
+            $this->token_type = $type;
+            $this->token_enabled = true;
+            $this->save();
+
+            return [
+                'success' => true,
+                'token' => $token,
+                'message' => 'Token berhasil dibuat'
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'token' => '',
+                'message' => 'Gagal membuat token: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    public function disableToken(): void
+    {
+        $this->token_enabled = false;
+        $this->save();
+    }
+
+    public function isTokenValid(): bool
+    {
+        if (!$this->token_enabled || !$this->enrollment_token) {
+            return false;
+        }
+
+        if ($this->token_expires_at && $this->token_expires_at->isPast()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function validateToken(string $token): bool
+    {
+        return $this->enrollment_token === strtoupper($token) && $this->isTokenValid();
+    }
+
+    /**
+     * Get token type label
+     */
+    public function getTokenTypeLabel(): string
+    {
+        return match($this->token_type) {
+            'custom' => 'Custom',
+            'random' => 'Random',
+            default => 'Random',
+        };
     }
 }

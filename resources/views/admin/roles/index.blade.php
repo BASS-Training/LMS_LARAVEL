@@ -16,6 +16,17 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="text-lg font-semibold">{{ __('Daftar Role') }}</div>
+                        <div class="flex gap-2">
+                            <form action="{{ route('admin.tools.permissions.refresh') }}" method="POST" onsubmit="return confirm('Refresh permission cache sekarang?');">
+                                @csrf
+                                <button type="submit" class="px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-sm">Refresh Permission Cache</button>
+                            </form>
+                            <a href="{{ route('admin.tools.roles.export') }}" class="px-3 py-2 bg-gray-100 text-gray-800 rounded hover:bg-gray-200 text-sm">Export Role Matrix</a>
+                        </div>
+                    </div>
+
                     @if (session('success'))
                         <div class="mb-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">{{ session('success') }}</div>
                     @endif
@@ -48,7 +59,7 @@
                                                 {{-- PERBAIKAN: Arahkan ke route edit yang benar --}}
                                                 <a href="{{ route('admin.roles.edit', $role) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
                                                 
-                                                @if (!in_array($role->name, ['super-admin', 'instructor', 'participant']))
+                                                @if (!in_array($role->name, ['super-admin', 'instructor', 'participant', 'event-organizer']))
                                                     {{-- PERBAIKAN: Arahkan ke route destroy yang benar --}}
                                                     <form action="{{ route('admin.roles.destroy', $role) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus peran ini?');">
                                                         @csrf

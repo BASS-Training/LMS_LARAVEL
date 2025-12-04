@@ -10,6 +10,8 @@ use App\Models\CoursePeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\ChatCreatedNotification;
 
 class ChatController extends Controller
 {
@@ -39,7 +41,13 @@ class ChatController extends Controller
             $chat->unread_count = 0; // Placeholder - implement based on your message read tracking
         });
 
-        return view('chat.index', compact('chats'));
+        $chatNotificationCount = 0;
+        try {
+            $types = [\App\Notifications\ChatMessageNotification::class, \App\Notifications\ChatCreatedNotification::class];
+            $chatNotificationCount = auth()->user()->unreadNotifications()->whereIn('type', $types)->count();
+        } catch (\Throwable $e) {}
+
+        return view('chat.index', compact('chats', 'chatNotificationCount'));
     }
 
     /**
@@ -59,6 +67,15 @@ class ChatController extends Controller
                     ->limit(50); // Load last 50 messages
             }
         ]);
+
+        // Mark chat message notifications for this chat as read
+        try {
+            $user = $request->user();
+            $user->unreadNotifications()
+                ->where('type', \App\Notifications\ChatMessageNotification::class)
+                ->whereJsonContains('data->chat_id', $chat->id)
+                ->update(['read_at' => now()]);
+        } catch (\Throwable $e) {}
 
         // If AJAX request, return JSON
         if ($request->wantsJson() || $request->ajax()) {
@@ -113,28 +130,28 @@ class ChatController extends Controller
                 'participant_ids' => ['required', 'array', 'min:1'],
                 'participant_ids.*' => ['exists:users,id'],
                 'name' => ['nullable', 'string', 'max:255'],
-                'course_period_id' => ['nullable', 'exists:course_periods,id']
+                'course_class_id' => ['nullable', 'exists:course_classes,id']
             ]);
             \Log::info('Validation passed');
 
             // Authorization check
             \Log::info('Checking authorization...');
-            if ($request->filled('course_period_id')) {
-                \Log::info('Checking course-specific permission for period: ' . $request->course_period_id);
+            if ($request->filled('course_class_id')) {
+                \Log::info('Checking course-specific permission for class: ' . $request->course_class_id);
 
                 // Debug course period
-                $coursePeriod = \App\Models\CoursePeriod::find($request->course_period_id);
-                if ($coursePeriod) {
-                    \Log::info('Course period found:', [
-                        'id' => $coursePeriod->id,
-                        'name' => $coursePeriod->name,
-                        'course_title' => $coursePeriod->course->title ?? 'No Course'
+                $courseClass = \App\Models\CourseClass::find($request->course_class_id);
+                if ($courseClass) {
+                    \Log::info('Course class found:', [
+                        'id' => $courseClass->id,
+                        'name' => $courseClass->name,
+                        'course_title' => $courseClass->course->title ?? 'No Course'
                     ]);
                 } else {
-                    \Log::error('Course period not found: ' . $request->course_period_id);
+                    \Log::error('Course class not found: ' . $request->course_class_id);
                 }
 
-                Gate::authorize('createForCoursePeriod', [Chat::class, $request->course_period_id]);
+                Gate::authorize('createForCourseClass', [Chat::class, $request->course_class_id]);
             } else {
                 \Log::info('Checking general create permission');
                 Gate::authorize('create', Chat::class);
@@ -151,7 +168,7 @@ class ChatController extends Controller
                 }
 
                 \Log::info('Checking if user can chat with: ' . $targetUser->name);
-                $canChat = auth()->user()->canChatWith($targetUser, $request->course_period_id);
+                $canChat = auth()->user()->canChatWith($targetUser, $request->course_class_id);
                 \Log::info('Can chat result: ' . ($canChat ? 'YES' : 'NO'));
 
                 if (!$canChat) {
@@ -171,7 +188,7 @@ class ChatController extends Controller
             $chatData = [
                 'name' => $request->name,
                 'type' => $request->type,
-                'course_period_id' => $request->course_period_id,
+                'course_class_id' => $request->course_class_id,
                 'created_by' => auth()->id(),
                 'is_active' => true // Make sure this is set
             ];
@@ -221,6 +238,17 @@ class ChatController extends Controller
 
             DB::commit();
             \Log::info('Database transaction committed');
+
+            // Notify participants (exclude creator)
+            try {
+                $recipientIds = $chat->participants()->pluck('users.id')->filter(fn($id) => (int)$id !== (int)auth()->id());
+                if ($recipientIds->isNotEmpty()) {
+                    $recipients = User::whereIn('id', $recipientIds)->get();
+                    if ($recipients->isNotEmpty()) {
+                        Notification::send($recipients, new ChatCreatedNotification($chat, auth()->user()));
+                    }
+                }
+            } catch (\Throwable $e) { \Log::warning('Chat notify error: '.$e->getMessage()); }
 
             // Load fresh data
             $chat->load(['participants:id,name', 'activeParticipants']);
@@ -303,18 +331,18 @@ class ChatController extends Controller
     public function availableUsers(Request $request)
     {
         $request->validate([
-            'course_period_id' => 'nullable|exists:course_periods,id',
+            'course_class_id' => 'nullable|exists:course_classes,id',
             'search' => 'nullable|string|max:100'
         ]);
 
-        $coursePeriodId = $request->get('course_period_id');
+        $courseClassId = $request->get('course_class_id');
         $search = $request->get('search');
 
         // Use the new method from User model
-        $users = auth()->user()->getAvailableUsersForChat($coursePeriodId, $search);
+        $users = auth()->user()->getAvailableUsersForChat($courseClassId, $search);
 
         // Add additional info untuk setiap user
-        $users = $users->map(function ($user) use ($coursePeriodId) {
+        $users = $users->map(function ($user) use ($courseClassId) {
             $userData = [
                 'id' => $user->id,
                 'name' => $user->name,
@@ -322,15 +350,15 @@ class ChatController extends Controller
             ];
 
             // Jika course period dipilih, tampilkan role user di course tersebut
-            if ($coursePeriodId) {
-                $coursePeriod = \App\Models\CoursePeriod::find($coursePeriodId);
-                if ($coursePeriod) {
+            if ($courseClassId) {
+                $courseClass = \App\Models\CourseClass::find($courseClassId);
+                if ($courseClass) {
                     // Cek role user di course ini
                     $userRole = 'participant'; // default
 
-                    if ($coursePeriod->course->instructors->contains($user->id)) {
+                    if ($courseClass->course->instructors->contains($user->id)) {
                         $userRole = 'instructor';
-                    } elseif ($coursePeriod->course->eventOrganizers->contains($user->id)) {
+                    } elseif ($courseClass->course->eventOrganizers->contains($user->id)) {
                         $userRole = 'organizer';
                     }
 
@@ -347,25 +375,68 @@ class ChatController extends Controller
 
 
     /**
-     * Get available course periods for chat creation
+     * Get available course classes for chat creation
      */
-    public function availableCoursePeriods(Request $request)
+    public function availableCourseClasses(Request $request)
     {
         // Use the new method from User model
-        $coursePeriods = auth()->user()->getAccessibleCoursePeriods();
+        $courseClasses = auth()->user()->getAccessibleCourseClasses();
 
-        $coursePeriods = $coursePeriods->map(function ($period) {
+        $courseClasses = $courseClasses->map(function ($class) {
             return [
-                'id' => $period->id,
-                'name' => $period->name,
-                'course_title' => $period->course->title ?? 'Unknown Course',
-                'display_name' => ($period->course->title ?? 'Unknown') . ' - ' . $period->name,
-                'start_date' => $period->start_date->format('Y-m-d'),
-                'end_date' => $period->end_date->format('Y-m-d')
+                'id' => $class->id,
+                'name' => $class->name,
+                'course_title' => $class->course->title ?? 'Unknown Course',
+                'display_name' => ($class->course->title ?? 'Unknown') . ' - ' . $class->name,
+                'start_date' => $class->start_date->format('Y-m-d'),
+                'end_date' => $class->end_date->format('Y-m-d')
             ];
         });
 
-        return response()->json($coursePeriods);
+        return response()->json($courseClasses);
+    }
+
+    /**
+     * Add participants to an existing chat (JSON)
+     */
+    public function addParticipants(Request $request, Chat $chat)
+    {
+        Gate::authorize('addParticipant', $chat);
+
+        $validated = $request->validate([
+            'participant_ids' => ['required', 'array', 'min:1'],
+            'participant_ids.*' => ['exists:users,id']
+        ]);
+
+        DB::transaction(function () use ($chat, $validated) {
+            $ids = collect($validated['participant_ids'])->map(fn($id) => (int) $id)->unique()->filter();
+            foreach ($ids as $id) {
+                if (!$chat->participants()->where('user_id', $id)->exists()) {
+                    $chat->participants()->attach($id, ['joined_at' => now(), 'is_active' => true]);
+                }
+            }
+            $chat->touch();
+        });
+
+        return response()->json(['message' => 'Participants added']);
+    }
+
+    /**
+     * Remove a participant from chat (JSON)
+     */
+    public function removeParticipant(Request $request, Chat $chat, User $user)
+    {
+        Gate::authorize('removeParticipant', $chat);
+
+        // Prevent removing self via this path; client should leave instead
+        if ($user->id === $request->user()->id) {
+            return response()->json(['message' => 'Use leave chat to remove yourself'], 422);
+        }
+
+        $chat->participants()->detach($user->id);
+        $chat->touch();
+
+        return response()->json(['message' => 'Participant removed']);
     }
 
 

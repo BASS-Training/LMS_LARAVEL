@@ -19,45 +19,32 @@ class CertificateController extends Controller
     {
         $user = Auth::user();
 
-        // Pastikan pengguna berhak mendapatkan sertifikat sebelum menampilkan form
+        // Pastikan pengguna berhak mendapatkan sertifikat
         if (!$user->isEligibleForCertificate($course)) {
             return redirect()->route('dashboard')->with('error', 'Anda belum memenuhi syarat untuk mendapatkan sertifikat di kursus ini.');
         }
 
-        // Cek apakah sertifikat sudah ada, jika ya, langsung arahkan ke halaman unduh
+        // Cek apakah sertifikat sudah ada
         if ($user->hasCertificateForCourse($course)) {
             $certificate = $user->getCertificateForCourse($course);
             return redirect()->route('certificates.download', $certificate);
         }
 
-        return view('certificates.create', compact('course'));
+        // Cek apakah data user sudah lengkap
+        if (!$user->date_of_birth || !$user->institution_name || !$user->gender || !$user->occupation) {
+            return redirect()->route('profile.edit')
+                ->with('error', 'Silakan lengkapi data profil Anda terlebih dahulu untuk mendapatkan sertifikat.');
+        }
+
+        // Langsung generate sertifikat tanpa form
+        return $this->generateCertificate($course);
     }
 
-    public function store(Request $request)
+    private function generateCertificate(Course $course)
     {
-        $request->validate([
-            'course_id' => 'required|exists:courses,id',
-            'place_of_birth' => 'required|string|max:255',
-            'date_of_birth' => 'required|date',
-            'identity_number' => 'required|string|max:255',
-            'institution_name' => 'required|string|max:255',
-        ]);
-
         $user = Auth::user();
-        $course = Course::findOrFail($request->course_id);
-
-        // Otorisasi sekali lagi untuk keamanan
-        if (!$user->isEligibleForCertificate($course)) {
-            return redirect()->route('dashboard')->with('error', 'Anda tidak diizinkan untuk melakukan tindakan ini.');
-        }
-
-        // Cek lagi untuk menghindari duplikasi
-        if ($user->hasCertificateForCourse($course)) {
-            $certificate = $user->getCertificateForCourse($course);
-            return redirect()->route('dashboard')->with('success', 'Sertifikat untuk kursus "' . $course->title . '" sudah tersedia. Anda dapat mengunduhnya dari <a href="' . route('certificates.index') . '" class="text-blue-600 hover:text-blue-800 underline">halaman sertifikat</a>.');
-        }
-
         $template = $course->certificateTemplate;
+
         if (!$template) {
             return redirect()->back()->with('error', 'Template sertifikat untuk kursus ini tidak ditemukan.');
         }
@@ -66,17 +53,18 @@ class CertificateController extends Controller
             // Generate kode unik sertifikat
             $certificateCode = Certificate::generateCertificateCode();
 
-            // Buat record sertifikat di database dengan data diri
+            // Buat record sertifikat dengan data dari user
             $certificate = Certificate::create([
                 'user_id' => $user->id,
                 'course_id' => $course->id,
                 'certificate_template_id' => $template->id,
                 'certificate_code' => $certificateCode,
                 'issued_at' => now(),
-                'place_of_birth' => $request->place_of_birth,
-                'date_of_birth' => $request->date_of_birth,
-                'identity_number' => $request->identity_number,
-                'institution_name' => $request->institution_name,
+                'date_of_birth' => $user->date_of_birth,
+                'institution_name' => $user->institution_name,
+                'gender' => $user->gender,
+                'email' => $user->email,
+                'occupation' => $user->occupation,
             ]);
 
             // Generate PDF menggunakan view render
@@ -498,8 +486,69 @@ class CertificateController extends Controller
                 ->whereYear('issued_at', now()->year)
                 ->count(),
         ];
+        
+        // Demographic & market analytics from certificate form fields
+        $genderStats = Certificate::selectRaw('gender, COUNT(*) as total')
+            ->whereNotNull('gender')
+            ->groupBy('gender')
+            ->pluck('total', 'gender');
 
-        return view('certificate-management.analytics', compact('analytics', 'monthlyStats', 'courseStats', 'templateStats'));
+        $dobCertificates = Certificate::whereNotNull('date_of_birth')->get(['date_of_birth']);
+        $ageGroups = [
+            '<=18' => 0,
+            '19-24' => 0,
+            '25-34' => 0,
+            '35-44' => 0,
+            '45-54' => 0,
+            '55+' => 0,
+        ];
+        foreach ($dobCertificates as $c) {
+            if (!$c->date_of_birth) continue;
+            $age = $c->date_of_birth->age;
+            if ($age <= 18) $ageGroups['<=18']++;
+            elseif ($age <= 24) $ageGroups['19-24']++;
+            elseif ($age <= 34) $ageGroups['25-34']++;
+            elseif ($age <= 44) $ageGroups['35-44']++;
+            elseif ($age <= 54) $ageGroups['45-54']++;
+            else $ageGroups['55+']++;
+        }
+
+        $topOccupations = Certificate::selectRaw('occupation, COUNT(*) as total')
+            ->whereNotNull('occupation')
+            ->where('occupation', '!=', '')
+            ->groupBy('occupation')
+            ->orderByDesc('total')
+            ->limit(10)
+            ->get();
+
+        $topInstitutions = Certificate::selectRaw('institution_name, COUNT(*) as total')
+            ->whereNotNull('institution_name')
+            ->where('institution_name', '!=', '')
+            ->groupBy('institution_name')
+            ->orderByDesc('total')
+            ->limit(10)
+            ->get();
+
+        $emails = Certificate::whereNotNull('email')->pluck('email');
+        $domainCounts = [];
+        foreach ($emails as $email) {
+            $parts = explode('@', strtolower(trim($email)));
+            if (count($parts) === 2) {
+                $domain = $parts[1];
+                $domainCounts[$domain] = ($domainCounts[$domain] ?? 0) + 1;
+            }
+        }
+        arsort($domainCounts);
+        $topEmailDomains = collect($domainCounts)
+            ->take(10)
+            ->map(function ($count, $domain) {
+                return ['domain' => $domain, 'total' => $count];
+            })->values();
+
+        return view('certificate-management.analytics', compact(
+            'analytics', 'monthlyStats', 'courseStats', 'templateStats',
+            'genderStats', 'ageGroups', 'topOccupations', 'topInstitutions', 'topEmailDomains'
+        ));
     }
 
     /**
@@ -527,6 +576,80 @@ class CertificateController extends Controller
     }
 
     /**
+     * Bulk download certificates as ZIP
+     */
+    public function bulkDownload(Request $request)
+    {
+        $request->validate([
+            'certificate_ids' => 'required|array',
+            'certificate_ids.*' => 'exists:certificates,id'
+        ]);
+
+        $certificates = Certificate::whereIn('id', $request->certificate_ids)
+            ->with(['user', 'course'])
+            ->get();
+
+        // Check if user can download all certificates
+        foreach ($certificates as $certificate) {
+            $this->authorize('view', $certificate);
+        }
+
+        // Create temporary directory for ZIP
+        $tempDir = storage_path('app/temp/certificates_' . uniqid());
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+
+        $zipFileName = 'certificates_' . now()->format('Y-m-d_His') . '.zip';
+        $zipFilePath = $tempDir . '/' . $zipFileName;
+
+        try {
+            $zip = new \ZipArchive();
+            if ($zip->open($zipFilePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+                throw new \Exception('Could not create ZIP file');
+            }
+
+            $addedFiles = 0;
+            foreach ($certificates as $certificate) {
+                if ($certificate->fileExists()) {
+                    $pdfPath = Storage::disk('public')->path($certificate->path);
+                    $fileName = 'Sertifikat-' .
+                        Str::slug($certificate->course->title) . '-' .
+                        Str::slug($certificate->user->name) . '-' .
+                        $certificate->certificate_code . '.pdf';
+
+                    if ($zip->addFile($pdfPath, $fileName)) {
+                        $addedFiles++;
+                    }
+                }
+            }
+
+            $zip->close();
+
+            if ($addedFiles === 0) {
+                // Clean up and return error
+                @unlink($zipFilePath);
+                @rmdir($tempDir);
+                return back()->with('error', 'Tidak ada file sertifikat yang valid untuk diunduh.');
+            }
+
+            // Download the ZIP file
+            return response()->download($zipFilePath, $zipFileName)->deleteFileAfterSend(true);
+
+        } catch (\Exception $e) {
+            Log::error("Bulk download failed: " . $e->getMessage());
+            // Clean up
+            if (file_exists($zipFilePath)) {
+                @unlink($zipFilePath);
+            }
+            if (file_exists($tempDir)) {
+                @rmdir($tempDir);
+            }
+            return back()->with('error', 'Gagal membuat file ZIP: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Bulk actions for certificates
      */
     public function bulkAction(Request $request)
@@ -534,10 +657,15 @@ class CertificateController extends Controller
         $this->authorize('update', Certificate::class);
 
         $request->validate([
-            'action' => 'required|in:delete,update_template',
+            'action' => 'required|in:delete,update_template,download',
             'certificate_ids' => 'required|array',
             'certificate_ids.*' => 'exists:certificates,id'
         ]);
+
+        // Handle download action separately (returns file download)
+        if ($request->action === 'download') {
+            return $this->bulkDownload($request);
+        }
 
         $certificates = Certificate::whereIn('id', $request->certificate_ids)->get();
 
@@ -647,7 +775,7 @@ class CertificateController extends Controller
 
             $certificate->update(['path' => $filePath]);
 
-            $message = $request->has('certificate_template_id') && $request->certificate_template_id 
+            $message = $request->has('certificate_template_id') && $request->certificate_template_id
                 ? 'Sertifikat berhasil diperbarui dengan template baru.'
                 : 'Sertifikat berhasil diperbarui dengan template terbaru.';
 
@@ -655,6 +783,112 @@ class CertificateController extends Controller
         } catch (\Exception $e) {
             \Log::error("Failed to update certificate template for {$certificate->id}: " . $e->getMessage());
             return back()->with('error', 'Gagal memperbarui sertifikat: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Start bulk download all certificates with filters (async)
+     */
+    public function downloadAll(Request $request)
+    {
+        $this->authorize('viewAny', Certificate::class);
+
+        $request->validate([
+            'course_id' => 'nullable|exists:courses,id',
+            'search' => 'nullable|string|max:255'
+        ]);
+
+        // Generate unique batch ID
+        $batchId = 'bulk_' . uniqid() . '_' . now()->timestamp;
+
+        // Dispatch job to handle the download in background
+        \App\Jobs\BulkDownloadCertificatesJob::dispatch(
+            $batchId,
+            $request->course_id,
+            $request->search
+        );
+
+        return response()->json([
+            'success' => true,
+            'batch_id' => $batchId,
+            'message' => 'Download sedang diproses. Harap tunggu...'
+        ]);
+    }
+
+    /**
+     * Check download status
+     */
+    public function downloadStatus($batchId)
+    {
+        $statusFile = storage_path('app/temp/download_status_' . $batchId . '.json');
+
+        if (!file_exists($statusFile)) {
+            return response()->json([
+                'status' => 'not_found',
+                'message' => 'Status tidak ditemukan'
+            ], 404);
+        }
+
+        $status = json_decode(file_get_contents($statusFile), true);
+
+        return response()->json($status);
+    }
+
+    /**
+     * Download the prepared ZIP file
+     */
+    public function downloadZip($batchId)
+    {
+        $this->authorize('viewAny', Certificate::class);
+
+        $statusFile = storage_path('app/temp/download_status_' . $batchId . '.json');
+
+        if (!file_exists($statusFile)) {
+            abort(404, 'Download tidak ditemukan');
+        }
+
+        $status = json_decode(file_get_contents($statusFile), true);
+
+        if ($status['status'] !== 'completed' || !isset($status['zip_path'])) {
+            abort(400, 'Download belum selesai atau gagal');
+        }
+
+        $zipPath = $status['zip_path'];
+
+        if (!file_exists($zipPath)) {
+            abort(404, 'File ZIP tidak ditemukan');
+        }
+
+        // Get the filename from path
+        $zipFileName = basename($zipPath);
+
+        // Download and schedule cleanup
+        return response()->download($zipPath, $zipFileName)->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Cleanup old download files (can be scheduled)
+     */
+    public function cleanupDownloads()
+    {
+        $tempDir = storage_path('app/temp');
+
+        if (!is_dir($tempDir)) {
+            return;
+        }
+
+        $files = glob($tempDir . '/*');
+        $now = time();
+        $maxAge = 3600; // 1 hour
+
+        foreach ($files as $file) {
+            if (is_file($file) && ($now - filemtime($file) > $maxAge)) {
+                @unlink($file);
+            } elseif (is_dir($file) && ($now - filemtime($file) > $maxAge)) {
+                // Remove directory and its contents
+                array_map('unlink', glob($file . '/*'));
+                @rmdir($file);
+            }
         }
     }
 }

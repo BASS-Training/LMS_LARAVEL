@@ -4,7 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Feedback;
-use App\Models\CoursePeriod;
+use App\Models\CourseClass;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -26,6 +26,12 @@ class User extends Authenticatable
         'email',
         'password',
         'role', // Keep for backward compatibility
+        'date_of_birth',
+        'institution_name',
+        'gender',
+        'occupation',
+        'phone',
+        'monthly_income',
     ];
 
     /**
@@ -48,6 +54,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'date_of_birth' => 'date',
         ];
     }
 
@@ -93,29 +100,47 @@ class User extends Authenticatable
     }
 
     /**
-     * Relasi ke periode sebagai instruktur
+     * Relasi ke kelas sebagai instruktur
      */
+    public function instructorClasses()
+    {
+        return $this->belongsToMany(CourseClass::class, 'course_class_instructor');
+    }
+
+    // Alias backward compatibility
     public function instructorPeriods()
     {
-        return $this->belongsToMany(CoursePeriod::class, 'course_period_instructor');
+        return $this->instructorClasses();
     }
 
     /**
-     * Relasi ke periode sebagai participant
+     * Relasi ke kelas sebagai participant
      */
+    public function participantClasses()
+    {
+        return $this->belongsToMany(CourseClass::class, 'course_class_user')->withPivot('feedback')->withTimestamps();
+    }
+
+    // Alias backward compatibility
     public function participantPeriods()
     {
-        return $this->belongsToMany(CoursePeriod::class, 'course_period_user')->withPivot('feedback')->withTimestamps();
+        return $this->participantClasses();
     }
 
     /**
-     * Get all periods where user is involved (either as instructor or participant)
+     * Get all classes where user is involved (either as instructor or participant)
      */
+    public function allClasses()
+    {
+        $instructorClasses = $this->instructorClasses()->get();
+        $participantClasses = $this->participantClasses()->get();
+        return $instructorClasses->merge($participantClasses)->unique('id');
+    }
+
+    // Alias backward compatibility
     public function allPeriods()
     {
-        $instructorPeriods = $this->instructorPeriods()->get();
-        $participantPeriods = $this->participantPeriods()->get();
-        return $instructorPeriods->merge($participantPeriods)->unique('id');
+        return $this->allClasses();
     }
 
     /**
@@ -131,6 +156,14 @@ class User extends Authenticatable
     public function contents()
     {
         return $this->completedContents();
+    }
+
+    /**
+     * Get attendances for this user
+     */
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
     }
 
     public function getProgressForCourse(Course $course): array
@@ -298,19 +331,17 @@ class User extends Authenticatable
      */
     public function managedCourses()
     {
-        if ($this->hasRole('super-admin')) {
+        if ($this->can('manage all courses')) {
             return Course::query();
         }
-
-        if ($this->hasRole('event-organizer')) {
-            return $this->eventOrganizedCourses();
-        }
-
-        if ($this->hasRole('instructor')) {
+        if ($this->can('manage own courses')) {
             return $this->taughtCourses();
         }
-
-        return Course::whereRaw('1 = 0'); // Empty query
+        // Treat EO capabilities as managed for reporting views
+        if ($this->can('view progress reports') || $this->can('view certificate management')) {
+            return $this->eventOrganizedCourses();
+        }
+        return Course::whereRaw('1 = 0');
     }
 
     /**
@@ -392,6 +423,36 @@ class User extends Authenticatable
      */
     public function hasCompletedContent(Content $content): bool
     {
+        if ($content->is_optional ?? false) {
+            return $this->completedContents()
+                ->where('content_id', $content->id)
+                ->wherePivot('completed', true)
+                ->exists();
+        }
+
+        // CHECK ATTENDANCE REQUIREMENT FOR SYNCHRONOUS CONTENT
+        if ($content->attendance_required) {
+            $attendance = $this->attendances()
+                ->where('content_id', $content->id)
+                ->first();
+
+            if (!$attendance) {
+                return false; // No attendance record = not completed
+            }
+
+            // Check if attendance meets minimum duration requirement
+            if ($content->min_attendance_minutes && $attendance->duration_minutes < $content->min_attendance_minutes) {
+                return false; // Didn't meet minimum duration
+            }
+
+            // Must be marked as present or excused
+            if (!in_array($attendance->status, ['present', 'excused'])) {
+                return false; // Absent or late = not completed
+            }
+
+            // Attendance requirement met, continue to check other completion criteria
+        }
+
         if ($content->type === 'quiz' && $content->quiz_id) {
             return $this->quizAttempts()
                 ->where('quiz_id', $content->quiz_id)
@@ -464,10 +525,16 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
+    public function courseClasses()
+    {
+        return $this->belongsToMany(CourseClass::class, 'course_class_user', 'user_id', 'course_class_id')
+            ->withTimestamps();
+    }
+
+    // Alias for backward compatibility
     public function coursePeriods()
     {
-        return $this->belongsToMany(CoursePeriod::class, 'course_period_participants', 'user_id', 'course_period_id')
-            ->withTimestamps();
+        return $this->courseClasses();
     }
 
     public function activeChats()
@@ -494,14 +561,14 @@ class User extends Authenticatable
             return false;
         }
 
-        // Admin can always chat with anyone
-        if ($this->hasRole('super-admin') || $targetUser->hasRole('super-admin')) {
+        // Managers can always chat with anyone
+        if ($this->can('manage all courses') || $targetUser->can('manage all courses')) {
             return true;
         }
 
         // If course period is specified, check course-specific permissions
         if ($coursePeriodId) {
-            $coursePeriod = \App\Models\CoursePeriod::find($coursePeriodId);
+            $coursePeriod = \App\Models\CourseClass::find($coursePeriodId);
             if (!$coursePeriod) {
                 return false;
             }
@@ -551,7 +618,7 @@ class User extends Authenticatable
             ->unique();
 
         // Get active periods for these courses
-        return CoursePeriod::whereIn('course_id', $allCourseIds)
+        return CourseClass::whereIn('course_id', $allCourseIds)
             ->active()
             ->pluck('id');
     }
@@ -561,7 +628,7 @@ class User extends Authenticatable
      */
     public function getAvailableChatUsers($search = null)
     {
-        if ($this->hasRole('super-admin')) {
+        if ($this->can('manage all courses')) {
             // Admin can chat with anyone
             $query = User::where('id', '!=', $this->id);
 
@@ -583,7 +650,7 @@ class User extends Authenticatable
         }
 
         // Get all users who are enrolled, instructors, or event organizers in the same course periods
-        $courseIds = CoursePeriod::whereIn('id', $activePeriods)->pluck('course_id')->unique();
+        $courseIds = CourseClass::whereIn('id', $activePeriods)->pluck('course_id')->unique();
 
         $query = User::where('id', '!=', $this->id)
             ->where(function ($q) use ($courseIds) {
@@ -619,23 +686,9 @@ class User extends Authenticatable
      */
     public function courseProgress(Course $course): float
     {
-        $allContents = $course->contents; // Mengambil semua konten dari relasi
-        $totalContents = $allContents->count();
+        $progressData = $this->getProgressForCourse($course);
 
-        if ($totalContents === 0) {
-            return 0;
-        }
-
-        $completedCount = 0;
-        foreach ($allContents as $content) {
-            // Gunakan method hasCompletedContent() yang sudah ada
-            // karena method tersebut sudah memeriksa semua jenis konten (biasa, kuis, esai)
-            if ($this->hasCompletedContent($content)) {
-                $completedCount++;
-            }
-        }
-
-        return round(($completedCount / $totalContents) * 100, 2);
+        return (float) ($progressData['progress_percentage'] ?? 0);
     }
 
     /**
@@ -652,6 +705,11 @@ class User extends Authenticatable
         }
 
         foreach ($itemsToGrade as $item) {
+            if ($item->is_optional ?? false) {
+                // Konten opsional tidak menghalangi progres atau sertifikasi
+                continue;
+            }
+
             if ($item->type == 'essay') {
                 $submission = $this->essaySubmissions()->where('content_id', $item->id)->first();
 
@@ -809,6 +867,15 @@ class User extends Authenticatable
 
     public function getContentStatus(Content $content): string
     {
+        if ($content->is_optional ?? false) {
+            return $this->completedContents()
+                ->where('content_id', $content->id)
+                ->wherePivot('completed', true)
+                ->exists()
+                ? 'completed'
+                : 'not_started';
+        }
+
         if ($content->type === 'quiz' && $content->quiz_id) {
             $passedAttempt = $this->quizAttempts()
                 ->where('quiz_id', $content->quiz_id)
@@ -892,7 +959,10 @@ class User extends Authenticatable
                 }
             }
         } else {
-            return $this->completedContents()->where('content_id', $content->id)->exists()
+            return $this->completedContents()
+                ->where('content_id', $content->id)
+                ->wherePivot('completed', true)
+                ->exists()
                 ? 'completed'
                 : 'not_started';
         }
@@ -943,31 +1013,25 @@ class User extends Authenticatable
 
         // Convert to model if ID is passed
         if (is_numeric($coursePeriod)) {
-            $coursePeriod = \App\Models\CoursePeriod::find($coursePeriod);
+            $coursePeriod = \App\Models\CourseClass::find($coursePeriod);
             if (!$coursePeriod) {
                 return false;
             }
         }
 
-        // Admin always has access
-        if ($this->hasRole('super-admin')) {
+        // Managers always have access
+        if ($this->can('manage all courses')) {
             return true;
         }
 
-        // Check if user is instructor of this course
-        if ($this->hasRole('instructor')) {
-            $isInstructor = $coursePeriod->course->instructors()->where('user_id', $this->id)->exists();
-            if ($isInstructor) {
-                return true;
-            }
+        // Check if user is instructor or organizer for this course
+        $isInstructor = $coursePeriod->course->instructors()->where('user_id', $this->id)->exists();
+        if ($isInstructor) {
+            return true;
         }
-
-        // Check if user is event organizer of this course
-        if ($this->hasRole('event-organizer')) {
-            $isEventOrganizer = $coursePeriod->course->eventOrganizers()->where('user_id', $this->id)->exists();
-            if ($isEventOrganizer) {
-                return true;
-            }
+        $isEventOrganizer = $coursePeriod->course->eventOrganizers()->where('user_id', $this->id)->exists();
+        if ($isEventOrganizer) {
+            return true;
         }
 
         // Check if user is participant in this course period
@@ -986,53 +1050,39 @@ class User extends Authenticatable
 
         $sharedIds = $myCoursePeriods->intersect($otherCoursePeriods);
 
-        return \App\Models\CoursePeriod::whereIn('id', $sharedIds)->with('course')->get();
+        return \App\Models\CourseClass::whereIn('id', $sharedIds)->with('course')->get();
     }
 
     /**
      * Check if user has access to course periods (for chat creation)
      */
-    public function getAccessibleCoursePeriods()
+    public function getAccessibleCourseClasses()
     {
-        // Admin can see all course periods
-        if ($this->hasRole('super-admin')) {
-            return \App\Models\CoursePeriod::with('course')->get();
+        // Managers can see all course periods
+        if ($this->can('manage all courses')) {
+            return \App\Models\CourseClass::with('course')->get();
         }
 
-        $coursePeriodIds = collect();
+        // Return all course classes related to user's courses (any role)
+        $instructorCourseIds = $this->taughtCourses()->pluck('course_id');
+        $eoCourseIds = $this->eventOrganizedCourses()->pluck('course_id');
+        $enrolledCourseIds = $this->courses()->pluck('course_id');
+        $allCourseIds = $instructorCourseIds->merge($eoCourseIds)->merge($enrolledCourseIds)->unique();
 
-        // Get course periods where user is instructor
-        if ($this->hasRole('instructor')) {
-            $instructorCourseIds = $this->taughtCourses()->pluck('course_id');
-            $instructorPeriods = \App\Models\CoursePeriod::whereIn('course_id', $instructorCourseIds)->pluck('id');
-            $coursePeriodIds = $coursePeriodIds->merge($instructorPeriods);
-        }
-
-        // Get course periods where user is event organizer
-        if ($this->hasRole('event-organizer')) {
-            $eoCourseIds = $this->eventOrganizedCourses()->pluck('course_id');
-            $eoPeriods = \App\Models\CoursePeriod::whereIn('course_id', $eoCourseIds)->pluck('id');
-            $coursePeriodIds = $coursePeriodIds->merge($eoPeriods);
-        }
-
-        // Get course periods where user is participant
-        // ✅ FIXED: Use correct relationship
-        if ($this->hasRole('participant')) {
-            // Assuming participants are enrolled in courses, then check active periods for those courses
-            $enrolledCourseIds = $this->courses()->pluck('course_id');
-            $participantPeriods = \App\Models\CoursePeriod::whereIn('course_id', $enrolledCourseIds)->pluck('id');
-            $coursePeriodIds = $coursePeriodIds->merge($participantPeriods);
-        }
-
-        // Return unique course periods
-        return \App\Models\CoursePeriod::whereIn('id', $coursePeriodIds->unique())
+        return \App\Models\CourseClass::whereIn('course_id', $allCourseIds)
             ->with('course')
             ->get();
     }
 
+    // Alias for backward compatibility
+    public function getAccessibleCoursePeriods()
+    {
+        return $this->getAccessibleCourseClasses();
+    }
+
     public function getAvailableUsersForChat($coursePeriodId = null, $search = null)
     {
-        if ($this->hasRole('super-admin')) {
+        if ($this->can('manage all courses')) {
             // Admin can chat with anyone
             $query = User::where('id', '!=', $this->id);
 
@@ -1048,7 +1098,7 @@ class User extends Authenticatable
 
         // If specific course period is selected
         if ($coursePeriodId) {
-            $coursePeriod = \App\Models\CoursePeriod::find($coursePeriodId);
+            $coursePeriod = \App\Models\CourseClass::find($coursePeriodId);
             if (!$coursePeriod) {
                 return collect();
             }
@@ -1071,7 +1121,7 @@ class User extends Authenticatable
             $userIds = $userIds->merge($organizerUserIds);
 
             // ✅ NEW: Also include super-admins (they can join any chat)
-            $adminUserIds = User::role('super-admin')->pluck('id');
+            $adminUserIds = User::permission('manage all courses')->pluck('id');
             $userIds = $userIds->merge($adminUserIds);
 
             // Remove current user and get unique IDs
@@ -1115,7 +1165,7 @@ class User extends Authenticatable
 
         if ($courseIds->isEmpty()) {
             // If user has no courses, only allow chat with admins
-            $userIds = User::role('super-admin')->pluck('id');
+            $userIds = User::permission('manage all courses')->pluck('id');
         } else {
             // Get all users from user's courses
             $userIds = collect();
@@ -1132,7 +1182,7 @@ class User extends Authenticatable
             }
 
             // Also include super-admins
-            $adminUserIds = User::role('super-admin')->pluck('id');
+            $adminUserIds = User::permission('manage all courses')->pluck('id');
             $userIds = $userIds->merge($adminUserIds);
         }
 
@@ -1159,6 +1209,10 @@ class User extends Authenticatable
 
     public function sendPasswordResetNotification($token)
     {
-        $this->notify(new CustomResetPasswordNotification($token));
+        if (app()->environment('testing')) {
+            $this->notify(new \Illuminate\Auth\Notifications\ResetPassword($token));
+        } else {
+            $this->notify(new CustomResetPasswordNotification($token));
+        }
     }
 }

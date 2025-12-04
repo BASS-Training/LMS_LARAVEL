@@ -40,10 +40,17 @@
                 <h1 class="text-2xl font-bold text-gray-900">{{ $period->name }}</h1>
                 <p class="mt-1 text-sm text-gray-600">{{ $course->title }}</p>
                 <div class="mt-2 flex items-center space-x-4">
-                    <span class="text-sm text-gray-500">
-                        <i class="fas fa-calendar mr-1"></i>
-                        {{ $period->start_date->format('d M Y') }} - {{ $period->end_date->format('d M Y') }}
-                    </span>
+                    @if($period->start_date && $period->end_date)
+                        <span class="text-sm text-gray-500">
+                            <i class="fas fa-calendar mr-1"></i>
+                            {{ $period->start_date->format('d M Y') }} - {{ $period->end_date->format('d M Y') }}
+                        </span>
+                    @else
+                        <span class="text-sm text-gray-500 italic">
+                            <i class="fas fa-calendar mr-1"></i>
+                            Tanggal belum ditentukan
+                        </span>
+                    @endif
                     <span>{!! $period->status_badge !!}</span>
                     @if($period->max_participants)
                     <span class="text-sm text-gray-500">
@@ -59,10 +66,10 @@
                     <i class="fas fa-edit mr-2"></i>
                     Edit Periode
                 </a>
-                <a href="{{ route('courses.show', $course) }}" 
+                <a href="javascript:void(0)" onclick="window.history.back()"
                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
                     <i class="fas fa-arrow-left mr-2"></i>
-                    Kembali ke Kursus
+                    Kembali
                 </a>
             </div>
         </div>

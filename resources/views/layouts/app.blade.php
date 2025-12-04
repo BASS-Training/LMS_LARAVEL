@@ -145,8 +145,8 @@
                                 </a>
                             @endcan
 
-                            {{-- Menu khusus Super Admin sebagai Dropdown --}}
-                            @role('super-admin')
+                            {{-- Menu Admin berbasis izin --}}
+                            @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management'])
                                 <div class="hidden sm:flex sm:items-center" x-data="{ adminOpen: false }">
                                     <div class="relative">
                                         <button @click="adminOpen = ! adminOpen" 
@@ -180,6 +180,11 @@
                                                    class="dropdown-item-custom">
                                                     {{ __('Manajemen Pengumuman') }}
                                                 </a>
+                                                <a href="{{ route('admin.participants.index') }}" 
+                                                   class="dropdown-item-custom">
+                                                    {{ __('Analitik Peserta') }}
+                                                </a>
+                                                <div class="border-t my-1"></div>
                                                 <a href="{{ route('admin.certificate-templates.index') }}" 
                                                    class="dropdown-item-custom">
                                                     {{ __('Certificate Template') }}
@@ -188,11 +193,29 @@
                                                     class="dropdown-item-custom">
                                                     {{ __('Manajemen Sertifikat') }}
                                                 </a>
+                                                <div class="border-t my-1"></div>
+                                                <a href="{{ route('admin.auto-grade.index') }}" 
+                                                   class="dropdown-item-custom">
+                                                    {{ __('Penyelesaian Penilaian Otomatis') }}
+                                                </a>
+                                                <a href="{{ route('admin.force-complete.index') }}" 
+                                                   class="dropdown-item-custom">
+                                                    {{ __('Force Complete Konten') }}
+                                                </a>
+                                                <div class="border-t my-1"></div>
+                                                <a href="{{ route('file-control.index') }}"
+                                                    class="dropdown-item-custom">
+                                                    {{ __('File Manager') }}
+                                                </a>
+                                                <a href="{{ route('activity-logs.index') }}"
+                                                    class="dropdown-item-custom">
+                                                    {{ __('Log') }}
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            @endrole
+                            @endcanany
                         </div>
                     </div>
 
@@ -280,7 +303,7 @@
                         </a>
                     @endcan
 
-                    @role('super-admin')
+                    @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management'])
                         <div class="pt-4 pb-1 border-t border-gray-200">
                             <div class="px-4">
                                 <div class="font-semibold text-base text-gray-800">Admin Menu</div>
@@ -306,9 +329,25 @@
                                     class="responsive-nav-link-custom">
                                     {{ __('Manajemen Sertifikat') }}
                                 </a>
+                                <a href="{{ route('admin.auto-grade.index') }}" 
+                                   class="responsive-nav-link-custom">
+                                    {{ __('Penyelesaian Penilaian Otomatis') }}
+                                </a>
+                                <a href="{{ route('admin.force-complete.index') }}" 
+                                   class="responsive-nav-link-custom">
+                                    {{ __('Force Complete Konten') }}
+                                </a>
+                                <a href="{{ route('file-control.index') }}"
+                                    class="responsive-nav-link-custom">
+                                    {{ __('File Manager') }}
+                                </a>
+                                <a href="{{ route('activity-logs.index') }}"
+                                    class="responsive-nav-link-custom">
+                                    {{ __('Log') }}
+                                </a>
                             </div>
                         </div>
-                    @endrole
+                    @endcanany
                 </div>
 
                 {{-- Mobile User Menu --}}
