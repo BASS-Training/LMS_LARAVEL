@@ -25,6 +25,10 @@ class ForceCompleteController extends Controller
     {
         $this->authorize('viewAny', Course::class);
 
+        // Batasi jumlah data per halaman agar halaman tetap ringan
+        $perPage = (int) $request->get('per_page', 50);
+        $perPage = max(10, min($perPage, 200));
+
         // Ambil daftar kursus minimal (id, title) untuk dropdown agar ringan
         $courses = Course::query()->select('id', 'title')->orderBy('title')->get();
         $selectedCourse = null;
@@ -45,6 +49,7 @@ class ForceCompleteController extends Controller
                 $allContentIds = $allContents->pluck('id');
                 $quizIds = $allContents->where('type', 'quiz')->pluck('quiz_id')->filter();
                 $essayContentIds = $allContents->where('type', 'essay')->pluck('id');
+                $regularContentIds = $allContents->whereNotIn('type', ['quiz', 'essay'])->pluck('id');
 
                 // Preload jumlah pertanyaan essay per content untuk evaluasi cepat
                 $essayQuestionCounts = \App\Models\EssayQuestion::whereIn('content_id', $essayContentIds)
@@ -52,99 +57,168 @@ class ForceCompleteController extends Controller
                     ->groupBy('content_id')
                     ->pluck('qcount', 'content_id');
 
-                // Ambil peserta dengan eager loading data terkait kursus ini saja
-                $participantsCollection = $selectedCourse->enrolledUsers()
+                // Ambil peserta dengan pagination agar request ringan
+                $participantsPaginator = $selectedCourse->enrolledUsers()
                     ->select('users.id', 'users.name', 'users.email')
-                    ->with([
-                        'completedContents' => function ($q) use ($allContentIds) {
-                            $q->whereIn('content_id', $allContentIds);
-                        },
-                        'quizAttempts' => function ($q) use ($quizIds) {
-                            if ($quizIds->isNotEmpty()) {
-                                $q->whereIn('quiz_id', $quizIds);
-                            } else {
-                                $q->whereRaw('1=0');
-                            }
-                        },
-                        'essaySubmissions' => function ($q) use ($essayContentIds) {
-                            if ($essayContentIds->isNotEmpty()) {
-                                $q->whereIn('content_id', $essayContentIds)
-                                  ->with(['answers:id,submission_id,question_id,score,feedback', 'content:id,scoring_enabled,grading_mode,requires_review']);
-                            } else {
-                                $q->whereRaw('1=0');
-                            }
-                        },
-                    ])
-                    ->get();
+                    ->orderBy('users.name')
+                    ->paginate($perPage)
+                    ->withQueryString();
 
-                // Hitung progres per peserta tanpa N+1 query
-                $participants = $participantsCollection->map(function ($user) use ($allContents, $totalContents, $essayQuestionCounts) {
-                    $completed = 0;
+                // Jika ada peserta di halaman ini, hitung progres dengan query agregasi
+                if ($participantsPaginator->count() > 0) {
+                    $participantIds = $participantsPaginator->getCollection()->pluck('id');
 
-                    foreach ($allContents as $content) {
-                        $isCompleted = false;
+                    // Map content completion untuk konten non-quiz/non-essay
+                    $completedContentMap = DB::table('content_user')
+                        ->whereIn('content_id', $regularContentIds)
+                        ->whereIn('user_id', $participantIds)
+                        ->where('completed', true)
+                        ->select('user_id', 'content_id')
+                        ->get()
+                        ->groupBy('user_id')
+                        ->map(function ($rows) {
+                            return array_fill_keys($rows->pluck('content_id')->all(), true);
+                        })
+                        ->toArray();
 
-                        if ($content->type === 'quiz' && $content->quiz_id) {
-                            $isCompleted = $user->quizAttempts->firstWhere(function ($att) use ($content) {
-                                return $att->quiz_id == $content->quiz_id && $att->passed === true;
-                            }) ? true : false;
-                        } elseif ($content->type === 'essay') {
-                            $submission = $user->essaySubmissions->firstWhere('content_id', $content->id);
-                            if ($submission) {
-                                $answers = $submission->answers;
-                                $totalQuestions = (int)($essayQuestionCounts[$content->id] ?? 0);
-                                $requiresReview = ($submission->content->requires_review ?? true) ? true : false;
-                                $scoringEnabled = $submission->content->scoring_enabled ?? true;
-                                $gradingMode = $submission->content->grading_mode ?? 'individual';
+                    // Map quiz attempts yang sudah lulus
+                    $quizPassedMap = [];
+                    if ($quizIds->isNotEmpty()) {
+                        $quizPassedMap = DB::table('quiz_attempts')
+                            ->whereIn('quiz_id', $quizIds)
+                            ->whereIn('user_id', $participantIds)
+                            ->where('passed', true)
+                            ->select('user_id', 'quiz_id')
+                            ->get()
+                            ->groupBy('user_id')
+                            ->map(function ($rows) {
+                                return array_fill_keys($rows->pluck('quiz_id')->unique()->all(), true);
+                            })
+                            ->toArray();
+                    }
 
-                                if ($totalQuestions === 0) {
-                                    $isCompleted = $answers->count() > 0;
-                                } elseif (!$requiresReview) {
-                                    $isCompleted = $answers->count() > 0;
-                                } else {
-                                    if (!$scoringEnabled) {
-                                        if ($gradingMode === 'overall') {
-                                            $isCompleted = $answers->whereNotNull('feedback')->count() > 0;
-                                        } else {
-                                            $isCompleted = $answers->whereNotNull('feedback')->count() >= $totalQuestions;
-                                        }
-                                    } else {
-                                        if ($gradingMode === 'overall') {
-                                            $isCompleted = $answers->whereNotNull('score')->count() > 0;
-                                        } else {
-                                            $isCompleted = $answers->whereNotNull('score')->count() >= $totalQuestions;
-                                        }
-                                    }
-                                }
-                            } else {
-                                $isCompleted = false;
-                            }
-                        } else {
-                            $isCompleted = $user->completedContents->contains(function ($c) use ($content) {
-                                return $c->id === $content->id && ($c->pivot->completed ?? false);
+                    // Map status essay completion per user-content
+                    $essayCompletionMap = [];
+                    if ($essayContentIds->isNotEmpty()) {
+                        $essaySubmissions = DB::table('essay_submissions as es')
+                            ->join('contents as c', 'c.id', '=', 'es.content_id')
+                            ->whereIn('es.content_id', $essayContentIds)
+                            ->whereIn('es.user_id', $participantIds)
+                            ->select(
+                                'es.id',
+                                'es.user_id',
+                                'es.content_id',
+                                'es.status',
+                                'es.graded_at',
+                                'c.scoring_enabled',
+                                'c.grading_mode',
+                                'c.requires_review'
+                            )
+                            ->get();
+
+                        $answerCounts = DB::table('essay_answers as ea')
+                            ->join('essay_submissions as es', 'es.id', '=', 'ea.submission_id')
+                            ->whereIn('es.user_id', $participantIds)
+                            ->whereIn('es.content_id', $essayContentIds)
+                            ->select(
+                                'es.user_id',
+                                'es.content_id',
+                                DB::raw('COUNT(*) as total_answers'),
+                                DB::raw('SUM(CASE WHEN ea.score IS NOT NULL THEN 1 ELSE 0 END) as scored_answers'),
+                                DB::raw('SUM(CASE WHEN ea.feedback IS NOT NULL AND ea.feedback <> \'\' THEN 1 ELSE 0 END) as feedback_answers')
+                            )
+                            ->groupBy('es.user_id', 'es.content_id')
+                            ->get()
+                            ->keyBy(function ($row) {
+                                return $row->user_id . '_' . $row->content_id;
                             });
-                        }
 
-                        if ($isCompleted) {
-                            $completed++;
+                        foreach ($essaySubmissions as $submission) {
+                            $key = $submission->user_id . '_' . $submission->content_id;
+                            $counts = $answerCounts[$key] ?? null;
+
+                            $totalQuestions = (int)($essayQuestionCounts->get($submission->content_id, 0));
+                            $requiresReview = ($submission->requires_review ?? true) ? true : false;
+                            $scoringEnabled = $submission->scoring_enabled ?? true;
+                            $gradingMode = $submission->grading_mode ?? 'individual';
+
+                            $totalAnswers = $counts->total_answers ?? 0;
+                            $scoredAnswers = $counts->scored_answers ?? 0;
+                            $feedbackAnswers = $counts->feedback_answers ?? 0;
+
+                            $isCompleted = false;
+                            if ($totalQuestions === 0) {
+                                $isCompleted = $totalAnswers > 0;
+                            } elseif (!$requiresReview) {
+                                $isCompleted = $totalAnswers > 0;
+                            } else {
+                                if (!$scoringEnabled) {
+                                    $isCompleted = $gradingMode === 'overall'
+                                        ? $feedbackAnswers > 0
+                                        : $feedbackAnswers >= $totalQuestions;
+                                } else {
+                                    $isCompleted = $gradingMode === 'overall'
+                                        ? $scoredAnswers > 0
+                                        : $scoredAnswers >= $totalQuestions;
+                                }
+                            }
+
+                            $essayCompletionMap[$submission->user_id][$submission->content_id] = $isCompleted;
                         }
                     }
 
-                    $percentage = $totalContents > 0 ? round(($completed / $totalContents) * 100, 2) : 0;
+                    // Transform collection dengan progres yang sudah dihitung
+                    $participantsPaginator->setCollection(
+                        $participantsPaginator->getCollection()->transform(function ($user) use (
+                            $allContents,
+                            $totalContents,
+                            $completedContentMap,
+                            $quizPassedMap,
+                            $essayCompletionMap
+                        ) {
+                            $completed = 0;
 
-                    return [
-                        'user' => $user,
-                        'progress' => [
-                            'progress_percentage' => $percentage,
-                            'completed_count' => $completed,
-                            'total_count' => $totalContents,
-                        ],
-                    ];
-                });
+                            foreach ($allContents as $content) {
+                                $isCompleted = false;
+
+                                if ($content->type === 'quiz' && $content->quiz_id) {
+                                    $quizPassed = $quizPassedMap[$user->id] ?? [];
+                                    $isCompleted = isset($quizPassed[$content->quiz_id]);
+                                } elseif ($content->type === 'essay') {
+                                    $isCompleted = $essayCompletionMap[$user->id][$content->id] ?? false;
+                                } else {
+                                    $completedContents = $completedContentMap[$user->id] ?? [];
+                                    $isCompleted = isset($completedContents[$content->id]);
+                                }
+
+                                if ($isCompleted) {
+                                    $completed++;
+                                }
+                            }
+
+                            $percentage = $totalContents > 0 ? round(($completed / $totalContents) * 100, 2) : 0;
+
+                            return [
+                                'user' => $user,
+                                'progress' => [
+                                    'progress_percentage' => $percentage,
+                                    'completed_count' => $completed,
+                                    'total_count' => $totalContents,
+                                ],
+                            ];
+                        })
+                    );
+                }
+
+                $participants = $participantsPaginator;
             }
         }
 
-        return view('admin.force-complete.index', compact('courses', 'selectedCourse', 'participants'));
+        $totalParticipants = ($participants instanceof \Illuminate\Pagination\LengthAwarePaginator)
+            ? $participants->total()
+            : ($participants ? $participants->count() : 0);
+
+        return view('admin.force-complete.index', compact('courses', 'selectedCourse', 'participants', 'perPage', 'totalParticipants'));
     }
 
     /**

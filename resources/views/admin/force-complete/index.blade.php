@@ -9,16 +9,27 @@
 
         <!-- Course Selection Form -->
         <form method="GET" action="{{ route('admin.force-complete.index') }}" class="mb-6">
-            <div class="mb-4">
-                <label for="course_id" class="block text-sm font-medium text-gray-700 mb-2">Pilih Kursus</label>
-                <select id="course_id" name="course_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                    <option value="">-- Pilih Kursus --</option>
-                    @foreach($courses as $course)
-                        <option value="{{ $course->id }}" {{ (isset($selectedCourse) && $selectedCourse && $selectedCourse->id == $course->id) ? 'selected' : '' }}>
-                            {{ $course->title }}
-                        </option>
-                    @endforeach
-                </select>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="course_id" class="block text-sm font-medium text-gray-700 mb-2">Pilih Kursus</label>
+                    <select id="course_id" name="course_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        <option value="">-- Pilih Kursus --</option>
+                        @foreach($courses as $course)
+                            <option value="{{ $course->id }}" {{ (isset($selectedCourse) && $selectedCourse && $selectedCourse->id == $course->id) ? 'selected' : '' }}>
+                                {{ $course->title }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="per_page" class="block text-sm font-medium text-gray-700 mb-2">Jumlah peserta per halaman</label>
+                    <select id="per_page" name="per_page" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        @foreach([25, 50, 100, 200] as $size)
+                            <option value="{{ $size }}" {{ ($perPage ?? 50) == $size ? 'selected' : '' }}>{{ $size }} peserta</option>
+                        @endforeach
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Batasi data di setiap halaman agar load page tetap ringan.</p>
+                </div>
             </div>
 
             <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
@@ -77,7 +88,12 @@
                         <input type="checkbox" id="selectAll" class="mr-2">
                         <span class="text-sm font-medium text-gray-700">Pilih Semua</span>
                     </label>
-                    <span class="text-sm text-gray-600">Total: {{ $participants->count() }} peserta</span>
+                    <span class="text-sm text-gray-600">
+                        Halaman ini: {{ $participants->count() }} peserta
+                        @if(isset($totalParticipants))
+                            - Total kursus: {{ $totalParticipants }} peserta
+                        @endif
+                    </span>
                 </div>
 
                 <div class="grid grid-cols-1 gap-4">
@@ -116,6 +132,12 @@
                         </div>
                     @endforeach
                 </div>
+
+                @if($participants instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                    <div class="mt-6">
+                        {{ $participants->appends(['course_id' => request('course_id'), 'per_page' => $perPage ?? null])->links() }}
+                    </div>
+                @endif
             @else
                 <p class="text-gray-500 text-center py-8">Tidak ada peserta pada kursus ini.</p>
             @endif
@@ -293,4 +315,3 @@ function bulkGenerateCertificates() {
 }
 </script>
 @endsection
-
