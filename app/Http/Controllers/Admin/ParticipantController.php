@@ -54,7 +54,7 @@ class ParticipantController extends Controller
 
         // Get enrolled courses with progress
         $enrolledCourses = $user->enrolledCourses()
-            ->with('lessons')
+            ->with(['lessons.contents.quiz.questions'])
             ->get()
             ->map(function ($course) use ($user) {
                 $progress = $user->getProgressForCourse($course);

@@ -168,37 +168,88 @@ class User extends Authenticatable
 
     public function getProgressForCourse(Course $course): array
     {
-        // Get all contents from all lessons in this course
-        $allContents = collect();
-        foreach ($course->lessons as $lesson) {
-            $allContents = $allContents->merge($lesson->contents);
-        }
+        // Ensure we have all needed relations to avoid N+1 queries
+        $course->loadMissing(['lessons.contents.quiz.questions']);
 
-        $totalContents = $allContents->count();
+        $lessons = $course->lessons;
 
-        if ($totalContents === 0) {
-            return [
-                'progress_percentage' => 0,
-                'completed_count' => 0,
-                'total_count' => 0,
-                'completed_contents' => 0 // For backward compatibility
-            ];
-        }
+        $totalLessons = $lessons->count();
+        $totalContents = 0;
+        $completedContents = 0;
+        $completedLessons = 0;
 
-        $completedCount = 0;
-        foreach ($allContents as $content) {
-            if ($this->hasCompletedContent($content)) {
-                $completedCount++;
+        $totalQuizzes = 0;
+        $completedQuizzes = 0;
+        $quizScorePercentages = [];
+
+        foreach ($lessons as $lesson) {
+            $lessonContents = $lesson->contents;
+            $lessonTotal = $lessonContents->count();
+            $lessonCompleted = 0;
+
+            foreach ($lessonContents as $content) {
+                $totalContents++;
+
+                $isCompleted = $this->hasCompletedContent($content);
+                if ($isCompleted) {
+                    $completedContents++;
+                    $lessonCompleted++;
+                }
+
+                // Quiz tracking
+                if ($content->type === 'quiz' && $content->quiz_id) {
+                    $totalQuizzes++;
+
+                    if ($isCompleted) {
+                        $completedQuizzes++;
+                    }
+
+                    $quiz = $content->quiz;
+                    if ($quiz) {
+                        $latestAttempt = $this->quizAttempts()
+                            ->where('quiz_id', $quiz->id)
+                            ->whereNotNull('completed_at')
+                            ->orderByDesc('completed_at')
+                            ->orderByDesc('id')
+                            ->first();
+
+                        if ($latestAttempt) {
+                            if (!$quiz->relationLoaded('questions')) {
+                                $quiz->load('questions');
+                            }
+
+                            $totalMarks = $quiz->questions->sum('marks') ?: $quiz->questions->count() ?: 1;
+                            $quizScorePercentages[] = round(($latestAttempt->score / $totalMarks) * 100, 2);
+                        }
+                    }
+                }
+            }
+
+            // A lesson is considered completed when all its contents are completed
+            if ($lessonTotal > 0 && $lessonCompleted >= $lessonTotal) {
+                $completedLessons++;
             }
         }
 
-        $progressPercentage = round(($completedCount / $totalContents) * 100, 2);
+        $progressPercentage = $totalContents > 0
+            ? round(($completedContents / $totalContents) * 100, 1)
+            : 0;
+
+        $averageQuizScore = count($quizScorePercentages) > 0
+            ? round(array_sum($quizScorePercentages) / count($quizScorePercentages), 1)
+            : 0;
 
         return [
             'progress_percentage' => $progressPercentage,
-            'completed_count' => $completedCount,
+            'completed_count' => $completedContents,
             'total_count' => $totalContents,
-            'completed_contents' => $completedCount // For backward compatibility
+            'completed_contents' => $completedContents, // Backward compatibility
+            'total_contents' => $totalContents,
+            'completed_lessons' => $completedLessons,
+            'total_lessons' => $totalLessons,
+            'completed_quizzes' => $completedQuizzes,
+            'total_quizzes' => $totalQuizzes,
+            'average_quiz_score' => $averageQuizScore,
         ];
     }
 

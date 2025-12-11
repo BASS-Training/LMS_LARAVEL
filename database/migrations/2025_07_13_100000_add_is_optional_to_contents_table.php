@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('contents', function (Blueprint $table) {
-            $table->boolean('is_optional')->default(false)->after('requires_review');
+            $table->boolean('is_optional')->default(false)->after('order');
         });
     }
 
@@ -26,4 +26,3 @@ return new class extends Migration
         });
     }
 };
-

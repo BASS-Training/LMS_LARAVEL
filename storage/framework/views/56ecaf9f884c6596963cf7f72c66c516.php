@@ -1,0 +1,2 @@
+<img src="<?php echo e(asset('images/logo.png')); ?>" alt="<?php echo e(config('app.name', 'Laravel')); ?> Logo" <?php echo e($attributes); ?>>
+<?php /**PATH C:\Users\PC5\Music\lms\LMS_LARAVEL\resources\views/components/application-logo.blade.php ENDPATH**/ ?>

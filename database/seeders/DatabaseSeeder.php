@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
 
         // Kemudian panggil UserSeeder
         $this->call(UserSeeder::class);
-
+        $this->call(DemoProgressSeeder::class);   
         $this->call(CertificateTemplateSeeder::class);
     }
 }
