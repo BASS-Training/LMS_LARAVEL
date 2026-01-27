@@ -76,15 +76,23 @@
         </div>
 
         <!-- Bulk Actions -->
-        <div class="bg-white shadow rounded-lg mb-6" id="bulk-actions" style="display: none;">
+        <div class="bg-white shadow rounded-lg mb-6" id="bulk-actions" style="display: none;"
+             data-total="{{ $certificates->total() }}"
+             data-course-id="{{ $course->id }}"
+             data-search="{{ request('search') }}">
             <div class="p-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Aksi Massal</h3>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Aksi Massal</h3>
+                    <span class="text-sm text-gray-600">
+                        <span id="selected-count">0</span> sertifikat dipilih
+                    </span>
+                </div>
                 <div class="flex gap-4">
                     <button onclick="bulkAction('delete')" 
                             class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
                         🗑️ Hapus Terpilih
                     </button>
-                    <button onclick="bulkAction('update_template')" 
+                    <button onclick="openBulkUpdateTemplateModal()" 
                             class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
                         🔄 Update Template
                     </button>
@@ -110,7 +118,10 @@
                     </h3>
                     <div class="flex items-center">
                         <input type="checkbox" id="select-all" class="rounded border-gray-300 text-red-600 shadow-sm focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
-                        <label for="select-all" class="ml-2 text-sm text-gray-600">Pilih Semua</label>
+                        <label for="select-all" class="ml-2 text-sm text-gray-600">
+                            Pilih Semua
+                            <span class="text-xs text-gray-400">(semua halaman)</span>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -286,47 +297,152 @@
     </div>
 </div>
 
+<!-- Bulk Update Template Modal -->
+<div id="bulkUpdateTemplateModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Update Template (Massal)</h3>
+                <button onclick="closeBulkUpdateTemplateModal()" class="text-gray-400 hover:text-gray-600">
+                    <span class="sr-only">Close</span>
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Total Sertifikat</label>
+                <p class="text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded">
+                    <span id="bulk-selected-count">0</span> sertifikat
+                </p>
+            </div>
+
+            <div class="mb-4">
+                <label for="bulk_certificate_template_id" class="block text-sm font-medium text-gray-700 mb-2">
+                    Pilih Template Baru (Opsional)
+                </label>
+                <select id="bulk_certificate_template_id"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                    <option value="">-- Gunakan template yang sama --</option>
+                    @foreach($templates as $template)
+                        <option value="{{ $template->id }}">{{ $template->name }}</option>
+                    @endforeach
+                </select>
+                <p class="text-xs text-gray-500 mt-1">
+                    Kosongkan jika hanya ingin meregenerasi dengan template saat ini
+                </p>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="closeBulkUpdateTemplateModal()"
+                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded">
+                    Batal
+                </button>
+                <button type="button" onclick="submitBulkUpdateTemplate()"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+                    Update Template
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+let selectAllAcrossPages = false;
+let totalCertificates = 0;
+let bulkCourseId = '';
+let bulkSearch = '';
+let bulkActionsDiv = null;
+let selectAllCheckbox = null;
+let certificateCheckboxes = [];
+let selectedCountSpan = null;
+
 document.addEventListener('DOMContentLoaded', function() {
-    const selectAllCheckbox = document.getElementById('select-all');
-    const certificateCheckboxes = document.querySelectorAll('.certificate-checkbox');
-    const bulkActionsDiv = document.getElementById('bulk-actions');
+    selectAllCheckbox = document.getElementById('select-all');
+    certificateCheckboxes = document.querySelectorAll('.certificate-checkbox');
+    bulkActionsDiv = document.getElementById('bulk-actions');
+    selectedCountSpan = document.getElementById('selected-count');
+
+    if (bulkActionsDiv) {
+        totalCertificates = Number(bulkActionsDiv.dataset.total || 0);
+        bulkCourseId = bulkActionsDiv.dataset.courseId || '';
+        bulkSearch = bulkActionsDiv.dataset.search || '';
+    }
 
     // Handle select all
     selectAllCheckbox.addEventListener('change', function() {
-        certificateCheckboxes.forEach(checkbox => {
-            checkbox.checked = this.checked;
-        });
+        selectAllAcrossPages = this.checked;
+        certificateCheckboxes.forEach(checkbox => checkbox.checked = this.checked);
         toggleBulkActions();
     });
 
     // Handle individual checkbox changes
     certificateCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', toggleBulkActions);
+        checkbox.addEventListener('change', function() {
+            if (selectAllAcrossPages && !this.checked) {
+                selectAllAcrossPages = false;
+                selectAllCheckbox.checked = false;
+            }
+            toggleBulkActions();
+        });
     });
 
     function toggleBulkActions() {
         const checkedBoxes = document.querySelectorAll('.certificate-checkbox:checked');
-        if (checkedBoxes.length > 0) {
-            bulkActionsDiv.style.display = 'block';
-        } else {
-            bulkActionsDiv.style.display = 'none';
+        const hasSelection = selectAllAcrossPages || checkedBoxes.length > 0;
+        const selectedCount = selectAllAcrossPages ? totalCertificates : checkedBoxes.length;
+
+        if (bulkActionsDiv) {
+            bulkActionsDiv.style.display = hasSelection ? 'block' : 'none';
+        }
+
+        if (selectedCountSpan) {
+            selectedCountSpan.textContent = selectedCount;
         }
     }
 });
 
-function bulkAction(action) {
+function getSelectedCertificateIds() {
     const checkedBoxes = document.querySelectorAll('.certificate-checkbox:checked');
-    const certificateIds = Array.from(checkedBoxes).map(cb => cb.value);
-    
-    if (certificateIds.length === 0) {
+    return Array.from(checkedBoxes).map(cb => cb.value);
+}
+
+function bulkAction(action, options = {}) {
+    const certificateIds = getSelectedCertificateIds();
+    const selectedCount = selectAllAcrossPages ? totalCertificates : certificateIds.length;
+
+    if (!selectAllAcrossPages && certificateIds.length === 0) {
+        alert('Pilih minimal satu sertifikat');
+        return;
+    }
+
+    if (selectedCount === 0) {
         alert('Pilih minimal satu sertifikat');
         return;
     }
 
     const actionText = action === 'delete' ? 'menghapus' : 'memperbarui template';
-    if (!confirm(`Apakah Anda yakin ingin ${actionText} ${certificateIds.length} sertifikat?`)) {
+    if (!confirm(`Apakah Anda yakin ingin ${actionText} ${selectedCount} sertifikat?`)) {
         return;
+    }
+
+    const payload = {
+        action: action
+    };
+
+    if (selectAllAcrossPages) {
+        payload.select_all = true;
+        payload.course_id = bulkCourseId;
+        if (bulkSearch) {
+            payload.search = bulkSearch;
+        }
+    } else {
+        payload.certificate_ids = certificateIds;
+    }
+
+    if (action === 'update_template' && options.templateId) {
+        payload.certificate_template_id = options.templateId;
     }
 
     fetch('{{ route("certificate-management.bulk-action") }}', {
@@ -335,10 +451,7 @@ function bulkAction(action) {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
-        body: JSON.stringify({
-            action: action,
-            certificate_ids: certificateIds
-        })
+        body: JSON.stringify(payload)
     })
     .then(response => response.json())
     .then(data => {
@@ -371,6 +484,42 @@ function closeUpdateTemplateModal() {
 document.getElementById('updateTemplateModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeUpdateTemplateModal();
+    }
+});
+
+function openBulkUpdateTemplateModal() {
+    const certificateIds = getSelectedCertificateIds();
+    const selectedCount = selectAllAcrossPages ? totalCertificates : certificateIds.length;
+
+    if (!selectAllAcrossPages && certificateIds.length === 0) {
+        alert('Pilih minimal satu sertifikat');
+        return;
+    }
+
+    if (selectedCount === 0) {
+        alert('Pilih minimal satu sertifikat');
+        return;
+    }
+
+    document.getElementById('bulk-selected-count').textContent = selectedCount;
+    document.getElementById('bulk_certificate_template_id').value = '';
+    document.getElementById('bulkUpdateTemplateModal').classList.remove('hidden');
+}
+
+function closeBulkUpdateTemplateModal() {
+    document.getElementById('bulkUpdateTemplateModal').classList.add('hidden');
+}
+
+function submitBulkUpdateTemplate() {
+    const templateId = document.getElementById('bulk_certificate_template_id').value;
+    closeBulkUpdateTemplateModal();
+    bulkAction('update_template', { templateId });
+}
+
+// Close bulk modal when clicking outside
+document.getElementById('bulkUpdateTemplateModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeBulkUpdateTemplateModal();
     }
 });
 

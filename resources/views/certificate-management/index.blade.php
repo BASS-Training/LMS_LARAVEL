@@ -178,7 +178,7 @@
                                 class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
                             📥 Download Terpilih
                         </button>
-                        <button onclick="bulkAction('update_template')"
+                        <button onclick="openBulkUpdateTemplateModal()"
                                 class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
                             🔄 Update Template
                         </button>
@@ -386,6 +386,57 @@
     </div>
 </div>
 
+<!-- Bulk Update Template Modal -->
+<div id="bulkUpdateTemplateModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Update Template (Massal)</h3>
+                <button onclick="closeBulkUpdateTemplateModal()" class="text-gray-400 hover:text-gray-600">
+                    <span class="sr-only">Close</span>
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Total Sertifikat</label>
+                <p class="text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded">
+                    <span id="bulk-selected-count">0</span> sertifikat
+                </p>
+            </div>
+
+            <div class="mb-4">
+                <label for="bulk_certificate_template_id" class="block text-sm font-medium text-gray-700 mb-2">
+                    Pilih Template Baru (Opsional)
+                </label>
+                <select id="bulk_certificate_template_id"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                    <option value="">-- Gunakan template yang sama --</option>
+                    @foreach($templates as $template)
+                        <option value="{{ $template->id }}">{{ $template->name }}</option>
+                    @endforeach
+                </select>
+                <p class="text-xs text-gray-500 mt-1">
+                    Kosongkan jika hanya ingin meregenerasi dengan template saat ini
+                </p>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="closeBulkUpdateTemplateModal()"
+                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded">
+                    Batal
+                </button>
+                <button type="button" onclick="submitBulkUpdateTemplate()"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+                    Update Template
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const selectAllCheckbox = document.getElementById('select-all');
@@ -421,7 +472,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function bulkAction(action) {
+function bulkAction(action, options = {}) {
     const checkedBoxes = document.querySelectorAll('.certificate-checkbox:checked');
     const certificateIds = Array.from(checkedBoxes).map(cb => cb.value);
 
@@ -481,16 +532,22 @@ function bulkAction(action) {
     }
 
     // For other actions, use AJAX
+    const payload = {
+        action: action,
+        certificate_ids: certificateIds
+    };
+
+    if (action === 'update_template' && options.templateId) {
+        payload.certificate_template_id = options.templateId;
+    }
+
     fetch('{{ route("certificate-management.bulk-action") }}', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
-        body: JSON.stringify({
-            action: action,
-            certificate_ids: certificateIds
-        })
+        body: JSON.stringify(payload)
     })
     .then(response => response.json())
     .then(data => {
@@ -523,6 +580,37 @@ function closeUpdateTemplateModal() {
 document.getElementById('updateTemplateModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeUpdateTemplateModal();
+    }
+});
+
+function openBulkUpdateTemplateModal() {
+    const checkedBoxes = document.querySelectorAll('.certificate-checkbox:checked');
+    const selectedCount = checkedBoxes.length;
+
+    if (selectedCount === 0) {
+        alert('Pilih minimal satu sertifikat');
+        return;
+    }
+
+    document.getElementById('bulk-selected-count').textContent = selectedCount;
+    document.getElementById('bulk_certificate_template_id').value = '';
+    document.getElementById('bulkUpdateTemplateModal').classList.remove('hidden');
+}
+
+function closeBulkUpdateTemplateModal() {
+    document.getElementById('bulkUpdateTemplateModal').classList.add('hidden');
+}
+
+function submitBulkUpdateTemplate() {
+    const templateId = document.getElementById('bulk_certificate_template_id').value;
+    closeBulkUpdateTemplateModal();
+    bulkAction('update_template', { templateId });
+}
+
+// Close bulk modal when clicking outside
+document.getElementById('bulkUpdateTemplateModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeBulkUpdateTemplateModal();
     }
 });
 

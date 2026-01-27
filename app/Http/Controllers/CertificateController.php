@@ -658,16 +658,52 @@ class CertificateController extends Controller
 
         $request->validate([
             'action' => 'required|in:delete,update_template,download',
-            'certificate_ids' => 'required|array',
-            'certificate_ids.*' => 'exists:certificates,id'
+            'certificate_ids' => 'required_without:select_all|array',
+            'certificate_ids.*' => 'exists:certificates,id',
+            'select_all' => 'nullable|boolean',
+            'course_id' => 'nullable|exists:courses,id',
+            'search' => 'nullable|string|max:255',
+            'certificate_template_id' => 'nullable|exists:certificate_templates,id',
         ]);
+
+        $selectAll = $request->boolean('select_all');
+        $certificatesQuery = Certificate::query();
+
+        if ($selectAll) {
+            if ($request->filled('course_id')) {
+                $certificatesQuery->where('course_id', $request->course_id);
+            }
+
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $certificatesQuery->whereHas('user', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                });
+            }
+        } else {
+            $certificatesQuery->whereIn('id', $request->certificate_ids);
+        }
+
+        if ($request->action === 'update_template') {
+            $certificatesQuery->with(['course', 'user', 'certificateTemplate']);
+        }
+
+        $certificates = $certificatesQuery->get();
+
+        if ($certificates->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada sertifikat yang dipilih.'
+            ], 422);
+        }
 
         // Handle download action separately (returns file download)
         if ($request->action === 'download') {
+            $request->merge([
+                'certificate_ids' => $certificates->pluck('id')->all()
+            ]);
             return $this->bulkDownload($request);
         }
-
-        $certificates = Certificate::whereIn('id', $request->certificate_ids)->get();
 
         if ($request->action === 'delete') {
             foreach ($certificates as $certificate) {
@@ -685,12 +721,18 @@ class CertificateController extends Controller
         }
 
         if ($request->action === 'update_template') {
+            $templateId = $request->filled('certificate_template_id')
+                ? (int) $request->certificate_template_id
+                : null;
             $updated = 0;
             foreach ($certificates as $certificate) {
                 try {
-                    // Regenerate certificate with current template
-                    $course = $certificate->course;
-                    $user = $certificate->user;
+                    if ($templateId) {
+                        $certificate->update([
+                            'certificate_template_id' => $templateId
+                        ]);
+                        $certificate->load('certificateTemplate');
+                    }
 
                     // Delete old file
                     if ($certificate->fileExists()) {
@@ -719,9 +761,13 @@ class CertificateController extends Controller
                 }
             }
 
+            $message = $templateId
+                ? "Berhasil memperbarui template {$updated} dari " . count($certificates) . " sertifikat."
+                : "Berhasil meregenerasi {$updated} dari " . count($certificates) . " sertifikat.";
+
             return response()->json([
                 'success' => true,
-                'message' => "Berhasil memperbarui {$updated} dari " . count($certificates) . " sertifikat."
+                'message' => $message
             ]);
         }
     }
