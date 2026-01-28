@@ -215,6 +215,25 @@
                         </p>
                     </div>
                 </div>
+
+                <!-- Bulk Update Progress Indicator -->
+                <div id="bulk-update-progress" style="display: none;" class="mt-4">
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                        <div class="flex items-center">
+                            <svg class="animate-spin h-5 w-5 text-yellow-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span class="text-yellow-800 font-medium" id="bulk-update-text">Memproses update template...</span>
+                        </div>
+                        <div class="mt-2 w-full bg-yellow-200 rounded-full h-2">
+                            <div id="bulk-update-bar" class="bg-yellow-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        <p class="text-xs text-yellow-700 mt-2">
+                            Proses berjalan di background. Anda bisa menunggu di halaman ini.
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -232,7 +251,10 @@
                     </h3>
                     <div class="flex items-center">
                         <input type="checkbox" id="select-all" class="rounded border-gray-300 text-red-600 shadow-sm focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
-                        <label for="select-all" class="ml-2 text-sm text-gray-600">Pilih Semua</label>
+                        <label for="select-all" class="ml-2 text-sm text-gray-600">
+                            Pilih Semua
+                            <span class="text-xs text-gray-400">(semua halaman)</span>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -438,13 +460,25 @@
 </div>
 
 <script>
+let selectAllAcrossPages = false;
+const totalCertificates = {{ $certificates->total() }};
+const filterCourseId = "{{ request('course_id') }}";
+const filterSearch = "{{ request('search') }}";
+let selectAllCheckbox = null;
+let certificateCheckboxes = [];
+let selectedActionsDiv = null;
+let selectedCountSpan = null;
+let bulkUpdateStartAt = null;
+
 document.addEventListener('DOMContentLoaded', function() {
-    const selectAllCheckbox = document.getElementById('select-all');
-    const certificateCheckboxes = document.querySelectorAll('.certificate-checkbox');
-    const bulkActionsDiv = document.getElementById('bulk-actions');
+    selectAllCheckbox = document.getElementById('select-all');
+    certificateCheckboxes = document.querySelectorAll('.certificate-checkbox');
+    selectedActionsDiv = document.getElementById('selected-actions');
+    selectedCountSpan = document.getElementById('selected-count');
 
     // Handle select all
     selectAllCheckbox.addEventListener('change', function() {
+        selectAllAcrossPages = this.checked;
         certificateCheckboxes.forEach(checkbox => {
             checkbox.checked = this.checked;
         });
@@ -453,21 +487,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle individual checkbox changes
     certificateCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', toggleBulkActions);
+        checkbox.addEventListener('change', function() {
+            if (selectAllAcrossPages && !this.checked) {
+                selectAllAcrossPages = false;
+                selectAllCheckbox.checked = false;
+            }
+            toggleBulkActions();
+        });
     });
 
     function toggleBulkActions() {
         const checkedBoxes = document.querySelectorAll('.certificate-checkbox:checked');
-        const selectedCountSpan = document.getElementById('selected-count');
-        const selectedActionsDiv = document.getElementById('selected-actions');
+        const hasSelection = selectAllAcrossPages || checkedBoxes.length > 0;
+        const selectedCount = selectAllAcrossPages ? totalCertificates : checkedBoxes.length;
 
-        if (checkedBoxes.length > 0) {
-            selectedActionsDiv.style.display = 'flex';
-            if (selectedCountSpan) {
-                selectedCountSpan.textContent = checkedBoxes.length;
-            }
-        } else {
-            selectedActionsDiv.style.display = 'none';
+        if (selectedActionsDiv) {
+            selectedActionsDiv.style.display = hasSelection ? 'flex' : 'none';
+        }
+
+        if (selectedCountSpan) {
+            selectedCountSpan.textContent = selectedCount;
         }
     }
 });
@@ -476,7 +515,14 @@ function bulkAction(action, options = {}) {
     const checkedBoxes = document.querySelectorAll('.certificate-checkbox:checked');
     const certificateIds = Array.from(checkedBoxes).map(cb => cb.value);
 
-    if (certificateIds.length === 0) {
+    const selectedCount = selectAllAcrossPages ? totalCertificates : certificateIds.length;
+
+    if (!selectAllAcrossPages && certificateIds.length === 0) {
+        alert('Pilih minimal satu sertifikat');
+        return;
+    }
+
+    if (selectedCount === 0) {
         alert('Pilih minimal satu sertifikat');
         return;
     }
@@ -488,7 +534,7 @@ function bulkAction(action, options = {}) {
     };
     const actionText = actionMessages[action] || action;
 
-    if (!confirm(`Apakah Anda yakin ingin ${actionText} ${certificateIds.length} sertifikat?`)) {
+    if (!confirm(`Apakah Anda yakin ingin ${actionText} ${selectedCount} sertifikat?`)) {
         return;
     }
 
@@ -510,13 +556,37 @@ function bulkAction(action, options = {}) {
         actionInput.value = action;
         form.appendChild(actionInput);
 
-        certificateIds.forEach(id => {
-            const idInput = document.createElement('input');
-            idInput.type = 'hidden';
-            idInput.name = 'certificate_ids[]';
-            idInput.value = id;
-            form.appendChild(idInput);
-        });
+        if (selectAllAcrossPages) {
+            const selectAllInput = document.createElement('input');
+            selectAllInput.type = 'hidden';
+            selectAllInput.name = 'select_all';
+            selectAllInput.value = '1';
+            form.appendChild(selectAllInput);
+
+            if (filterCourseId) {
+                const courseInput = document.createElement('input');
+                courseInput.type = 'hidden';
+                courseInput.name = 'course_id';
+                courseInput.value = filterCourseId;
+                form.appendChild(courseInput);
+            }
+
+            if (filterSearch) {
+                const searchInput = document.createElement('input');
+                searchInput.type = 'hidden';
+                searchInput.name = 'search';
+                searchInput.value = filterSearch;
+                form.appendChild(searchInput);
+            }
+        } else {
+            certificateIds.forEach(id => {
+                const idInput = document.createElement('input');
+                idInput.type = 'hidden';
+                idInput.name = 'certificate_ids[]';
+                idInput.value = id;
+                form.appendChild(idInput);
+            });
+        }
 
         document.body.appendChild(form);
         form.submit();
@@ -533,12 +603,26 @@ function bulkAction(action, options = {}) {
 
     // For other actions, use AJAX
     const payload = {
-        action: action,
-        certificate_ids: certificateIds
+        action: action
     };
+
+    if (selectAllAcrossPages) {
+        payload.select_all = true;
+        if (filterCourseId) {
+            payload.course_id = filterCourseId;
+        }
+        if (filterSearch) {
+            payload.search = filterSearch;
+        }
+    } else {
+        payload.certificate_ids = certificateIds;
+    }
 
     if (action === 'update_template' && options.templateId) {
         payload.certificate_template_id = options.templateId;
+    }
+    if (action === 'update_template') {
+        payload.process_mode = 'client';
     }
 
     fetch('{{ route("certificate-management.bulk-action") }}', {
@@ -552,6 +636,14 @@ function bulkAction(action, options = {}) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            if (data.queued && data.batch_id) {
+                if (data.mode === 'client') {
+                    startBulkUpdateClient(data.batch_id, data.total || selectedCount);
+                } else {
+                    startBulkUpdateProgress(data.batch_id, data.total || selectedCount);
+                }
+                return;
+            }
             alert(data.message);
             location.reload();
         } else {
@@ -585,7 +677,12 @@ document.getElementById('updateTemplateModal').addEventListener('click', functio
 
 function openBulkUpdateTemplateModal() {
     const checkedBoxes = document.querySelectorAll('.certificate-checkbox:checked');
-    const selectedCount = checkedBoxes.length;
+    const selectedCount = selectAllAcrossPages ? totalCertificates : checkedBoxes.length;
+
+    if (!selectAllAcrossPages && checkedBoxes.length === 0) {
+        alert('Pilih minimal satu sertifikat');
+        return;
+    }
 
     if (selectedCount === 0) {
         alert('Pilih minimal satu sertifikat');
@@ -732,6 +829,190 @@ async function pollDownloadStatus(batchId, totalCount) {
             alert('Terjadi kesalahan saat memantau progress download');
         }
     }, 2000); // Poll every 2 seconds
+}
+
+function startBulkUpdateProgress(batchId, totalCount) {
+    const progressContainer = document.getElementById('bulk-update-progress');
+    const progressText = document.getElementById('bulk-update-text');
+    const progressBar = document.getElementById('bulk-update-bar');
+
+    if (!progressContainer || !progressText || !progressBar) {
+        alert('Proses update template berjalan di background. Silakan refresh halaman nanti.');
+        return;
+    }
+
+    progressContainer.style.display = 'block';
+    progressText.textContent = 'Memproses update template...';
+    progressBar.style.width = '0%';
+    bulkUpdateStartAt = null;
+
+    pollBulkUpdateStatus(batchId, totalCount);
+}
+
+function startBulkUpdateClient(batchId, totalCount) {
+    const progressContainer = document.getElementById('bulk-update-progress');
+    const progressText = document.getElementById('bulk-update-text');
+    const progressBar = document.getElementById('bulk-update-bar');
+
+    if (!progressContainer || !progressText || !progressBar) {
+        alert('Proses update template berjalan di tab ini. Silakan refresh halaman nanti.');
+        return;
+    }
+
+    progressContainer.style.display = 'block';
+    progressText.textContent = 'Memproses update template...';
+    progressBar.style.width = '0%';
+    bulkUpdateStartAt = null;
+
+    processBulkUpdateChunk(batchId, totalCount);
+}
+
+async function pollBulkUpdateStatus(batchId, totalCount) {
+    const pollInterval = setInterval(async () => {
+        try {
+            const response = await fetch(`{{ url('certificate-management/update-template-status') }}/${batchId}`);
+
+            if (!response.ok) {
+                throw new Error('Status tidak ditemukan');
+            }
+
+            const data = await response.json();
+            const total = data.total || totalCount || 0;
+            const processed = data.processed || 0;
+            const progress = total ? Math.round((processed / total) * 100) : 0;
+            const etaText = calculateEtaText(data, total, processed);
+
+            if (data.status === 'queued') {
+                document.getElementById('bulk-update-bar').style.width = '0%';
+                document.getElementById('bulk-update-text').textContent =
+                    (data.message || 'Menunggu proses di antrian...') + formatProgressSuffix(progress, etaText);
+            } else if (data.status === 'processing') {
+                document.getElementById('bulk-update-bar').style.width = progress + '%';
+                document.getElementById('bulk-update-text').textContent =
+                    `Memproses ${processed} dari ${total} sertifikat...` + formatProgressSuffix(progress, etaText);
+            } else if (data.status === 'completed') {
+                clearInterval(pollInterval);
+                document.getElementById('bulk-update-bar').style.width = '100%';
+                document.getElementById('bulk-update-text').textContent = data.message || 'Update selesai.';
+
+                setTimeout(() => {
+                    alert(data.message || 'Update template selesai.');
+                    location.reload();
+                }, 500);
+            } else if (data.status === 'failed') {
+                clearInterval(pollInterval);
+                document.getElementById('bulk-update-progress').style.display = 'none';
+                alert('Update gagal: ' + (data.message || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Polling error:', error);
+            clearInterval(pollInterval);
+            document.getElementById('bulk-update-progress').style.display = 'none';
+            alert('Terjadi kesalahan saat memantau progress update template');
+        }
+    }, 2000);
+}
+
+async function processBulkUpdateChunk(batchId, totalCount) {
+    try {
+        const response = await fetch(`{{ url('certificate-management/update-template-chunk') }}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ batch_id: batchId })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || data.status === 'failed') {
+            throw new Error(data.message || 'Update gagal');
+        }
+
+        const total = data.total || totalCount || 0;
+        const processed = data.processed || 0;
+        const progress = total ? Math.round((processed / total) * 100) : 0;
+        const etaText = calculateEtaText(data, total, processed);
+
+        if (data.status === 'queued') {
+            document.getElementById('bulk-update-bar').style.width = '0%';
+            document.getElementById('bulk-update-text').textContent =
+                (data.message || 'Menunggu proses di antrian...') + formatProgressSuffix(progress, etaText);
+        } else if (data.status === 'processing') {
+            document.getElementById('bulk-update-bar').style.width = progress + '%';
+            document.getElementById('bulk-update-text').textContent =
+                `Memproses ${processed} dari ${total} sertifikat...` + formatProgressSuffix(progress, etaText);
+        } else if (data.status === 'completed') {
+            document.getElementById('bulk-update-bar').style.width = '100%';
+            document.getElementById('bulk-update-text').textContent = data.message || 'Update selesai.';
+            setTimeout(() => {
+                alert(data.message || 'Update template selesai.');
+                location.reload();
+            }, 500);
+            return;
+        }
+
+        setTimeout(() => processBulkUpdateChunk(batchId, totalCount), 300);
+    } catch (error) {
+        console.error('Chunk error:', error);
+        document.getElementById('bulk-update-progress').style.display = 'none';
+        alert('Terjadi kesalahan saat memproses update template: ' + error.message);
+    }
+}
+
+function calculateEtaText(data, total, processed) {
+    if (!total || processed === 0) {
+        return 'Estimasi: menghitung...';
+    }
+
+    if (data.started_at) {
+        const parsedStart = Date.parse(data.started_at);
+        if (!Number.isNaN(parsedStart)) {
+            bulkUpdateStartAt = parsedStart;
+        }
+    }
+
+    if (!bulkUpdateStartAt) {
+        bulkUpdateStartAt = Date.now();
+        return 'Estimasi: menghitung...';
+    }
+
+    const elapsedSeconds = Math.max(1, (Date.now() - bulkUpdateStartAt) / 1000);
+    const rate = processed / elapsedSeconds;
+
+    if (rate <= 0) {
+        return 'Estimasi: menghitung...';
+    }
+
+    const remaining = Math.max(0, total - processed);
+    const etaSeconds = Math.round(remaining / rate);
+
+    return `Estimasi: ${formatDuration(etaSeconds)}`;
+}
+
+function formatProgressSuffix(progress, etaText) {
+    const percentText = Number.isFinite(progress) ? ` • ${progress}%` : '';
+    return percentText ? `${percentText} • ${etaText}` : ` • ${etaText}`;
+}
+
+function formatDuration(totalSeconds) {
+    if (!Number.isFinite(totalSeconds)) {
+        return '-';
+    }
+
+    const seconds = Math.max(0, Math.floor(totalSeconds));
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+
+    if (hours > 0) {
+        return `${hours}j ${minutes}m`;
+    }
+    if (minutes > 0) {
+        return `${minutes}m ${secs}d`;
+    }
+    return `${secs}d`;
 }
 </script>
 </x-app-layout>

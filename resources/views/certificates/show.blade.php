@@ -1,4 +1,9 @@
 <x-app-layout>
+    @php
+        $pdfBaseUrl = $certificate->pdf_url ?: Storage::url('certificates/' . $certificate->certificate_code . '.pdf');
+        $pdfVersion = $certificate->updated_at ? $certificate->updated_at->timestamp : now()->timestamp;
+        $pdfUrl = $pdfBaseUrl . '?v=' . $pdfVersion;
+    @endphp
     <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <!-- Floating Header -->
         <div class="sticky top-0 z-40 backdrop-blur-lg bg-white/70 dark:bg-gray-900/70 border-b border-gray-200/20 dark:border-gray-700/20">
@@ -85,7 +90,7 @@
                     <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 p-6">
                         <h4 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Actions</h4>
                         <div class="space-y-3">
-                            <a href="{{ Storage::url('certificates/' . $certificate->certificate_code . '.pdf') }}" 
+                            <a href="{{ $pdfUrl }}" 
                                download 
                                class="group w-full inline-flex items-center justify-center px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:-translate-y-1">
                                 <svg class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -214,7 +219,7 @@
                             <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-3">Preview Unavailable</h3>
                             <p class="text-gray-600 dark:text-gray-400 mb-8 max-w-md">The certificate preview cannot be displayed in this browser. You can still download or open it in a new tab.</p>
                             <div class="flex flex-col sm:flex-row gap-4">
-                                <a href="{{ Storage::url('certificates/' . $certificate->certificate_code . '.pdf') }}" 
+                                <a href="{{ $pdfUrl }}" 
                                    target="_blank"
                                    class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -222,7 +227,7 @@
                                     </svg>
                                     Open in New Tab
                                 </a>
-                                <a href="{{ Storage::url('certificates/' . $certificate->certificate_code . '.pdf') }}" 
+                                <a href="{{ $pdfUrl }}" 
                                    download
                                    class="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -252,7 +257,7 @@
         let scale = 1.0;
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
-        const pdfUrl = "{{ Storage::url('certificates/' . $certificate->certificate_code . '.pdf') }}";
+        const pdfUrl = "{{ $pdfUrl }}";
 
         // Render halaman PDF dengan animasi
         function renderPage(num) {
@@ -354,7 +359,7 @@
         }
 
         function openInNewTab() {
-            window.open("{{ Storage::url('certificates/' . $certificate->certificate_code . '.pdf') }}", '_blank');
+            window.open("{{ $pdfUrl }}", '_blank');
         }
 
         function showToast(message) {

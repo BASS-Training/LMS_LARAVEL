@@ -1,4 +1,9 @@
 <x-app-layout>
+    @php
+        $pdfBaseUrl = $certificate->pdf_url ?: Storage::url('certificates/' . $certificate->certificate_code . '.pdf');
+        $pdfVersion = $certificate->updated_at ? $certificate->updated_at->timestamp : now()->timestamp;
+        $pdfUrl = $pdfBaseUrl . '?v=' . $pdfVersion;
+    @endphp
     <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <!-- Header Section -->
         <div class="relative overflow-hidden">
@@ -77,7 +82,7 @@
 
                             <!-- Action Buttons -->
                             <div class="pt-6 space-y-3">
-                                <a href="{{ Storage::url('certificates/' . $certificate->certificate_code . '.pdf') }}" 
+                                <a href="{{ $pdfUrl }}" 
                                    download 
                                    class="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -144,7 +149,7 @@
                                 </div>
                             </div>
                             <iframe 
-                                src="{{ Storage::url('certificates/' . $certificate->certificate_code . '.pdf') }}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" 
+                                src="{{ $pdfUrl }}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" 
                                 width="100%" 
                                 height="800px" 
                                 class="w-full"

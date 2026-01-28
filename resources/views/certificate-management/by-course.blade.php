@@ -100,6 +100,25 @@
             </div>
         </div>
 
+        <!-- Bulk Update Progress Indicator -->
+        <div id="bulk-update-progress" style="display: none;" class="mb-6">
+            <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                <div class="flex items-center">
+                    <svg class="animate-spin h-5 w-5 text-yellow-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-yellow-800 font-medium" id="bulk-update-text">Memproses update template...</span>
+                </div>
+                <div class="mt-2 w-full bg-yellow-200 rounded-full h-2">
+                    <div id="bulk-update-bar" class="bg-yellow-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <p class="text-xs text-yellow-700 mt-2">
+                    Proses berjalan di background. Anda bisa menunggu di halaman ini.
+                </p>
+            </div>
+        </div>
+
         <!-- Certificates Table -->
         <div class="bg-white shadow overflow-hidden sm:rounded-md">
             <div class="px-6 py-4 border-b border-gray-200">
@@ -357,6 +376,7 @@ let bulkActionsDiv = null;
 let selectAllCheckbox = null;
 let certificateCheckboxes = [];
 let selectedCountSpan = null;
+let bulkUpdateStartAt = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     selectAllCheckbox = document.getElementById('select-all');
@@ -444,6 +464,9 @@ function bulkAction(action, options = {}) {
     if (action === 'update_template' && options.templateId) {
         payload.certificate_template_id = options.templateId;
     }
+    if (action === 'update_template') {
+        payload.process_mode = 'client';
+    }
 
     fetch('{{ route("certificate-management.bulk-action") }}', {
         method: 'POST',
@@ -456,6 +479,14 @@ function bulkAction(action, options = {}) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            if (data.queued && data.batch_id) {
+                if (data.mode === 'client') {
+                    startBulkUpdateClient(data.batch_id, data.total || selectedCount);
+                } else {
+                    startBulkUpdateProgress(data.batch_id, data.total || selectedCount);
+                }
+                return;
+            }
             alert(data.message);
             location.reload();
         } else {
@@ -546,6 +577,190 @@ function deleteCertificate(certificateId) {
     
     document.body.appendChild(form);
     form.submit();
+}
+
+function startBulkUpdateProgress(batchId, totalCount) {
+    const progressContainer = document.getElementById('bulk-update-progress');
+    const progressText = document.getElementById('bulk-update-text');
+    const progressBar = document.getElementById('bulk-update-bar');
+
+    if (!progressContainer || !progressText || !progressBar) {
+        alert('Proses update template berjalan di background. Silakan refresh halaman nanti.');
+        return;
+    }
+
+    progressContainer.style.display = 'block';
+    progressText.textContent = 'Memproses update template...';
+    progressBar.style.width = '0%';
+    bulkUpdateStartAt = null;
+
+    pollBulkUpdateStatus(batchId, totalCount);
+}
+
+function startBulkUpdateClient(batchId, totalCount) {
+    const progressContainer = document.getElementById('bulk-update-progress');
+    const progressText = document.getElementById('bulk-update-text');
+    const progressBar = document.getElementById('bulk-update-bar');
+
+    if (!progressContainer || !progressText || !progressBar) {
+        alert('Proses update template berjalan di tab ini. Silakan refresh halaman nanti.');
+        return;
+    }
+
+    progressContainer.style.display = 'block';
+    progressText.textContent = 'Memproses update template...';
+    progressBar.style.width = '0%';
+    bulkUpdateStartAt = null;
+
+    processBulkUpdateChunk(batchId, totalCount);
+}
+
+async function pollBulkUpdateStatus(batchId, totalCount) {
+    const pollInterval = setInterval(async () => {
+        try {
+            const response = await fetch(`{{ url('certificate-management/update-template-status') }}/${batchId}`);
+
+            if (!response.ok) {
+                throw new Error('Status tidak ditemukan');
+            }
+
+            const data = await response.json();
+            const total = data.total || totalCount || 0;
+            const processed = data.processed || 0;
+            const progress = total ? Math.round((processed / total) * 100) : 0;
+            const etaText = calculateEtaText(data, total, processed);
+
+            if (data.status === 'queued') {
+                document.getElementById('bulk-update-bar').style.width = '0%';
+                document.getElementById('bulk-update-text').textContent =
+                    (data.message || 'Menunggu proses di antrian...') + formatProgressSuffix(progress, etaText);
+            } else if (data.status === 'processing') {
+                document.getElementById('bulk-update-bar').style.width = progress + '%';
+                document.getElementById('bulk-update-text').textContent =
+                    `Memproses ${processed} dari ${total} sertifikat...` + formatProgressSuffix(progress, etaText);
+            } else if (data.status === 'completed') {
+                clearInterval(pollInterval);
+                document.getElementById('bulk-update-bar').style.width = '100%';
+                document.getElementById('bulk-update-text').textContent = data.message || 'Update selesai.';
+
+                setTimeout(() => {
+                    alert(data.message || 'Update template selesai.');
+                    location.reload();
+                }, 500);
+            } else if (data.status === 'failed') {
+                clearInterval(pollInterval);
+                document.getElementById('bulk-update-progress').style.display = 'none';
+                alert('Update gagal: ' + (data.message || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Polling error:', error);
+            clearInterval(pollInterval);
+            document.getElementById('bulk-update-progress').style.display = 'none';
+            alert('Terjadi kesalahan saat memantau progress update template');
+        }
+    }, 2000);
+}
+
+async function processBulkUpdateChunk(batchId, totalCount) {
+    try {
+        const response = await fetch(`{{ url('certificate-management/update-template-chunk') }}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ batch_id: batchId })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || data.status === 'failed') {
+            throw new Error(data.message || 'Update gagal');
+        }
+
+        const total = data.total || totalCount || 0;
+        const processed = data.processed || 0;
+        const progress = total ? Math.round((processed / total) * 100) : 0;
+        const etaText = calculateEtaText(data, total, processed);
+
+        if (data.status === 'queued') {
+            document.getElementById('bulk-update-bar').style.width = '0%';
+            document.getElementById('bulk-update-text').textContent =
+                (data.message || 'Menunggu proses di antrian...') + formatProgressSuffix(progress, etaText);
+        } else if (data.status === 'processing') {
+            document.getElementById('bulk-update-bar').style.width = progress + '%';
+            document.getElementById('bulk-update-text').textContent =
+                `Memproses ${processed} dari ${total} sertifikat...` + formatProgressSuffix(progress, etaText);
+        } else if (data.status === 'completed') {
+            document.getElementById('bulk-update-bar').style.width = '100%';
+            document.getElementById('bulk-update-text').textContent = data.message || 'Update selesai.';
+            setTimeout(() => {
+                alert(data.message || 'Update template selesai.');
+                location.reload();
+            }, 500);
+            return;
+        }
+
+        setTimeout(() => processBulkUpdateChunk(batchId, totalCount), 300);
+    } catch (error) {
+        console.error('Chunk error:', error);
+        document.getElementById('bulk-update-progress').style.display = 'none';
+        alert('Terjadi kesalahan saat memproses update template: ' + error.message);
+    }
+}
+
+function calculateEtaText(data, total, processed) {
+    if (!total || processed === 0) {
+        return 'Estimasi: menghitung...';
+    }
+
+    if (data.started_at) {
+        const parsedStart = Date.parse(data.started_at);
+        if (!Number.isNaN(parsedStart)) {
+            bulkUpdateStartAt = parsedStart;
+        }
+    }
+
+    if (!bulkUpdateStartAt) {
+        bulkUpdateStartAt = Date.now();
+        return 'Estimasi: menghitung...';
+    }
+
+    const elapsedSeconds = Math.max(1, (Date.now() - bulkUpdateStartAt) / 1000);
+    const rate = processed / elapsedSeconds;
+
+    if (rate <= 0) {
+        return 'Estimasi: menghitung...';
+    }
+
+    const remaining = Math.max(0, total - processed);
+    const etaSeconds = Math.round(remaining / rate);
+
+    return `Estimasi: ${formatDuration(etaSeconds)}`;
+}
+
+function formatProgressSuffix(progress, etaText) {
+    const percentText = Number.isFinite(progress) ? ` • ${progress}%` : '';
+    return percentText ? `${percentText} • ${etaText}` : ` • ${etaText}`;
+}
+
+function formatDuration(totalSeconds) {
+    if (!Number.isFinite(totalSeconds)) {
+        return '-';
+    }
+
+    const seconds = Math.max(0, Math.floor(totalSeconds));
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+
+    if (hours > 0) {
+        return `${hours}j ${minutes}m`;
+    }
+    if (minutes > 0) {
+        return `${minutes}m ${secs}d`;
+    }
+    return `${secs}d`;
 }
 </script>
 </x-app-layout>

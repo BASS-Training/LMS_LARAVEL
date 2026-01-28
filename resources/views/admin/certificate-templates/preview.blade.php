@@ -78,39 +78,75 @@
 
                 <!-- Preview Area -->
                 <div class="p-6 bg-gray-100">
+                    @php
+                        $rawLayoutData = $certificateTemplate->layout_data ?? [];
+                        if (is_string($rawLayoutData)) {
+                            $decodedLayout = json_decode($rawLayoutData, true);
+                            $layoutPages = is_array($decodedLayout) ? $decodedLayout : [];
+                        } elseif (is_array($rawLayoutData)) {
+                            $layoutPages = $rawLayoutData;
+                        } else {
+                            $layoutPages = [];
+                        }
+                    @endphp
                     <div id="preview-container" class="mx-auto overflow-auto">
                         <div id="preview-content" class="mx-auto" style="transform-origin: top center;">
-                            @foreach($certificateTemplate->layout_data as $pageIndex => $page)
+                            @forelse($layoutPages as $pageIndex => $page)
+                                @php
+                                    $pageWidth = $page['width'] ?? 794;
+                                    $pageHeight = $page['height'] ?? 1123;
+                                    $backgroundImagePath = $page['background_image_path'] ?? null;
+                                    $backgroundSize = $page['backgroundSize'] ?? 'cover';
+                                    $backgroundColor = $page['backgroundColor'] ?? '#ffffff';
+                                @endphp
                                 <div class="preview-page bg-white shadow-lg mx-auto mb-8 {{ $loop->last ? '' : 'page-break-after' }}" 
-                                     style="width: {{ $page['width'] ?? 794 }}px; height: {{ $page['height'] ?? 1123 }}px; 
-                                            {{ isset($page['background_image_path']) ? 'background-image: url(' . asset('storage/' . $page['background_image_path']) . '); background-size: ' . ($page['backgroundSize'] ?? 'cover') . '; background-position: center; background-repeat: no-repeat;' : 'background-color: ' . ($page['backgroundColor'] ?? '#ffffff') . ';' }}">
+                                     style="width: {{ $pageWidth }}px; height: {{ $pageHeight }}px; 
+                                            {{ !empty($backgroundImagePath) ? 'background-image: url(' . asset('storage/' . $backgroundImagePath) . '); background-size: ' . $backgroundSize . '; background-position: center; background-repeat: no-repeat;' : 'background-color: ' . $backgroundColor . ';' }}">
                                     
                                     @if(isset($page['elements']) && is_array($page['elements']))
                                         @foreach($page['elements'] as $element)
-                                            @if($element['type'] === 'text')
+                                            @php
+                                                $elementType = $element['type'] ?? 'text';
+                                                $elementContent = $element['content'] ?? '';
+                                                $elementX = $element['x'] ?? 0;
+                                                $elementY = $element['y'] ?? 0;
+                                                $elementWidth = $element['width'] ?? 0;
+                                                $elementHeight = $element['height'] ?? 0;
+                                                $elementRotation = $element['rotation'] ?? 0;
+                                                $elementOpacity = $element['opacity'] ?? 1;
+                                                $elementZIndex = $element['zIndex'] ?? 1;
+                                                $elementTextAlign = $element['textAlign'] ?? 'left';
+                                                $elementFontFamily = $element['fontFamily'] ?? 'Arial';
+                                                $elementFontSize = $element['fontSize'] ?? 16;
+                                                $elementColor = $element['color'] ?? '#000000';
+                                                $elementIsBold = !empty($element['isBold']);
+                                                $elementIsItalic = !empty($element['isItalic']);
+                                                $elementIsUnderline = !empty($element['isUnderline']);
+                                            @endphp
+                                            @if($elementType === 'text')
                                                 <div class="absolute" 
-                                                     style="left: {{ $element['x'] }}px; 
-                                                            top: {{ $element['y'] }}px; 
-                                                            width: {{ $element['width'] }}px; 
-                                                            height: {{ $element['height'] }}px; 
-                                                            transform: rotate({{ $element['rotation'] ?? 0 }}deg); 
-                                                            opacity: {{ $element['opacity'] ?? 1 }}; 
-                                                            z-index: {{ $element['zIndex'] ?? 1 }};">
+                                                     style="left: {{ $elementX }}px; 
+                                                            top: {{ $elementY }}px; 
+                                                            width: {{ $elementWidth }}px; 
+                                                            height: {{ $elementHeight }}px; 
+                                                            transform: rotate({{ $elementRotation }}deg); 
+                                                            opacity: {{ $elementOpacity }}; 
+                                                            z-index: {{ $elementZIndex }};">
                                                     <div style="width: 100%; 
                                                                 height: 100%; 
                                                                 display: flex; 
                                                                 align-items: center; 
-                                                                justify-content: {{ $element['textAlign'] === 'center' ? 'center' : ($element['textAlign'] === 'right' ? 'flex-end' : 'flex-start') }}; 
-                                                                font-family: {{ $element['fontFamily'] ?? 'Arial' }}; 
-                                                                font-size: {{ $element['fontSize'] ?? 16 }}px; 
-                                                                color: {{ $element['color'] ?? '#000000' }}; 
-                                                                font-weight: {{ isset($element['isBold']) && $element['isBold'] ? 'bold' : 'normal' }}; 
-                                                                font-style: {{ isset($element['isItalic']) && $element['isItalic'] ? 'italic' : 'normal' }}; 
-                                                                text-decoration: {{ isset($element['isUnderline']) && $element['isUnderline'] ? 'underline' : 'none' }}; 
+                                                                justify-content: {{ $elementTextAlign === 'center' ? 'center' : ($elementTextAlign === 'right' ? 'flex-end' : 'flex-start') }}; 
+                                                                font-family: '{{ $elementFontFamily }}'; 
+                                                                font-size: {{ $elementFontSize }}px; 
+                                                                color: {{ $elementColor }}; 
+                                                                font-weight: {{ $elementIsBold ? 'bold' : 'normal' }}; 
+                                                                font-style: {{ $elementIsItalic ? 'italic' : 'normal' }}; 
+                                                                text-decoration: {{ $elementIsUnderline ? 'underline' : 'none' }}; 
                                                                 word-wrap: break-word; 
                                                                 overflow: hidden; 
                                                                 padding: 2px;">
-                                                        <span class="template-variable" data-original="{{ $element['content'] }}">{{ $element['content'] }}</span>
+                                                        <span class="template-variable" data-original="{{ $elementContent }}">{{ $elementContent }}</span>
                                                     </div>
                                                 </div>
                                             @endif
@@ -121,7 +157,11 @@
                                 @if(!$loop->last)
                                     <div class="text-center my-4 text-sm text-gray-500">Page {{ $pageIndex + 1 }}</div>
                                 @endif
-                            @endforeach
+                            @empty
+                                <div class="text-center text-gray-500 py-12">
+                                    No pages found for this template.
+                                </div>
+                            @endforelse
                         </div>
                     </div>
                 </div>
@@ -133,7 +173,7 @@
                             <strong>Template Name:</strong> {{ $certificateTemplate->name }}
                         </div>
                         <div>
-                            <strong>Pages:</strong> {{ count($certificateTemplate->layout_data) }}
+                            <strong>Pages:</strong> {{ count($layoutPages) }}
                         </div>
                         <div>
                             <strong>Last Modified:</strong> {{ $certificateTemplate->updated_at->format('M d, Y H:i') }}
@@ -203,7 +243,11 @@
                 const container = document.getElementById('preview-container');
                 const content = document.getElementById('preview-content');
                 const containerWidth = container.clientWidth - 40; // padding
-                const contentWidth = content.querySelector('.preview-page').offsetWidth;
+                const firstPage = content.querySelector('.preview-page');
+                if (!firstPage) {
+                    return;
+                }
+                const contentWidth = firstPage.offsetWidth;
                 currentZoom = Math.min(1, containerWidth / contentWidth);
                 updateZoom();
             });

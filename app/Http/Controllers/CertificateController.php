@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Certificate;
 use App\Models\Course;
 use App\Models\User;
+use App\Jobs\BulkUpdateCertificateTemplatesJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -685,48 +686,77 @@ class CertificateController extends Controller
         }
 
         if ($request->action === 'update_template') {
-            $certificatesQuery->with(['course', 'user', 'certificateTemplate']);
-        }
-
-        $certificates = $certificatesQuery->get();
-
-        if ($certificates->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tidak ada sertifikat yang dipilih.'
-            ], 422);
-        }
-
-        // Handle download action separately (returns file download)
-        if ($request->action === 'download') {
-            $request->merge([
-                'certificate_ids' => $certificates->pluck('id')->all()
-            ]);
-            return $this->bulkDownload($request);
-        }
-
-        if ($request->action === 'delete') {
-            foreach ($certificates as $certificate) {
-                // Delete file if exists
-                if ($certificate->fileExists()) {
-                    Storage::disk('public')->delete($certificate->path);
-                }
-                $certificate->delete();
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Berhasil menghapus ' . count($certificates) . ' sertifikat.'
-            ]);
-        }
-
-        if ($request->action === 'update_template') {
             $templateId = $request->filled('certificate_template_id')
                 ? (int) $request->certificate_template_id
                 : null;
+            $processMode = $request->get('process_mode', 'queue');
+
+            $totalCount = (clone $certificatesQuery)->count();
+
+            if ($totalCount === 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada sertifikat yang dipilih.'
+                ], 422);
+            }
+
+            $queueThreshold = 50;
+            $batchId = 'bulk_update_' . uniqid() . '_' . now()->timestamp;
+            $certificateIds = $selectAll ? [] : $request->certificate_ids;
+            $courseId = $selectAll ? ($request->course_id ? (int) $request->course_id : null) : null;
+            $search = $selectAll ? $request->search : null;
+
+            $criteria = [
+                'template_id' => $templateId,
+                'select_all' => $selectAll,
+                'certificate_ids' => $certificateIds ?? [],
+                'course_id' => $courseId,
+                'search' => $search,
+            ];
+
+            if ($processMode === 'client') {
+                $this->initBulkUpdateStatus($batchId, $totalCount, $criteria);
+
+                return response()->json([
+                    'success' => true,
+                    'queued' => true,
+                    'mode' => 'client',
+                    'batch_id' => $batchId,
+                    'total' => $totalCount,
+                    'message' => 'Proses update template berjalan di tab ini.'
+                ]);
+            }
+
+            if ($totalCount >= $queueThreshold) {
+                $this->initBulkUpdateStatus($batchId, $totalCount, $criteria);
+
+                BulkUpdateCertificateTemplatesJob::dispatch(
+                    $batchId,
+                    $templateId,
+                    $certificateIds ?? [],
+                    $courseId,
+                    $search
+                );
+
+                return response()->json([
+                    'success' => true,
+                    'queued' => true,
+                    'mode' => 'queue',
+                    'batch_id' => $batchId,
+                    'total' => $totalCount,
+                    'message' => 'Proses update template sedang berjalan di background.'
+                ]);
+            }
+
+            $certificates = $certificatesQuery
+                ->with(['course.instructors', 'user', 'certificateTemplate'])
+                ->get();
+
             $updated = 0;
             foreach ($certificates as $certificate) {
                 try {
+                    $oldPath = $certificate->path;
+
                     if ($templateId) {
                         $certificate->update([
                             'certificate_template_id' => $templateId
@@ -735,8 +765,8 @@ class CertificateController extends Controller
                     }
 
                     // Delete old file
-                    if ($certificate->fileExists()) {
-                        Storage::disk('public')->delete($certificate->path);
+                    if ($certificate->fileExists() && $oldPath) {
+                        Storage::disk('public')->delete($oldPath);
                     }
 
                     // Generate new PDF
@@ -768,6 +798,38 @@ class CertificateController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => $message
+            ]);
+        }
+
+        $certificates = $certificatesQuery->get();
+
+        if ($certificates->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada sertifikat yang dipilih.'
+            ], 422);
+        }
+
+        // Handle download action separately (returns file download)
+        if ($request->action === 'download') {
+            $request->merge([
+                'certificate_ids' => $certificates->pluck('id')->all()
+            ]);
+            return $this->bulkDownload($request);
+        }
+
+        if ($request->action === 'delete') {
+            foreach ($certificates as $certificate) {
+                // Delete file if exists
+                if ($certificate->fileExists()) {
+                    Storage::disk('public')->delete($certificate->path);
+                }
+                $certificate->delete();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Berhasil menghapus ' . count($certificates) . ' sertifikat.'
             ]);
         }
     }
@@ -878,6 +940,226 @@ class CertificateController extends Controller
         $status = json_decode(file_get_contents($statusFile), true);
 
         return response()->json($status);
+    }
+
+    /**
+     * Check bulk update template status
+     */
+    public function bulkUpdateTemplateStatus($batchId)
+    {
+        $statusFile = storage_path('app/temp/update_template_status_' . $batchId . '.json');
+
+        if (!file_exists($statusFile)) {
+            return response()->json([
+                'status' => 'queued',
+                'processed' => 0,
+                'updated' => 0,
+                'total' => 0,
+                'message' => 'Status belum tersedia, menunggu proses...'
+            ]);
+        }
+
+        $status = json_decode(file_get_contents($statusFile), true);
+
+        return response()->json($status);
+    }
+
+    /**
+     * Process bulk update template in client-driven chunks (no queue worker required)
+     */
+    public function bulkUpdateTemplateChunk(Request $request)
+    {
+        $this->authorize('update', Certificate::class);
+
+        $request->validate([
+            'batch_id' => 'required|string'
+        ]);
+
+        $batchId = $request->batch_id;
+        $statusFile = storage_path('app/temp/update_template_status_' . $batchId . '.json');
+
+        if (!file_exists($statusFile)) {
+            return response()->json([
+                'status' => 'not_found',
+                'message' => 'Status tidak ditemukan'
+            ], 404);
+        }
+
+        $status = json_decode(file_get_contents($statusFile), true);
+        $criteria = $status['criteria'] ?? [];
+
+        if (empty($criteria)) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Kriteria update tidak tersedia.'
+            ], 422);
+        }
+
+        if (($status['status'] ?? '') === 'completed' || ($status['status'] ?? '') === 'failed') {
+            return response()->json($status);
+        }
+
+        $templateId = $criteria['template_id'] ?? null;
+        $certificateIds = $criteria['certificate_ids'] ?? [];
+        $courseId = $criteria['course_id'] ?? null;
+        $search = $criteria['search'] ?? null;
+        $cursor = $status['cursor'] ?? ['last_id' => null, 'index' => 0];
+        $chunkSize = 10;
+
+        $total = $status['total'] ?? null;
+        $processed = $status['processed'] ?? 0;
+        $updatedCount = $status['updated'] ?? 0;
+
+        $template = null;
+        if ($templateId) {
+            $template = \App\Models\CertificateTemplate::find($templateId);
+            if (!$template) {
+                $status['status'] = 'failed';
+                $status['message'] = 'Template sertifikat tidak ditemukan.';
+                $status['updated_at'] = now()->toIso8601String();
+                file_put_contents($statusFile, json_encode($status));
+                return response()->json($status, 422);
+            }
+        }
+
+        $certificates = collect();
+        $nextCursor = $cursor;
+
+        if (!empty($certificateIds)) {
+            $index = (int) ($cursor['index'] ?? 0);
+            $slice = array_slice($certificateIds, $index, $chunkSize);
+            $nextCursor['index'] = $index + count($slice);
+
+            if (!empty($slice)) {
+                $certificates = Certificate::whereIn('id', $slice)
+                    ->with(['user', 'course.instructors', 'certificateTemplate'])
+                    ->get();
+            }
+        } else {
+            $query = Certificate::query();
+
+            if ($courseId) {
+                $query->where('course_id', $courseId);
+            }
+
+            if ($search) {
+                $query->whereHas('user', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                });
+            }
+
+            $lastId = $cursor['last_id'] ?? null;
+            if ($lastId) {
+                $query->where('id', '>', $lastId);
+            }
+
+            $certificates = $query->orderBy('id')
+                ->limit($chunkSize)
+                ->with(['user', 'course.instructors', 'certificateTemplate'])
+                ->get();
+
+            if ($certificates->isNotEmpty()) {
+                $nextCursor['last_id'] = $certificates->last()->id;
+            }
+        }
+
+        if ($certificates->isEmpty()) {
+            $status['status'] = 'completed';
+            $status['message'] = $status['message'] ?? 'Update selesai.';
+            $status['updated_at'] = now()->toIso8601String();
+            file_put_contents($statusFile, json_encode($status));
+            return response()->json($status);
+        }
+
+        if ($templateId) {
+            Certificate::whereIn('id', $certificates->pluck('id')->all())
+                ->update(['certificate_template_id' => $templateId]);
+        }
+
+        foreach ($certificates as $certificate) {
+            try {
+                if ($templateId && $template) {
+                    $certificate->certificate_template_id = $template->id;
+                    $certificate->setRelation('certificateTemplate', $template);
+                }
+
+                $oldPath = $certificate->path;
+
+                $pdf = Pdf::loadView('certificates.template-render', compact('certificate'))
+                    ->setPaper('a4', 'landscape')
+                    ->setOptions([
+                        'dpi' => 150,
+                        'defaultFont' => 'times',
+                        'isHtml5ParserEnabled' => true,
+                        'isRemoteEnabled' => false,
+                        'isPhpEnabled' => true,
+                    ]);
+
+                $fileName = $certificate->certificate_code . '.pdf';
+                $filePath = 'certificates/' . $fileName;
+                Storage::disk('public')->put($filePath, $pdf->output());
+
+                $certificate->update(['path' => $filePath]);
+
+                if ($oldPath && $oldPath !== $filePath && Storage::disk('public')->exists($oldPath)) {
+                    Storage::disk('public')->delete($oldPath);
+                }
+
+                $updatedCount++;
+            } catch (\Exception $e) {
+                \Log::error("Failed to update certificate {$certificate->id}: " . $e->getMessage());
+            } finally {
+                $processed++;
+            }
+        }
+
+        $status['status'] = 'processing';
+        $status['processed'] = $processed;
+        $status['updated'] = $updatedCount;
+        $status['cursor'] = $nextCursor;
+        $status['updated_at'] = now()->toIso8601String();
+        if (!$status['started_at']) {
+            $status['started_at'] = now()->toIso8601String();
+        }
+
+        if ($total && $processed >= $total) {
+            $status['status'] = 'completed';
+            $status['message'] = $templateId
+                ? "Berhasil memperbarui template {$updatedCount} dari {$total} sertifikat."
+                : "Berhasil meregenerasi {$updatedCount} dari {$total} sertifikat.";
+        }
+
+        file_put_contents($statusFile, json_encode($status));
+
+        return response()->json($status);
+    }
+
+    private function initBulkUpdateStatus(string $batchId, int $total, array $criteria = []): void
+    {
+        $statusFile = storage_path('app/temp/update_template_status_' . $batchId . '.json');
+        $dir = dirname($statusFile);
+
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
+        $data = [
+            'status' => 'queued',
+            'processed' => 0,
+            'updated' => 0,
+            'total' => $total,
+            'started_at' => null,
+            'queued_at' => now()->toIso8601String(),
+            'updated_at' => now()->toIso8601String(),
+            'message' => 'Menunggu proses...',
+            'criteria' => $criteria,
+            'cursor' => [
+                'last_id' => null,
+                'index' => 0,
+            ],
+        ];
+
+        file_put_contents($statusFile, json_encode($data));
     }
 
     /**

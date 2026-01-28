@@ -499,6 +499,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/download-all', [CertificateController::class, 'downloadAll'])->name('download-all')->middleware('permission:view certificate management|view progress reports');
         Route::get('/download-status/{batchId}', [CertificateController::class, 'downloadStatus'])->name('download-status')->middleware('permission:view certificate management|view progress reports');
         Route::get('/download-zip/{batchId}', [CertificateController::class, 'downloadZip'])->name('download-zip')->middleware('permission:view certificate management|view progress reports');
+        Route::get('/update-template-status/{batchId}', [CertificateController::class, 'bulkUpdateTemplateStatus'])->name('update-template-status')->middleware('permission:view certificate management|view progress reports');
+        Route::post('/update-template-chunk', [CertificateController::class, 'bulkUpdateTemplateChunk'])->name('update-template-chunk')->middleware('permission:view certificate management|view progress reports');
     });
 
     // Instructor Analytics Routes
