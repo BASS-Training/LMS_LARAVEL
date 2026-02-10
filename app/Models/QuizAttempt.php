@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use App\Models\Question;
 
 class QuizAttempt extends Model
 {
@@ -83,5 +84,32 @@ class QuizAttempt extends Model
         }
 
         return $this->completed_at->diffForHumans($this->started_at, true);
+    }
+
+    /**
+     * Accessor untuk mendapatkan persentase nilai
+     */
+    public function getPercentageAttribute()
+    {
+        $score = $this->score ?? 0;
+        if ($score <= 0) {
+            return 0;
+        }
+
+        $totalMarks = 0;
+        if ($this->relationLoaded('quiz') && $this->quiz) {
+            if (!$this->quiz->relationLoaded('questions')) {
+                $this->quiz->load('questions');
+            }
+            $totalMarks = (int) $this->quiz->questions->sum('marks');
+        } else {
+            $totalMarks = (int) Question::where('quiz_id', $this->quiz_id)->sum('marks');
+        }
+
+        if ($totalMarks <= 0) {
+            return 0;
+        }
+
+        return round(($score / $totalMarks) * 100, 2);
     }
 }
