@@ -199,6 +199,7 @@
 
                                         <div class="flex items-center justify-between mt-2">
                                             <p class="text-sm text-gray-500">
+                                                <span x-text="getWordCount(answers[{{ $index }}])"></span> kata (min 10) •
                                                 <span x-text="answers[{{ $index }}] ? answers[{{ $index }}].length : 0"></span> karakter
                                             </p>
                                             <p x-show="questionStatus[{{ $index }}].saving" class="text-sm text-blue-600">
@@ -313,6 +314,7 @@
                 sidebarOpen: window.innerWidth >= 1024,
                 currentQuestion: 0,
                 totalQuestions: {{ $questions->count() }},
+                minWords: 10,
                 answers: @json($questions->map(fn($item) => $item['answer']->answer ?? '')->toArray()),
                 questionStatus: @json($questions->map(function($item) {
                     return [
@@ -329,6 +331,7 @@
                 init() {
                     // Load from localStorage
                     this.loadFromLocalStorage();
+                    this.syncAnswerStatuses();
 
                     // Auto-save every 30 seconds
                     setInterval(() => {
@@ -378,11 +381,31 @@
                 },
 
                 handleInput(index) {
+                    this.updateLocalStatus(index);
                     // Debounce auto-save
                     clearTimeout(this.autoSaveTimer);
                     this.autoSaveTimer = setTimeout(() => {
                         this.autoSaveAnswer(index);
                     }, 2000);
+                },
+
+                getWordCount(text) {
+                    if (!text) return 0;
+                    return text.trim().split(/\s+/).filter(Boolean).length;
+                },
+
+                meetsMinWords(text) {
+                    return this.getWordCount(text) >= this.minWords;
+                },
+
+                updateLocalStatus(index) {
+                    this.questionStatus[index].answered = this.meetsMinWords(this.answers[index] || '');
+                },
+
+                syncAnswerStatuses() {
+                    this.questionStatus.forEach((status, index) => {
+                        status.answered = this.meetsMinWords(this.answers[index] || '');
+                    });
                 },
 
                 async autoSaveAnswer(index) {
@@ -411,7 +434,7 @@
 
                         if (data.success) {
                             this.questionStatus[index].lastSaved = 'baru saja';
-                            this.questionStatus[index].answered = true;
+                            this.questionStatus[index].answered = this.meetsMinWords(answer);
                             this.lastSaved = data.saved_at;
                             this.updateProgress();
                         }
@@ -432,6 +455,17 @@
                 },
 
                 confirmSubmit() {
+                    const invalidIndexes = [];
+                    for (let i = 0; i < this.totalQuestions; i++) {
+                        if (!this.meetsMinWords(this.answers[i] || '')) {
+                            invalidIndexes.push(i);
+                        }
+                    }
+                    if (invalidIndexes.length > 0) {
+                        this.currentQuestion = invalidIndexes[0];
+                        alert('Setiap jawaban minimal ' + this.minWords + ' kata. Masih ada ' + invalidIndexes.length + ' pertanyaan yang belum memenuhi.');
+                        return;
+                    }
                     // Removed confirm dialogs for better browser compatibility
                     // Auto-save all answers and submit directly
                     this.autoSaveAll().then(() => {

@@ -5,6 +5,7 @@
     @endphp
 
     <div class="mt-6 border-t pt-6">
+        <div id="essay-toast-container" class="fixed top-4 right-4 z-50 space-y-2 pointer-events-none"></div>
         {{-- JIKA SUDAH ADA JAWABAN YANG SUBMITTED --}}
         @if ($submission && $submission->status === 'submitted')
             <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-md dark:bg-green-900 dark:text-green-200 dark:border-green-600" role="alert">
@@ -132,12 +133,12 @@
                                         </div>
                                     </div>
 
-                                    <!-- Auto Save Indicator -->
-                                    <div id="save-indicator" class="flex items-center space-x-2 text-green-500 text-xs transition-opacity duration-300">
+                                    <!-- Save Indicator -->
+                                    <div id="save-indicator" class="flex items-center space-x-2 text-gray-500 text-xs transition-opacity duration-300">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                         </svg>
-                                        <span class="font-medium" id="save-indicator-text">Draft tersimpan otomatis</span>
+                                        <span class="font-medium" id="save-indicator-text">Draft belum disimpan</span>
                                     </div>
 
                                     <!-- Current Question Info -->
@@ -264,14 +265,14 @@
                                                             id="answer_{{ $question->id }}"
                                                             data-question-id="{{ $question->id }}"
                                                             class="essay-answer w-full border-2 border-gray-300 dark:border-gray-600 rounded-xl px-5 py-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-800 dark:text-gray-200 resize-y min-h-[500px] text-base leading-relaxed transition-all duration-200"
-                                                            placeholder="Tulis jawaban Anda di sini... (draft akan tersimpan otomatis)"
+                                                            placeholder="Tulis jawaban Anda di sini... (klik Simpan Jawaban untuk menyimpan draft)"
                                                             required>{{ old("answer_{$question->id}") }}</textarea>
 
                                                         {{-- Character counter --}}
                                                         <div class="flex items-center justify-between mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                                            <span class="char-count">0 karakter</span>
+                                                            <span class="char-count">0 kata (min 10) | 0 karakter</span>
                                                             <span class="save-status" data-question-id="{{ $question->id }}">
-                                                                <span class="text-gray-400">Belum tersimpan</span>
+                                                                <span class="text-gray-400">Belum disimpan</span>
                                                             </span>
                                                         </div>
 
@@ -298,25 +299,44 @@
                                                             Soal <span class="text-indigo-600 font-bold">{{ $index + 1 }}</span> dari {{ $questions->count() }}
                                                         </div>
 
-                                                        <button type="button"
-                                                                onclick="nextQuestion()"
-                                                                class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-all duration-200 {{ $index === $questions->count() - 1 ? 'hidden' : '' }}"
-                                                                id="next-btn-{{ $index }}">
-                                                            Selanjutnya
-                                                            <svg class="w-4 h-4 inline ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                                            </svg>
-                                                        </button>
+                                                        <div class="flex items-center gap-3 flex-wrap">
+                                                            <button type="button"
+                                                                    onclick="saveCurrentAnswer(true)"
+                                                                    class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-all duration-200 {{ $index === $questions->count() - 1 ? 'hidden' : '' }}"
+                                                                    id="save-next-btn-{{ $index }}">
+                                                                Simpan Jawaban & Lanjut
+                                                                <svg class="w-4 h-4 inline ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                                                </svg>
+                                                            </button>
 
-                                                        <button type="button"
-                                                                onclick="showSubmitConfirmation(event)"
-                                                                class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all duration-200 {{ $index !== $questions->count() - 1 ? 'hidden' : '' }}"
-                                                                id="submit-btn-{{ $index }}">
-                                                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                            </svg>
-                                                            Kirim Semua Jawaban
-                                                        </button>
+                                                            <button type="button"
+                                                                    onclick="nextQuestion()"
+                                                                    class="px-5 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-semibold rounded-lg transition-all duration-200 {{ $index === $questions->count() - 1 ? 'hidden' : '' }}"
+                                                                    id="skip-btn-{{ $index }}">
+                                                                Lewati
+                                                                <svg class="w-4 h-4 inline ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                                                </svg>
+                                                            </button>
+
+                                                            <button type="button"
+                                                                    onclick="saveCurrentAnswer(false)"
+                                                                    class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-all duration-200 {{ $index !== $questions->count() - 1 ? 'hidden' : '' }}"
+                                                                    id="save-btn-{{ $index }}">
+                                                                Simpan Jawaban
+                                                            </button>
+
+                                                            <button type="button"
+                                                                    onclick="showSubmitConfirmation(event)"
+                                                                    class="px-5 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all duration-200 {{ $index !== $questions->count() - 1 ? 'hidden' : '' }}"
+                                                                    id="submit-btn-{{ $index }}">
+                                                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                </svg>
+                                                                Kirim Semua Jawaban
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -433,28 +453,31 @@
                     }
                 </style>
 
-                {{-- Enhanced Autosave JavaScript with Navigation --}}
+                {{-- Draft Save JavaScript with Navigation --}}
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
-                        const contentId = {{ $content->id }};
+                        const MIN_WORDS = 10;
                         const autosaveUrl = "{{ route('essays.autosave', $content) }}";
                         const getDraftsUrl = "{{ route('essays.get_drafts', $content) }}";
                         const csrfToken = "{{ csrf_token() }}";
                         const totalQuestions = {{ $questions->count() }};
 
                         let currentQuestionIndex = 0;
-                        let autosaveTimers = {};
-                        let answeredQuestions = new Set();
+                        const lastSavedAnswers = {};
+                        const savedQuestions = new Set();
+                        const completedQuestions = new Set();
+
+                        function getWordCount(text) {
+                            if (!text) return 0;
+                            return text.trim().split(/\s+/).filter(Boolean).length;
+                        }
+
+                        function meetsMinWords(text) {
+                            return getWordCount(text) >= MIN_WORDS;
+                        }
 
                         // Navigation Functions
                         window.goToQuestion = function(index) {
-                            // Auto-save current question before switching
-                            const currentTextarea = document.querySelector(`.question-slide.active textarea.essay-answer`);
-                            if (currentTextarea) {
-                                const questionId = currentTextarea.dataset.questionId;
-                                autosaveAnswer(questionId, currentTextarea.value, false);
-                            }
-
                             // Hide all questions
                             document.querySelectorAll('.question-slide').forEach(slide => {
                                 slide.classList.remove('active');
@@ -491,6 +514,22 @@
                             }
                         };
 
+                        function isDirty(questionId, currentValue) {
+                            if (Object.prototype.hasOwnProperty.call(lastSavedAnswers, questionId)) {
+                                return currentValue !== lastSavedAnswers[questionId];
+                            }
+                            return currentValue.trim().length > 0;
+                        }
+
+                        window.saveCurrentAnswer = function(goNextAfterSave) {
+                            const currentTextarea = document.querySelector(`.question-slide.active textarea.essay-answer`);
+                            if (!currentTextarea) {
+                                return;
+                            }
+                            const questionId = currentTextarea.dataset.questionId;
+                            saveDraft(questionId, currentTextarea.value, !!goNextAfterSave);
+                        };
+
                         function updateNavigationButtons() {
                             // Update sidebar navigation buttons
                             document.querySelectorAll('.question-nav-btn').forEach((btn, index) => {
@@ -502,29 +541,32 @@
                             });
                         }
 
-                        // Load existing drafts
-                        loadDrafts();
-
-                        // Setup autosave for all textareas
+                        // Setup input handlers for all textareas
                         document.querySelectorAll('.essay-answer').forEach(textarea => {
                             const questionId = textarea.dataset.questionId;
 
-                            // Character counter and autosave
+                            // Character counter and draft status
                             textarea.addEventListener('input', function() {
                                 updateCharCount(this);
-                                updateProgress();
                                 updateQuestionStatus(this);
-
-                                // Autosave with debounce
-                                clearTimeout(autosaveTimers[questionId]);
-                                autosaveTimers[questionId] = setTimeout(() => {
-                                    autosaveAnswer(questionId, this.value, true);
-                                }, 2000); // Save 2 seconds after stop typing
+                                if (isDirty(questionId, this.value)) {
+                                    updateSaveStatus(questionId, 'unsaved', 'Belum disimpan');
+                                    updateAutosaveIndicator('dirty', 'Perubahan belum disimpan');
+                                } else if (Object.prototype.hasOwnProperty.call(lastSavedAnswers, questionId)) {
+                                    updateSaveStatus(questionId, 'saved', 'Draft tersimpan');
+                                    updateAutosaveIndicator('saved', 'Draft tersimpan');
+                                }
+                                updateProgress();
                             });
 
                             // Initial char count
                             updateCharCount(textarea);
+                            updateQuestionStatus(textarea);
+                            updateSaveStatus(questionId, 'unsaved', 'Belum disimpan');
                         });
+
+                        // Load existing drafts
+                        loadDrafts();
 
                         // Form submission
                         document.getElementById('essay-form').addEventListener('submit', function(e) {
@@ -544,24 +586,44 @@
                                 if (data.drafts) {
                                     Object.keys(data.drafts).forEach(questionId => {
                                         const textarea = document.getElementById(`answer_${questionId}`);
-                                        if (textarea && data.drafts[questionId]) {
-                                            textarea.value = data.drafts[questionId];
+                                        if (textarea) {
+                                            const draftText = data.drafts[questionId] ?? '';
+                                            textarea.value = draftText;
+                                            if (draftText.trim().length > 0) {
+                                                lastSavedAnswers[questionId] = draftText;
+                                            } else {
+                                                delete lastSavedAnswers[questionId];
+                                            }
                                             updateCharCount(textarea);
                                             updateQuestionStatus(textarea);
-                                            if (data.drafts[questionId].trim().length > 0) {
-                                                answeredQuestions.add(questionId);
+                                            if (draftText.trim().length > 0) {
                                                 updateSaveStatus(questionId, 'saved', 'Draft tersimpan');
+                                            } else {
+                                                updateSaveStatus(questionId, 'unsaved', 'Belum disimpan');
                                             }
                                         }
                                     });
+                                    if (Object.keys(data.drafts).length > 0) {
+                                        updateAutosaveIndicator('saved', 'Draft tersimpan');
+                                    } else {
+                                        updateAutosaveIndicator('idle', 'Draft belum disimpan');
+                                    }
                                     updateProgress();
                                 }
                             })
                             .catch(error => console.error('Error loading drafts:', error));
                         }
 
-                        function autosaveAnswer(questionId, answer, showIndicator = true) {
+                        function saveDraft(questionId, answer, goNextAfterSave = false) {
+                            if (!answer || answer.trim().length === 0) {
+                                updateSaveStatus(questionId, 'error', 'Jawaban kosong');
+                                updateAutosaveIndicator('error', 'Jawaban kosong, tidak disimpan');
+                                showEssayToast('Jawaban kosong. Silakan isi terlebih dahulu sebelum menyimpan.', 'error');
+                                return;
+                            }
+
                             updateSaveStatus(questionId, 'saving', 'Menyimpan...');
+                            updateAutosaveIndicator('saving', 'Menyimpan draft...');
 
                             fetch(autosaveUrl, {
                                 method: 'POST',
@@ -575,35 +637,57 @@
                                     answer: answer
                                 })
                             })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    updateSaveStatus(questionId, 'saved', 'Tersimpan ' + data.saved_at);
-                                    if (showIndicator) {
-                                        updateAutosaveIndicator('saved', 'Draft tersimpan ' + data.saved_at);
-                                    }
+                            .then(async response => {
+                                const data = await response.json().catch(() => ({}));
+                                return { ok: response.ok, data };
+                            })
+                            .then(({ ok, data }) => {
+                                if (!ok) {
+                                    const message = (data && data.errors && data.errors.answer && data.errors.answer[0])
+                                        ? data.errors.answer[0]
+                                        : ((data && (data.message || data.error)) ? (data.message || data.error) : 'Gagal menyimpan');
+                                    updateSaveStatus(questionId, 'error', message);
+                                    updateAutosaveIndicator('error', message);
+                                    showEssayToast(message, 'error');
+                                    return;
+                                }
 
-                                    if (answer.trim().length > 0) {
-                                        answeredQuestions.add(questionId);
-                                    } else {
-                                        answeredQuestions.delete(questionId);
+                                if (data.success) {
+                                    const normalizedAnswer = answer ?? '';
+                                    lastSavedAnswers[questionId] = normalizedAnswer;
+
+                                    updateSaveStatus(questionId, 'saved', 'Tersimpan ' + data.saved_at);
+                                    updateAutosaveIndicator('saved', 'Draft tersimpan ' + data.saved_at);
+
+                                    const textarea = document.getElementById(`answer_${questionId}`);
+                                    if (textarea) {
+                                        updateQuestionStatus(textarea);
                                     }
                                     updateProgress();
+
+                                    if (goNextAfterSave) {
+                                        nextQuestion();
+                                    }
                                 } else {
                                     updateSaveStatus(questionId, 'error', 'Gagal menyimpan');
+                                    updateAutosaveIndicator('error', 'Gagal menyimpan');
+                                    showEssayToast('Gagal menyimpan jawaban.', 'error');
                                 }
                             })
                             .catch(error => {
-                                console.error('Autosave error:', error);
+                                console.error('Save draft error:', error);
                                 updateSaveStatus(questionId, 'error', 'Gagal menyimpan');
+                                updateAutosaveIndicator('error', 'Gagal menyimpan');
+                                showEssayToast('Gagal menyimpan jawaban.', 'error');
                             });
                         }
 
                         function updateCharCount(textarea) {
                             const count = textarea.value.length;
+                            const wordCount = getWordCount(textarea.value);
                             const counterEl = textarea.closest('.question-slide').querySelector('.char-count');
                             if (counterEl) {
-                                counterEl.textContent = count.toLocaleString() + ' karakter';
+                                counterEl.textContent = wordCount.toLocaleString() + ' kata (min ' + MIN_WORDS + ') | ' + count.toLocaleString() + ' karakter';
                             }
                         }
 
@@ -613,29 +697,59 @@
 
                             const statusIndicator = questionSlide.querySelector('.status-indicator');
                             const statusText = questionSlide.querySelector('.status-text');
-                            const hasAnswer = textarea.value.trim().length > 0;
 
                             const questionIndex = parseInt(questionSlide.dataset.questionIndex);
                             const questionId = questionSlide.dataset.questionId;
+                            const currentValue = textarea.value;
+                            const currentTrimmed = currentValue.trim();
+                            const isCurrentEmpty = currentTrimmed.length === 0;
+                            const hasSaved = Object.prototype.hasOwnProperty.call(lastSavedAnswers, questionId);
+                            const dirty = isDirty(questionId, currentValue);
+                            const savedValue = hasSaved ? (lastSavedAnswers[questionId] ?? '') : '';
+                            const savedNonEmpty = hasSaved && savedValue.trim().length > 0;
+                            const completed = savedNonEmpty && meetsMinWords(savedValue);
+                            const navAnswered = !dirty && savedNonEmpty && !isCurrentEmpty;
 
-                            if (hasAnswer) {
+                            if (!hasSaved && isCurrentEmpty) {
+                                statusIndicator.className = 'status-indicator w-4 h-4 rounded-full border-2 border-gray-300 transition-all duration-300';
+                                statusText.textContent = 'Belum dijawab';
+                                statusText.className = 'status-text text-sm text-gray-500';
+                            } else if (dirty) {
+                                statusIndicator.className = 'status-indicator w-4 h-4 rounded-full bg-yellow-400 transition-all duration-300';
+                                statusText.textContent = 'Belum disimpan';
+                                statusText.className = 'status-text text-sm text-yellow-600 font-medium';
+                            } else if (savedNonEmpty && completed) {
                                 statusIndicator.className = 'status-indicator w-4 h-4 rounded-full bg-green-500 transition-all duration-300';
-                                statusText.textContent = 'Sudah dijawab';
+                                statusText.textContent = 'Tersimpan';
                                 statusText.className = 'status-text text-sm text-green-600 font-medium';
-
-                                // Update nav button
-                                const navBtn = document.querySelector(`[data-question="${questionIndex}"]`);
-                                if (navBtn) {
-                                    navBtn.classList.add('answered');
-                                }
+                            } else if (savedNonEmpty) {
+                                statusIndicator.className = 'status-indicator w-4 h-4 rounded-full bg-yellow-400 transition-all duration-300';
+                                statusText.textContent = 'Draft tersimpan (min ' + MIN_WORDS + ' kata)';
+                                statusText.className = 'status-text text-sm text-yellow-600 font-medium';
                             } else {
                                 statusIndicator.className = 'status-indicator w-4 h-4 rounded-full border-2 border-gray-300 transition-all duration-300';
                                 statusText.textContent = 'Belum dijawab';
                                 statusText.className = 'status-text text-sm text-gray-500';
+                            }
 
-                                // Update nav button
-                                const navBtn = document.querySelector(`[data-question="${questionIndex}"]`);
-                                if (navBtn) {
+                            if (navAnswered) {
+                                savedQuestions.add(questionId);
+                            } else {
+                                savedQuestions.delete(questionId);
+                            }
+
+                            if (completed) {
+                                completedQuestions.add(questionId);
+                            } else {
+                                completedQuestions.delete(questionId);
+                            }
+
+                            // Update nav button
+                            const navBtn = document.querySelector(`[data-question="${questionIndex}"]`);
+                            if (navBtn) {
+                                if (savedQuestions.has(questionId)) {
+                                    navBtn.classList.add('answered');
+                                } else {
                                     navBtn.classList.remove('answered');
                                 }
                             }
@@ -648,6 +762,7 @@
                             const colors = {
                                 'saving': 'text-yellow-600',
                                 'saved': 'text-green-600',
+                                'unsaved': 'text-gray-400',
                                 'error': 'text-red-600'
                             };
 
@@ -659,23 +774,54 @@
                             const indicator = document.getElementById('save-indicator');
                             const textEl = document.getElementById('save-indicator-text');
 
-                            if (status === 'saved') {
-                                indicator.className = 'flex items-center space-x-2 text-green-600 transition-opacity duration-300';
-                            } else if (status === 'saving') {
-                                indicator.className = 'flex items-center space-x-2 text-yellow-600 transition-opacity duration-300';
+                            const classes = {
+                                'saved': 'flex items-center space-x-2 text-green-600 transition-opacity duration-300',
+                                'saving': 'flex items-center space-x-2 text-yellow-600 transition-opacity duration-300',
+                                'dirty': 'flex items-center space-x-2 text-yellow-600 transition-opacity duration-300',
+                                'error': 'flex items-center space-x-2 text-red-600 transition-opacity duration-300',
+                                'idle': 'flex items-center space-x-2 text-gray-500 transition-opacity duration-300'
+                            };
+
+                            if (classes[status]) {
+                                indicator.className = classes[status];
                             }
 
                             textEl.textContent = text;
                         }
 
-                        function updateProgress() {
-                            // Count how many questions have answers
-                            let answeredCount = 0;
-                            document.querySelectorAll('.essay-answer').forEach(textarea => {
-                                if (textarea.value.trim().length > 0) {
-                                    answeredCount++;
-                                }
+                        function showEssayToast(message, type = 'error', duration = 3000) {
+                            const container = document.getElementById('essay-toast-container');
+                            if (!container) return;
+
+                            const typeClasses = {
+                                'success': 'bg-green-600',
+                                'info': 'bg-blue-600',
+                                'warning': 'bg-yellow-500',
+                                'error': 'bg-red-600'
+                            };
+
+                            const toast = document.createElement('div');
+                            toast.className = `pointer-events-auto ${typeClasses[type] || typeClasses.info} text-white px-4 py-3 rounded-xl shadow-lg transform translate-y-2 opacity-0 transition-all duration-300`;
+                            toast.setAttribute('role', 'alert');
+                            toast.textContent = message;
+
+                            container.appendChild(toast);
+                            requestAnimationFrame(() => {
+                                toast.classList.remove('translate-y-2', 'opacity-0');
                             });
+
+                            setTimeout(() => {
+                                toast.classList.add('translate-y-2', 'opacity-0');
+                                setTimeout(() => {
+                                    if (toast.parentNode) {
+                                        toast.parentNode.removeChild(toast);
+                                    }
+                                }, 300);
+                            }, duration);
+                        }
+
+                        function updateProgress() {
+                            const answeredCount = completedQuestions.size;
 
                             const percentage = (answeredCount / totalQuestions) * 100;
 
@@ -694,6 +840,24 @@
                             if (event) {
                                 event.preventDefault();
                                 event.stopPropagation();
+                            }
+                            const invalidQuestions = [];
+                            document.querySelectorAll('.essay-answer').forEach(textarea => {
+                                const questionId = textarea.dataset.questionId;
+                                if (!completedQuestions.has(questionId)) {
+                                    const slide = textarea.closest('.question-slide');
+                                    const index = slide ? parseInt(slide.dataset.questionIndex) : null;
+                                    invalidQuestions.push({ index });
+                                }
+                            });
+
+                            if (invalidQuestions.length > 0) {
+                                const firstInvalid = invalidQuestions[0];
+                                if (typeof firstInvalid.index === 'number' && !Number.isNaN(firstInvalid.index)) {
+                                    goToQuestion(firstInvalid.index);
+                                }
+                                alert('Simpan jawaban pada setiap soal dan pastikan minimal ' + MIN_WORDS + ' kata. Masih ada ' + invalidQuestions.length + ' pertanyaan yang belum disimpan atau belum memenuhi.');
+                                return;
                             }
                             updateProgress();
 
@@ -755,14 +919,6 @@
                             }
                         });
 
-                        // Periodic autosave (every 30 seconds)
-                        setInterval(() => {
-                            const currentTextarea = document.querySelector(`.question-slide.active textarea.essay-answer`);
-                            if (currentTextarea && currentTextarea.value.trim().length > 0) {
-                                const questionId = currentTextarea.dataset.questionId;
-                                autosaveAnswer(questionId, currentTextarea.value, false);
-                            }
-                        }, 30000);
                     });
                 </script>
             @endif

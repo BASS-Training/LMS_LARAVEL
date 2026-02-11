@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Log;
 
 class EssaySubmissionController extends Controller
 {
+    private const MIN_WORDS = 10;
+
     /**
      * Store a newly created resource in storage.
      */
@@ -29,7 +31,15 @@ class EssaySubmissionController extends Controller
                 // NEW SYSTEM: Multiple questions
                 $rules = [];
                 foreach ($questions as $question) {
-                    $rules["answer_{$question->id}"] = 'required|string';
+                    $rules["answer_{$question->id}"] = [
+                        'required',
+                        'string',
+                        function ($attribute, $value, $fail) {
+                            if ($this->countWords($value) < self::MIN_WORDS) {
+                                $fail('Jawaban minimal ' . self::MIN_WORDS . ' kata.');
+                            }
+                        }
+                    ];
                 }
                 $request->validate($rules);
 
@@ -58,7 +68,15 @@ class EssaySubmissionController extends Controller
             } else {
                 // OLD SYSTEM: Backward compatibility
                 $request->validate([
-                    'essay_content' => 'required|string',
+                    'essay_content' => [
+                        'required',
+                        'string',
+                        function ($attribute, $value, $fail) {
+                            if ($this->countWords($value) < self::MIN_WORDS) {
+                                $fail('Jawaban minimal ' . self::MIN_WORDS . ' kata.');
+                            }
+                        }
+                    ],
                 ]);
 
                 $submission = EssaySubmission::updateOrCreate(
@@ -98,6 +116,17 @@ class EssaySubmissionController extends Controller
         }
     }
 
+    private function countWords(?string $value): int
+    {
+        $text = html_entity_decode(strip_tags((string) $value));
+        $text = trim(preg_replace('/\s+/u', ' ', $text));
+        if ($text === '') {
+            return 0;
+        }
+
+        return count(preg_split('/\s+/u', $text, -1, PREG_SPLIT_NO_EMPTY));
+    }
+
     /**
      * Autosave draft answer (called via AJAX)
      */
@@ -110,10 +139,24 @@ class EssaySubmissionController extends Controller
         $user = Auth::user();
 
         // Validate input
-        $request->validate([
-            'question_id' => 'required|exists:essay_questions,id',
-            'answer' => 'nullable|string',
-        ]);
+        $request->validate(
+            [
+                'question_id' => 'required|exists:essay_questions,id',
+                'answer' => [
+                    'required',
+                    'string',
+                    function ($attribute, $value, $fail) {
+                        if (trim((string) $value) === '') {
+                            $fail('Jawaban tidak boleh kosong.');
+                        }
+                    }
+                ],
+            ],
+            [
+                'answer.required' => 'Jawaban tidak boleh kosong.',
+                'answer.string' => 'Jawaban tidak boleh kosong.',
+            ]
+        );
 
         try {
             DB::transaction(function () use ($request, $content, $user) {
