@@ -90,7 +90,7 @@
             <div class="bg-white rounded-xl card-shadow overflow-hidden bounce-in">
                 <!-- Status Banner -->
                 @php
-                    $percentage = $attempt->percentage ?? 0;
+                    $percentage = $score_percentage ?? 0;
                     $isPassed = $attempt->passed;
                 @endphp
                 
@@ -384,12 +384,20 @@
 
                     <!-- Action Buttons -->
                     <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        {{-- [FIX] Kembali ke halaman content --}}
-                        <a href="{{ route('contents.show', $content) }}"
-                           class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold btn-hover flex items-center justify-center space-x-2">
-                            <i class="fas fa-arrow-left"></i>
-                            <span>Kembali ke Materi</span>
-                        </a>
+                        @if($content)
+                            {{-- [FIX] Kembali ke halaman content --}}
+                            <a href="{{ route('contents.show', $content) }}"
+                               class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold btn-hover flex items-center justify-center space-x-2">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Kembali ke Materi</span>
+                            </a>
+                        @else
+                            <a href="{{ route('quizzes.show', $quiz) }}"
+                               class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold btn-hover flex items-center justify-center space-x-2">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Kembali ke Kuis</span>
+                            </a>
+                        @endif
 
                         <!-- Tombol Coba Lagi - HANYA JIKA TIDAK LULUS -->
                         @if(!$hasPassedQuizBefore)
@@ -408,11 +416,16 @@
                         </button>
                         
                         <!-- Tombol Lanjut ke Materi Berikutnya (jika lulus) -->
-                        @if($isPassed)
-                             {{-- [PERBAIKAN] Arahkan juga ke halaman materi agar pengguna bisa klik tombol 'selesai' --}}
-                             <a href="{{ route('contents.show', $content->id) }}" class="px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2">
+                        @if($isPassed && $content)
+                            {{-- [PERBAIKAN] Arahkan juga ke halaman materi agar pengguna bisa klik tombol 'selesai' --}}
+                            <a href="{{ route('contents.show', $content->id) }}" class="px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2">
                                 <i class="fas fa-check"></i>
                                 <span>Lanjut Belajar</span>
+                            </a>
+                        @elseif($isPassed)
+                            <a href="{{ route('quizzes.show', $quiz) }}" class="px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2">
+                                <i class="fas fa-check"></i>
+                                <span>Lihat Kuis</span>
                             </a>
                         @endif
                     </div>

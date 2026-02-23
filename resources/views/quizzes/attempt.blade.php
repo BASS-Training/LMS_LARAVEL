@@ -36,7 +36,7 @@
                             </div>
                             <div class="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20">
                                 <div class="text-center">
-                                    <div class="text-2xl font-bold text-white">{{ $quiz->pass_marks }}</div>
+                                    <div class="text-2xl font-bold text-white">{{ $quiz->passing_percentage }}%</div>
                                     <div class="text-xs text-blue-200">Nilai Lulus</div>
                                 </div>
                             </div>
@@ -410,7 +410,7 @@
                         <i class="fas fa-times mr-2"></i>Batalkan
                     </button>
                     <button type="button"
-                            onclick="submitQuiz()"
+                            onclick="submitQuiz(event)"
                             class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3 px-6 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105">
                         <i class="fas fa-check mr-2"></i>Ya, Kirim
                     </button>
@@ -604,6 +604,8 @@
 
         const quizId = {{ $quiz->id }};
         const attemptId = {{ $attempt->id }};
+        const saveProgressUrl = "{{ route('quizzes.save_progress', [$quiz, $attempt]) }}";
+        const csrfToken = "{{ csrf_token() }}";
 
         function goToQuestion(index) {
             // Hide all questions
@@ -742,6 +744,20 @@
             const answers = getCurrentAnswers();
             localStorage.setItem(`quiz_backup_${quizId}`, JSON.stringify(answers));
 
+            // Persist to server session so backend auto-submit can score correctly
+            // when time-limit check happens on server side.
+            fetch(saveProgressUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ answers })
+            }).catch(() => {
+                // Keep silent: local backup already exists.
+            });
+
             const saveIndicator = document.getElementById('save-indicator');
             if (saveIndicator) {
                 saveIndicator.style.opacity = '1';
@@ -844,12 +860,14 @@
             }, 200);
         }
 
-        function submitQuiz() {
+        function submitQuiz(event) {
             localStorage.removeItem(`quiz_backup_${quizId}`);
 
-            const submitBtn = event.target;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Kirim Jawaban';
-            submitBtn.disabled = true;
+            const submitBtn = event?.currentTarget || event?.target;
+            if (submitBtn && submitBtn.tagName === 'BUTTON') {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Kirim Jawaban';
+                submitBtn.disabled = true;
+            }
 
             hideSubmitConfirmation();
             document.getElementById('quiz-attempt-form').submit();

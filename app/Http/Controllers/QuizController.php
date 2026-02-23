@@ -675,8 +675,9 @@ class QuizController extends Controller
         // PERUBAHAN DIMULAI DI SINI
         // =================================================================
 
-        // Ambil data content yang terkait dengan quiz ini
-        $content = Content::where('quiz_id', $quiz->id)->firstOrFail();
+        // Ambil data content yang terkait dengan quiz ini (opsional).
+        // Jangan fail-hard agar hasil kuis tetap bisa tampil walaupun relasi content belum sinkron.
+        $content = Content::where('quiz_id', $quiz->id)->first();
         
         // Ambil skor dari attempt yang sudah disimpan
         $score = $attempt->score;

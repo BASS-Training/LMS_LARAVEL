@@ -973,7 +973,7 @@
                                                 <div class="text-sm text-gray-600">Pertanyaan</div>
                                             </div>
                                             <div class="bg-white p-4 rounded-xl text-center">
-                                                <div class="text-2xl font-bold text-purple-600">{{ $content->quiz->total_marks }}</div>
+                                                <div class="text-2xl font-bold text-purple-600">{{ $content->quiz->questions->sum('marks') }}</div>
                                                 <div class="text-sm text-gray-600">Total Poin</div>
                                             </div>
                                             <div class="bg-white p-4 rounded-xl text-center">
@@ -1011,7 +1011,7 @@
                                                             @if($attempt->completed_at)
                                                                 <div class="text-right">
                                                                     <div class="font-semibold {{ $attempt->passed ? 'text-green-600' : 'text-red-600' }}">
-                                                                        {{ $attempt->score }}/{{ $content->quiz->total_marks }}
+                                                                        {{ $attempt->score }}/{{ $content->quiz->questions->sum('marks') }}
                                                                     </div>
                                                                     <a href="{{ route('quizzes.result', [$content->quiz, $attempt]) }}"
                                                                        class="text-xs text-indigo-600 hover:text-indigo-800">Lihat Detail</a>

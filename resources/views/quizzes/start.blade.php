@@ -118,7 +118,7 @@
                                 </div>
                             </div>
                             <div class="mt-3">
-                                <p class="text-2xl font-bold text-gray-900">{{ $quiz->total_marks }}</p>
+                                <p class="text-2xl font-bold text-gray-900">{{ $quiz->questions->sum('marks') }}</p>
                                 <p class="text-xs text-gray-600 mt-1">Total Poin</p>
                             </div>
                         </div>
