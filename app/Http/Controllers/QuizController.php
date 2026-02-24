@@ -404,6 +404,9 @@ class QuizController extends Controller
             $attempt->save();
         }
 
+        $answers = $request->input('answers', []);
+        session()->put("quiz_progress_{$quiz->id}_{$user->id}", $answers);
+
         if ($quiz->time_limit) {
             $startedAt = $attempt->started_at->copy();
             $deadline = $startedAt->addMinutes($quiz->time_limit);
@@ -413,8 +416,7 @@ class QuizController extends Controller
             }
         }
 
-        $answers = $request->input('answers', []);
-        session()->put("quiz_progress_{$quiz->id}_{$user->id}", $answers);
+
 
         return response()->json(['success' => true]);
     }

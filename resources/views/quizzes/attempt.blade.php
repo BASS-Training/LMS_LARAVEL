@@ -744,19 +744,35 @@
             const answers = getCurrentAnswers();
             localStorage.setItem(`quiz_backup_${quizId}`, JSON.stringify(answers));
 
-            // Persist to server session so backend auto-submit can score correctly
-            // when time-limit check happens on server side.
-            fetch(saveProgressUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ answers })
-            }).catch(() => {
-                // Keep silent: local backup already exists.
-            });
+            // Save to server so answers are available when backend auto-submit runs.
+            const tokenElement = document.querySelector('meta[name="csrf-token"]');
+            const token = tokenElement ? tokenElement.getAttribute('content') : csrfToken;
+            if (token) {
+                fetch(saveProgressUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': token,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ answers: answers })
+                })
+                .then(response => {
+                    const contentType = response.headers.get('content-type') || '';
+                    if (!contentType.includes('application/json')) {
+                        return null;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.expired) {
+                        autoSubmitQuiz();
+                    }
+                })
+                .catch(() => {
+                    // Silent fail to keep UX smooth; local backup still exists.
+                });
+            }
 
             const saveIndicator = document.getElementById('save-indicator');
             if (saveIndicator) {
