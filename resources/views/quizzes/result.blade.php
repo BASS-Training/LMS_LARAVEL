@@ -89,10 +89,16 @@
             <!-- Main Result Card -->
             <div class="bg-white rounded-xl card-shadow overflow-hidden bounce-in">
                 <!-- Status Banner -->
-                @php
-                    $percentage = $score_percentage ?? 0;
-                    $isPassed = $attempt->passed;
-                @endphp
+                {{-- @php
+                    $percentage = (float) ($score_percentage ?? 0);
+                    $isPassed = (bool) ($isPassed ?? $attempt->passed ?? false);
+                @endphp --}}
+                    @php                                                                                                                                                                       
+                        $resolvedScore = (int) ($score ?? $attempt->score ?? 0);                                                                                                               
+                        $resolvedTotalMarks = max(1, (int) $quiz->questions->sum('marks'));                                                                                                    
+                        $percentage = (float) ($score_percentage ?? round(($resolvedScore / $resolvedTotalMarks) * 100, 2));                                                                   
+                        $isPassed = (bool) ($isPassed ?? $attempt->passed ?? false);                                                                                                           
+                    @endphp   
                 
                 <div class="{{ $isPassed ? 'success-gradient' : 'fail-gradient' }} text-white p-6 text-center">
                     <div class="flex items-center justify-center space-x-3 mb-3">

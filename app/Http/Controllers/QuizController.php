@@ -468,6 +468,62 @@ class QuizController extends Controller
         return sprintf('%02d:%02d', $minutes, $secs);
     }
 
+    /**
+     * Resolve question marks with backward compatibility.
+     * Supports legacy schema that may still use `mark` instead of `marks`.
+     */
+    private function resolveQuestionMarks(Question $question): int
+    {
+        $rawMarks = $question->getAttribute('marks');
+
+        if (is_null($rawMarks)) {
+            $rawMarks = $question->getAttribute('mark');
+        }
+
+        $marks = is_numeric($rawMarks) ? (int) $rawMarks : 0;
+
+        return max(1, $marks);
+    }
+
+    /**
+     * Resolve total quiz marks from loaded questions using schema-compatible marks lookup.
+     */
+    private function resolveQuizTotalMarks(Quiz $quiz): int
+    {
+        if (!$quiz->relationLoaded('questions')) {
+            $quiz->load('questions');
+        }
+
+        return (int) $quiz->questions->sum(fn (Question $question) => $this->resolveQuestionMarks($question));
+    }
+
+    /**
+     * Recalculate score from stored answers.
+     * Used as fallback when stored score is missing/zero in legacy production data.
+     */
+    private function recalculateScoreFromStoredAnswers(QuizAttempt $attempt): int
+    {
+        $attempt->loadMissing('answers.option', 'answers.question');
+
+        $score = 0;
+        $countedQuestionIds = [];
+
+        foreach ($attempt->answers as $answer) {
+            if (!$answer->question || !$answer->option || !$answer->option->is_correct) {
+                continue;
+            }
+
+            if (isset($countedQuestionIds[$answer->question_id])) {
+                continue;
+            }
+
+            $countedQuestionIds[$answer->question_id] = true;
+            $score += $this->resolveQuestionMarks($answer->question);
+        }
+
+        return $score;
+    }
+
     private function autoSubmitAttempt(Quiz $quiz, QuizAttempt $attempt)
     {
         if ($attempt->completed_at) {
@@ -498,7 +554,7 @@ class QuizController extends Controller
                 if ($selectedOption) {
                     $optionToSaveId = $selectedOption->id;
                     if ($selectedOption->is_correct) {
-                        $score += $question->marks;
+                        $score += $this->resolveQuestionMarks($question);
                     }
                 }
             } elseif ($question->type === 'true_false' && !empty($answerData['answer_text'])) {
@@ -506,7 +562,7 @@ class QuizController extends Controller
                 if ($selectedOption) {
                     $optionToSaveId = $selectedOption->id;
                     if ($selectedOption->is_correct) {
-                        $score += $question->marks;
+                        $score += $this->resolveQuestionMarks($question);
                     }
                 }
             }
@@ -536,7 +592,7 @@ class QuizController extends Controller
             $quiz->load('questions');
         }
 
-        $totalMarks = $quiz->questions->sum('marks');
+        $totalMarks = $this->resolveQuizTotalMarks($quiz);
         $passingMarks = ($totalMarks * ($quiz->passing_percentage ?? 70)) / 100;
 
         $attempt->update([
@@ -605,7 +661,7 @@ class QuizController extends Controller
                         $optionToSaveId = $selectedOption->id;
                         if ($selectedOption->is_correct) {
                             $isCorrect = true;
-                            $score += $question->marks;
+                            $score += $this->resolveQuestionMarks($question);
                         }
                     }
                 }
@@ -616,7 +672,7 @@ class QuizController extends Controller
                         $optionToSaveId = $selectedOption->id;
                         if ($selectedOption->is_correct) {
                             $isCorrect = true;
-                            $score += $question->marks;
+                            $score += $this->resolveQuestionMarks($question);
                         }
                     }
                 }
@@ -638,7 +694,7 @@ class QuizController extends Controller
             $quiz->load('questions');
         }
 
-        $totalMarks = $quiz->questions->sum('marks');
+        $totalMarks = $this->resolveQuizTotalMarks($quiz);
         $passingMarks = ($totalMarks * ($quiz->passing_percentage ?? 70)) / 100;
 
         $attempt->score = $score;
@@ -669,7 +725,7 @@ class QuizController extends Controller
             return redirect()->route('quizzes.start_attempt', $quiz)->with('error', 'Percobaan kuis belum selesai.');
         }
         
-        $attempt->load('answers.question.options', 'user');
+        $attempt->load('answers.question.options', 'answers.option', 'user');
 
         // =================================================================
         // PERUBAHAN DIMULAI DI SINI
@@ -681,19 +737,32 @@ class QuizController extends Controller
         
         // Ambil skor dari attempt yang sudah disimpan
         $score = (int) ($attempt->score ?? 0);
+
+        if ($score <= 0 && $attempt->answers->isNotEmpty()) {
+            $recalculatedScore = $this->recalculateScoreFromStoredAnswers($attempt);
+            if ($recalculatedScore > $score) {
+                \Log::warning('Quiz score recalculated from stored answers', [
+                    'attempt_id' => $attempt->id,
+                    'quiz_id' => $quiz->id,
+                    'stored_score' => $attempt->score,
+                    'recalculated_score' => $recalculatedScore,
+                ]);
+                $score = $recalculatedScore;
+            }
+        }
         // ✅ FIX: Hitung total_marks dari questions karena kolom total_marks sudah dihapus
         // ⚠️ CRITICAL FIX: Load questions jika belum ter-load
         if (!$quiz->relationLoaded('questions')) {
             $quiz->load('questions');
         }
 
-        $total_marks = (int) $quiz->questions->sum('marks');
+        $total_marks = $this->resolveQuizTotalMarks($quiz);
 
         if ($total_marks <= 0) {
             $fallbackTotalMarks = (int) $attempt->answers
                 ->filter(fn ($answer) => !is_null($answer->question))
                 ->unique('question_id')
-                ->sum(fn ($answer) => (int) ($answer->question->marks ?? 0));
+                ->sum(fn ($answer) => $this->resolveQuestionMarks($answer->question));
 
             if ($fallbackTotalMarks > 0) {
                 $total_marks = $fallbackTotalMarks;
@@ -712,13 +781,27 @@ class QuizController extends Controller
             : 0;
         
         // Cek apakah attempt saat ini lulus
-        $isPassed = $attempt->passed;
+        $passingMarks = ($total_marks * ($quiz->passing_percentage ?? 70)) / 100;
+        $isPassed = (bool) $attempt->passed || ($total_marks > 0 && $score >= $passingMarks);
+
+        // Self-heal legacy attempts: persist recalculated score/pass result.
+        $storedScore = is_null($attempt->score) ? null : (int) $attempt->score;
+        $storedPassed = is_null($attempt->passed) ? null : (bool) $attempt->passed;
+        if ($storedScore !== $score || $storedPassed !== $isPassed) {
+            $attempt->score = $score;
+            $attempt->passed = $isPassed;
+            $attempt->save();
+        }
 
         // Cek apakah pengguna PERNAH lulus kuis ini sebelumnya dari semua attempt
         $hasPassedQuizBefore = $user->quizAttempts()
                                     ->where('quiz_id', $quiz->id)
                                     ->where('passed', true) // Cek kolom 'passed' yang sudah ada
                                     ->exists();
+
+        if ($isPassed) {
+            $hasPassedQuizBefore = true;
+        }
 
         // Kirim semua data yang dibutuhkan ke view
         return view('quizzes.result', compact(

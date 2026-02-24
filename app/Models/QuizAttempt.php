@@ -11,6 +11,19 @@ class QuizAttempt extends Model
 {
     use HasFactory;
 
+    private function resolveQuestionMarks(Question $question): int
+    {
+        $rawMarks = $question->getAttribute('marks');
+
+        if (is_null($rawMarks)) {
+            $rawMarks = $question->getAttribute('mark');
+        }
+
+        $marks = is_numeric($rawMarks) ? (int) $rawMarks : 0;
+
+        return max(1, $marks);
+    }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -96,15 +109,19 @@ class QuizAttempt extends Model
             return 0;
         }
 
-        $totalMarks = 0;
-        if ($this->relationLoaded('quiz') && $this->quiz) {
-            if (!$this->quiz->relationLoaded('questions')) {
-                $this->quiz->load('questions');
-            }
-            $totalMarks = (int) $this->quiz->questions->sum('marks');
-        } else {
-            $totalMarks = (int) Question::where('quiz_id', $this->quiz_id)->sum('marks');
+        $quiz = $this->relationLoaded('quiz') && $this->quiz
+            ? $this->quiz
+            : $this->quiz()->first();
+
+        if (!$quiz) {
+            return 0;
         }
+
+        if (!$quiz->relationLoaded('questions')) {
+            $quiz->load('questions');
+        }
+
+        $totalMarks = (int) $quiz->questions->sum(fn (Question $question) => $this->resolveQuestionMarks($question));
 
         if ($totalMarks <= 0) {
             return 0;
