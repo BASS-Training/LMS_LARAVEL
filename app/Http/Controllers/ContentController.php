@@ -1076,10 +1076,19 @@ class ContentController extends Controller
                     ]);
                     $optionIdsToKeep = [$optionTrue->id, $optionFalse->id];
                 }
-                $question->options()->whereNotIn('id', $optionIdsToKeep)->delete();
+
+                // Prevent destructive wipe when payload is partial/empty.
+                // Only prune stale options if we have a non-empty keep-list.
+                if (!empty($optionIdsToKeep)) {
+                    $question->options()->whereNotIn('id', $optionIdsToKeep)->delete();
+                }
             }
         }
-        $quiz->questions()->whereNotIn('id', $questionIdsToKeep)->delete();
+
+        // Prevent deleting all questions when request payload does not carry questions.
+        if (!empty($questionIdsToKeep)) {
+            $quiz->questions()->whereNotIn('id', $questionIdsToKeep)->delete();
+        }
 
         return $quiz;
     }

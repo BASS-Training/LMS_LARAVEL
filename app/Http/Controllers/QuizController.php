@@ -680,15 +680,36 @@ class QuizController extends Controller
         $content = Content::where('quiz_id', $quiz->id)->first();
         
         // Ambil skor dari attempt yang sudah disimpan
-        $score = $attempt->score;
+        $score = (int) ($attempt->score ?? 0);
         // ✅ FIX: Hitung total_marks dari questions karena kolom total_marks sudah dihapus
         // ⚠️ CRITICAL FIX: Load questions jika belum ter-load
         if (!$quiz->relationLoaded('questions')) {
             $quiz->load('questions');
         }
 
-        $total_marks = $quiz->questions->sum('marks');
-        $score_percentage = ($total_marks > 0) ? ($score / $total_marks) * 100 : 0;
+        $total_marks = (int) $quiz->questions->sum('marks');
+
+        if ($total_marks <= 0) {
+            $fallbackTotalMarks = (int) $attempt->answers
+                ->filter(fn ($answer) => !is_null($answer->question))
+                ->unique('question_id')
+                ->sum(fn ($answer) => (int) ($answer->question->marks ?? 0));
+
+            if ($fallbackTotalMarks > 0) {
+                $total_marks = $fallbackTotalMarks;
+
+                \Log::warning('Quiz total marks fallback from attempt answers', [
+                    'attempt_id' => $attempt->id,
+                    'quiz_id' => $quiz->id,
+                    'fallback_total_marks' => $fallbackTotalMarks,
+                    'stored_score' => $score,
+                ]);
+            }
+        }
+
+        $score_percentage = ($total_marks > 0)
+            ? min(100, round(($score / $total_marks) * 100, 2))
+            : 0;
         
         // Cek apakah attempt saat ini lulus
         $isPassed = $attempt->passed;
