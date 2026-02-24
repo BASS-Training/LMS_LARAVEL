@@ -93,12 +93,30 @@
                     $percentage = (float) ($score_percentage ?? 0);
                     $isPassed = (bool) ($isPassed ?? $attempt->passed ?? false);
                 @endphp --}}
-                    @php                                                                                                                                                                       
+                    {{-- @php                                                                                                                                                                       
                         $resolvedScore = (int) ($score ?? $attempt->score ?? 0);                                                                                                               
                         $resolvedTotalMarks = max(1, (int) $quiz->questions->sum('marks'));                                                                                                    
                         $percentage = (float) ($score_percentage ?? round(($resolvedScore / $resolvedTotalMarks) * 100, 2));                                                                   
                         $isPassed = (bool) ($isPassed ?? $attempt->passed ?? false);                                                                                                           
-                    @endphp   
+                    @endphp    --}}
+
+                     @php                                                                                                                                                                       
+                            $totalMarks = max(1, (int) $quiz->questions->sum('marks'));                                                                                                            
+                                                                                                                                                                                                    
+                            $scoreFromAnswers = 0;                                                                                                                                                 
+                            foreach ($quiz->questions as $question) {                                                                                                                              
+                                $userAnswer = $attempt->answers->firstWhere('question_id', $question->id);                                                                                         
+                                if ($userAnswer && $userAnswer->option && $userAnswer->option->is_correct) {                                                                                       
+                                    $scoreFromAnswers += (int) ($question->marks ?? 1);                                                                                                            
+                                }                                                                                                                                                                  
+                            }                                                                                                                                                                      
+                                                                                                                                                                                                    
+                            $storedScore = (int) ($attempt->score ?? 0);                                                                                                                           
+                            $effectiveScore = max($storedScore, $scoreFromAnswers);                                                                                                                
+                                                                                                                                                                                                    
+                            $percentage = round(($effectiveScore / $totalMarks) * 100, 2);                                                                                                         
+                            $isPassed = (bool) ($attempt->passed ?? ($percentage >= (int) ($quiz->passing_percentage ?? 70)));                                                                     
+                        @endphp                 
                 
                 <div class="{{ $isPassed ? 'success-gradient' : 'fail-gradient' }} text-white p-6 text-center">
                     <div class="flex items-center justify-center space-x-3 mb-3">
