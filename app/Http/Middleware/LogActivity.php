@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\ActivityLog;
+use App\Jobs\LogActivityJob;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -102,18 +102,27 @@ class LogActivity
 
             $action = 'http_' . strtolower($request->method());
 
-            ActivityLog::log($action, [
+            $user = auth()->user();
+            try {
+                $userRoles = $user->getRoleNames()->toArray();
+            } catch (\Throwable $e) {
+                $userRoles = [];
+            }
+
+            LogActivityJob::dispatch($user->id, $userRoles, $action, [
                 'description' => sprintf('%s %s', $request->method(), $request->path()),
-                'metadata' => [
-                    'method' => $request->method(),
-                    'path' => $request->path(),
-                    'route' => $routeName,
-                    'action' => $action,
-                    'status' => $response->getStatusCode(),
-                    'ip' => $request->ip(),
+                'ip_address'  => $request->ip(),
+                'user_agent'  => $request->userAgent(),
+                'metadata'    => [
+                    'method'     => $request->method(),
+                    'path'       => $request->path(),
+                    'route'      => $routeName,
+                    'action'     => $action,
+                    'status'     => $response->getStatusCode(),
+                    'ip'         => $request->ip(),
                     'user_agent' => $request->userAgent(),
-                    'input' => $input,
-                    'models' => $models,
+                    'input'      => $input,
+                    'models'     => $models,
                 ],
             ]);
         }

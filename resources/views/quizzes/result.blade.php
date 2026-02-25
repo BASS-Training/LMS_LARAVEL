@@ -16,19 +16,19 @@
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-        
+
         .card-shadow {
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
-        
+
         .success-gradient {
             background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
         }
-        
+
         .fail-gradient {
             background: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
         }
-        
+
         .score-circle {
             position: relative;
             width: 120px;
@@ -38,7 +38,7 @@
             align-items: center;
             justify-content: center;
         }
-        
+
         .score-circle::before {
             content: '';
             position: absolute;
@@ -47,37 +47,37 @@
             border-radius: 50%;
             background: white;
         }
-        
+
         .score-text {
             position: relative;
             z-index: 1;
         }
-        
+
         .bounce-in {
             animation: bounceIn 0.8s ease-out;
         }
-        
+
         @keyframes bounceIn {
             0% { transform: scale(0.3); opacity: 0; }
             50% { transform: scale(1.05); }
             70% { transform: scale(0.9); }
             100% { transform: scale(1); opacity: 1; }
         }
-        
+
         .pulse-icon {
             animation: pulse 2s infinite;
         }
-        
+
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
-        
+
         /* Button hover effects */
         .btn-hover {
             transition: all 0.3s ease;
         }
-        
+
         .btn-hover:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
@@ -89,35 +89,11 @@
             <!-- Main Result Card -->
             <div class="bg-white rounded-xl card-shadow overflow-hidden bounce-in">
                 <!-- Status Banner -->
-                {{-- @php
-                    $percentage = (float) ($score_percentage ?? 0);
-                    $isPassed = (bool) ($isPassed ?? $attempt->passed ?? false);
-                @endphp --}}
-                    {{-- @php                                                                                                                                                                       
-                        $resolvedScore = (int) ($score ?? $attempt->score ?? 0);                                                                                                               
-                        $resolvedTotalMarks = max(1, (int) $quiz->questions->sum('marks'));                                                                                                    
-                        $percentage = (float) ($score_percentage ?? round(($resolvedScore / $resolvedTotalMarks) * 100, 2));                                                                   
-                        $isPassed = (bool) ($isPassed ?? $attempt->passed ?? false);                                                                                                           
-                    @endphp    --}}
+                @php
+                    $percentage = $attempt->percentage ?? 0;
+                    $isPassed = $attempt->passed;
+                @endphp
 
-                     @php                                                                                                                                                                       
-                            $totalMarks = max(1, (int) $quiz->questions->sum('marks'));                                                                                                            
-                                                                                                                                                                                                    
-                            $scoreFromAnswers = 0;                                                                                                                                                 
-                            foreach ($quiz->questions as $question) {                                                                                                                              
-                                $userAnswer = $attempt->answers->firstWhere('question_id', $question->id);                                                                                         
-                                if ($userAnswer && $userAnswer->option && $userAnswer->option->is_correct) {                                                                                       
-                                    $scoreFromAnswers += (int) ($question->marks ?? 1);                                                                                                            
-                                }                                                                                                                                                                  
-                            }                                                                                                                                                                      
-                                                                                                                                                                                                    
-                            $storedScore = (int) ($attempt->score ?? 0);                                                                                                                           
-                            $effectiveScore = max($storedScore, $scoreFromAnswers);                                                                                                                
-                                                                                                                                                                                                    
-                            $percentage = round(($effectiveScore / $totalMarks) * 100, 2);                                                                                                         
-                            $isPassed = (bool) ($attempt->passed ?? ($percentage >= (int) ($quiz->passing_percentage ?? 70)));                                                                     
-                        @endphp                 
-                
                 <div class="{{ $isPassed ? 'success-gradient' : 'fail-gradient' }} text-white p-6 text-center">
                     <div class="flex items-center justify-center space-x-3 mb-3">
                         <i class="fas {{ $isPassed ? 'fa-check-circle' : 'fa-times-circle' }} text-4xl pulse-icon"></i>
@@ -233,7 +209,7 @@
                                 <i class="fas fa-list-check mr-2 text-blue-500"></i>
                                 Detail Jawaban
                             </h4>
-                            
+
                             <div class="space-y-6">
                                 @foreach($quiz->questions as $question)
                                     <div class="border-b pb-4 last:border-b-0">
@@ -408,20 +384,12 @@
 
                     <!-- Action Buttons -->
                     <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        @if($content)
-                            {{-- [FIX] Kembali ke halaman content --}}
-                            <a href="{{ route('contents.show', $content) }}"
-                               class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold btn-hover flex items-center justify-center space-x-2">
-                                <i class="fas fa-arrow-left"></i>
-                                <span>Kembali ke Materi</span>
-                            </a>
-                        @else
-                            <a href="{{ route('quizzes.show', $quiz) }}"
-                               class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold btn-hover flex items-center justify-center space-x-2">
-                                <i class="fas fa-arrow-left"></i>
-                                <span>Kembali ke Kuis</span>
-                            </a>
-                        @endif
+                        {{-- [FIX] Kembali ke halaman content --}}
+                        <a href="{{ route('contents.show', $content) }}"
+                           class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold btn-hover flex items-center justify-center space-x-2">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Kembali ke Materi</span>
+                        </a>
 
                         <!-- Tombol Coba Lagi - HANYA JIKA TIDAK LULUS -->
                         @if(!$hasPassedQuizBefore)
@@ -431,25 +399,20 @@
                                 <span>Coba Lagi</span>
                             </a>
                         @endif
-                        
+
                         <!-- Tombol Download/Print -->
-                        <button onclick="window.print()" 
+                        <button onclick="window.print()"
                                 class="border border-gray-300 hover:bg-gray-50 text-gray-700 px-8 py-3 rounded-lg font-semibold btn-hover flex items-center justify-center space-x-2">
                             <i class="fas fa-download"></i>
                             <span>Unduh Hasil</span>
                         </button>
-                        
+
                         <!-- Tombol Lanjut ke Materi Berikutnya (jika lulus) -->
-                        @if($isPassed && $content)
-                            {{-- [PERBAIKAN] Arahkan juga ke halaman materi agar pengguna bisa klik tombol 'selesai' --}}
-                            <a href="{{ route('contents.show', $content->id) }}" class="px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2">
+                        @if($isPassed)
+                             {{-- [PERBAIKAN] Arahkan juga ke halaman materi agar pengguna bisa klik tombol 'selesai' --}}
+                             <a href="{{ route('contents.show', $content->id) }}" class="px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2">
                                 <i class="fas fa-check"></i>
                                 <span>Lanjut Belajar</span>
-                            </a>
-                        @elseif($isPassed)
-                            <a href="{{ route('quizzes.show', $quiz) }}" class="px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2">
-                                <i class="fas fa-check"></i>
-                                <span>Lihat Kuis</span>
                             </a>
                         @endif
                     </div>
