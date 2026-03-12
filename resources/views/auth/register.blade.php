@@ -196,7 +196,7 @@
                         <li>Token kelas AVPN baru bisa diinput setelah admin menyetujui.</li>
                     </ol>
                     <a href="{{ $avpnGoogleFormUrl ?: '#' }}" target="_blank" rel="noopener noreferrer"
-                       class="inline-flex items-center mt-3 px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700">
+                       class="inline-flex items-center mt-3 px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-700">
                         Buka Google Form AVPN
                     </a>
                     <p class="mt-3 text-xs text-amber-700">

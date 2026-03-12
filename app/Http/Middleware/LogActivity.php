@@ -56,10 +56,31 @@ class LogActivity
 
             $action = $route?->getActionName() ?? '';
 
-            // Filter sensitive inputs
-            $input = collect($request->all())->except([
+            // Filter sensitive inputs — exclude file uploads (UploadedFile cannot be serialized in queue jobs)
+            $input = collect($request->input())->except([
                 '_token', 'password', 'password_confirmation', 'current_password', 'new_password', 'new_password_confirmation'
             ])->toArray();
+
+            // Append file metadata (name + size only, not the file object itself)
+            if ($request->hasFile('*') || count($request->allFiles()) > 0) {
+                $filesMeta = [];
+                foreach ($request->allFiles() as $key => $file) {
+                    if (is_array($file)) {
+                        $filesMeta[$key] = collect($file)->map(fn($f) => [
+                            'name' => $f->getClientOriginalName(),
+                            'size' => $f->getSize(),
+                            'mime' => $f->getMimeType(),
+                        ])->toArray();
+                    } else {
+                        $filesMeta[$key] = [
+                            'name' => $file->getClientOriginalName(),
+                            'size' => $file->getSize(),
+                            'mime' => $file->getMimeType(),
+                        ];
+                    }
+                }
+                $input['_uploaded_files'] = $filesMeta;
+            }
 
             // Build model diffs if any
             $models = [];

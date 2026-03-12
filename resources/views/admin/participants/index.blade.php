@@ -157,7 +157,7 @@
                                 <button
                                     type="submit"
                                     onclick="return confirm('Sinkronisasi ini akan menandai user lama yang punya riwayat kelas AVPN menjadi user AVPN approved. Lanjutkan?')"
-                                    class="px-4 py-2 bg-amber-600 text-white rounded-xl text-sm font-medium hover:bg-amber-700 transition-colors"
+                                    class="px-4 py-2 bg-orange-600 text-white rounded-xl text-sm font-medium hover:bg-orange-700 transition-colors"
                                 >
                                     Sinkronisasi User Lama AVPN
                                 </button>

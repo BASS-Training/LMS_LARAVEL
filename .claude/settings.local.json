@@ -13,7 +13,8 @@
       "Bash(composer require:*)",
       "Bash(NUL)",
       "Bash(dir:*)",
-      "Bash(storage/logs/laravel.log)"
+      "Bash(storage/logs/laravel.log)",
+      "Bash(ls /var/www/lms.basstrainingacademy.com/html/public/build/assets/*.css 2>/dev/null | head -5)"
     ],
     "deny": [],
     "ask": []
