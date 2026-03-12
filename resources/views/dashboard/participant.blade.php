@@ -210,10 +210,28 @@
                                             @endif
                                         </svg>
                                     </div>
-                                    <div class="ml-3">
+                                    <div class="ml-3 flex-1">
                                         <h4 class="text-sm font-medium text-{{ $announcement->level_color }}-800">{{ $announcement->title }}</h4>
-                                        <p class="text-sm text-{{ $announcement->level_color }}-700 mt-1">{{ Str::limit($announcement->content, 120) }}</p>
-                                        <p class="text-xs text-{{ $announcement->level_color }}-600 mt-2">{{ $announcement->created_at->diffForHumans() }}</p>
+                                        <div id="dashboard-announcement-preview-{{ $announcement->id }}" data-expanded="0" class="dashboard-announcement-preview mt-1 rounded-md bg-white/50 px-2 py-1 transition-all duration-300">
+                                            <p class="text-sm text-{{ $announcement->level_color }}-700 whitespace-pre-line break-words">
+                                                {{ strip_tags($announcement->content) }}
+                                            </p>
+                                        </div>
+                                        <div class="mt-2 flex items-center justify-between">
+                                            <p class="text-xs text-{{ $announcement->level_color }}-600">{{ $announcement->created_at->diffForHumans() }}</p>
+                                            <div class="flex items-center gap-2">
+                                                <button
+                                                    type="button"
+                                                    onclick="toggleDashboardAnnouncementPreview({{ $announcement->id }})"
+                                                    class="text-xs font-semibold px-2 py-1 rounded border border-{{ $announcement->level_color }}-300 text-{{ $announcement->level_color }}-700 hover:bg-{{ $announcement->level_color }}-100"
+                                                >
+                                                    <span id="dashboard-announcement-toggle-label-{{ $announcement->id }}">Expand</span>
+                                                </button>
+                                                <a href="{{ route('announcements.show', $announcement) }}" class="text-xs font-semibold text-{{ $announcement->level_color }}-700 hover:text-{{ $announcement->level_color }}-900">
+                                                    Baca Detail
+                                                </a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -570,6 +588,45 @@
                             </div>
 
                             <div class="px-4 pb-3">
+                                @php
+                                    $avpnStatus = Auth::user()->avpn_verification_status ?? 'not_required';
+                                    $showAvpnStatus = Auth::user()->registration_program === 'avpn_ai' || $avpnStatus !== 'not_required';
+                                @endphp
+
+                                @if($showAvpnStatus)
+                                    @php
+                                        $avpnStatusClass = match($avpnStatus) {
+                                            'approved' => 'bg-green-50 border-green-200 text-green-700',
+                                            'pending' => 'bg-yellow-50 border-yellow-200 text-yellow-700',
+                                            'rejected' => 'bg-red-50 border-red-200 text-red-700',
+                                            default => 'bg-gray-50 border-gray-200 text-gray-700'
+                                        };
+                                    @endphp
+                                    <div class="mb-3 p-3 border rounded-lg {{ $avpnStatusClass }}">
+                                        <p class="text-sm font-medium">
+                                            Status Verifikasi AVPN: {{ strtoupper($avpnStatus) }}
+                                        </p>
+                                        @if($avpnStatus === 'pending')
+                                            <p class="text-xs mt-1">Akses kelas Literasi AI (AVPN) akan aktif setelah diverifikasi admin.</p>
+                                        @elseif($avpnStatus === 'rejected' && Auth::user()->avpn_rejection_reason)
+                                            <p class="text-xs mt-1">Alasan penolakan: {{ Auth::user()->avpn_rejection_reason }}</p>
+                                        @endif
+                                    </div>
+                                @endif
+
+                                @if(Auth::user()->registration_program !== 'avpn_ai' && in_array($avpnStatus, ['not_required', 'rejected'], true))
+                                    @php($avpnGoogleFormUrl = config('services.avpn.google_form_url'))
+                                    <form action="{{ route('profile.avpn.request') }}" method="POST" class="mb-3 js-avpn-verify-form" data-google-form-url="{{ $avpnGoogleFormUrl ?? '' }}">
+                                        @csrf
+                                        <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors">
+                                            Ajukan Verifikasi AVPN
+                                        </button>
+                                        <p class="mt-2 text-xs text-gray-500">
+                                            Isi Google Form AVPN terlebih dahulu, lalu kirim pengajuan verifikasi ini.
+                                        </p>
+                                    </form>
+                                @endif
+
                                 <!-- Unified Token Form -->
                                 <form action="{{ route('enroll') }}" method="POST" class="w-full">
                                     @csrf
@@ -684,6 +741,32 @@
     <!-- Notification Toast Container -->
     <div id="notificationToasts" class="fixed top-4 right-4 z-50 space-y-2 w-full max-w-sm"></div>
 
+    <!-- AVPN Verification Modal -->
+    <div id="avpnVerificationModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/50"></div>
+        <div class="relative min-h-screen flex items-center justify-center p-4">
+            <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-blue-50">
+                    <h3 class="text-lg font-semibold text-gray-900">Verifikasi AVPN</h3>
+                </div>
+                <div class="px-6 py-5">
+                    <p class="text-sm text-gray-700 leading-relaxed">
+                        Sebelum lanjut verifikasi AVPN, silakan isi Google Form terlebih dahulu.
+                        Estimasi waktu pengisian sekitar <span class="font-semibold">5-10 menit</span>.
+                    </p>
+                </div>
+                <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-end gap-3">
+                    <button type="button" id="avpnModalCancelBtn" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-100 transition-colors">
+                        Batal
+                    </button>
+                    <button type="button" id="avpnModalContinueBtn" class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors">
+                        Lanjutkan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @push('styles')
     <style>
         .dashboard-card {
@@ -703,6 +786,11 @@
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .dashboard-announcement-preview {
+            max-height: 4.5rem;
             overflow: hidden;
         }
 
@@ -817,6 +905,30 @@
 
     @push('scripts')
     <script>
+        function toggleDashboardAnnouncementPreview(announcementId) {
+            const preview = document.getElementById(`dashboard-announcement-preview-${announcementId}`);
+            const label = document.getElementById(`dashboard-announcement-toggle-label-${announcementId}`);
+
+            if (!preview || !label) {
+                return;
+            }
+
+            const isExpanded = preview.dataset.expanded === '1';
+
+            if (isExpanded) {
+                preview.dataset.expanded = '0';
+                preview.style.maxHeight = '4.5rem';
+                preview.style.overflowY = 'hidden';
+                label.textContent = 'Expand';
+                return;
+            }
+
+            preview.dataset.expanded = '1';
+            preview.style.maxHeight = '16rem';
+            preview.style.overflowY = 'auto';
+            label.textContent = 'Collapse';
+        }
+
         // Notification System JavaScript
         let notificationDropdownVisible = false;
         let notifications = [];
@@ -941,6 +1053,74 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
+            const avpnForms = document.querySelectorAll('.js-avpn-verify-form');
+            const avpnModal = document.getElementById('avpnVerificationModal');
+            const avpnModalCancelBtn = document.getElementById('avpnModalCancelBtn');
+            const avpnModalContinueBtn = document.getElementById('avpnModalContinueBtn');
+            let pendingAvpnForm = null;
+
+            const openAvpnModal = (form) => {
+                pendingAvpnForm = form;
+                if (avpnModal) {
+                    avpnModal.classList.remove('hidden');
+                    document.body.classList.add('overflow-hidden');
+                }
+            };
+
+            const closeAvpnModal = () => {
+                if (avpnModal) {
+                    avpnModal.classList.add('hidden');
+                    document.body.classList.remove('overflow-hidden');
+                }
+            };
+
+            avpnForms.forEach((form) => {
+                form.addEventListener('submit', function (event) {
+                    if (form.dataset.skipPopup === '1') {
+                        form.dataset.skipPopup = '0';
+                        return;
+                    }
+
+                    event.preventDefault();
+                    openAvpnModal(form);
+                });
+            });
+
+            if (avpnModalCancelBtn) {
+                avpnModalCancelBtn.addEventListener('click', function () {
+                    pendingAvpnForm = null;
+                    closeAvpnModal();
+                });
+            }
+
+            if (avpnModalContinueBtn) {
+                avpnModalContinueBtn.addEventListener('click', function () {
+                    if (!pendingAvpnForm) {
+                        closeAvpnModal();
+                        return;
+                    }
+
+                    const googleFormUrl = (pendingAvpnForm.dataset.googleFormUrl || '').trim();
+                    if (googleFormUrl) {
+                        window.open(googleFormUrl, '_blank', 'noopener,noreferrer');
+                    }
+
+                    const formToSubmit = pendingAvpnForm;
+                    pendingAvpnForm = null;
+                    closeAvpnModal();
+                    formToSubmit.dataset.skipPopup = '1';
+                    formToSubmit.submit();
+                });
+            }
+
+            if (avpnModal) {
+                avpnModal.addEventListener('click', function (event) {
+                    if (event.target === avpnModal) {
+                        pendingAvpnForm = null;
+                        closeAvpnModal();
+                    }
+                });
+            }
             // Welcome notification
             setTimeout(() => {
                 showToast('🎓 Dashboard peserta berhasil dimuat! Progress terbaru telah disinkronkan.', 'success');

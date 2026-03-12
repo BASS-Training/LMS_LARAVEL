@@ -47,7 +47,7 @@
                     </div>
                     
                     <!-- Sample Data Form -->
-                    <div class="mt-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <div class="mt-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
                             <input type="text" id="sample-name" value="John Doe" class="w-full px-3 py-2 border border-gray-300 rounded text-sm">
@@ -59,6 +59,10 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
                             <input type="text" id="sample-date" value="{{ now()->format('F d, Y') }}" class="w-full px-3 py-2 border border-gray-300 rounded text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Training Date</label>
+                            <input type="text" id="sample-training-date" value="6 Maret 2026 - 8 Maret 2026" class="w-full px-3 py-2 border border-gray-300 rounded text-sm">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Instructor</label>
@@ -221,9 +225,16 @@
             // Variable mappings for template replacement
             const variableMappings = {
                 '@{{name}}': 'sample-name',
+                '@{{participant_name}}': 'sample-name',
+                '@{{course}}': 'sample-course',
                 '@{{course_title}}': 'sample-course', 
                 '@{{completion_date}}': 'sample-date',
+                '@{{date}}': 'sample-date',
                 '@{{instructor_name}}': 'sample-instructor',
+                '@{{instructor}}': 'sample-instructor',
+                '@{{training_date_range}}': 'sample-training-date',
+                '@{{training_date}}': 'sample-training-date',
+                '@{{training_period}}': 'sample-training-date',
                 '@{{grade}}': 'sample-grade',
                 '@{{organization}}': 'sample-organization'
             };

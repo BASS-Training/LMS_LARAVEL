@@ -89,6 +89,11 @@
             $hasTemplate = $certificate->certificateTemplate && $certificate->certificateTemplate->layout_data;
             $layoutData = $hasTemplate ? $certificate->certificateTemplate->layout_data : null;
             $scale = 1.0; // No scale needed - 1:1 matching with template editor
+            $issuedDateEn = $certificate->issued_at->format('F j, Y');
+            $issuedDateId = $certificate->issued_at->format('d F Y');
+            $trainingDateRange = $certificate->getTrainingDateRangeLabel() ?? '-';
+            $trainingStartDate = $certificate->getTrainingStartDateLabel() ?? '-';
+            $trainingEndDate = $certificate->getTrainingEndDateLabel() ?? '-';
         @endphp
         
         @if($hasTemplate && is_array($layoutData))
@@ -151,9 +156,15 @@
                                     '{{participant_name}}' => $certificate->user->name,
                                     '{{course}}' => $certificate->course->title,
                                     '{{course_title}}' => $certificate->course->title,
-                                    '{{date}}' => $certificate->issued_at->format('F j, Y'),
-                                    '{{issue_date}}' => $certificate->issued_at->format('F j, Y'),
-                                    '{{issue_date_id}}' => $certificate->issued_at->format('d F Y'),
+                                    '{{date}}' => $issuedDateEn,
+                                    '{{completion_date}}' => $issuedDateEn,
+                                    '{{issue_date}}' => $issuedDateEn,
+                                    '{{issue_date_id}}' => $issuedDateId,
+                                    '{{training_date}}' => $trainingDateRange,
+                                    '{{training_date_range}}' => $trainingDateRange,
+                                    '{{training_period}}' => $trainingDateRange,
+                                    '{{training_start_date}}' => $trainingStartDate,
+                                    '{{training_end_date}}' => $trainingEndDate,
                                     '{{certificate_code}}' => $certificate->certificate_code,
                                     '{{instructor_name}}' => $certificate->course->instructors->first()?->name ?? 'Instructor',
                                     '{{instructor}}' => $certificate->course->instructors->first()?->name ?? 'Instructor',
@@ -163,9 +174,21 @@
                                     // Enhanced template format with @ prefix
                                     '@{{name}}' => $certificate->user->name,
                                     '@{{course}}' => $certificate->course->title,
-                                    '@{{date}}' => $certificate->issued_at->format('F j, Y'),
+                                    '@{{participant_name}}' => $certificate->user->name,
+                                    '@{{course_title}}' => $certificate->course->title,
+                                    '@{{date}}' => $issuedDateEn,
+                                    '@{{completion_date}}' => $issuedDateEn,
+                                    '@{{issue_date}}' => $issuedDateEn,
+                                    '@{{issue_date_id}}' => $issuedDateId,
+                                    '@{{training_date}}' => $trainingDateRange,
+                                    '@{{training_date_range}}' => $trainingDateRange,
+                                    '@{{training_period}}' => $trainingDateRange,
+                                    '@{{training_start_date}}' => $trainingStartDate,
+                                    '@{{training_end_date}}' => $trainingEndDate,
                                     '@{{score}}' => '100',
                                     '@{{certificate_code}}' => $certificate->certificate_code,
+                                    '@{{instructor_name}}' => $certificate->course->instructors->first()?->name ?? 'Instructor',
+                                    '@{{instructor}}' => $certificate->course->instructors->first()?->name ?? 'Instructor',
                                     '@{{course_summary}}' => strip_tags($certificate->course->description) ?: 'Course completed successfully',
                                 ];
                                 

@@ -19,7 +19,9 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        return view('auth.register', [
+            'avpnGoogleFormUrl' => config('services.avpn.google_form_url'),
+        ]);
     }
 
     /**
@@ -32,6 +34,7 @@ class RegisteredUserController extends Controller
         // In testing, provide defaults for extra fields to satisfy validation
         if (app()->environment('testing')) {
             $request->merge([
+                'class_interest' => $request->input('class_interest', 'regular'),
                 'date_of_birth' => $request->input('date_of_birth', '2000-01-01'),
                 'gender' => $request->input('gender', 'male'),
                 'institution_name' => $request->input('institution_name', 'Test Institute'),
@@ -40,6 +43,7 @@ class RegisteredUserController extends Controller
         }
 
         $request->validate([
+            'class_interest' => ['required', 'in:regular,avpn_ai'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'date_of_birth' => ['required', 'date'],
@@ -49,9 +53,29 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        $registrationProgram = $request->class_interest;
+
+        // Prevent bypass by re-registering with a different email while AVPN identity is still pending.
+        $pendingIdentity = User::query()
+            ->whereRaw('LOWER(name) = ?', [strtolower($request->name)])
+            ->whereDate('date_of_birth', $request->date_of_birth)
+            ->where('avpn_verification_status', 'pending')
+            ->first();
+
+        if ($pendingIdentity) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'email' => 'Data Anda sedang menunggu validasi AVPN. Gunakan akun yang sudah terdaftar sebelumnya.',
+                ]);
+        }
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'registration_program' => $registrationProgram,
+            'avpn_verification_status' => $registrationProgram === 'avpn_ai' ? 'pending' : 'not_required',
+            'avpn_google_form_submitted_at' => $registrationProgram === 'avpn_ai' ? now() : null,
             'date_of_birth' => $request->date_of_birth,
             'gender' => $request->gender,
             'institution_name' => $request->institution_name,
@@ -83,6 +107,11 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
 
         Auth::login($user);
+
+        if ($registrationProgram === 'avpn_ai') {
+            return redirect(route('dashboard', absolute: false))
+                ->with('warning', 'Akun berhasil dibuat. Pendaftaran AVPN Anda sedang menunggu validasi admin.');
+        }
 
         return redirect(route('dashboard', absolute: false));
     }

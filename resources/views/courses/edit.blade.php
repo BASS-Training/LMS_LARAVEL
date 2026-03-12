@@ -90,9 +90,9 @@
                 </div>
 
                 <div class="p-8" x-data="{
-                    enablePeriods: {{ $course->periods->count() > 0 ? 'true' : 'false' }},
-                    createDefaultPeriod: false,
-                    customPeriods: @js($course->periods->map(function($period) {
+                    enablePeriods: {{ old('enable_periods', $course->periods->count() > 0 ? 1 : 0) ? 'true' : 'false' }},
+                    createDefaultPeriod: {{ old('create_default_period') ? 'true' : 'false' }},
+                    customPeriods: @js(old('periods', $course->periods->map(function($period) {
                         return [
                             'id' => $period->id,
                             'name' => $period->name,
@@ -102,7 +102,7 @@
                             'max_participants' => $period->max_participants,
                             'status' => $period->status
                         ];
-                    })->toArray()),
+                    })->toArray())),
                     periodsToDelete: [],
                     addPeriod() {
                         console.log('addPeriod() called!');
@@ -129,6 +129,17 @@
                         console.log('Periods to delete:', this.periodsToDelete);
                     }
                 }">
+                    @if ($errors->any())
+                        <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
+                            <div class="mb-2 text-sm font-semibold text-red-700">Gagal memperbarui kursus. Periksa data berikut:</div>
+                            <ul class="list-disc pl-5 text-sm text-red-700 space-y-1">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <form method="POST" action="{{ route('courses.update', $course) }}" enctype="multipart/form-data" class="space-y-8">
                         @csrf
                         @method('PUT')
@@ -292,6 +303,67 @@
                                                 {{ $message }}
                                             </p>
                                         @enderror
+                                    </div>
+
+                                    <!-- Tipe Program -->
+                                    <div class="group">
+                                        <label for="program_type" class="flex items-center text-sm font-semibold text-gray-700 mb-2">
+                                            <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h8M8 12h8m-8 5h8M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z"></path>
+                                            </svg>
+                                            Tipe Program
+                                        </label>
+                                        <select name="program_type"
+                                                id="program_type"
+                                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400">
+                                            <option value="regular" @selected(old('program_type', $course->program_type ?? 'regular') === 'regular')>
+                                                Reguler BASS
+                                            </option>
+                                            <option value="avpn_ai" @selected(old('program_type', $course->program_type) === 'avpn_ai')>
+                                                Literasi AI (AVPN)
+                                            </option>
+                                        </select>
+                                        @error('program_type')
+                                            <p class="text-red-500 text-sm mt-2 flex items-center">
+                                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                                </svg>
+                                                {{ $message }}
+                                            </p>
+                                        @enderror
+                                    </div>
+
+                                    <div class="group mt-4">
+                                        <label class="flex items-center text-sm font-semibold text-gray-700 mb-2">
+                                            <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            </svg>
+                                            Tanggal Pelatihan (Untuk Sertifikat)
+                                        </label>
+                                        <div class="grid grid-cols-1 gap-3">
+                                            <div>
+                                                <label for="training_start_date" class="block text-xs text-gray-600 mb-1">Tanggal Mulai</label>
+                                                <input type="date"
+                                                       name="training_start_date"
+                                                       id="training_start_date"
+                                                       class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400"
+                                                       value="{{ old('training_start_date', optional($course->training_start_date)->format('Y-m-d')) }}">
+                                                @error('training_start_date')
+                                                    <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                                @enderror
+                                            </div>
+                                            <div>
+                                                <label for="training_end_date" class="block text-xs text-gray-600 mb-1">Tanggal Selesai</label>
+                                                <input type="date"
+                                                       name="training_end_date"
+                                                       id="training_end_date"
+                                                       class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400"
+                                                       value="{{ old('training_end_date', optional($course->training_end_date)->format('Y-m-d')) }}">
+                                                @error('training_end_date')
+                                                    <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                                @enderror
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <!-- Template Sertifikat -->

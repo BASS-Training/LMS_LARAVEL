@@ -53,6 +53,10 @@ class CourseController extends Controller
                 ->whereHas('enrolledUsers', function ($q) use ($user) {
                     $q->where('user_id', $user->id);
                 });
+
+            if (!$user->isAvpnApproved()) {
+                $query->where('program_type', '!=', 'avpn_ai');
+            }
         }
 
         $courses = $query->with('instructors')->latest()->paginate(10);
@@ -92,6 +96,9 @@ class CourseController extends Controller
                 'objectives' => $validatedData['objectives'],
                 'thumbnail' => $validatedData['thumbnail'] ?? null,
                 'status' => $validatedData['status'],
+                'program_type' => $validatedData['program_type'],
+                'training_start_date' => $validatedData['training_start_date'] ?? null,
+                'training_end_date' => $validatedData['training_end_date'] ?? null,
                 'certificate_template_id' => $validatedData['certificate_template_id'] ?? null,
             ]);
 
@@ -114,6 +121,9 @@ class CourseController extends Controller
                     'course_id' => $course->id,
                     'course_title' => $course->title,
                     'status' => $course->status,
+                    'program_type' => $course->program_type,
+                    'training_start_date' => $course->training_start_date?->format('Y-m-d'),
+                    'training_end_date' => $course->training_end_date?->format('Y-m-d'),
                     'has_thumbnail' => !empty($course->thumbnail),
                     'certificate_template_id' => $course->certificate_template_id,
                     'periods_enabled' => $request->boolean('enable_periods'),
@@ -210,6 +220,9 @@ class CourseController extends Controller
             'objectives' => 'nullable|string',
             'thumbnail' => 'nullable|image|max:2048',
             'status' => 'required|in:draft,published',
+            'program_type' => 'required|in:regular,avpn_ai',
+            'training_start_date' => 'nullable|date|required_with:training_end_date',
+            'training_end_date' => 'nullable|date|after_or_equal:training_start_date|required_with:training_start_date',
             'clear_thumbnail' => 'nullable|boolean',
             'certificate_template_id' => 'nullable|exists:certificate_templates,id',
             'enable_periods' => 'nullable|boolean',
@@ -245,6 +258,9 @@ class CourseController extends Controller
 
             $course->update($validatedData);
 
+            // Keep all class/batch program types aligned with the parent course.
+            $course->periods()->update(['program_type' => $course->program_type]);
+
             if ($request->boolean('enable_periods')) {
                 $this->updateCoursePeriods($course, $request, $validatedData);
             } else {
@@ -253,7 +269,7 @@ class CourseController extends Controller
 
             // ✅ LOG COURSE UPDATE WITH BEFORE/AFTER
             $changes = [];
-            $fields = ['title', 'description', 'objectives', 'status', 'thumbnail', 'certificate_template_id'];
+            $fields = ['title', 'description', 'objectives', 'status', 'program_type', 'training_start_date', 'training_end_date', 'thumbnail', 'certificate_template_id'];
 
             foreach ($fields as $field) {
                 if ($originalData[$field] != $course->$field) {
@@ -314,6 +330,7 @@ class CourseController extends Controller
                         'description' => $periodData['description'] ?? null,
                         'max_participants' => $periodData['max_participants'] ?? null,
                         'status' => $periodData['status'],
+                        'program_type' => $course->program_type,
                     ]);
                 }
             }

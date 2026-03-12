@@ -19,6 +19,7 @@ class CourseService
                 'start_date' => $startDate,
                 'end_date' => Carbon::parse($data['default_end_date']),
                 'status' => $startDate->isToday() || $startDate->isPast() ? 'active' : 'upcoming',
+                'program_type' => $course->program_type,
             ]);
         }
 
@@ -32,9 +33,15 @@ class CourseService
                     'status' => $startDate->isToday() || $startDate->isPast() ? 'active' : 'upcoming',
                     'description' => $periodData['description'] ?? null,
                     'max_participants' => $periodData['max_participants'] ?? null,
+                    'program_type' => $course->program_type,
                 ]);
             }
         }
     }
-}
 
+    // Backward compatibility: existing controller calls this method name.
+    public function createCoursePeriods(Course $course, array $data): void
+    {
+        $this->createCourseClasses($course, $data);
+    }
+}

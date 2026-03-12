@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'avpn' => [
+        'google_form_url' => env('AVPN_GOOGLE_FORM_URL'),
+    ],
+
 ];

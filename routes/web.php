@@ -112,6 +112,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/profile/avpn-verification/request', [ProfileController::class, 'requestAvpnVerification'])
+        ->name('profile.avpn.request');
 
     // DUPLICATION ROUTES
     Route::post('/courses/{course}/duplicate', [CourseController::class, 'duplicate'])
@@ -350,7 +352,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Participants
         Route::get('/participants', [\App\Http\Controllers\Admin\ParticipantController::class, 'index'])->name('participants.index')->middleware('permission:manage users');
         Route::get('/participants/analytics', [\App\Http\Controllers\Admin\ParticipantController::class, 'analytics'])->name('participants.analytics')->middleware('permission:manage users');
+        Route::post('/participants/avpn/sync-legacy', [\App\Http\Controllers\Admin\ParticipantController::class, 'syncLegacyAvpnParticipants'])->name('participants.avpn.sync-legacy')->middleware('permission:manage users');
+        Route::post('/participants/avpn/batch-approve', [\App\Http\Controllers\Admin\ParticipantController::class, 'batchApproveAvpn'])->name('participants.avpn.batch-approve')->middleware('permission:manage users');
+        Route::post('/participants/avpn/batch-reject', [\App\Http\Controllers\Admin\ParticipantController::class, 'batchRejectAvpn'])->name('participants.avpn.batch-reject')->middleware('permission:manage users');
         Route::get('/participants/{user}', [\App\Http\Controllers\Admin\ParticipantController::class, 'show'])->name('participants.show')->middleware('permission:manage users');
+        Route::post('/participants/{user}/access/force', [\App\Http\Controllers\Admin\ParticipantController::class, 'forceAccess'])->name('participants.access.force')->middleware('permission:manage users');
+        Route::post('/participants/{user}/avpn/approve', [\App\Http\Controllers\Admin\ParticipantController::class, 'approveAvpn'])->name('participants.avpn.approve')->middleware('permission:manage users');
+        Route::post('/participants/{user}/avpn/reject', [\App\Http\Controllers\Admin\ParticipantController::class, 'rejectAvpn'])->name('participants.avpn.reject')->middleware('permission:manage users');
 
         // Sertifikat
         Route::get('certificate-templates/create/enhanced', [CertificateTemplateController::class, 'createEnhanced'])->name('certificate-templates.create-enhanced')->middleware('permission:create certificate templates');

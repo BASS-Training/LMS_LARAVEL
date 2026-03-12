@@ -117,6 +117,10 @@
                                         <i class="fas fa-calendar"></i>
                                         <span>Date</span>
                                     </button>
+                                    <button class="tool-btn" data-tool="text" data-content="@{{training_date_range}}">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <span>Training</span>
+                                    </button>
                                     <button class="tool-btn" data-tool="text" data-content="@{{instructor_name}}">
                                         <i class="fas fa-chalkboard-teacher"></i>
                                         <span>Instructor</span>

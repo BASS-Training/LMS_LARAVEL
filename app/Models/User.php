@@ -24,6 +24,12 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'registration_program',
+        'avpn_verification_status',
+        'avpn_google_form_submitted_at',
+        'avpn_verified_at',
+        'avpn_verified_by',
+        'avpn_rejection_reason',
         'password',
         'role', // Keep for backward compatibility
         'date_of_birth',
@@ -53,6 +59,8 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'avpn_google_form_submitted_at' => 'datetime',
+            'avpn_verified_at' => 'datetime',
             'password' => 'hashed',
             'date_of_birth' => 'date',
         ];
@@ -459,6 +467,30 @@ class User extends Authenticatable
     public function scopeActive($query)
     {
         return $query->whereNotNull('email_verified_at');
+    }
+
+    public function isAvpnProgramRegistrant(): bool
+    {
+        return $this->registration_program === 'avpn_ai';
+    }
+
+    public function isAvpnApproved(): bool
+    {
+        return $this->avpn_verification_status === 'approved';
+    }
+
+    public function isAvpnPending(): bool
+    {
+        return $this->avpn_verification_status === 'pending';
+    }
+
+    public function canAccessProgram(string $programType): bool
+    {
+        if ($programType !== 'avpn_ai') {
+            return true;
+        }
+
+        return $this->isAvpnApproved();
     }
 
     /**

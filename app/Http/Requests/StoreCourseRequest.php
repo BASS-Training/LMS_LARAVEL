@@ -19,6 +19,9 @@ class StoreCourseRequest extends FormRequest
             'objectives' => 'nullable|string',
             'thumbnail' => 'nullable|image|max:2048',
             'status' => 'required|in:draft,published',
+            'program_type' => 'required|in:regular,avpn_ai',
+            'training_start_date' => 'nullable|date|required_with:training_end_date',
+            'training_end_date' => 'nullable|date|after_or_equal:training_start_date|required_with:training_start_date',
             'certificate_template_id' => 'nullable|exists:certificate_templates,id',
 
             'enable_periods' => 'nullable|boolean',
@@ -35,4 +38,3 @@ class StoreCourseRequest extends FormRequest
         ];
     }
 }
-

@@ -36,6 +36,14 @@ class ParticipantController extends Controller
             $query->where('institution_name', $request->institution);
         }
 
+        if ($request->filled('registration_program')) {
+            $query->where('registration_program', $request->registration_program);
+        }
+
+        if ($request->filled('avpn_status')) {
+            $query->where('avpn_verification_status', $request->avpn_status);
+        }
+
         $participants = $query->orderBy('created_at', 'desc')->paginate(20);
 
         // Get unique institutions for filter
@@ -65,6 +73,329 @@ class ParticipantController extends Controller
             });
 
         return view('admin.participants.show', compact('user', 'enrolledCourses'));
+    }
+
+    public function approveAvpn(User $user)
+    {
+        $this->authorize('viewAny', User::class);
+
+        if ($user->avpn_verification_status !== 'pending') {
+            return back()->with('error', 'User ini tidak sedang menunggu verifikasi AVPN.');
+        }
+
+        $user->update([
+            'avpn_verification_status' => 'approved',
+            'avpn_verified_at' => now(),
+            'avpn_verified_by' => auth()->id(),
+            'avpn_rejection_reason' => null,
+        ]);
+
+        \App\Models\ActivityLog::log('avpn_registration_approved', [
+            'description' => "Approved AVPN verification for user: {$user->name}",
+            'metadata' => [
+                'participant_id' => $user->id,
+                'participant_name' => $user->name,
+                'participant_email' => $user->email,
+                'approved_by' => auth()->id(),
+            ],
+        ]);
+
+        return back()->with('success', "Validasi AVPN untuk {$user->name} berhasil disetujui.");
+    }
+
+    public function rejectAvpn(Request $request, User $user)
+    {
+        $this->authorize('viewAny', User::class);
+
+        if ($user->avpn_verification_status !== 'pending') {
+            return back()->with('error', 'User ini tidak sedang menunggu verifikasi AVPN.');
+        }
+
+        $validated = $request->validate([
+            'reason' => 'nullable|string|max:500',
+        ]);
+
+        $user->update([
+            'avpn_verification_status' => 'rejected',
+            'avpn_verified_at' => now(),
+            'avpn_verified_by' => auth()->id(),
+            'avpn_rejection_reason' => $validated['reason'] ?? null,
+        ]);
+
+        \App\Models\ActivityLog::log('avpn_registration_rejected', [
+            'description' => "Rejected AVPN verification for user: {$user->name}",
+            'metadata' => [
+                'participant_id' => $user->id,
+                'participant_name' => $user->name,
+                'participant_email' => $user->email,
+                'rejected_by' => auth()->id(),
+                'reason' => $validated['reason'] ?? null,
+            ],
+        ]);
+
+        return back()->with('success', "Validasi AVPN untuk {$user->name} berhasil ditolak.");
+    }
+
+    public function forceAccess(Request $request, User $user)
+    {
+        $this->authorize('viewAny', User::class);
+
+        $validated = $request->validate([
+            'access_mode' => 'required|in:regular_only,avpn_allowed,avpn_blocked',
+            'reason' => 'nullable|string|max:500',
+        ]);
+
+        $mode = $validated['access_mode'];
+
+        if ($mode === 'avpn_allowed') {
+            $user->update([
+                'avpn_verification_status' => 'approved',
+                'avpn_google_form_submitted_at' => $user->avpn_google_form_submitted_at ?? now(),
+                'avpn_verified_at' => now(),
+                'avpn_verified_by' => auth()->id(),
+                'avpn_rejection_reason' => null,
+            ]);
+
+            \App\Models\ActivityLog::log('avpn_access_force_granted', [
+                'description' => "Force granted AVPN access for user: {$user->name}",
+                'metadata' => [
+                    'participant_id' => $user->id,
+                    'participant_name' => $user->name,
+                    'participant_email' => $user->email,
+                    'forced_by' => auth()->id(),
+                ],
+            ]);
+
+            return back()->with('success', "Akses AVPN untuk {$user->name} berhasil diaktifkan secara paksa.");
+        }
+
+        if ($mode === 'avpn_blocked') {
+            $reason = $validated['reason'] ?? 'Akses AVPN diblokir secara paksa oleh admin.';
+
+            $user->update([
+                'avpn_verification_status' => 'rejected',
+                'avpn_verified_at' => now(),
+                'avpn_verified_by' => auth()->id(),
+                'avpn_rejection_reason' => $reason,
+            ]);
+
+            \App\Models\ActivityLog::log('avpn_access_force_blocked', [
+                'description' => "Force blocked AVPN access for user: {$user->name}",
+                'metadata' => [
+                    'participant_id' => $user->id,
+                    'participant_name' => $user->name,
+                    'participant_email' => $user->email,
+                    'forced_by' => auth()->id(),
+                    'reason' => $reason,
+                ],
+            ]);
+
+            return back()->with('success', "Akses AVPN untuk {$user->name} berhasil diblokir secara paksa.");
+        }
+
+        $user->update([
+            'avpn_verification_status' => 'not_required',
+            'avpn_verified_at' => null,
+            'avpn_verified_by' => null,
+            'avpn_rejection_reason' => null,
+        ]);
+
+        \App\Models\ActivityLog::log('avpn_access_force_reset', [
+            'description' => "Force reset AVPN access to regular for user: {$user->name}",
+            'metadata' => [
+                'participant_id' => $user->id,
+                'participant_name' => $user->name,
+                'participant_email' => $user->email,
+                'forced_by' => auth()->id(),
+            ],
+        ]);
+
+        return back()->with('success', "Akses AVPN untuk {$user->name} diubah ke reguler (not required).");
+    }
+
+    public function batchApproveAvpn(Request $request)
+    {
+        $this->authorize('viewAny', User::class);
+
+        $validated = $request->validate([
+            'participant_ids' => 'required|array|min:1',
+            'participant_ids.*' => 'integer|exists:users,id',
+        ]);
+
+        $ids = collect($validated['participant_ids'])->unique()->values();
+
+        $pendingUsers = User::query()
+            ->whereIn('id', $ids)
+            ->where('avpn_verification_status', 'pending')
+            ->get();
+
+        if ($pendingUsers->isEmpty()) {
+            return back()->with('error', 'Tidak ada peserta berstatus pending yang dapat di-approve.');
+        }
+
+        User::query()
+            ->whereIn('id', $pendingUsers->pluck('id'))
+            ->update([
+                'avpn_verification_status' => 'approved',
+                'avpn_verified_at' => now(),
+                'avpn_verified_by' => auth()->id(),
+                'avpn_rejection_reason' => null,
+            ]);
+
+        \App\Models\ActivityLog::log('avpn_registration_batch_approved', [
+            'description' => 'Batch approved AVPN verification.',
+            'metadata' => [
+                'participant_ids' => $pendingUsers->pluck('id')->toArray(),
+                'participant_emails' => $pendingUsers->pluck('email')->toArray(),
+                'approved_count' => $pendingUsers->count(),
+                'approved_by' => auth()->id(),
+            ],
+        ]);
+
+        $skipped = $ids->count() - $pendingUsers->count();
+        $message = "Berhasil approve batch AVPN untuk {$pendingUsers->count()} peserta.";
+        if ($skipped > 0) {
+            $message .= " {$skipped} peserta dilewati karena status bukan pending.";
+        }
+
+        return back()->with('success', $message);
+    }
+
+    public function batchRejectAvpn(Request $request)
+    {
+        $this->authorize('viewAny', User::class);
+
+        $validated = $request->validate([
+            'participant_ids' => 'required|array|min:1',
+            'participant_ids.*' => 'integer|exists:users,id',
+            'reason' => 'nullable|string|max:500',
+        ]);
+
+        $ids = collect($validated['participant_ids'])->unique()->values();
+
+        $pendingUsers = User::query()
+            ->whereIn('id', $ids)
+            ->where('avpn_verification_status', 'pending')
+            ->get();
+
+        if ($pendingUsers->isEmpty()) {
+            return back()->with('error', 'Tidak ada peserta berstatus pending yang dapat di-reject.');
+        }
+
+        $reason = $validated['reason'] ?? 'Ditolak batch oleh admin.';
+
+        User::query()
+            ->whereIn('id', $pendingUsers->pluck('id'))
+            ->update([
+                'avpn_verification_status' => 'rejected',
+                'avpn_verified_at' => now(),
+                'avpn_verified_by' => auth()->id(),
+                'avpn_rejection_reason' => $reason,
+            ]);
+
+        \App\Models\ActivityLog::log('avpn_registration_batch_rejected', [
+            'description' => 'Batch rejected AVPN verification.',
+            'metadata' => [
+                'participant_ids' => $pendingUsers->pluck('id')->toArray(),
+                'participant_emails' => $pendingUsers->pluck('email')->toArray(),
+                'rejected_count' => $pendingUsers->count(),
+                'reason' => $reason,
+                'rejected_by' => auth()->id(),
+            ],
+        ]);
+
+        $skipped = $ids->count() - $pendingUsers->count();
+        $message = "Berhasil reject batch AVPN untuk {$pendingUsers->count()} peserta.";
+        if ($skipped > 0) {
+            $message .= " {$skipped} peserta dilewati karena status bukan pending.";
+        }
+
+        return back()->with('success', $message);
+    }
+
+    public function syncLegacyAvpnParticipants()
+    {
+        $this->authorize('viewAny', User::class);
+
+        $legacyAvpnFromCourses = DB::table('course_user as cu')
+            ->join('courses as c', 'c.id', '=', 'cu.course_id')
+            ->where('c.program_type', 'avpn_ai')
+            ->pluck('cu.user_id');
+
+        $legacyAvpnFromClasses = DB::table('course_class_user as ccu')
+            ->join('course_classes as cc', 'cc.id', '=', 'ccu.course_class_id')
+            ->leftJoin('courses as c', 'c.id', '=', 'cc.course_id')
+            ->where(function ($query) {
+                $query->where('cc.program_type', 'avpn_ai')
+                    ->orWhere('c.program_type', 'avpn_ai');
+            })
+            ->pluck('ccu.user_id');
+
+        $legacyAvpnUserIds = $legacyAvpnFromCourses
+            ->merge($legacyAvpnFromClasses)
+            ->unique()
+            ->values();
+
+        if ($legacyAvpnUserIds->isEmpty()) {
+            return back()->with('error', 'Tidak ditemukan user lama dengan riwayat kelas AVPN.');
+        }
+
+        $matchedUsers = User::query()
+            ->whereIn('id', $legacyAvpnUserIds)
+            ->get(['id', 'registration_program', 'avpn_verification_status']);
+
+        $usersNeedingProgramUpdate = $matchedUsers
+            ->where('registration_program', '!=', 'avpn_ai')
+            ->pluck('id');
+
+        $usersNeedingApproval = $matchedUsers
+            ->filter(fn ($user) => $user->avpn_verification_status !== 'approved')
+            ->pluck('id');
+
+        if ($usersNeedingProgramUpdate->isNotEmpty()) {
+            User::query()
+                ->whereIn('id', $usersNeedingProgramUpdate)
+                ->update([
+                    'registration_program' => 'avpn_ai',
+                ]);
+        }
+
+        if ($usersNeedingApproval->isNotEmpty()) {
+            User::query()
+                ->whereIn('id', $usersNeedingApproval)
+                ->update([
+                    'avpn_verification_status' => 'approved',
+                    'avpn_google_form_submitted_at' => now(),
+                    'avpn_verified_at' => now(),
+                    'avpn_verified_by' => auth()->id(),
+                    'avpn_rejection_reason' => null,
+                ]);
+        }
+
+        $updatedUsersCount = $matchedUsers
+            ->filter(function ($user) {
+                return $user->registration_program !== 'avpn_ai'
+                    || $user->avpn_verification_status !== 'approved';
+            })
+            ->count();
+
+        \App\Models\ActivityLog::log('avpn_legacy_sync_executed', [
+            'description' => 'Legacy AVPN participants synchronization executed.',
+            'metadata' => [
+                'matched_count' => $matchedUsers->count(),
+                'updated_count' => $updatedUsersCount,
+                'program_updated_count' => $usersNeedingProgramUpdate->count(),
+                'approval_updated_count' => $usersNeedingApproval->count(),
+                'executed_by' => auth()->id(),
+            ],
+        ]);
+
+        $alreadySynced = $matchedUsers->count() - $updatedUsersCount;
+
+        return back()->with(
+            'success',
+            "Sinkronisasi user lama AVPN selesai. Total terdeteksi: {$matchedUsers->count()}, diperbarui: {$updatedUsersCount}, sudah sinkron sebelumnya: {$alreadySynced}."
+        );
     }
 
     public function analytics()

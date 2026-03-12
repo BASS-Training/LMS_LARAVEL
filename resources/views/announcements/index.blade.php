@@ -142,9 +142,11 @@
                                             </div>
                                             
                                             <div class="ml-13">
-                                                <p class="text-gray-600 text-sm leading-relaxed line-clamp-3">
-                                                    {!! Str::limit(strip_tags($announcement->content), 200) !!}
-                                                </p>
+                                                <div id="announcement-preview-{{ $announcement->id }}" data-expanded="0" class="announcement-preview mt-1 rounded-xl border border-gray-100 bg-white/80 p-4 transition-all duration-300">
+                                                    <p class="text-gray-700 text-sm leading-relaxed whitespace-pre-line break-words">
+                                                        {{ strip_tags($announcement->content) }}
+                                                    </p>
+                                                </div>
                                                 
                                                 <div class="flex items-center justify-between mt-4">
                                                     <div class="flex items-center space-x-2">
@@ -168,11 +170,20 @@
                                                         </span>
                                                     </div>
                                                     
-                                                    <div class="flex items-center text-blue-600 text-sm font-medium group-hover:text-blue-700">
-                                                        <span>Baca Selengkapnya</span>
-                                                        <svg class="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                                        </svg>
+                                                    <div class="flex items-center gap-3 text-sm font-medium">
+                                                        <button
+                                                            type="button"
+                                                            onclick="toggleAnnouncementPreview(event, {{ $announcement->id }})"
+                                                            class="px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                                                        >
+                                                            <span id="announcement-toggle-label-{{ $announcement->id }}">Expand</span>
+                                                        </button>
+                                                        <span class="flex items-center text-blue-600 group-hover:text-blue-700">
+                                                            <span>Baca Selengkapnya</span>
+                                                            <svg class="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                                            </svg>
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -225,11 +236,43 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
-    .line-clamp-3 {
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
+
+    .announcement-preview {
+        max-height: 7rem;
         overflow: hidden;
     }
     </style>
+
+    @push('scripts')
+    <script>
+        function toggleAnnouncementPreview(event, announcementId) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            const preview = document.getElementById(`announcement-preview-${announcementId}`);
+            const label = document.getElementById(`announcement-toggle-label-${announcementId}`);
+
+            if (!preview || !label) {
+                return;
+            }
+
+            const isExpanded = preview.dataset.expanded === '1';
+
+            if (isExpanded) {
+                preview.dataset.expanded = '0';
+                preview.style.maxHeight = '7rem';
+                preview.style.overflowY = 'hidden';
+                label.textContent = 'Expand';
+                return;
+            }
+
+            preview.dataset.expanded = '1';
+            preview.style.maxHeight = '28rem';
+            preview.style.overflowY = 'auto';
+            label.textContent = 'Collapse';
+        }
+    </script>
+    @endpush
 </x-app-layout>

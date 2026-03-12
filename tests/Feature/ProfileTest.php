@@ -30,6 +30,10 @@ class ProfileTest extends TestCase
             ->patch('/profile', [
                 'name' => 'Test User',
                 'email' => 'test@example.com',
+                'date_of_birth' => '2000-01-01',
+                'gender' => 'male',
+                'institution_name' => 'Test Institute',
+                'occupation' => 'Pelajar/Mahasiswa',
             ]);
 
         $response
@@ -52,6 +56,10 @@ class ProfileTest extends TestCase
             ->patch('/profile', [
                 'name' => 'Test User',
                 'email' => $user->email,
+                'date_of_birth' => '2000-01-01',
+                'gender' => 'male',
+                'institution_name' => 'Test Institute',
+                'occupation' => 'Pelajar/Mahasiswa',
             ]);
 
         $response
@@ -95,5 +103,44 @@ class ProfileTest extends TestCase
             ->assertRedirect('/profile');
 
         $this->assertNotNull($user->fresh());
+    }
+
+    public function test_regular_user_can_request_avpn_verification(): void
+    {
+        $user = User::factory()->create([
+            'registration_program' => 'regular',
+            'avpn_verification_status' => 'not_required',
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->from('/dashboard')
+            ->post('/profile/avpn-verification/request');
+
+        $response->assertRedirect('/dashboard');
+
+        $user->refresh();
+        $this->assertSame('pending', $user->avpn_verification_status);
+        $this->assertNotNull($user->avpn_google_form_submitted_at);
+    }
+
+    public function test_pending_user_cannot_submit_duplicate_avpn_verification_request(): void
+    {
+        $user = User::factory()->create([
+            'registration_program' => 'regular',
+            'avpn_verification_status' => 'pending',
+            'avpn_google_form_submitted_at' => now()->subHour(),
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->from('/dashboard')
+            ->post('/profile/avpn-verification/request');
+
+        $response->assertRedirect('/dashboard');
+        $response->assertSessionHas('info');
+
+        $user->refresh();
+        $this->assertSame('pending', $user->avpn_verification_status);
     }
 }

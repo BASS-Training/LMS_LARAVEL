@@ -38,6 +38,42 @@ class ProfileController extends Controller
     }
 
     /**
+     * Request AVPN verification for regular registrants.
+     */
+    public function requestAvpnVerification(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        if ($user->avpn_verification_status === 'approved') {
+            return back()->with('info', 'Akses AVPN pada akun Anda sudah aktif.');
+        }
+
+        if ($user->avpn_verification_status === 'pending') {
+            return back()->with('info', 'Pengajuan verifikasi AVPN Anda masih diproses admin.');
+        }
+
+        $user->update([
+            'avpn_verification_status' => 'pending',
+            'avpn_google_form_submitted_at' => now(),
+            'avpn_verified_at' => null,
+            'avpn_verified_by' => null,
+            'avpn_rejection_reason' => null,
+        ]);
+
+        \App\Models\ActivityLog::log('avpn_verification_requested', [
+            'description' => "Requested AVPN verification: {$user->name}",
+            'metadata' => [
+                'participant_id' => $user->id,
+                'participant_name' => $user->name,
+                'participant_email' => $user->email,
+                'registration_program' => $user->registration_program,
+            ],
+        ]);
+
+        return back()->with('success', 'Pengajuan verifikasi AVPN berhasil dikirim. Silakan tunggu validasi admin.');
+    }
+
+    /**
      * Delete the user's account.
      */
     public function destroy(Request $request): RedirectResponse

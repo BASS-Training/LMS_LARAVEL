@@ -144,8 +144,8 @@
                     </label>
                     <textarea name="content" 
                               id="content" 
-                              rows="6" 
-                              class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800 transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-500 resize-none" 
+                              rows="12" 
+                              class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800 transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-500 resize-y" 
                               placeholder="Tulis detail pengumuman di sini. Jelaskan informasi yang ingin disampaikan dengan jelas dan lengkap..."
                               required>{{ old('content', $announcement->content) }}</textarea>
                     @error('content') 
@@ -249,20 +249,27 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Auto-resize textarea
     const textarea = document.getElementById('content');
-    textarea.addEventListener('input', function() {
+    const autoResizeTextarea = function() {
         this.style.height = 'auto';
-        this.style.height = (this.scrollHeight) + 'px';
-    });
+        this.style.height = this.scrollHeight + 'px';
+    };
+
+    if (textarea) {
+        autoResizeTextarea.call(textarea);
+        textarea.addEventListener('input', autoResizeTextarea);
+    }
 
     // Checkbox interaction logic
     const allCheckbox = document.getElementById('role_all');
     const roleCheckboxes = document.querySelectorAll('input[name="target_roles[]"]:not(#role_all)');
     
-    allCheckbox.addEventListener('change', function() {
-        if (this.checked) {
-            roleCheckboxes.forEach(cb => cb.checked = false);
-        }
-    });
+    if (allCheckbox) {
+        allCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                roleCheckboxes.forEach(cb => cb.checked = false);
+            }
+        });
+    }
     
     roleCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {

@@ -22,11 +22,16 @@ class Course extends Model
         'token_enabled',
         'token_expires_at',
         'token_type',
+        'program_type',
+        'training_start_date',
+        'training_end_date',
     ];
 
     protected $casts = [
         'token_enabled' => 'boolean',
         'token_expires_at' => 'datetime',
+        'training_start_date' => 'date',
+        'training_end_date' => 'date',
     ];
 
     /**
@@ -161,6 +166,11 @@ class Course extends Model
             ->where('start_date', '<=', now())
             ->where('end_date', '>=', now())
             ->exists();
+    }
+
+    public function isAvpnProgram(): bool
+    {
+        return $this->program_type === 'avpn_ai';
     }
 
     /**

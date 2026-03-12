@@ -20,11 +20,18 @@ class RegistrationTest extends TestCase
     public function test_new_users_can_register(): void
     {
         $response = $this->post('/register', [
+            'class_interest' => 'regular',
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'date_of_birth' => '2000-01-01',
+            'gender' => 'male',
+            'institution_name' => 'Test Institute',
+            'occupation' => 'Pelajar/Mahasiswa',
             'password' => 'password',
             'password_confirmation' => 'password',
         ]);
+
+        $response->assertSessionHasNoErrors();
 
         $this->assertDatabaseHas('users', [
             'email' => 'test@example.com',

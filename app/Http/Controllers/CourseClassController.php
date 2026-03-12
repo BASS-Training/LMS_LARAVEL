@@ -95,6 +95,7 @@ class CourseClassController extends Controller
                 'description' => $validatedData['description'],
                 'max_participants' => $validatedData['max_participants'],
                 'status' => $validatedData['status'],
+                'program_type' => $course->program_type,
             ]);
 
             DB::commit();
@@ -160,6 +161,7 @@ class CourseClassController extends Controller
                 'description' => $validatedData['description'],
                 'max_participants' => $validatedData['max_participants'],
                 'status' => $validatedData['status'],
+                'program_type' => $course->program_type,
             ]);
 
             DB::commit();
@@ -246,6 +248,7 @@ class CourseClassController extends Controller
                 'description' => $period->description,
                 'max_participants' => $period->max_participants,
                 'status' => 'upcoming', // Always set new copy as upcoming
+                'program_type' => $course->program_type,
             ]);
 
             DB::commit();
@@ -469,6 +472,17 @@ class CourseClassController extends Controller
     public function enroll(Course $course, CourseClass $period)
     {
         $user = Auth::user();
+        $programType = $period->program_type ?? ($course->program_type ?? 'regular');
+
+        if ($programType === 'avpn_ai' && !$user->canAccessProgram('avpn_ai')) {
+            $errorMessage = $user->avpn_verification_status === 'pending'
+                ? 'Akses kelas Literasi AI (AVPN) masih pending. Tunggu validasi admin.'
+                : 'Akses kelas Literasi AI (AVPN) belum aktif untuk akun Anda.';
+
+            return back()->withErrors([
+                'error' => $errorMessage,
+            ]);
+        }
 
         // Check if period is available for enrollment
         if (!in_array($period->status, ['active', 'upcoming'])) {

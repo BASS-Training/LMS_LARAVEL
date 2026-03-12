@@ -51,3 +51,9 @@ storage/framework/views/ea5cd617c761baea152d830f90253d16.php
 storage/framework/views/edf7b267f1f127467d05a5448d11a81e.php
 storage/framework/views/f61fd2c750d0a2048656ca2970b81467.php
 storage/framework/views/fa2538522f4a1a5793a46396cd7ea92d.php
+/storage/*.key
+/storage/app/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*

@@ -28,7 +28,7 @@
             <!-- Filter Section -->
             <div class="mb-6 bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                 <form action="{{ route('admin.participants.index') }}" method="GET">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
                         <!-- Search -->
                         <div class="md:col-span-2">
                             <label for="search" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -70,6 +70,26 @@
                                 @endforeach
                             </select>
                         </div>
+
+                        <div>
+                            <label for="registration_program" class="block text-sm font-semibold text-gray-700 mb-2">Program</label>
+                            <select name="registration_program" id="registration_program" class="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl">
+                                <option value="">Semua</option>
+                                <option value="regular" @selected(request('registration_program') == 'regular')>Reguler BASS</option>
+                                <option value="avpn_ai" @selected(request('registration_program') == 'avpn_ai')>Literasi AI (AVPN)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="avpn_status" class="block text-sm font-semibold text-gray-700 mb-2">Status AVPN</label>
+                            <select name="avpn_status" id="avpn_status" class="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl">
+                                <option value="">Semua</option>
+                                <option value="pending" @selected(request('avpn_status') == 'pending')>Pending</option>
+                                <option value="approved" @selected(request('avpn_status') == 'approved')>Approved</option>
+                                <option value="rejected" @selected(request('avpn_status') == 'rejected')>Rejected</option>
+                                <option value="not_required" @selected(request('avpn_status') == 'not_required')>Not Required</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="mt-4 flex justify-end space-x-2">
@@ -102,15 +122,63 @@
 
             <!-- Participants Table -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                        <div>
+                            <p class="text-sm font-semibold text-gray-800">Aksi Batch AVPN (khusus status Pending)</p>
+                            <p class="text-xs text-gray-500">Centang peserta pending untuk batch approve/reject, atau jalankan sinkronisasi user lama AVPN.</p>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <form id="avpnBatchForm" method="POST" class="flex flex-col sm:flex-row gap-2">
+                                @csrf
+                                <input
+                                    type="text"
+                                    name="reason"
+                                    placeholder="Alasan reject batch (opsional)"
+                                    class="w-full sm:w-64 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-sm"
+                                >
+                                <button
+                                    type="submit"
+                                    formaction="{{ route('admin.participants.avpn.batch-approve') }}"
+                                    class="px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition-colors"
+                                >
+                                    Batch Approve AVPN
+                                </button>
+                                <button
+                                    type="submit"
+                                    formaction="{{ route('admin.participants.avpn.batch-reject') }}"
+                                    class="px-4 py-2 bg-red-600 text-white rounded-xl text-sm font-medium hover:bg-red-700 transition-colors"
+                                >
+                                    Batch Reject AVPN
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ route('admin.participants.avpn.sync-legacy') }}">
+                                @csrf
+                                <button
+                                    type="submit"
+                                    onclick="return confirm('Sinkronisasi ini akan menandai user lama yang punya riwayat kelas AVPN menjadi user AVPN approved. Lanjutkan?')"
+                                    class="px-4 py-2 bg-amber-600 text-white rounded-xl text-sm font-medium hover:bg-amber-700 transition-colors"
+                                >
+                                    Sinkronisasi User Lama AVPN
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
                             <tr>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                    <input type="checkbox" id="select-all-pending" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                </th>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Peserta</th>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Gender</th>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Tanggal Lahir</th>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Institusi</th>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Pekerjaan</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Program</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Status AVPN</th>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Terdaftar</th>
                                 <th class="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Aksi</th>
                             </tr>
@@ -118,6 +186,24 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse($participants as $participant)
                                 <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-4 py-4 text-center">
+                                        @if($participant->avpn_verification_status === 'pending')
+                                            <input
+                                                type="checkbox"
+                                                name="participant_ids[]"
+                                                value="{{ $participant->id }}"
+                                                form="avpnBatchForm"
+                                                class="batch-pending-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                            >
+                                        @else
+                                            <input
+                                                type="checkbox"
+                                                disabled
+                                                class="rounded border-gray-200 text-gray-300 cursor-not-allowed"
+                                                title="Batch action hanya untuk status pending"
+                                            >
+                                        @endif
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-10 w-10">
@@ -152,6 +238,26 @@
                                     <td class="px-6 py-4 text-sm text-gray-900">
                                         {{ $participant->occupation ?? '-' }}
                                     </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        @if($participant->registration_program === 'avpn_ai')
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">Literasi AI (AVPN)</span>
+                                        @else
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Reguler BASS</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        @php
+                                            $statusClass = match($participant->avpn_verification_status) {
+                                                'approved' => 'bg-green-100 text-green-800',
+                                                'pending' => 'bg-yellow-100 text-yellow-800',
+                                                'rejected' => 'bg-red-100 text-red-800',
+                                                default => 'bg-gray-100 text-gray-700'
+                                            };
+                                        @endphp
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusClass }}">
+                                            {{ strtoupper($participant->avpn_verification_status ?? 'not_required') }}
+                                        </span>
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $participant->created_at->format('d M Y') }}
                                     </td>
@@ -163,11 +269,55 @@
                                             </svg>
                                             Detail
                                         </a>
+                                        @if($participant->avpn_verification_status === 'pending')
+                                            <div class="mt-2 flex items-center justify-center gap-2">
+                                                <form method="POST" action="{{ route('admin.participants.avpn.approve', $participant) }}">
+                                                    @csrf
+                                                    <button type="submit" class="inline-flex items-center px-2.5 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200">
+                                                        Approve
+                                                    </button>
+                                                </form>
+                                                <form method="POST" action="{{ route('admin.participants.avpn.reject', $participant) }}">
+                                                    @csrf
+                                                    <button type="submit" class="inline-flex items-center px-2.5 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200">
+                                                        Reject
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        @endif
+                                        <div class="mt-2 flex items-center justify-center gap-2">
+                                            <form method="POST" action="{{ route('admin.participants.access.force', $participant) }}">
+                                                @csrf
+                                                <input type="hidden" name="access_mode" value="avpn_allowed">
+                                                <button type="submit" class="inline-flex items-center px-2.5 py-1 text-xs bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200">
+                                                    Paksa Aktifkan AVPN
+                                                </button>
+                                            </form>
+                                            <form method="POST" action="{{ route('admin.participants.access.force', $participant) }}">
+                                                @csrf
+                                                <input type="hidden" name="access_mode" value="avpn_blocked">
+                                                <input type="hidden" name="reason" value="Akses AVPN dihentikan secara paksa oleh admin.">
+                                                <button
+                                                    type="submit"
+                                                    onclick="return confirm('Yakin ingin menghentikan akses AVPN peserta ini?')"
+                                                    class="inline-flex items-center px-2.5 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200"
+                                                >
+                                                    Stop AVPN
+                                                </button>
+                                            </form>
+                                            <form method="POST" action="{{ route('admin.participants.access.force', $participant) }}">
+                                                @csrf
+                                                <input type="hidden" name="access_mode" value="regular_only">
+                                                <button type="submit" class="inline-flex items-center px-2.5 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">
+                                                    Paksa Set Reguler
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="px-6 py-12 text-center">
+                                    <td colspan="10" class="px-6 py-12 text-center">
                                         <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                                         </svg>
@@ -189,4 +339,32 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectAll = document.getElementById('select-all-pending');
+            const checkboxes = document.querySelectorAll('.batch-pending-checkbox');
+            const batchForm = document.getElementById('avpnBatchForm');
+
+            if (selectAll) {
+                selectAll.addEventListener('change', function () {
+                    checkboxes.forEach((checkbox) => {
+                        checkbox.checked = selectAll.checked;
+                    });
+                });
+            }
+
+            if (batchForm) {
+                batchForm.addEventListener('submit', function (event) {
+                    const checked = document.querySelectorAll('.batch-pending-checkbox:checked');
+                    if (checked.length === 0) {
+                        event.preventDefault();
+                        window.alert('Pilih minimal 1 peserta berstatus pending untuk aksi batch.');
+                    }
+                });
+            }
+        });
+    </script>
+    @endpush
 </x-app-layout>

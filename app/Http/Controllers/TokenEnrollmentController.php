@@ -45,6 +45,10 @@ class TokenEnrollmentController extends Controller
             ]);
         }
 
+        if ($accessError = $this->getProgramAccessError($user, $course->program_type ?? 'regular')) {
+            return back()->withErrors(['token' => $accessError]);
+        }
+
         // Check if already enrolled
         if ($course->enrolledUsers()->where('users.id', $user->id)->exists()) {
             return back()->withErrors([
@@ -116,6 +120,10 @@ class TokenEnrollmentController extends Controller
                     ]);
                 }
 
+                if ($accessError = $this->getProgramAccessError($user, $course->program_type ?? 'regular')) {
+                    return back()->withErrors(['token' => $accessError]);
+                }
+
                 // Check if already enrolled (with lock preventing duplicate inserts)
                 if ($course->enrolledUsers()->where('users.id', $user->id)->exists()) {
                     return back()->withErrors([
@@ -180,6 +188,10 @@ class TokenEnrollmentController extends Controller
                 }
 
                 $course = $class->course;
+
+                if ($accessError = $this->getProgramAccessError($user, $class->program_type ?? ($course->program_type ?? 'regular'))) {
+                    return back()->withErrors(['token' => $accessError]);
+                }
 
                 if (!$class->hasAvailableSlots()) {
                     return back()->withErrors([
@@ -271,6 +283,10 @@ class TokenEnrollmentController extends Controller
 
         $course = $class->course;
 
+        if ($accessError = $this->getProgramAccessError($user, $class->program_type ?? ($course->program_type ?? 'regular'))) {
+            return back()->withErrors(['token' => $accessError]);
+        }
+
         // Check if class is full
         if (!$class->hasAvailableSlots()) {
             return back()->withErrors([
@@ -307,5 +323,26 @@ class TokenEnrollmentController extends Controller
                 'token' => 'Gagal mendaftar ke kelas: ' . $e->getMessage()
             ]);
         }
+    }
+
+    private function getProgramAccessError($user, string $programType): ?string
+    {
+        if ($programType !== 'avpn_ai') {
+            return null;
+        }
+
+        if ($user->avpn_verification_status === 'pending') {
+            return 'Akses kelas Literasi AI (AVPN) masih pending. Tunggu validasi admin.';
+        }
+
+        if ($user->avpn_verification_status === 'rejected') {
+            return 'Akses kelas Literasi AI (AVPN) ditolak. Hubungi admin untuk klarifikasi.';
+        }
+
+        if (!$user->canAccessProgram('avpn_ai')) {
+            return 'Akses kelas Literasi AI (AVPN) belum aktif.';
+        }
+
+        return null;
     }
 }

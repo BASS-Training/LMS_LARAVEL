@@ -27,7 +27,8 @@ class CourseClass extends Model
         'enrollment_token',
         'token_enabled',
         'token_expires_at',
-        'token_type'
+        'token_type',
+        'program_type'
     ];
 
     protected $casts = [
@@ -51,6 +52,12 @@ class CourseClass extends Model
             // Auto-generate class_code if not provided
             if (empty($class->class_code)) {
                 $class->class_code = strtoupper(Str::random(8));
+            }
+
+            // Keep class program type aligned with the parent course by default
+            if (empty($class->program_type) && $class->course_id) {
+                $course = Course::find($class->course_id);
+                $class->program_type = $course?->program_type ?? 'regular';
             }
         });
     }
@@ -136,6 +143,11 @@ class CourseClass extends Model
         return $this->status === 'active' &&
             $this->start_date <= now() &&
             $this->end_date >= now();
+    }
+
+    public function isAvpnProgram(): bool
+    {
+        return $this->program_type === 'avpn_ai';
     }
 
     public function isUpcoming(): bool

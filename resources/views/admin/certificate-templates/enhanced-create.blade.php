@@ -220,6 +220,7 @@
                                         <button type="button" @click="addElement('@{{name}}')" class="text-left p-2 text-sm bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded">👤 Participant Name</button>
                                         <button type="button" @click="addElement('@{{course}}')" class="text-left p-2 text-sm bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded">📚 Course Name</button>
                                         <button type="button" @click="addElement('@{{date}}')" class="text-left p-2 text-sm bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded">📅 Completion Date</button>
+                                        <button type="button" @click="addElement('@{{training_date_range}}')" class="text-left p-2 text-sm bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded">🗓️ Training Date Range</button>
                                         <button type="button" @click="addElement('@{{score}}')" class="text-left p-2 text-sm bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded">⭐ Final Score</button>
                                         <button type="button" @click="addElement('@{{certificate_code}}')" class="text-left p-2 text-sm bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded">🔖 Certificate Code</button>
                                         <button type="button" @click="addElement('@{{course_summary}}')" class="text-left p-2 text-sm bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded">📝 Course Summary</button>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -167,5 +168,148 @@ class Certificate extends Model
     public function getStoragePathAttribute()
     {
         return storage_path('app/public/' . $this->path);
+    }
+
+    /**
+     * Resolve training date range from participant class enrollment.
+     * Falls back to all classes in the course when user-class enrollment is unavailable.
+     *
+     * @return array{start: \Carbon\CarbonInterface, end: \Carbon\CarbonInterface}|null
+     */
+    public function getTrainingDateRange(): ?array
+    {
+        if (!$this->course) {
+            return null;
+        }
+
+        // Opsi 1: single source of truth from course-level training schedule.
+        if ($this->course->training_start_date && $this->course->training_end_date) {
+            $startDate = $this->course->training_start_date instanceof Carbon
+                ? $this->course->training_start_date
+                : Carbon::parse($this->course->training_start_date);
+
+            $endDate = $this->course->training_end_date instanceof Carbon
+                ? $this->course->training_end_date
+                : Carbon::parse($this->course->training_end_date);
+
+            if ($endDate->lt($startDate)) {
+                [$startDate, $endDate] = [$endDate, $startDate];
+            }
+
+            return [
+                'start' => $startDate,
+                'end' => $endDate,
+            ];
+        }
+
+        // Backward compatibility fallback for historical certificates/courses.
+        $baseQuery = $this->course->classes()
+            ->whereNotNull('start_date')
+            ->whereNotNull('end_date');
+
+        $userClasses = (clone $baseQuery)
+            ->whereHas('participants', function ($query) {
+                $query->where('users.id', $this->user_id);
+            })
+            ->get(['start_date', 'end_date']);
+
+        $classes = $userClasses->isNotEmpty()
+            ? $userClasses->values()
+            : $baseQuery->orderBy('start_date')->get(['start_date', 'end_date'])->values();
+
+        if ($classes->isEmpty()) {
+            return null;
+        }
+
+        $issuedAt = $this->issued_at
+            ? ($this->issued_at instanceof Carbon ? $this->issued_at : Carbon::parse($this->issued_at))
+            : now();
+
+        $matchingClass = $classes
+            ->filter(function ($class) use ($issuedAt) {
+                $start = $class->start_date instanceof Carbon ? $class->start_date : Carbon::parse($class->start_date);
+                $end = $class->end_date instanceof Carbon ? $class->end_date : Carbon::parse($class->end_date);
+                return $issuedAt->between($start, $end, true);
+            })
+            ->sortByDesc('start_date')
+            ->first();
+
+        if (!$matchingClass) {
+            $matchingClass = $classes
+                ->filter(function ($class) use ($issuedAt) {
+                    $end = $class->end_date instanceof Carbon ? $class->end_date : Carbon::parse($class->end_date);
+                    return $end->lte($issuedAt);
+                })
+                ->sortByDesc('end_date')
+                ->first();
+        }
+
+        if (!$matchingClass) {
+            $matchingClass = $classes->sortBy('start_date')->first();
+        }
+
+        $start = $matchingClass->start_date;
+        $end = $matchingClass->end_date;
+
+        if (!$start || !$end) {
+            return null;
+        }
+
+        $startDate = $start instanceof Carbon ? $start : Carbon::parse($start);
+        $endDate = $end instanceof Carbon ? $end : Carbon::parse($end);
+
+        if ($endDate->lt($startDate)) {
+            [$startDate, $endDate] = [$endDate, $startDate];
+        }
+
+        return [
+            'start' => $startDate,
+            'end' => $endDate,
+        ];
+    }
+
+    public function getTrainingDateRangeLabel(): ?string
+    {
+        $range = $this->getTrainingDateRange();
+
+        if (!$range) {
+            return null;
+        }
+
+        return $this->formatDateIndonesian($range['start']) . ' - ' . $this->formatDateIndonesian($range['end']);
+    }
+
+    public function getTrainingStartDateLabel(): ?string
+    {
+        $range = $this->getTrainingDateRange();
+
+        return $range ? $this->formatDateIndonesian($range['start']) : null;
+    }
+
+    public function getTrainingEndDateLabel(): ?string
+    {
+        $range = $this->getTrainingDateRange();
+
+        return $range ? $this->formatDateIndonesian($range['end']) : null;
+    }
+
+    private function formatDateIndonesian(Carbon $date): string
+    {
+        $months = [
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember',
+        ];
+
+        return $date->day . ' ' . $months[(int) $date->month] . ' ' . $date->year;
     }
 }

@@ -42,6 +42,7 @@
     <div x-data="{
         step: 1,
         formData: {
+            class_interest: '{{ old('class_interest') }}',
             name: '{{ old('name') }}',
             email: '{{ old('email') }}',
             date_of_birth: '{{ old('date_of_birth') }}',
@@ -63,7 +64,7 @@
         },
         validateCurrentStep() {
             if (this.step === 1) {
-                return this.formData.name && this.formData.email && this.formData.password && this.formData.password_confirmation;
+                return this.formData.class_interest && this.formData.name && this.formData.email && this.formData.password && this.formData.password_confirmation;
             } else if (this.step === 2) {
                 return this.formData.date_of_birth && this.formData.gender && this.formData.institution_name;
             } else if (this.step === 3) {
@@ -114,7 +115,7 @@
                         <span x-show="step <= 1" class="font-bold">1</span>
                     </div>
                     <p class="text-xs font-semibold text-center" :class="step >= 1 ? 'text-[#DA1E1E]' : 'text-gray-500'">
-                        Akun
+                        Program & Akun
                     </p>
                 </div>
 
@@ -150,6 +151,59 @@
 
             <!-- Step 1: Account Information -->
             <div x-show="step === 1" x-transition class="space-y-5 animate-fadeInUp">
+                <div>
+                    <x-input-label :value="__('Pilih Jalur Kelas')" class="text-gray-700 font-semibold" />
+                    <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <label class="relative flex items-center justify-center p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 card-hover"
+                            :class="formData.class_interest === 'regular' ? 'border-[#DA1E1E] bg-red-50 ring-2 ring-[#DA1E1E] ring-opacity-20' : 'border-gray-300 hover:border-[#DA1E1E] hover:bg-red-50'">
+                            <input type="radio" name="class_interest" value="regular" x-model="formData.class_interest" class="sr-only" required>
+                            <div class="text-center">
+                                <div class="w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center transition-all duration-300"
+                                     :class="formData.class_interest === 'regular' ? 'bg-[#DA1E1E]' : 'bg-gray-200'">
+                                    <svg class="w-6 h-6" :class="formData.class_interest === 'regular' ? 'text-white' : 'text-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253"></path>
+                                    </svg>
+                                </div>
+                                <span class="font-semibold text-sm" :class="formData.class_interest === 'regular' ? 'text-[#DA1E1E]' : 'text-gray-700'">Kelas Reguler BASS</span>
+                                <p class="text-xs mt-2 text-gray-500">Langsung daftar di website</p>
+                            </div>
+                        </label>
+
+                        <label class="relative flex items-center justify-center p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 card-hover"
+                            :class="formData.class_interest === 'avpn_ai' ? 'border-[#DA1E1E] bg-red-50 ring-2 ring-[#DA1E1E] ring-opacity-20' : 'border-gray-300 hover:border-[#DA1E1E] hover:bg-red-50'">
+                            <input type="radio" name="class_interest" value="avpn_ai" x-model="formData.class_interest" class="sr-only" required>
+                            <div class="text-center">
+                                <div class="w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center transition-all duration-300"
+                                     :class="formData.class_interest === 'avpn_ai' ? 'bg-[#DA1E1E]' : 'bg-gray-200'">
+                                    <svg class="w-6 h-6" :class="formData.class_interest === 'avpn_ai' ? 'text-white' : 'text-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1.5-3H4l2.25-2.25L5.5 11l3 .75L10 9l1.5 2.75 3-.75-.75 3.75L16 17h-3.5L11 20l-.75-3z"></path>
+                                    </svg>
+                                </div>
+                                <span class="font-semibold text-sm" :class="formData.class_interest === 'avpn_ai' ? 'text-[#DA1E1E]' : 'text-gray-700'">Literasi AI (AVPN)</span>
+                                <p class="text-xs mt-2 text-gray-500">Wajib isi Google Form AVPN dahulu</p>
+                            </div>
+                        </label>
+                    </div>
+                    <x-input-error :messages="$errors->get('class_interest')" class="mt-2" />
+                </div>
+
+                <div x-show="formData.class_interest === 'avpn_ai'" x-transition class="rounded-xl border border-amber-200 bg-amber-50 p-4">
+                    <p class="text-sm font-semibold text-amber-800 mb-2">Langkah wajib untuk pendaftar AVPN</p>
+                    <ol class="text-sm text-amber-700 list-decimal pl-5 space-y-1">
+                        <li>Isi Google Form AVPN terlebih dahulu.</li>
+                        <li>Setelah isi form, lanjut daftar akun di LMS ini.</li>
+                        <li>Setelah akun dibuat, tunggu approval admin AVPN.</li>
+                        <li>Token kelas AVPN baru bisa diinput setelah admin menyetujui.</li>
+                    </ol>
+                    <a href="{{ $avpnGoogleFormUrl ?: '#' }}" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center mt-3 px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700">
+                        Buka Google Form AVPN
+                    </a>
+                    <p class="mt-3 text-xs text-amber-700">
+                        Approval akses kelas AVPN dilakukan oleh admin (bukan otomatis oleh sistem).
+                    </p>
+                </div>
+
                 <div>
                     <x-input-label for="name" :value="__('Nama Lengkap')" class="text-gray-700 font-semibold" />
                     <div class="relative mt-2">
