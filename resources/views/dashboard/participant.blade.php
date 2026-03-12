@@ -525,7 +525,8 @@
                     </div>
 
                     <div class="mt-8">
-                        @include('dashboard.partials.my-certificates', ['completedCertificates' => $completedCertificates])
+                        @include('dashboard.partials.my-certificates', ['completedCertificates' => $completedCertificates, 
+                        'eligibleForCertificates' => $eligibleForCertificates])
                     </div>
                 </div>
 
