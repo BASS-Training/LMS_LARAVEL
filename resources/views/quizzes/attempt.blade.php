@@ -166,8 +166,10 @@
                         <!-- Submit Button di Sidebar -->
                         <div class="mt-6">
                             <button type="button"
+                                    id="sidebar-submit-btn"
                                     onclick="showSubmitConfirmation(event)"
-                                    class="w-full btn-submit bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-4 rounded-xl text-lg font-bold shadow-lg transform transition-all duration-300 hover:scale-105">
+                                    disabled
+                                    class="w-full btn-submit bg-gray-400 text-white px-6 py-4 rounded-xl text-lg font-bold shadow-lg transform transition-all duration-300 cursor-not-allowed opacity-70">
                                 <i class="fas fa-paper-plane mr-2"></i>
                                 Kirim Jawaban
                             </button>
@@ -358,7 +360,8 @@
 
                                                 <button type="button"
                                                         onclick="showSubmitConfirmation(event)"
-                                                        class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all duration-200 {{ $index !== $quiz->questions->count() - 1 ? 'hidden' : '' }}"
+                                                        disabled
+                                                        class="inline-submit-btn px-6 py-3 bg-gray-400 text-white font-semibold rounded-lg transition-all duration-200 cursor-not-allowed opacity-70 {{ $index !== $quiz->questions->count() - 1 ? 'hidden' : '' }}"
                                                         id="submit-btn-{{ $index }}">
                                                     <i class="fas fa-paper-plane mr-2"></i>
                                                     Kirim Jawaban
@@ -697,6 +700,30 @@
             if (modalAnsweredCount) {
                 modalAnsweredCount.textContent = `${answeredCount} / ${totalQuestions}`;
             }
+
+            // Enable/disable submit buttons based on whether all questions are answered
+            const allAnswered = answeredCount === totalQuestions;
+
+            const sidebarBtn = document.getElementById('sidebar-submit-btn');
+            if (sidebarBtn) {
+                sidebarBtn.disabled = !allAnswered;
+                if (allAnswered) {
+                    sidebarBtn.className = 'w-full btn-submit bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-4 rounded-xl text-lg font-bold shadow-lg transform transition-all duration-300 hover:scale-105 cursor-pointer';
+                } else {
+                    sidebarBtn.className = 'w-full btn-submit bg-gray-400 text-white px-6 py-4 rounded-xl text-lg font-bold shadow-lg transform transition-all duration-300 cursor-not-allowed opacity-70';
+                }
+            }
+
+            document.querySelectorAll('.inline-submit-btn').forEach(btn => {
+                btn.disabled = !allAnswered;
+                if (allAnswered) {
+                    btn.classList.add('bg-green-600', 'hover:bg-green-700', 'cursor-pointer');
+                    btn.classList.remove('bg-gray-400', 'cursor-not-allowed', 'opacity-70');
+                } else {
+                    btn.classList.add('bg-gray-400', 'cursor-not-allowed', 'opacity-70');
+                    btn.classList.remove('bg-green-600', 'hover:bg-green-700', 'cursor-pointer');
+                }
+            });
         }
 
         function updateQuestionNavButton(index, isAnswered) {
