@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\CertificateController;
 use Carbon\Carbon;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class ContentController extends Controller
 {
@@ -83,7 +85,76 @@ class ContentController extends Controller
             }
         }
 
-        return view('contents.show', compact('content', 'course', 'unlockedContents', 'hasPassedQuizBefore', 'orderedContents', 'attendanceStatus', 'canComplete'));
+        $spreadsheetPreview = $this->buildSpreadsheetPreview($content);
+
+        return view('contents.show', compact('content', 'course', 'unlockedContents', 'hasPassedQuizBefore', 'orderedContents', 'attendanceStatus', 'canComplete', 'spreadsheetPreview'));
+    }
+
+    private function buildSpreadsheetPreview(Content $content): ?array
+    {
+        if ($content->type !== 'document' || !$content->file_path) {
+            return null;
+        }
+
+        $extension = strtolower(pathinfo($content->file_path, PATHINFO_EXTENSION));
+        if (!in_array($extension, ['xls', 'xlsx', 'csv'], true)) {
+            return null;
+        }
+
+        $path = Storage::disk('public')->path($content->file_path);
+        if (!is_file($path)) {
+            return null;
+        }
+
+        try {
+            $reader = IOFactory::createReaderForFile($path);
+            $reader->setReadDataOnly(true);
+            $spreadsheet = $reader->load($path);
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheetName = $sheet->getTitle();
+
+            $highestRow = min((int) $sheet->getHighestDataRow(), 100);
+            $highestColumnIndex = min(Coordinate::columnIndexFromString($sheet->getHighestDataColumn()), 30);
+            $isTruncated = ((int) $sheet->getHighestDataRow() > $highestRow) || (Coordinate::columnIndexFromString($sheet->getHighestDataColumn()) > $highestColumnIndex);
+            $rows = [];
+
+            for ($row = 1; $row <= $highestRow; $row++) {
+                $cells = [];
+                $hasValue = false;
+
+                for ($col = 1; $col <= $highestColumnIndex; $col++) {
+                    $value = $sheet->getCellByColumnAndRow($col, $row)->getFormattedValue();
+                    $value = is_scalar($value) ? trim((string) $value) : '';
+                    $cells[] = $value;
+
+                    if ($value !== '') {
+                        $hasValue = true;
+                    }
+                }
+
+                if ($hasValue) {
+                    $rows[] = $cells;
+                }
+            }
+
+            $spreadsheet->disconnectWorksheets();
+
+            return [
+                'sheet_name' => $sheetName,
+                'rows' => $rows,
+                'truncated' => $isTruncated,
+                'max_rows' => $highestRow,
+                'max_columns' => $highestColumnIndex,
+            ];
+        } catch (\Throwable $e) {
+            Log::warning('Failed to build spreadsheet preview', [
+                'content_id' => $content->id,
+                'file_path' => $content->file_path,
+                'message' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
     }
 
     /**

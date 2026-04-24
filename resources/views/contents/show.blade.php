@@ -684,7 +684,44 @@
                                         @endif
 
                                         {{-- Preview Section (jika bisa di-preview dan akses type bukan download_only) --}}
-                                        @if($isPreviewable && $accessType !== 'download_only')
+                                        @if($spreadsheetPreview && in_array($fileExtension, ['xls', 'xlsx', 'csv']))
+                                            <div class="mb-6 bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200">
+                                                <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                                    <div>
+                                                        <p class="text-sm font-semibold text-gray-800">Preview Spreadsheet</p>
+                                                        <p class="text-xs text-gray-500">Sheet: {{ $spreadsheetPreview['sheet_name'] }}</p>
+                                                    </div>
+                                                    @if($spreadsheetPreview['truncated'])
+                                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                            Ditampilkan sebagian
+                                                        </span>
+                                                    @endif
+                                                </div>
+
+                                                @if(count($spreadsheetPreview['rows']))
+                                                    <div class="overflow-auto max-h-[70vh]">
+                                                        <table class="min-w-full text-sm border-collapse">
+                                                            <tbody>
+                                                                @foreach($spreadsheetPreview['rows'] as $rowIndex => $row)
+                                                                    <tr class="{{ $rowIndex === 0 ? 'bg-gray-100 font-semibold text-gray-900' : 'odd:bg-white even:bg-gray-50 text-gray-700' }}">
+                                                                        @foreach($row as $cell)
+                                                                            <td class="border border-gray-200 px-3 py-2 whitespace-pre-wrap align-top min-w-[140px]">
+                                                                                {{ $cell }}
+                                                                            </td>
+                                                                        @endforeach
+                                                                    </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                @else
+                                                    <div class="p-8 text-center text-sm text-gray-500">
+                                                        Tidak ada data yang bisa ditampilkan dari spreadsheet ini.
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        {{-- Preview Section (jika bisa di-preview dan akses type bukan download_only) --}}
+                                        @elseif($isPreviewable && $accessType !== 'download_only')
                                             <div class="mb-6 bg-white rounded-xl overflow-hidden shadow-lg" x-data="{ loading: true, error: false }">
                                                 <div class="aspect-[4/3] md:aspect-video relative">
                                                     {{-- Loading State --}}

@@ -15,7 +15,9 @@
       "Bash(dir:*)",
       "Bash(storage/logs/laravel.log)",
       "Bash(ls /var/www/lms.basstrainingacademy.com/html/public/build/assets/*.css 2>/dev/null | head -5)",
-      "Bash(composer install *)"
+      "Bash(composer install *)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
