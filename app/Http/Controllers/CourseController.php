@@ -59,9 +59,19 @@ class CourseController extends Controller
             }
         }
 
-        $courses = $query->with('instructors')->latest()->paginate(10);
+        $search = null;
+        if ($request->filled('q')) {
+            $validated = $request->validate(['q' => 'required|string|min:2|max:100']);
+            $search = $validated['q'];
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                  ->orWhere('description', 'like', '%' . $search . '%');
+            });
+        }
 
-        return view('courses.index', compact('courses'));
+        $courses = $query->with('instructors')->latest()->paginate(10)->withQueryString();
+
+        return view('courses.index', compact('courses', 'search'));
     }
 
     public function create()

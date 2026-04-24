@@ -144,7 +144,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/announcements/{announcement}', [AnnouncementController::class, 'show'])->name('announcements.show');
 
     // Kursus, Pelajaran, dan Konten
-    Route::resource('courses', CourseController::class)->middleware('permission:view courses|manage all courses');
+    Route::get('/courses', [CourseController::class, 'index'])
+        ->name('courses.index')
+        ->middleware(['permission:view courses|manage all courses', 'throttle:30,1']);
+    Route::resource('courses', CourseController::class)
+        ->except(['index'])
+        ->middleware('permission:view courses|manage all courses');
     Route::post('/courses/{course}/enroll', [CourseController::class, 'enrollParticipant'])->name('courses.enroll')->middleware('permission:add class participants');
     Route::delete('/courses/{course}/unenroll-mass', [CourseController::class, 'unenrollParticipants'])->name('courses.unenroll_mass')->middleware('permission:remove class participants');
     Route::post('/courses/{course}/add-instructor', [CourseController::class, 'addInstructor'])->name('courses.addInstructor')->middleware('permission:assign instructors');
