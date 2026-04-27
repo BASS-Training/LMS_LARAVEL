@@ -3,13 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
+use App\Models\ExportHistory;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Models\CertificateTemplate;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreCourseRequest;
+use App\Jobs\ExportCourseParticipantsJob;
+use App\Services\CourseParticipantQueryService;
 use App\Services\CourseService;
 use PDF;
 use Illuminate\Support\Str;
@@ -210,7 +214,14 @@ class CourseController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('courses.show', compact('course', 'availableInstructors', 'availableOrganizers', 'unEnrolledParticipants'));
+        $exportHistories = ExportHistory::where('course_id', $course->id)
+            ->where('user_id', $user->id)
+            ->with('courseClass')
+            ->latest()
+            ->limit(10)
+            ->get();
+
+        return view('courses.show', compact('course', 'availableInstructors', 'availableOrganizers', 'unEnrolledParticipants', 'exportHistories'));
     }
 
     public function edit(Course $course)
@@ -1510,5 +1521,62 @@ class CourseController extends Controller
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Gagal toggle token: ' . $e->getMessage()]);
         }
+    }
+
+    // =========================================================================
+    // PARTICIPANT EXPORT
+    // =========================================================================
+
+    public function exportParticipants(Request $request, Course $course)
+    {
+        $this->authorize('viewProgress', $course);
+
+        $validated = $request->validate([
+            'filter'   => ['required', Rule::in(['all', 'class'])],
+            'class_id' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        $filter  = $validated['filter'];
+        $classId = isset($validated['class_id']) ? (int) $validated['class_id'] : null;
+
+        $class = null;
+        if ($filter === 'class') {
+            abort_if(! $classId, 422, 'Pilih kelas yang akan diekspor.');
+            $class = $course->classes()->find($classId);
+            abort_if(! $class, 403, 'Kelas tidak ditemukan dalam kursus ini.');
+        }
+
+        $user = Auth::user();
+
+        // Instructor-only restriction: can only export their own class
+        if (! $user->can('manage all courses') && ! $user->can('view progress reports')) {
+            abort_if($filter === 'all', 403, 'Instruktur hanya dapat mengekspor per kelas.');
+            abort_if(! $class->isInstructor($user->id), 403, 'Anda tidak memiliki akses ke kelas ini.');
+        }
+
+        $exportHistory = ExportHistory::create([
+            'user_id'         => $user->id,
+            'course_id'       => $course->id,
+            'filter'          => $filter,
+            'course_class_id' => $classId,
+            'status'          => 'processing',
+        ]);
+
+        ExportCourseParticipantsJob::dispatch($exportHistory);
+
+        return back()->with('success', 'Export sedang diproses. Anda akan mendapat notifikasi ketika selesai.');
+    }
+
+    public function participantsCount(Request $request, Course $course)
+    {
+        $this->authorize('viewProgress', $course);
+
+        $filter  = $request->input('filter', 'all');
+        $classId = $request->input('class_id') ? (int) $request->input('class_id') : null;
+
+        $count = app(CourseParticipantQueryService::class)
+            ->countForFilter($course, $filter, $classId);
+
+        return response()->json(['count' => $count]);
     }
 }

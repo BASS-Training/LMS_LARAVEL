@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Alpine.js: hide elements with x-cloak until Alpine initializes */
+[x-cloak] { display: none !important; }
+
 @layer base {
     html {
         -webkit-tap-highlight-color: transparent;

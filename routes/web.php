@@ -337,6 +337,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('courses.exportProgressPdf')
         ->middleware('permission:generate reports');
 
+    // Export Participants (async via queue)
+    Route::post('/courses/{course}/export-participants', [CourseController::class, 'exportParticipants'])
+        ->name('courses.export.participants')
+        ->middleware('permission:view progress reports|manage own courses');
+
+    Route::get('/courses/{course}/participants/count', [CourseController::class, 'participantsCount'])
+        ->name('courses.participants.count')
+        ->middleware('permission:view progress reports|manage own courses');
+
+    // Export History Download
+    Route::get('/exports/{export}/download', [\App\Http\Controllers\ExportHistoryController::class, 'download'])
+        ->name('exports.download');
+
     // Participant: My Scores page (per course)
     Route::get('/courses/{course}/my-scores', [ProgressController::class, 'myScores'])
         ->name('courses.my-scores');

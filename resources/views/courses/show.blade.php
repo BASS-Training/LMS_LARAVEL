@@ -46,6 +46,16 @@
                         Lihat Progres
                     </a>
                 @endcan
+                @can('viewProgress', $course)
+                    <button
+                        @click="$dispatch('open-export-modal')"
+                        class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl font-medium text-sm hover:from-teal-600 hover:to-teal-700 shadow-lg hover:shadow-xl transition-all duration-200">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        Export Peserta
+                    </button>
+                @endcan
                 @can('update', $course)
                     <a href="{{ route('courses.tokens', $course) }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-medium text-sm hover:from-red-600 hover:to-red-700 shadow-lg hover:shadow-xl transition-all duration-200">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,9 +149,21 @@
                                     class="whitespace-nowrap py-4 px-4 border-b-2 font-semibold text-sm rounded-t-lg transition-all duration-200">
                                 <div class="flex items-center space-x-2">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                     </svg>
                                     <span>Peserta Kursus</span>
+                                </div>
+                            </button>
+                        @endcan
+                        @can('viewProgress', $course)
+                            <button @click="currentTab = 'export_history'"
+                                    :class="{'border-indigo-500 text-indigo-600 bg-indigo-50': currentTab === 'export_history', 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50': currentTab !== 'export_history'}"
+                                    class="whitespace-nowrap py-4 px-4 border-b-2 font-semibold text-sm rounded-t-lg transition-all duration-200">
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    <span>Riwayat Export</span>
                                 </div>
                             </button>
                         @endcan
@@ -626,7 +648,7 @@
                                 </svg>
                             </div>
                             <h4 class="text-lg font-semibold text-gray-900 mb-2">Tidak ada kelas yang ditemukan</h4>
-                            <p class="text-gray-600" x-text="`Tidak ada kelas yang cocok dengan \"${searchTerm}\"`"></p>
+                            <p class="text-gray-600" x-text="'Tidak ada kelas yang cocok dengan \'' + searchTerm + '\''"></p>
                         </div>
 
                         @if($course->periods->where('status', 'active')->count() === 0)
@@ -1063,9 +1085,255 @@
                         </div>
                     </div>
                 @endcan
+
+                @can('viewProgress', $course)
+                    <!-- Export History Tab -->
+                    <div x-show="currentTab === 'export_history'" x-cloak class="p-8">
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900">Riwayat Export Peserta</h3>
+                                <p class="text-sm text-gray-500 mt-1">Export yang Anda buat untuk kursus ini</p>
+                            </div>
+                            <button @click="$dispatch('open-export-modal')"
+                                    class="inline-flex items-center px-4 py-2 bg-teal-600 text-white rounded-xl font-medium text-sm hover:bg-teal-700 shadow transition-all duration-200">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Export Baru
+                            </button>
+                        </div>
+
+                        @if($exportHistories->isEmpty())
+                            <div class="text-center py-16">
+                                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </div>
+                                <p class="text-gray-500 font-medium">Belum ada export</p>
+                                <p class="text-gray-400 text-sm mt-1">Klik "Export Baru" untuk memulai</p>
+                            </div>
+                        @else
+                            <div class="overflow-x-auto rounded-xl border border-gray-200">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Waktu</th>
+                                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Filter</th>
+                                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Kelas</th>
+                                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-100">
+                                        @foreach($exportHistories as $history)
+                                            <tr class="hover:bg-gray-50 transition-colors">
+                                                <td class="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
+                                                    {{ $history->created_at->timezone('Asia/Jakarta')->format('d/m/Y H:i') }}
+                                                </td>
+                                                <td class="px-4 py-3 text-sm text-gray-700">
+                                                    {{ $history->filter === 'all' ? 'Semua Peserta' : 'Per Kelas' }}
+                                                </td>
+                                                <td class="px-4 py-3 text-sm text-gray-700">
+                                                    {{ $history->courseClass?->name ?? '-' }}
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    @if($history->isProcessing())
+                                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                            <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                                            </svg>
+                                                            Diproses
+                                                        </span>
+                                                    @elseif($history->isDone())
+                                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                            Selesai
+                                                        </span>
+                                                    @else
+                                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"
+                                                              title="{{ $history->error_message }}">
+                                                            Gagal
+                                                        </span>
+                                                    @endif
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    @if($history->isDone() && $history->fileExists())
+                                                        <a href="{{ route('exports.download', $history) }}"
+                                                           class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                                                            <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                                            </svg>
+                                                            Download
+                                                        </a>
+                                                    @else
+                                                        <span class="text-gray-400 text-xs">-</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endif
+                    </div>
+                @endcan
             </div>
         </div>
     </div>
+
+    {{-- ======================================================================
+         EXPORT PARTICIPANTS MODAL
+         ====================================================================== --}}
+    @can('viewProgress', $course)
+    <div
+        x-data="{
+            open: false,
+            filter: '{{ auth()->user()->can('manage all courses') || auth()->user()->can('view progress reports') ? 'all' : 'class' }}',
+            classId: '',
+            count: 0,
+            loading: false,
+            init() {
+                this.$watch('filter', () => this.fetchCount());
+                this.$watch('classId', () => { if (this.filter === 'class') this.fetchCount(); });
+                this.fetchCount();
+            },
+            async fetchCount() {
+                this.loading = true;
+                try {
+                    const base = '{{ route('courses.participants.count', $course) }}';
+                    const params = new URLSearchParams({ filter: this.filter });
+                    if (this.filter === 'class' && this.classId) params.append('class_id', this.classId);
+                    const res = await fetch(`${base}?${params}`, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    const data = await res.json();
+                    this.count = data.count;
+                } catch(e) { this.count = '?'; }
+                finally { this.loading = false; }
+            }
+        }"
+        @open-export-modal.window="open = true; fetchCount()">
+
+        <!-- Backdrop -->
+        <div x-show="open" x-cloak
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click="open = false"
+             class="fixed inset-0 bg-black/50 z-40">
+        </div>
+
+        <!-- Modal Panel -->
+        <div x-show="open" x-cloak
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95"
+             class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md" @click.stop>
+                <!-- Header -->
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 bg-teal-100 rounded-xl flex items-center justify-center">
+                            <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900">Export Peserta</h3>
+                    </div>
+                    <button @click="open = false" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Body -->
+                <form method="POST" action="{{ route('courses.export.participants', $course) }}" class="px-6 py-5 space-y-4">
+                    @csrf
+                    <input type="hidden" name="filter" x-bind:value="filter">
+                    <input type="hidden" name="class_id" x-bind:value="classId">
+
+                    <!-- Filter Select -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Filter Peserta</label>
+                        <select x-model="filter"
+                                class="w-full rounded-xl border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm py-2.5">
+                            @if(auth()->user()->can('manage all courses') || auth()->user()->can('view progress reports'))
+                                <option value="all">Semua Peserta Kursus</option>
+                            @endif
+                            <option value="class">Per Kelas</option>
+                        </select>
+                    </div>
+
+                    <!-- Class Select -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+                            Kelas
+                            <span x-show="filter === 'all'" class="font-normal text-gray-400">(tidak diperlukan untuk semua)</span>
+                        </label>
+                        <select x-model="classId"
+                                :disabled="filter === 'all'"
+                                :class="filter === 'all' ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'bg-white'"
+                                class="w-full rounded-xl border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm py-2.5">
+                            <option value="">— Pilih Kelas —</option>
+                            @foreach($course->periods as $period)
+                                <option value="{{ $period->id }}">{{ $period->name }}</option>
+                            @endforeach
+                        </select>
+                        <p x-show="filter === 'class' && !classId" class="mt-1 text-xs text-amber-600">
+                            Pilih kelas terlebih dahulu
+                        </p>
+                    </div>
+
+                    <!-- Participant Count Badge -->
+                    <div class="flex items-center gap-2 p-3 bg-teal-50 border border-teal-100 rounded-xl">
+                        <svg class="w-4 h-4 text-teal-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        <span class="text-sm text-teal-700">
+                            Total:
+                            <span x-show="loading" class="inline-block w-10 h-4 bg-teal-200 rounded animate-pulse"></span>
+                            <strong x-show="!loading" x-text="count" class="font-bold"></strong>
+                            <span x-show="!loading"> peserta</span>
+                        </span>
+                    </div>
+
+                    <!-- Info -->
+                    <div class="flex gap-2 p-3 bg-blue-50 border border-blue-100 rounded-xl text-xs text-blue-700">
+                        <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Export akan diproses di latar belakang. Anda akan mendapat notifikasi ketika file siap diunduh.</span>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-3 pt-1">
+                        <button type="button" @click="open = false"
+                                class="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 font-medium text-sm rounded-xl hover:bg-gray-200 transition-colors">
+                            Batal
+                        </button>
+                        <button type="submit"
+                                :disabled="filter === 'class' && !classId"
+                                :class="(filter === 'class' && !classId) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-teal-700'"
+                                class="flex-1 inline-flex justify-center items-center gap-2 px-4 py-2.5 bg-teal-600 text-white font-semibold text-sm rounded-xl transition-colors shadow">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
+                            Export Excel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endcan
 
     <script>
         function periodManager(courseId, initialPeriods) {
