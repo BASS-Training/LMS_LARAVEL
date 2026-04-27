@@ -41,12 +41,12 @@ class CoursePolicy
             return true;
         }
 
-        if ($course->isAvpnProgram() && $user->can('attempt quizzes') && !$user->canAccessProgram('avpn_ai')) {
-            return false;
-        }
-
         if ($course->status === 'published' && $course->enrolledUsers->contains($user)) {
             return true;
+        }
+
+        if ($course->isAvpnProgram() && $user->can('attempt quizzes') && !$user->canAccessProgram('avpn_ai')) {
+            return false;
         }
 
         return false;
