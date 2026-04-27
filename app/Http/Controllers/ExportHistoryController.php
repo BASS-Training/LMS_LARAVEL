@@ -24,6 +24,35 @@ class ExportHistoryController extends Controller
             $export->created_at->format('Ymd_His')
         );
 
-        return Storage::download($export->file_path, $filename);
+        return Storage::disk('local')->download($export->file_path, $filename);
+    }
+
+    public function pendingNotifications()
+    {
+        $user = Auth::user();
+
+        $notifications = $user->unreadNotifications()
+            ->where('type', \App\Notifications\ExportCompletedNotification::class)
+            ->latest()
+            ->get();
+
+        $result = $notifications->map(function ($n) {
+            $data = $n->data;
+            return [
+                'id'           => $n->id,
+                'export_id'    => $data['export_id'] ?? null,
+                'course_title' => $data['course_title'] ?? '',
+                'filter'       => $data['filter'] ?? '',
+                'exported_at'  => $data['exported_at'] ?? null,
+                'download_url' => $data['export_id']
+                    ? route('exports.download', ['export' => $data['export_id']])
+                    : null,
+            ];
+        });
+
+        // Mark them as read so they don't re-appear on next poll
+        $notifications->each->markAsRead();
+
+        return response()->json(['notifications' => $result]);
     }
 }

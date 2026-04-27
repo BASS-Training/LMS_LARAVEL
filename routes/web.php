@@ -346,6 +346,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('courses.participants.count')
         ->middleware('permission:view progress reports|manage own courses');
 
+    // Export Notifications (polled by frontend toast) — must be before {export} wildcard
+    Route::get('/exports/notifications/pending', [\App\Http\Controllers\ExportHistoryController::class, 'pendingNotifications'])
+        ->name('exports.notifications.pending');
+
     // Export History Download
     Route::get('/exports/{export}/download', [\App\Http\Controllers\ExportHistoryController::class, 'download'])
         ->name('exports.download');

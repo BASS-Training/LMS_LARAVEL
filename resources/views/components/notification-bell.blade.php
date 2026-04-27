@@ -438,6 +438,68 @@ function showToast(message, type = 'info', duration = 5000) {
     }, duration);
 }
 
+// Show export-completed toast with a download link (no auto-dismiss)
+function showExportToast(notif) {
+    const container = document.getElementById('notificationToasts');
+    if (!container) return;
+
+    const filterLabel = notif.filter === 'all' ? 'Semua Peserta' : 'Per Kelas';
+    const courseTitle = notif.course_title || 'Kursus';
+
+    const toast = document.createElement('div');
+    toast.className = 'notification-toast max-w-sm w-full bg-white border border-green-200 shadow-xl rounded-xl pointer-events-auto overflow-hidden';
+    toast.innerHTML = `
+        <div class="p-4">
+            <div class="flex items-start gap-3">
+                <div class="flex-shrink-0 w-9 h-9 bg-green-100 rounded-full flex items-center justify-center">
+                    <svg class="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-gray-900">Export Selesai!</p>
+                    <p class="text-xs text-gray-500 mt-0.5 truncate">${courseTitle} · ${filterLabel}</p>
+                    <a href="${notif.download_url}" class="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        Download Excel
+                    </a>
+                </div>
+                <button class="flex-shrink-0 text-gray-400 hover:text-gray-600" onclick="this.closest('.notification-toast').remove()">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    `;
+
+    container.appendChild(toast);
+
+    // Auto-dismiss after 30 seconds
+    setTimeout(() => {
+        toast.classList.add('removing');
+        setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+    }, 30000);
+}
+
+// Poll for completed export notifications every 15 seconds
+function checkExportNotifications() {
+    fetch('/exports/notifications/pending', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.notifications && data.notifications.length > 0) {
+            data.notifications.forEach(notif => {
+                if (notif.download_url) showExportToast(notif);
+            });
+        }
+    })
+    .catch(() => {});
+}
+
 // Close dropdown when clicking outside
 document.addEventListener('click', function(event) {
     const container = document.querySelector('.notification-container');
@@ -456,9 +518,12 @@ document.addEventListener('keydown', function(event) {
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     updateBadge();
+    // Start polling export notifications after a short delay
+    setTimeout(checkExportNotifications, 5000);
+    setInterval(checkExportNotifications, 15000);
 });
 
-// Refresh notifications periodically (every 5 minutes)
+// Refresh announcements periodically (every 5 minutes)
 setInterval(() => {
     if (!notificationDropdownVisible) {
         fetch('/notifications/api/for-user')

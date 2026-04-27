@@ -49,6 +49,6 @@ class ExportHistory extends Model
 
     public function fileExists(): bool
     {
-        return $this->file_path && Storage::exists($this->file_path);
+        return $this->file_path && Storage::disk('local')->exists($this->file_path);
     }
 }
