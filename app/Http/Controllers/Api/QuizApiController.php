@@ -45,6 +45,7 @@ class QuizApiController extends Controller
             Log::info('QuizApiController@getByLesson quiz resolved from content.quiz', [
                 'quiz_id' => $quiz->id,
                 'quiz_title' => $quiz->title,
+                'quiz_status' => $quiz->status,
                 'questions_count' => $quiz->questions->count(),
             ]);
         } else {
@@ -60,6 +61,7 @@ class QuizApiController extends Controller
                 'quiz_found' => (bool) $quiz,
                 'quiz_id' => $quiz->id ?? null,
                 'quiz_title' => $quiz->title ?? null,
+                'quiz_status' => $quiz->status ?? null,
                 'quiz_lesson_id' => $quiz->lesson_id ?? null,
                 'questions_count' => $quiz?->questions?->count() ?? 0,
             ]);
@@ -74,6 +76,20 @@ class QuizApiController extends Controller
             ]);
 
             return response()->json(['status' => 'error', 'message' => 'Quiz not found'], 404);
+        }
+
+        // Check if quiz is published (block draft quizzes)
+        if ($quiz->status === 'draft') {
+            Log::warning('QuizApiController@getByLesson quiz is draft', [
+                'quiz_id' => $quiz->id,
+                'quiz_title' => $quiz->title,
+                'quiz_status' => $quiz->status,
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Kuis sedang dalam status draft dan tidak tersedia untuk peserta',
+            ], 403);
         }
 
         $questions = $quiz->questions->map(function ($q) {

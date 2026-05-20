@@ -9,7 +9,7 @@ class CourseApiController extends Controller
 {
     public function index()
     {
-        $courses = Course::with(['lessons.contents', 'instructors'])->get()->map(function (Course $course) {
+        $courses = Course::with(['lessons.contents.quiz', 'instructors'])->get()->map(function (Course $course) {
             return [
                 'id' => (string) $course->id,
                 'title' => $course->title,
@@ -26,7 +26,14 @@ class CourseApiController extends Controller
                         'sectionNumber' => $index + 1,
                         'title' => $lesson->title,
                         'description' => $lesson->description ?? '',
-                        'lessons' => $lesson->contents->map(function ($content) use ($course, $lesson) {
+                        'lessons' => $lesson->contents->filter(function ($content) {
+                            // Hide draft quizzes from peserta listing
+                            if ($content->quiz_id && $content->quiz && $content->quiz->status === 'draft') {
+                                return false;
+                            }
+
+                            return true;
+                        })->map(function ($content) use ($course, $lesson) {
                             return [
                                 'id' => (string) $content->id,
                                 'courseId' => (string) $course->id,
