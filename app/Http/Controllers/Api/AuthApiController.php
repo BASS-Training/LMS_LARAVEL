@@ -40,33 +40,51 @@ class AuthApiController extends Controller
     public function register(Request $request)
     {
         $payload = $request->validate([
+            'class_interest' => ['required', Rule::in(['regular', 'avpn_ai'])],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8'],
-            'role' => ['nullable', Rule::in(['participant', 'instructor'])],
+            'date_of_birth' => ['required', 'date'],
+            'gender' => ['required', Rule::in(['male', 'female'])],
+            'institution_name' => ['required', 'string', 'max:255'],
+            'occupation' => ['required', 'string', 'max:255'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
         $email = strtolower(trim($payload['email']));
 
+        $registrationProgram = $payload['class_interest'];
+
+        $pendingIdentity = User::query()
+            ->whereRaw('LOWER(name) = ?', [strtolower($payload['name'])])
+            ->whereDate('date_of_birth', $payload['date_of_birth'])
+            ->where('avpn_verification_status', 'pending')
+            ->first();
+
+        if ($pendingIdentity) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data Anda sedang menunggu validasi AVPN. Gunakan akun yang sudah terdaftar sebelumnya.',
+            ], 422);
+        }
+
         $user = User::create([
             'name' => $payload['name'],
             'email' => $email,
+            'registration_program' => $registrationProgram,
+            'avpn_verification_status' => $registrationProgram === 'avpn_ai' ? 'pending' : 'not_required',
+            'avpn_google_form_submitted_at' => $registrationProgram === 'avpn_ai' ? now() : null,
+            'date_of_birth' => $payload['date_of_birth'],
+            'gender' => $payload['gender'],
+            'institution_name' => $payload['institution_name'],
+            'occupation' => $payload['occupation'],
             'password' => $payload['password'],
-            'role' => $payload['role'] ?? 'participant',
+            'role' => 'participant',
         ]);
 
-        if (($payload['role'] ?? 'participant') === 'instructor') {
-            try {
-                $user->assignRole('instructor');
-            } catch (\Throwable $e) {
-                // Keep legacy role column if Spatie role is unavailable in this environment.
-            }
-        } elseif ($user->roles()->count() === 0) {
-            try {
-                $user->assignRole('participant');
-            } catch (\Throwable $e) {
-                // Ignore and rely on legacy role column.
-            }
+        try {
+            $user->assignRole('participant');
+        } catch (\Throwable $e) {
+            // Keep legacy role column if Spatie role is unavailable in this environment.
         }
 
         $token = $this->issueToken($user);
@@ -121,6 +139,12 @@ class AuthApiController extends Controller
                 'role' => $this->resolvePrimaryRole($roles, $user->role ?? null),
                 'primary_role' => $this->resolvePrimaryRole($roles, $user->role ?? null),
                 'roles' => $roles,
+                'registration_program' => $user->registration_program,
+                'avpn_verification_status' => $user->avpn_verification_status,
+                'date_of_birth' => optional($user->date_of_birth)?->format('Y-m-d'),
+                'gender' => $user->gender,
+                'institution_name' => $user->institution_name,
+                'occupation' => $user->occupation,
             ],
         ];
     }
