@@ -56,15 +56,21 @@ class QuizApiController extends Controller
 
     /**
      * Start attempt for a quiz (creates QuizAttempt)
-     * Accepts optional user_id in request body; if not present, attempt is anonymous
      */
     public function startAttempt(Request $request, Quiz $quiz)
     {
-        $userId = $request->input('user_id');
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthenticated.',
+            ], 401);
+        }
 
         $attempt = QuizAttempt::create([
             'quiz_id' => $quiz->id,
-            'user_id' => $userId,
+            'user_id' => $user->id,
             'started_at' => now(),
         ]);
 
@@ -79,10 +85,25 @@ class QuizApiController extends Controller
 
     /**
      * Submit answers for an attempt and save into question_answers
-     * Expected payload: { user_id, answers: [{ question_id, option_id, answer_text }] }
      */
     public function submitAttempt(Request $request, Quiz $quiz, QuizAttempt $attempt)
     {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthenticated.',
+            ], 401);
+        }
+
+        if ((int) $attempt->user_id !== (int) $user->id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Attempt does not belong to the authenticated user.',
+            ], 403);
+        }
+
         if ($quiz->questions->isEmpty()) {
             return response()->json([
                 'status' => 'error',
@@ -91,14 +112,12 @@ class QuizApiController extends Controller
         }
 
         $payload = $request->validate([
-            'user_id' => 'nullable|integer',
             'answers' => 'required|array',
             'answers.*.question_id' => 'required|exists:questions,id',
             'answers.*.option_id' => 'nullable|exists:options,id',
             'answers.*.answer_text' => 'nullable|string',
         ]);
 
-        $userId = $payload['user_id'] ?? null;
         $answers = $payload['answers'];
 
         $score = 0;
@@ -116,7 +135,7 @@ class QuizApiController extends Controller
             $selectedOption = $this->resolveSelectedOption($question, $ans);
             if ($selectedOption) {
                 QuestionAnswer::create([
-                    'user_id' => $userId,
+                    'user_id' => $user->id,
                     'quiz_attempt_id' => $attempt->id,
                     'question_id' => $question->id,
                     'option_id' => $selectedOption->id,

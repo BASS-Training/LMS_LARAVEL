@@ -19,7 +19,9 @@ Route::middleware('mobile.api.user')->group(function () {
 Route::get('/mobile/courses', [CourseApiController::class, 'index']);
 // Quiz endpoints (mobile expects content.id as lessonId)
 Route::get('/mobile/quizzes/by-lesson/{contentId}', [QuizApiController::class, 'getByLesson']);
-Route::post('/mobile/quizzes/{quiz}/attempts', [QuizApiController::class, 'startAttempt']);
-Route::post('/mobile/quizzes/{quiz}/attempts/{attempt}/submit', [QuizApiController::class, 'submitAttempt']);
+Route::middleware('mobile.api.user')->group(function () {
+    Route::post('/mobile/quizzes/{quiz}/attempts', [QuizApiController::class, 'startAttempt']);
+    Route::post('/mobile/quizzes/{quiz}/attempts/{attempt}/submit', [QuizApiController::class, 'submitAttempt']);
+});
 
 Route::get('/mobile/essays/by-lesson/{content}', [EssayApiController::class, 'getByLesson']);
