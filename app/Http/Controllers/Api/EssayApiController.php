@@ -6,9 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Content;
 use App\Models\EssayAnswer;
 use App\Models\EssaySubmission;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class EssayApiController extends Controller
@@ -57,26 +55,18 @@ class EssayApiController extends Controller
         }
 
         $payload = $request->validate([
-            'user_email' => 'nullable|email',
             'answers' => 'required|array|min:1',
             'answers.*.question_id' => 'required|exists:essay_questions,id',
             'answers.*.answer' => ['required', 'string'],
         ]);
 
-        $user = null;
-        if (!empty($payload['user_email'])) {
-            $user = User::where('email', $payload['user_email'])->first();
-        }
-
-        if (!$user && Auth::check()) {
-            $user = Auth::user();
-        }
+        $user = $request->user();
 
         if (!$user) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'User akun belum terhubung. Submit essay membutuhkan email user yang terdaftar di website.',
-            ], 422);
+                'message' => 'Unauthenticated.',
+            ], 401);
         }
 
         $questions = $content->essayQuestions()->get()->keyBy('id');
