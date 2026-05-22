@@ -43,7 +43,7 @@ class CourseApiController extends Controller
                                     : ($content->description ?? ''),
                                 'body' => $content->body ?? '',
                                 'duration' => '0 min',
-                                'type' => $content->type ?? 'document',
+                                'type' => $content->type ?? 'text',
                                 'quizId' => $content->quiz_id ? (string) $content->quiz_id : null,
                                 'youtubeVideoId' => $content->youtube_video_id,
                                 'isCompleted' => false,
