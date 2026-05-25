@@ -28,6 +28,16 @@ class EssayApiController extends Controller
             return $accessError;
         }
 
+        // attach user's submission/draft info
+        $user = request()->user();
+        $submission = null;
+        if ($user) {
+            $submission = EssaySubmission::with('answers')
+                ->where('user_id', $user->id)
+                ->where('content_id', $content->id)
+                ->first();
+        }
+
         return response()->json([
             'status' => 'success',
             'data' => [
@@ -45,6 +55,17 @@ class EssayApiController extends Controller
                         'maxScore' => (int) $question->max_score,
                     ];
                 })->values(),
+                'submission' => $submission ? [
+                    'submissionId' => (string) $submission->id,
+                    'status' => $submission->status,
+                    'submittedAt' => optional($submission->created_at)?->toISOString(),
+                    'answers' => $submission->answers->map(function ($a) {
+                        return [
+                            'question_id' => (string) $a->question_id,
+                            'answer' => $a->answer,
+                        ];
+                    })->values(),
+                ] : null,
             ],
         ]);
     }
@@ -125,6 +146,65 @@ class EssayApiController extends Controller
                 'submittedAt' => optional($submission->created_at)?->toISOString(),
             ],
         ], 201);
+    }
+
+    /**
+     * Autosave draft answers for essay (mobile autosave)
+     */
+    public function autosave(Request $request, Content $content)
+    {
+        if ($content->type !== 'essay') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid content type',
+            ], 422);
+        }
+
+        if ($accessError = $this->ensureEssayAccess($content, $request)) {
+            return $accessError;
+        }
+
+        $payload = $request->validate([
+            'answers' => 'required|array|min:1',
+            'answers.*.question_id' => 'required|exists:essay_questions,id',
+            'answers.*.answer' => ['required', 'string'],
+        ]);
+
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthenticated.',
+            ], 401);
+        }
+
+        DB::transaction(function () use ($content, $payload, $user) {
+            $submission = EssaySubmission::updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'content_id' => $content->id,
+                ],
+                [
+                    'status' => 'draft',
+                    'graded_at' => null,
+                ]
+            );
+
+            $submission->answers()->delete();
+
+            foreach ($payload['answers'] as $answerData) {
+                EssayAnswer::create([
+                    'submission_id' => $submission->id,
+                    'question_id' => (int) $answerData['question_id'],
+                    'answer' => trim((string) $answerData['answer']),
+                ]);
+            }
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Draft saved',
+        ], 200);
     }
 
     private function ensureEssayAccess(Content $content, Request $request): ?\Illuminate\Http\JsonResponse

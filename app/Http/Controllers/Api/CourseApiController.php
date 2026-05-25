@@ -35,7 +35,7 @@ class CourseApiController extends Controller
             }
         }
 
-        $courses = $query->with(['lessons.contents.quiz', 'instructors'])->latest()->get()->map(function (Course $course) {
+        $courses = $query->with(['lessons.contents.quiz', 'instructors'])->latest()->get()->map(function (Course $course) use ($user) {
             return [
                 'id' => (string) $course->id,
                 'title' => $course->title,
@@ -45,7 +45,7 @@ class CourseApiController extends Controller
                 'icon' => '📚',
                 'chaptersCount' => $course->lessons->count(),
                 'duration' => '0 min',
-                'sections' => $course->lessons->values()->map(function ($lesson, $index) use ($course) {
+                'sections' => $course->lessons->values()->map(function ($lesson, $index) use ($course, $user) {
                     return [
                         'id' => (string) $lesson->id,
                         'courseId' => (string) $course->id,
@@ -59,7 +59,7 @@ class CourseApiController extends Controller
                             }
 
                             return true;
-                        })->map(function ($content) use ($course, $lesson) {
+                        })->map(function ($content) use ($course, $lesson, $user) {
                             return [
                                 'id' => (string) $content->id,
                                 'courseId' => (string) $course->id,
@@ -72,7 +72,7 @@ class CourseApiController extends Controller
                                 'type' => $content->type ?? 'text',
                                 'quizId' => $content->quiz_id ? (string) $content->quiz_id : null,
                                 'youtubeVideoId' => $content->youtube_video_id,
-                                'isCompleted' => false,
+                                'isCompleted' => $user ? $user->hasCompletedContent($content) : false,
                                 'lessonId' => (string) $lesson->id,
                             ];
                         })->values(),

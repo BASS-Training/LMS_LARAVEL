@@ -45,6 +45,31 @@ class QuizApiController extends Controller
 
         $questions = $this->transformQuestions($quiz);
 
+        // attach user-specific attempt/complete info
+        $user = $request->user();
+        $userAttempt = null;
+        $completed = false;
+        if ($user) {
+            $latest = QuizAttempt::where('quiz_id', $quiz->id)
+                ->where('user_id', $user->id)
+                ->latest()
+                ->first();
+            if ($latest) {
+                $userAttempt = [
+                    'attemptId' => (string) $latest->id,
+                    'score' => $latest->score,
+                    'passed' => (bool) $latest->passed,
+                    'completedAt' => optional($latest->completed_at)?->toISOString(),
+                ];
+            }
+
+            // determine content completion (if related content exists)
+            $content = Content::where('quiz_id', $quiz->id)->first();
+            if ($content) {
+                $completed = $user->completedContents()->wherePivot('content_id', $content->id)->exists();
+            }
+        }
+
         return response()->json([
             'status' => 'success',
             'data' => [
@@ -54,6 +79,8 @@ class QuizApiController extends Controller
                 'timeLimit' => $quiz->time_limit ?? 0,
                 'passingScore' => (int) ($quiz->passing_percentage ?? 70),
                 'questions' => $questions,
+                'userAttempt' => $userAttempt,
+                'completed' => $completed,
             ],
         ], 200);
     }
@@ -74,6 +101,19 @@ class QuizApiController extends Controller
 
         if ($accessError = $this->ensureQuizAccess($request, $quiz)) {
             return $accessError;
+        }
+
+        // Prevent new attempts when user already has a passing attempt
+        $existingPassed = QuizAttempt::where('quiz_id', $quiz->id)
+            ->where('user_id', $user->id)
+            ->where('passed', true)
+            ->exists();
+
+        if ($existingPassed) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You have already passed this quiz and cannot start a new attempt.',
+            ], 403);
         }
 
         $attempt = QuizAttempt::create([
@@ -168,6 +208,16 @@ class QuizApiController extends Controller
             'passed' => $score >= $passingMarks,
             'completed_at' => now(),
         ]);
+
+        // If passed, mark related content as completed for the user
+        if ($attempt->passed) {
+            $content = Content::where('quiz_id', $quiz->id)->first();
+            if ($content) {
+                $user->completedContents()->syncWithoutDetaching([
+                    $content->id => ['completed' => true, 'completed_at' => now()],
+                ]);
+            }
+        }
 
         return response()->json([
             'status' => 'success',
