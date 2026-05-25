@@ -52,11 +52,12 @@ class CourseResultsApiController extends Controller
             $content = $quiz?->lesson?->contents?->firstWhere('quiz_id', $quiz->id);
             $totalMarks = $quiz?->questions?->sum(fn ($question) => $question->marks ?? 1) ?: 0;
             $answersByQuestionId = $attempt->answers->keyBy('question_id');
+            $correctAnswers = 0;
 
-            $attemptQuestions = $quiz?->questions?->values()->map(function ($question, $index) use ($answersByQuestionId) {
+            $attemptQuestions = $quiz?->questions?->values()->map(function ($question, $index) use ($answersByQuestionId, &$correctAnswers) {
+                $correctIndex = null;
                 $answer = $answersByQuestionId->get($question->id);
                 $selectedIndex = null;
-                $correctIndex = null;
                 $selectedText = null;
                 $correctText = null;
 
@@ -78,6 +79,10 @@ class CourseResultsApiController extends Controller
                     } elseif ($correctIndex !== null) {
                         $correctText = $question->options->values()[$correctIndex]->option_text ?? null;
                     }
+                }
+
+                if ($selectedIndex !== null && $correctIndex !== null && $selectedIndex === $correctIndex) {
+                    $correctAnswers++;
                 }
 
                 return [
@@ -104,6 +109,16 @@ class CourseResultsApiController extends Controller
                 'score' => (int) ($attempt->score ?? 0),
                 'maxScore' => (int) ($totalMarks ?: count($quiz?->questions ?? []) ?: 1),
                 'passed' => (bool) $attempt->passed,
+                'passingGrade' => (int) ($quiz?->passing_percentage ?? 0),
+                'correctAnswers' => (int) $correctAnswers,
+                'totalQuestions' => (int) ($quiz?->questions?->count() ?? 0),
+                'wrongAnswers' => max((int) ($quiz?->questions?->count() ?? 0) - (int) $correctAnswers, 0),
+                'completedAtLabel' => $attempt->formatted_completed_at,
+                'durationLabel' => $attempt->duration ?? '-',
+                'statusLabel' => $attempt->passed ? 'Lulus' : 'Perlu Perbaikan',
+                'statusMessage' => $attempt->passed
+                    ? 'Selamat! Anda berhasil menyelesaikan kuis ini dengan baik.'
+                    : 'Jangan menyerah! Terus belajar dan coba lagi.',
                 'questions' => $attemptQuestions,
             ];
         }
