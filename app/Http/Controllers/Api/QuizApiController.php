@@ -39,6 +39,10 @@ class QuizApiController extends Controller
             ], 403);
         }
 
+        if ($accessError = $this->ensureQuizAccess($request, $quiz)) {
+            return $accessError;
+        }
+
         $questions = $this->transformQuestions($quiz);
 
         return response()->json([
@@ -68,6 +72,10 @@ class QuizApiController extends Controller
             ], 401);
         }
 
+        if ($accessError = $this->ensureQuizAccess($request, $quiz)) {
+            return $accessError;
+        }
+
         $attempt = QuizAttempt::create([
             'quiz_id' => $quiz->id,
             'user_id' => $user->id,
@@ -95,6 +103,10 @@ class QuizApiController extends Controller
                 'status' => 'error',
                 'message' => 'Unauthenticated.',
             ], 401);
+        }
+
+        if ($accessError = $this->ensureQuizAccess($request, $quiz)) {
+            return $accessError;
         }
 
         if ((int) $attempt->user_id !== (int) $user->id) {
@@ -220,5 +232,40 @@ class QuizApiController extends Controller
         }
 
         return null;
+    }
+
+    private function ensureQuizAccess(Request $request, Quiz $quiz): ?\Illuminate\Http\JsonResponse
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthenticated.',
+            ], 401);
+        }
+
+        $quiz->loadMissing('lesson.course');
+        $course = $quiz->lesson?->course;
+
+        if (!$course) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Course for this quiz was not found.',
+            ], 404);
+        }
+
+        if (
+            $user->can('manage all courses') ||
+            $user->isInstructorFor($course) ||
+            $user->isEventOrganizerFor($course) ||
+            $user->isEnrolled($course)
+        ) {
+            return null;
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Anda belum terdaftar di course ini.',
+        ], 403);
     }
 }

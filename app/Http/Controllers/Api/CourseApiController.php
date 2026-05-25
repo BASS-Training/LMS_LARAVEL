@@ -4,12 +4,38 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course; // Memanggil kerangka tabel Course
+use Illuminate\Http\Request;
 
 class CourseApiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $courses = Course::with(['lessons.contents.quiz', 'instructors'])->get()->map(function (Course $course) {
+        $user = $request->user();
+
+        $query = Course::query();
+
+        if ($user->can('manage all courses')) {
+            // show all courses
+        } elseif ($user->can('manage own courses')) {
+            $query->whereHas('instructors', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
+        } elseif ($user->can('view progress reports')) {
+            $query->whereHas('eventOrganizers', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
+        } else {
+            $query->where('status', 'published')
+                ->whereHas('enrolledUsers', function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                });
+
+            if (!$user->isAvpnApproved()) {
+                $query->where('program_type', '!=', 'avpn_ai');
+            }
+        }
+
+        $courses = $query->with(['lessons.contents.quiz', 'instructors'])->latest()->get()->map(function (Course $course) {
             return [
                 'id' => (string) $course->id,
                 'title' => $course->title,

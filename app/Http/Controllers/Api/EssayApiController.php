@@ -24,6 +24,10 @@ class EssayApiController extends Controller
             $query->orderBy('order');
         }]);
 
+        if ($accessError = $this->ensureEssayAccess($content, request())) {
+            return $accessError;
+        }
+
         return response()->json([
             'status' => 'success',
             'data' => [
@@ -52,6 +56,10 @@ class EssayApiController extends Controller
                 'status' => 'error',
                 'message' => 'Invalid content type',
             ], 422);
+        }
+
+        if ($accessError = $this->ensureEssayAccess($content, $request)) {
+            return $accessError;
         }
 
         $payload = $request->validate([
@@ -117,5 +125,40 @@ class EssayApiController extends Controller
                 'submittedAt' => optional($submission->created_at)?->toISOString(),
             ],
         ], 201);
+    }
+
+    private function ensureEssayAccess(Content $content, Request $request): ?\Illuminate\Http\JsonResponse
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthenticated.',
+            ], 401);
+        }
+
+        $content->loadMissing('lesson.course');
+        $course = $content->lesson?->course;
+
+        if (!$course) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Course for this essay was not found.',
+            ], 404);
+        }
+
+        if (
+            $user->can('manage all courses') ||
+            $user->isInstructorFor($course) ||
+            $user->isEventOrganizerFor($course) ||
+            $user->isEnrolled($course)
+        ) {
+            return null;
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Anda belum terdaftar di course ini.',
+        ], 403);
     }
 }
