@@ -33,7 +33,7 @@ class CourseResultsApiController extends Controller
             ->whereHas('quiz.lesson.course', function ($query) use ($course) {
                 $query->where('id', $course->id);
             })
-            ->with(['quiz.questions', 'quiz.lesson.contents', 'answers.question.options'])
+            ->with(['quiz.questions.options', 'quiz.lesson.contents', 'answers.question.options'])
             ->orderByDesc('completed_at')
             ->get();
 
@@ -51,17 +51,32 @@ class CourseResultsApiController extends Controller
             $quiz = $attempt->quiz;
             $content = $quiz?->lesson?->contents?->firstWhere('quiz_id', $quiz->id);
             $totalMarks = $quiz?->questions?->sum(fn ($question) => $question->marks ?? 1) ?: 0;
+            $answersByQuestionId = $attempt->answers->keyBy('question_id');
 
-            $attemptQuestions = $attempt->answers->map(function ($answer, $index) use ($quiz) {
-                $question = $quiz?->questions?->firstWhere('id', $answer->question_id);
+            $attemptQuestions = $quiz?->questions?->values()->map(function ($question, $index) use ($answersByQuestionId) {
+                $answer = $answersByQuestionId->get($question->id);
                 $selectedIndex = null;
+                $correctIndex = null;
+                $selectedText = null;
+                $correctText = null;
 
                 if ($question && $question->relationLoaded('options')) {
-                    $selectedIndex = $question->options->search(function ($option) use ($answer) {
-                        return (string) $option->id === (string) $answer->option_id;
-                    });
-                    if ($selectedIndex === false) {
-                        $selectedIndex = null;
+                    if ($answer) {
+                        $selectedIndex = $question->options->search(function ($option) use ($answer) {
+                            return (string) $option->id === (string) $answer->option_id;
+                        });
+                        if ($selectedIndex === false) {
+                            $selectedIndex = null;
+                        } elseif ($selectedIndex !== null) {
+                            $selectedText = $question->options->values()[$selectedIndex]->option_text ?? null;
+                        }
+                    }
+
+                    $correctIndex = $question->options->search(fn ($option) => $option->is_correct);
+                    if ($correctIndex === false) {
+                        $correctIndex = null;
+                    } elseif ($correctIndex !== null) {
+                        $correctText = $question->options->values()[$correctIndex]->option_text ?? null;
                     }
                 }
 
@@ -69,10 +84,12 @@ class CourseResultsApiController extends Controller
                     'questionIndex' => $index,
                     'questionText' => $question?->question_text ?? '',
                     'options' => $question?->options?->pluck('option_text')->values()->all() ?? [],
-                    'correctOptionIndex' => $question?->options?->search(fn ($option) => $option->is_correct) ?: null,
+                    'correctOptionIndex' => $correctIndex,
                     'selectedOptionIndex' => $selectedIndex,
+                    'selectedOptionText' => $selectedText,
+                    'correctOptionText' => $correctText,
                 ];
-            })->values()->all();
+            })->values()->all() ?? [];
 
             $results[] = [
                 'id' => (string) $attempt->id,
