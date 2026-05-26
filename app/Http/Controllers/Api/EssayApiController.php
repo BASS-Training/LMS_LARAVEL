@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Content;
 use App\Models\EssayAnswer;
 use App\Models\EssaySubmission;
+use App\Models\EssayQuestion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -85,7 +86,7 @@ class EssayApiController extends Controller
 
         $payload = $request->validate([
             'answers' => 'required|array|min:1',
-            'answers.*.question_id' => 'required|exists:essay_questions,id',
+            'answers.*.question_id' => 'required',
             'answers.*.answer' => ['required', 'string'],
         ]);
 
@@ -98,7 +99,7 @@ class EssayApiController extends Controller
             ], 401);
         }
 
-        $questions = $content->essayQuestions()->get()->keyBy('id');
+        $questions = $content->essayQuestions()->orderBy('order')->get()->values();
 
         DB::transaction(function () use ($content, $payload, $user, $questions) {
             $submission = EssaySubmission::updateOrCreate(
@@ -114,9 +115,14 @@ class EssayApiController extends Controller
 
             $submission->answers()->delete();
 
-            foreach ($payload['answers'] as $answerData) {
-                $questionId = (int) $answerData['question_id'];
-                if (!$questions->has($questionId)) {
+            foreach ($payload['answers'] as $index => $answerData) {
+                $questionId = $this->resolveEssayQuestionId(
+                    $questions,
+                    $answerData['question_id'] ?? null,
+                    $index
+                );
+
+                if (!$questionId) {
                     continue;
                 }
 
@@ -166,7 +172,7 @@ class EssayApiController extends Controller
 
         $payload = $request->validate([
             'answers' => 'required|array|min:1',
-            'answers.*.question_id' => 'required|exists:essay_questions,id',
+            'answers.*.question_id' => 'required',
             'answers.*.answer' => ['required', 'string'],
         ]);
 
@@ -178,7 +184,9 @@ class EssayApiController extends Controller
             ], 401);
         }
 
-        DB::transaction(function () use ($content, $payload, $user) {
+        $questions = $content->essayQuestions()->orderBy('order')->get()->values();
+
+        DB::transaction(function () use ($content, $payload, $user, $questions) {
             $submission = EssaySubmission::updateOrCreate(
                 [
                     'user_id' => $user->id,
@@ -192,10 +200,20 @@ class EssayApiController extends Controller
 
             $submission->answers()->delete();
 
-            foreach ($payload['answers'] as $answerData) {
+            foreach ($payload['answers'] as $index => $answerData) {
+                $questionId = $this->resolveEssayQuestionId(
+                    $questions,
+                    $answerData['question_id'] ?? null,
+                    $index
+                );
+
+                if (!$questionId) {
+                    continue;
+                }
+
                 EssayAnswer::create([
                     'submission_id' => $submission->id,
-                    'question_id' => (int) $answerData['question_id'],
+                    'question_id' => $questionId,
                     'answer' => trim((string) $answerData['answer']),
                 ]);
             }
@@ -240,5 +258,26 @@ class EssayApiController extends Controller
             'status' => 'error',
             'message' => 'Anda belum terdaftar di course ini.',
         ], 403);
+    }
+
+    private function resolveEssayQuestionId($questions, $rawQuestionId, int $fallbackIndex): ?int
+    {
+        if (is_numeric($rawQuestionId)) {
+            $candidate = (int) $rawQuestionId;
+
+            if ($questions->contains('id', $candidate)) {
+                return $candidate;
+            }
+
+            if ($candidate >= 0 && $candidate < $questions->count()) {
+                return (int) $questions[$candidate]->id;
+            }
+        }
+
+        if ($fallbackIndex >= 0 && $fallbackIndex < $questions->count()) {
+            return (int) $questions[$fallbackIndex]->id;
+        }
+
+        return null;
     }
 }

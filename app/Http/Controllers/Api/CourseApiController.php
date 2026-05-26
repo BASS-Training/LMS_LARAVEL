@@ -60,6 +60,20 @@ class CourseApiController extends Controller
 
                             return true;
                         })->map(function ($content) use ($course, $lesson, $user) {
+                            // Prefer explicit content.file_path, fallback to first attached document's file_path
+                            $filePath = null;
+                            if (!empty($content->file_path)) {
+                                $filePath = $content->file_path;
+                            } else {
+                                $firstDoc = $content->documents()->first();
+                                if ($firstDoc && !empty($firstDoc->file_path)) {
+                                    $filePath = $firstDoc->file_path;
+                                }
+                            }
+
+                            // Return the public storage URL so the mobile PDF viewer can fetch it without auth.
+                            $documentUrl = $filePath ? asset('storage/' . $filePath) : null;
+
                             return [
                                 'id' => (string) $content->id,
                                 'courseId' => (string) $course->id,
@@ -72,6 +86,9 @@ class CourseApiController extends Controller
                                 'type' => $content->type ?? 'text',
                                 'quizId' => $content->quiz_id ? (string) $content->quiz_id : null,
                                 'youtubeVideoId' => $content->youtube_video_id,
+                                'filePath' => $documentUrl,
+                                'documentUrl' => $documentUrl,
+                                'documentAccessType' => $content->document_access_type,
                                 'isCompleted' => $user ? $user->hasCompletedContent($content) : false,
                                 'lessonId' => (string) $lesson->id,
                             ];

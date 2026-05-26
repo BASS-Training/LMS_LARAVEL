@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Content;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class LessonProgressApiController extends Controller
 {
     public function complete(Request $request, Content $content)
     {
         $user = $request->user();
+        Log::info('LessonProgressApiController.complete - called', ['content_id' => $content->id, 'user_id' => $user ? $user->id : null, 'ip' => $request->ip()]);
 
         if (!$user) {
             return response()->json([
@@ -48,13 +50,8 @@ class LessonProgressApiController extends Controller
             }
         }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Lesson marked as completed.',
-            'data' => [
-                'contentId' => (string) $content->id,
-                'lessonId' => (string) ($content->lesson?->id ?? ''),
-            ],
-        ]);
+        $response = ['success' => true, 'contentId' => $content->id, 'lessonId' => $content->lesson?->id];
+        Log::info('LessonProgressApiController.complete - success', $response + ['user_id' => $user ? $user->id : null]);
+        return response()->json($response);
     }
 }
