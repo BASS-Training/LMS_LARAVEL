@@ -90,6 +90,17 @@ class CourseApiController extends Controller
                                 'documentUrl' => $documentUrl,
                                 'documentAccessType' => $content->document_access_type,
                                 'isCompleted' => $user ? $user->hasCompletedContent($content) : false,
+                                'zoomLink' => $content->type === 'zoom'
+                                    ? (json_decode($content->body ?? '{}', true)['link'] ?? null)
+                                    : null,
+                                'zoomMeetingId' => $content->type === 'zoom'
+                                    ? (json_decode($content->body ?? '{}', true)['meeting_id'] ?? null)
+                                    : null,
+                                'zoomPassword' => $content->type === 'zoom'
+                                    ? (json_decode($content->body ?? '{}', true)['password'] ?? null)
+                                    : null,
+                                'scheduledStart' => $content->scheduled_start?->toISOString(),
+                                'scheduledEnd' => $content->scheduled_end?->toISOString(),
                                 'imageUrls' => $content->type === 'image'
                                     ? $content->images->sortBy('order')->map(function ($img) {
                                         return asset('storage/' . $img->file_path);
