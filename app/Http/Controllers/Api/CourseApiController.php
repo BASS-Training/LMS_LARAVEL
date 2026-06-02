@@ -35,7 +35,7 @@ class CourseApiController extends Controller
             }
         }
 
-        $courses = $query->with(['lessons.contents.quiz', 'instructors'])->latest()->get()->map(function (Course $course) use ($user) {
+        $courses = $query->with(['lessons.contents.quiz', 'lessons.contents.images', 'instructors'])->latest()->get()->map(function (Course $course) use ($user) {
             return [
                 'id' => (string) $course->id,
                 'title' => $course->title,
@@ -90,6 +90,11 @@ class CourseApiController extends Controller
                                 'documentUrl' => $documentUrl,
                                 'documentAccessType' => $content->document_access_type,
                                 'isCompleted' => $user ? $user->hasCompletedContent($content) : false,
+                                'imageUrls' => $content->type === 'image'
+                                    ? $content->images->sortBy('order')->map(function ($img) {
+                                        return asset('storage/' . $img->file_path);
+                                    })->values()->toArray()
+                                    : [],
                                 'lessonId' => (string) $lesson->id,
                             ];
                         })->values(),
