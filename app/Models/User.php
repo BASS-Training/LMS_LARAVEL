@@ -550,8 +550,8 @@ class User extends Authenticatable
                 return false;
             }
 
-            // Gunakan logic yang sama dengan getContentStatus
-            return $this->getContentStatus($content) === 'completed';
+            // Siswa dianggap sudah menyelesaikan essay jika sudah submit (pending_grade atau completed)
+            return in_array($this->getContentStatus($content), ['completed', 'pending_grade']);
         } else {
             return $this->completedContents()
                 ->where('content_id', $content->id)
