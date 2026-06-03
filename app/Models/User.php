@@ -84,6 +84,15 @@ class User extends Authenticatable
     }
 
     /**
+     * Relasi ke kursus yang disimpan/bookmark user (khusus aplikasi mobile).
+     * Tersimpan di pivot `saved_courses` agar koleksi melekat ke akun.
+     */
+    public function savedCourses()
+    {
+        return $this->belongsToMany(Course::class, 'saved_courses')->withTimestamps();
+    }
+
+    /**
      * Relasi ke kursus yang diajar user (sebagai instruktur)
      */
     public function taughtCourses()

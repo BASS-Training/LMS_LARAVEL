@@ -19,6 +19,10 @@ Route::middleware('mobile.api.user')->group(function () {
     Route::post('/mobile/auth/logout', [AuthApiController::class, 'logout']);
 
     Route::get('/mobile/courses', [CourseApiController::class, 'index']);
+    // Saved courses (bookmark) — mobile-only. Letakkan sebelum route {course}
+    // agar segmen literal "saved" tidak tertangkap sebagai parameter course.
+    Route::get('/mobile/courses/saved', [CourseApiController::class, 'saved']);
+    Route::post('/mobile/courses/{course}/save', [CourseApiController::class, 'toggleSave']);
     Route::get('/documents/{path}', [DocumentController::class, 'show'])->where('path', '.*');
     Route::get('/mobile/courses/{course}/results', [CourseResultsApiController::class, 'index']);
     Route::post('/mobile/enroll', [EnrollmentApiController::class, 'enroll']);
