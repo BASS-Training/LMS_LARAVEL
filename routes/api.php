@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\EssayApiController;
 use App\Http\Controllers\Api\LessonProgressApiController;
 use App\Http\Controllers\Api\QuizApiController;
 use App\Http\Controllers\Api\DocumentController;
+use App\Http\Controllers\Api\DiscussionApiController;
 
 Route::post('/mobile/auth/login', [AuthApiController::class, 'login']);
 Route::post('/mobile/auth/register', [AuthApiController::class, 'register']);
@@ -38,4 +39,9 @@ Route::middleware('mobile.api.user')->group(function () {
     Route::post('/mobile/essays/{content}/draft', [EssayApiController::class, 'autosave']);
 
     Route::get('/mobile/essays/by-lesson/{content}', [EssayApiController::class, 'getByLesson']);
+
+    // Discussions (topic + replies) — shared tables with the web, so posts sync both ways.
+    Route::get('/mobile/lessons/{content}/discussions', [DiscussionApiController::class, 'index']);
+    Route::post('/mobile/lessons/{content}/discussions', [DiscussionApiController::class, 'store']);
+    Route::post('/mobile/discussions/{discussion}/replies', [DiscussionApiController::class, 'storeReply']);
 });
