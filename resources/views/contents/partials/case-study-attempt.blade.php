@@ -23,6 +23,21 @@
     };
 @endphp
 
+<style>
+    /* Sel input tabel studi kasus: melebar ke samping mengikuti isi (kata utuh),
+       baru wrap & memanjang ke bawah saat melewati batas. */
+    .cs-cell-input {
+        field-sizing: content;     /* Chromium/FF modern: kotak menyesuaikan isi */
+        width: auto;
+        min-width: 7ch;
+        max-width: 340px;
+        white-space: pre-wrap;
+        overflow-wrap: normal;     /* jangan pecah kata di tengah */
+        word-break: normal;
+        vertical-align: top;
+    }
+</style>
+
 <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 lg:p-8">
     <div class="flex items-start justify-between flex-wrap gap-3 mb-6">
         <div>
@@ -122,13 +137,13 @@
                                                                 style="background: {{ $bg }}; text-align: {{ $align }};">
                                                                 @if($isInput)
                                                                     @if($readOnly)
-                                                                        <span class="text-sm text-gray-800">{{ $answerFor($sid, $bid, $rc) ?: '—' }}</span>
+                                                                        <span class="text-sm text-gray-800 whitespace-pre-wrap break-words">{{ $answerFor($sid, $bid, $rc) ?: '—' }}</span>
                                                                     @else
-                                                                        <input type="text"
+                                                                        <textarea
                                                                                name="answers[{{ $sid }}][{{ $bid }}][{{ $rc }}]"
-                                                                               value="{{ $answerFor($sid, $bid, $rc) }}"
+                                                                               rows="1"
                                                                                placeholder="{{ $cell['text'] ?? '' }}"
-                                                                               class="w-full px-2 py-1 border border-gray-200 rounded text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-200">
+                                                                               class="cs-cell-input px-2 py-1 border border-gray-200 rounded text-sm leading-snug resize-none overflow-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-200">{{ $answerFor($sid, $bid, $rc) }}</textarea>
                                                                     @endif
                                                                 @else
                                                                     <span class="text-sm text-gray-800">{{ $cell['text'] ?? '' }}</span>
@@ -167,6 +182,30 @@
         const form = document.getElementById('caseStudyForm');
         if (!form) return;
         const statusEl = document.getElementById('cs-autosave-status');
+
+        // Jika browser mendukung field-sizing, biarkan CSS yang mengatur tinggi & lebar.
+        const supportsFieldSizing = window.CSS && CSS.supports && CSS.supports('field-sizing', 'content');
+
+        // Auto-grow sel input tabel: tinggi mengikuti isi (wrap ke bawah) — fallback.
+        function autoGrow(el) {
+            if (supportsFieldSizing) return;
+            el.style.height = 'auto';
+            el.style.height = (el.scrollHeight) + 'px';
+        }
+        function autoGrowAll() {
+            form.querySelectorAll('textarea.cs-cell-input').forEach(autoGrow);
+        }
+        form.addEventListener('input', function (e) {
+            if (e.target && e.target.classList && e.target.classList.contains('cs-cell-input')) {
+                autoGrow(e.target);
+            }
+        });
+        // Resize awal setelah render (termasuk nilai draft yang sudah terisi).
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            setTimeout(autoGrowAll, 0);
+        } else {
+            window.addEventListener('DOMContentLoaded', autoGrowAll);
+        }
         const autosaveUrl = "{{ route('case-studies.autosave', $content) }}";
         const csrf = "{{ csrf_token() }}";
         let timer = null;

@@ -125,7 +125,7 @@ class CaseStudyController extends Controller
     public function submissions(Content $content)
     {
         abort_if($content->type !== 'case_study', 404);
-        $this->authorize('update', $content->lesson->course);
+        $this->authorize('grade', $content->lesson->course);
 
         $submissions = $content->caseStudySubmissions()
             ->with('user')
@@ -143,7 +143,7 @@ class CaseStudyController extends Controller
     {
         abort_if($content->type !== 'case_study', 404);
         abort_if($submission->content_id !== $content->id, 404);
-        $this->authorize('update', $content->lesson->course);
+        $this->authorize('grade', $content->lesson->course);
 
         $submission->load('user');
         $template = $content->case_study_template;
@@ -159,7 +159,7 @@ class CaseStudyController extends Controller
     {
         abort_if($content->type !== 'case_study', 404);
         abort_if($submission->content_id !== $content->id, 404);
-        $this->authorize('update', $content->lesson->course);
+        $this->authorize('grade', $content->lesson->course);
 
         $validated = $request->validate([
             'score' => 'nullable|integer|min:0|max:100',
