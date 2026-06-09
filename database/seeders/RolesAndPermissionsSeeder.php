@@ -180,7 +180,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'view quizzes', 'create quizzes', 'update quizzes', 'delete quizzes', 'grade quizzes',
             'manage essay questions', 'view essay submissions', 'grade essays',
             // Discussions & Attendance
-            'manage discussions', 'view attendance', 'mark attendance', 'bulk mark attendance', 'update attendance', 'export attendance', 'view attendance reports',
+            'view discussions', 'create discussions', 'reply discussions', 'manage discussions',
+            'view attendance', 'mark attendance', 'bulk mark attendance', 'update attendance', 'export attendance', 'view attendance reports',
             // Certificates (course-level)
             'view certificates', 'issue certificates', 'bulk issue certificates', 'regenerate certificates', 'download certificates',
             // Reports / Analytics
