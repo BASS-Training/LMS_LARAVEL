@@ -109,7 +109,9 @@ class CourseApiController extends Controller
             'id' => (string) $course->id,
             'title' => $course->title,
             'description' => $course->description ?? '',
-            'instructor' => $course->instructors->first()?->name ?? '',
+            // Kirim SEMUA instruktur (dipisah koma). Mobile akan memecahnya
+            // menjadi daftar dan menampilkan masing-masing.
+            'instructor' => $course->instructors->pluck('name')->filter()->implode(', '),
             'color' => '#6C5CE7',
             'icon' => '📚',
             'chaptersCount' => $course->lessons->count(),
