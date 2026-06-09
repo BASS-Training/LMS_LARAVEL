@@ -197,6 +197,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/essays/{content}/autosave', [EssaySubmissionController::class, 'autosave'])->name('essays.autosave');
     Route::get('/essays/{content}/drafts', [EssaySubmissionController::class, 'getDrafts'])->name('essays.get_drafts');
 
+    // Studi Kasus (case_study)
+    Route::post('/case-studies/{content}/submit', [App\Http\Controllers\CaseStudyController::class, 'store'])->name('case-studies.store');
+    Route::post('/case-studies/{content}/autosave', [App\Http\Controllers\CaseStudyController::class, 'autosave'])->name('case-studies.autosave');
+    Route::get('/case-studies/{content}/download', [App\Http\Controllers\CaseStudyController::class, 'download'])->name('case-studies.download');
+    Route::get('/case-studies/{content}/submissions/{submission}/download', [App\Http\Controllers\CaseStudyController::class, 'download'])->name('case-studies.download-submission');
+
     Route::post('/contents/{content}/essay-questions', [EssayQuestionController::class, 'store'])
         ->name('essay.questions.store')
         ->middleware('permission:manage essay questions');
@@ -469,6 +475,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::post('/essay-submissions/{submission}/feedback-only', [GradebookController::class, 'storeEssayFeedbackOnly'])
             ->name('gradebook.storeEssayFeedbackOnly');
+
+        // Penilaian Studi Kasus (case_study)
+        Route::get('/case-studies/{content}/submissions', [App\Http\Controllers\CaseStudyController::class, 'submissions'])
+            ->name('case-studies.submissions');
+        Route::get('/case-studies/{content}/submissions/{submission}/review', [App\Http\Controllers\CaseStudyController::class, 'review'])
+            ->name('case-studies.review');
+        Route::post('/case-studies/{content}/submissions/{submission}/grade', [App\Http\Controllers\CaseStudyController::class, 'grade'])
+            ->name('case-studies.grade');
     });
 
     Route::get('/essay-submissions/{submission}/result', [EssaySubmissionController::class, 'showResult'])->name('essays.result');

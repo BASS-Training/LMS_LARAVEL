@@ -520,7 +520,7 @@ class ContentController extends Controller
         $rules = [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => ['required', Rule::in(['text', 'video', 'document', 'image', 'quiz', 'essay', 'zoom'])],
+            'type' => ['required', Rule::in(['text', 'video', 'document', 'image', 'quiz', 'essay', 'zoom', 'case_study'])],
             'order' => 'nullable|integer',
             'is_optional' => 'sometimes|boolean',
             'document_access_type' => ['nullable', Rule::in(['both', 'download_only', 'preview_only'])],
@@ -609,6 +609,14 @@ class ContentController extends Controller
                 $rules['quiz.title'] = 'required|string|max:255';
                 $rules['time_limit'] = 'nullable|integer|min:0';
             }
+        }
+
+        if ($request->input('type') === 'case_study') {
+            // Template (struktur bab/subbab/tabel) dikirim sebagai JSON string dari builder.
+            $rules['case_study_template'] = 'required|string';
+            $rules['allow_answer_download'] = 'sometimes|boolean';
+            $rules['review_mode'] = 'nullable|in:scoring,feedback_only,no_review';
+            $rules['grading_mode'] = 'nullable|in:individual,overall';
         }
 
         if ($request->input('type') === 'zoom') {
@@ -708,6 +716,28 @@ class ContentController extends Controller
                 ]);
             }
 
+            // 🆕 CASE STUDY: scoring settings (reuse review_mode seperti essay) + flag download.
+            if ($validated['type'] === 'case_study') {
+                $reviewMode = $request->input('review_mode', 'scoring');
+                switch ($reviewMode) {
+                    case 'feedback_only':
+                        $content->scoring_enabled = false;
+                        $content->requires_review = true;
+                        break;
+                    case 'no_review':
+                        $content->scoring_enabled = false;
+                        $content->requires_review = false;
+                        break;
+                    case 'scoring':
+                    default:
+                        $content->scoring_enabled = true;
+                        $content->requires_review = true;
+                        break;
+                }
+                $content->grading_mode = $request->input('grading_mode', 'overall');
+                $content->allow_answer_download = (bool) $request->boolean('allow_answer_download');
+            }
+
             // ✅ REFACTOR: Simplified body handling - NEVER touch body for existing essay content
             if ($bodySource) {
                 // 🚨 CRITICAL: Untuk essay type yang sudah exist, JANGAN PERNAH TOUCH BODY!
@@ -751,6 +781,14 @@ class ContentController extends Controller
                 }
 
                 $content->body = json_encode($zoomData);
+            } elseif ($validated['type'] === 'case_study') {
+                // Normalisasi template JSON sebelum disimpan ke body.
+                $template = json_decode($request->input('case_study_template'), true);
+                if (!is_array($template) || !isset($template['sections']) || !is_array($template['sections'])) {
+                    throw new \Exception('Struktur template case study tidak valid.');
+                }
+                $template['version'] = $template['version'] ?? 1;
+                $content->body = json_encode($template);
             } else {
                 // ✅ GUARD: Jangan set body = null untuk existing essay
                 if (!($validated['type'] === 'essay' && $content->exists)) {

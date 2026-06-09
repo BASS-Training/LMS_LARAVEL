@@ -159,6 +159,7 @@ class CourseApiController extends Controller
                             'filePath' => $documentUrl,
                             'documentUrl' => $documentUrl,
                             'documentAccessType' => $content->document_access_type,
+                            'allowAnswerDownload' => (bool) ($content->allow_answer_download ?? false),
                             'isCompleted' => $user ? $user->hasCompletedContent($content) : false,
                             'zoomLink' => $content->type === 'zoom'
                                 ? (json_decode($content->body ?? '{}', true)['link'] ?? null)

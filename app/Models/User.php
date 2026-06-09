@@ -298,6 +298,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Relasi ke case study submissions
+     */
+    public function caseStudySubmissions()
+    {
+        return $this->hasMany(CaseStudySubmission::class);
+    }
+
+    /**
      * Relasi ke diskusi yang dimulai user
      */
     public function discussions()
@@ -561,6 +569,12 @@ class User extends Authenticatable
 
             // Siswa dianggap sudah menyelesaikan essay jika sudah submit (pending_grade atau completed)
             return in_array($this->getContentStatus($content), ['completed', 'pending_grade']);
+        } elseif ($content->type === 'case_study') {
+            // Case study dianggap selesai jika peserta sudah submit (atau sudah dinilai).
+            return $this->caseStudySubmissions()
+                ->where('content_id', $content->id)
+                ->whereIn('status', ['submitted', 'graded'])
+                ->exists();
         } else {
             return $this->completedContents()
                 ->where('content_id', $content->id)

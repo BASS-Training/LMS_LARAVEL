@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\EnrollmentApiController;
 use App\Http\Controllers\Api\CourseApiController;
 use App\Http\Controllers\Api\CourseResultsApiController;
 use App\Http\Controllers\Api\EssayApiController;
+use App\Http\Controllers\Api\CaseStudyApiController;
 use App\Http\Controllers\Api\LessonProgressApiController;
 use App\Http\Controllers\Api\QuizApiController;
 use App\Http\Controllers\Api\DocumentController;
@@ -39,6 +40,12 @@ Route::middleware('mobile.api.user')->group(function () {
     Route::post('/mobile/essays/{content}/draft', [EssayApiController::class, 'autosave']);
 
     Route::get('/mobile/essays/by-lesson/{content}', [EssayApiController::class, 'getByLesson']);
+
+    // Studi Kasus (case_study)
+    Route::get('/mobile/case-studies/by-lesson/{content}', [CaseStudyApiController::class, 'getByLesson']);
+    Route::post('/mobile/case-studies/{content}/submit', [CaseStudyApiController::class, 'submit']);
+    Route::post('/mobile/case-studies/{content}/draft', [CaseStudyApiController::class, 'autosave']);
+    Route::get('/mobile/case-studies/{content}/download', [CaseStudyApiController::class, 'download']);
 
     // Discussions (topic + replies) — shared tables with the web, so posts sync both ways.
     Route::get('/mobile/lessons/{content}/discussions', [DiscussionApiController::class, 'index']);

@@ -24,6 +24,7 @@ class Content extends Model
         'body',
         'file_path',
         'document_access_type',
+        'allow_answer_download',
         'order',
         'quiz_id',
         'scheduled_start',
@@ -46,6 +47,7 @@ class Content extends Model
         'scoring_enabled' => 'boolean',
         'requires_review' => 'boolean',
         'is_optional' => 'boolean',
+        'allow_answer_download' => 'boolean',
         'attendance_required' => 'boolean',
         'min_attendance_minutes' => 'integer',
     ];
@@ -211,6 +213,32 @@ class Content extends Model
     public function essaySubmissions()
     {
         return $this->hasMany(EssaySubmission::class);
+    }
+
+    /**
+     * Relasi ke pengumpulan case study (konten tipe 'case_study').
+     */
+    public function caseStudySubmissions()
+    {
+        return $this->hasMany(CaseStudySubmission::class);
+    }
+
+    /**
+     * Decode template case study dari kolom body (disimpan sebagai JSON).
+     * Mengembalikan struktur ['version' => int, 'sections' => [...]].
+     */
+    public function getCaseStudyTemplateAttribute(): array
+    {
+        if ($this->type !== 'case_study' || empty($this->body)) {
+            return ['version' => 1, 'sections' => []];
+        }
+
+        $decoded = json_decode($this->body, true);
+        if (!is_array($decoded) || !isset($decoded['sections'])) {
+            return ['version' => 1, 'sections' => []];
+        }
+
+        return $decoded;
     }
 
     public function discussions()
