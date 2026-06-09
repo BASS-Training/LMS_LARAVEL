@@ -225,7 +225,7 @@ class CourseApiController extends Controller
             'chaptersCount' => $course->lessons->count(),
             'duration' => '0 min',
             'is_saved' => in_array($course->id, $savedIds),
-            'sections' => $course->lessons->values()->map(function ($lesson, $index) use ($course, $user) {
+            'sections' => $course->lessons->values()->map(function ($lesson, $index) use ($course, $user, $completionCtx) {
                 return [
                     'id' => (string) $lesson->id,
                     'courseId' => (string) $course->id,
@@ -239,7 +239,7 @@ class CourseApiController extends Controller
                         }
 
                         return true;
-                    })->map(function ($content) use ($course, $lesson, $user) {
+                    })->map(function ($content) use ($course, $lesson, $user, $completionCtx) {
                         // Prefer explicit content.file_path, fallback to first attached document's file_path
                         $filePath = null;
                         if (!empty($content->file_path)) {
