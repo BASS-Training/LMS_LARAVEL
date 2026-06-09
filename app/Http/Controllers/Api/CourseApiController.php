@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Course; // Memanggil kerangka tabel Course
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CourseApiController extends Controller
 {
@@ -40,8 +41,13 @@ class CourseApiController extends Controller
 
         $courses = $query->with(['lessons.contents.quiz', 'lessons.contents.images', 'instructors'])
             ->latest()
-            ->get()
-            ->map(fn (Course $course) => $this->transformCourse($course, $user, $savedIds));
+            ->get();
+
+        $completionCtx = $this->buildCompletionContext($user, $courses);
+
+        $courses = $courses->map(
+            fn (Course $course) => $this->transformCourse($course, $user, $savedIds, $completionCtx)
+        );
 
         return response()->json([
             'status' => 'success',
@@ -64,7 +70,11 @@ class CourseApiController extends Controller
 
         $savedIds = $courses->pluck('id')->all();
 
-        $data = $courses->map(fn (Course $course) => $this->transformCourse($course, $user, $savedIds));
+        $completionCtx = $this->buildCompletionContext($user, $courses);
+
+        $data = $courses->map(
+            fn (Course $course) => $this->transformCourse($course, $user, $savedIds, $completionCtx)
+        );
 
         return response()->json([
             'status' => 'success',
@@ -103,7 +113,105 @@ class CourseApiController extends Controller
     /**
      * Bentuk payload satu course (dipakai index & saved) agar konsisten.
      */
-    private function transformCourse(Course $course, User $user, array $savedIds): array
+    /**
+     * Pra-hitung data penyelesaian user untuk SEMUA konten sekaligus (menghindari
+     * N+1: tanpa ini, isCompleted dihitung per-konten dengan beberapa query).
+     * Mengembalikan set-set lookup yang dipakai oleh isContentCompletedFast().
+     */
+    private function buildCompletionContext(User $user, $courses): array
+    {
+        $contentIds = $courses
+            ->pluck('lessons')->flatten()
+            ->pluck('contents')->flatten()
+            ->pluck('id')->filter()->unique()->values()->all();
+
+        if (empty($contentIds)) {
+            return [
+                'completed' => [],
+                'passedQuiz' => [],
+                'essay' => [],
+                'caseStudy' => [],
+                'attendance' => [],
+            ];
+        }
+
+        $completed = DB::table('content_user')
+            ->where('user_id', $user->id)
+            ->where('completed', true)
+            ->whereIn('content_id', $contentIds)
+            ->pluck('content_id')->all();
+
+        $passedQuiz = DB::table('quiz_attempts')
+            ->where('user_id', $user->id)
+            ->where('passed', true)
+            ->distinct()->pluck('quiz_id')->all();
+
+        $essay = DB::table('essay_submissions as s')
+            ->join('essay_answers as a', 'a.submission_id', '=', 's.id')
+            ->where('s.user_id', $user->id)
+            ->whereIn('s.content_id', $contentIds)
+            ->distinct()->pluck('s.content_id')->all();
+
+        $caseStudy = DB::table('case_study_submissions')
+            ->where('user_id', $user->id)
+            ->whereIn('status', ['submitted', 'graded'])
+            ->whereIn('content_id', $contentIds)
+            ->pluck('content_id')->all();
+
+        $attendance = DB::table('attendances')
+            ->where('user_id', $user->id)
+            ->whereIn('content_id', $contentIds)
+            ->get(['content_id', 'status', 'duration_minutes'])
+            ->keyBy('content_id');
+
+        return [
+            'completed' => array_flip($completed),
+            'passedQuiz' => array_flip($passedQuiz),
+            'essay' => array_flip($essay),
+            'caseStudy' => array_flip($caseStudy),
+            'attendance' => $attendance,
+        ];
+    }
+
+    /**
+     * Versi in-memory dari User::hasCompletedContent (logikanya disamakan persis),
+     * memakai konteks dari buildCompletionContext agar tanpa query per-konten.
+     */
+    private function isContentCompletedFast($content, array $ctx): bool
+    {
+        $id = $content->id;
+
+        if ($content->is_optional ?? false) {
+            return isset($ctx['completed'][$id]);
+        }
+
+        if ($content->attendance_required ?? false) {
+            $att = $ctx['attendance'][$id] ?? null;
+            if (!$att) {
+                return false;
+            }
+            if (!in_array($att->status, ['present', 'excused'], true)) {
+                return false;
+            }
+            if ($content->min_attendance_minutes
+                && (int) ($att->duration_minutes ?? 0) < (int) $content->min_attendance_minutes) {
+                return false;
+            }
+        }
+
+        switch ($content->type) {
+            case 'quiz':
+                return $content->quiz_id && isset($ctx['passedQuiz'][$content->quiz_id]);
+            case 'essay':
+                return isset($ctx['essay'][$id]);
+            case 'case_study':
+                return isset($ctx['caseStudy'][$id]);
+            default:
+                return isset($ctx['completed'][$id]);
+        }
+    }
+
+    private function transformCourse(Course $course, User $user, array $savedIds, array $completionCtx = []): array
     {
         return [
             'id' => (string) $course->id,
@@ -153,7 +261,11 @@ class CourseApiController extends Controller
                             'content' => in_array($content->type, ['video', 'text', 'document'])
                                 ? ($content->body ?? '')
                                 : ($content->description ?? ''),
-                            'body' => $content->body ?? '',
+                            // Template case_study bisa sangat besar; jangan kirim di
+                            // daftar course (mobile memuatnya via endpoint by-lesson).
+                            'body' => $content->type === 'case_study'
+                                ? ''
+                                : ($content->body ?? ''),
                             'duration' => '0 min',
                             'type' => $content->type ?? 'text',
                             'quizId' => $content->quiz_id ? (string) $content->quiz_id : null,
@@ -162,7 +274,7 @@ class CourseApiController extends Controller
                             'documentUrl' => $documentUrl,
                             'documentAccessType' => $content->document_access_type,
                             'allowAnswerDownload' => (bool) ($content->allow_answer_download ?? false),
-                            'isCompleted' => $user ? $user->hasCompletedContent($content) : false,
+                            'isCompleted' => $user ? $this->isContentCompletedFast($content, $completionCtx) : false,
                             'zoomLink' => $content->type === 'zoom'
                                 ? (json_decode($content->body ?? '{}', true)['link'] ?? null)
                                 : null,
