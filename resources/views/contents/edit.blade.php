@@ -222,6 +222,15 @@
                                         <div class="text-xs font-medium">Studi Kasus</div>
                                     </div>
                                 </label>
+
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="type" value="feedback" x-model="content.type" class="sr-only">
+                                    <div class="p-4 border-2 rounded-xl text-center transition-all duration-300 hover:shadow-md"
+                                         :class="content.type === 'feedback' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300'">
+                                        <div class="text-2xl mb-2">💬</div>
+                                        <div class="text-xs font-medium">Feedback</div>
+                                    </div>
+                                </label>
                             </div>
 
                             <div class="mt-6">
@@ -1410,6 +1419,12 @@
                     <template x-if="isType('case_study')">
                         <div class="animate-fadeIn">
                             @include('contents.partials.case-study-builder')
+                        </div>
+                    </template>
+
+                    <template x-if="isType('feedback')">
+                        <div class="animate-fadeIn">
+                            @include('contents.partials.feedback-builder')
                         </div>
                     </template>
 

@@ -158,6 +158,12 @@ class CourseApiController extends Controller
             ->whereIn('content_id', $contentIds)
             ->pluck('content_id')->all();
 
+        $feedback = DB::table('feedback_submissions')
+            ->where('user_id', $user->id)
+            ->where('status', 'submitted')
+            ->whereIn('content_id', $contentIds)
+            ->pluck('content_id')->all();
+
         $attendance = DB::table('attendances')
             ->where('user_id', $user->id)
             ->whereIn('content_id', $contentIds)
@@ -169,6 +175,7 @@ class CourseApiController extends Controller
             'passedQuiz' => array_flip($passedQuiz),
             'essay' => array_flip($essay),
             'caseStudy' => array_flip($caseStudy),
+            'feedback' => array_flip($feedback),
             'attendance' => $attendance,
         ];
     }
@@ -206,6 +213,8 @@ class CourseApiController extends Controller
                 return isset($ctx['essay'][$id]);
             case 'case_study':
                 return isset($ctx['caseStudy'][$id]);
+            case 'feedback':
+                return isset($ctx['feedback'][$id]);
             default:
                 return isset($ctx['completed'][$id]);
         }

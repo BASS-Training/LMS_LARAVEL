@@ -25,6 +25,7 @@ class Content extends Model
         'file_path',
         'document_access_type',
         'allow_answer_download',
+        'is_anonymous',
         'order',
         'quiz_id',
         'scheduled_start',
@@ -48,6 +49,7 @@ class Content extends Model
         'requires_review' => 'boolean',
         'is_optional' => 'boolean',
         'allow_answer_download' => 'boolean',
+        'is_anonymous' => 'boolean',
         'attendance_required' => 'boolean',
         'min_attendance_minutes' => 'integer',
     ];
@@ -221,6 +223,22 @@ class Content extends Model
     public function caseStudySubmissions()
     {
         return $this->hasMany(CaseStudySubmission::class);
+    }
+
+    /**
+     * Pertanyaan form untuk konten tipe 'feedback' (urut sesuai order).
+     */
+    public function feedbackQuestions()
+    {
+        return $this->hasMany(FeedbackQuestion::class)->orderBy('order');
+    }
+
+    /**
+     * Pengiriman form feedback dari peserta.
+     */
+    public function feedbackSubmissions()
+    {
+        return $this->hasMany(FeedbackSubmission::class);
     }
 
     /**

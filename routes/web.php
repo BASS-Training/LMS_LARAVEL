@@ -203,6 +203,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/case-studies/{content}/download', [App\Http\Controllers\CaseStudyController::class, 'download'])->name('case-studies.download');
     Route::get('/case-studies/{content}/submissions/{submission}/download', [App\Http\Controllers\CaseStudyController::class, 'download'])->name('case-studies.download-submission');
 
+    // Feedback (form survei, tanpa penilaian)
+    Route::post('/feedback/{content}/submit', [App\Http\Controllers\FeedbackController::class, 'store'])->name('feedback.store');
+
     Route::post('/contents/{content}/essay-questions', [EssayQuestionController::class, 'store'])
         ->name('essay.questions.store')
         ->middleware('permission:manage essay questions');
@@ -483,6 +486,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('case-studies.review');
         Route::post('/case-studies/{content}/submissions/{submission}/grade', [App\Http\Controllers\CaseStudyController::class, 'grade'])
             ->name('case-studies.grade');
+
+        // Hasil agregat Feedback (untuk instruktur/admin)
+        Route::get('/feedback/{content}/results', [App\Http\Controllers\FeedbackController::class, 'results'])
+            ->name('feedback.results');
     });
 
     Route::get('/essay-submissions/{submission}/result', [EssaySubmissionController::class, 'showResult'])->name('essays.result');

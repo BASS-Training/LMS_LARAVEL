@@ -306,6 +306,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Relasi ke feedback submissions (konten tipe 'feedback')
+     */
+    public function feedbackSubmissions()
+    {
+        return $this->hasMany(FeedbackSubmission::class);
+    }
+
+    /**
      * Relasi ke diskusi yang dimulai user
      */
     public function discussions()
