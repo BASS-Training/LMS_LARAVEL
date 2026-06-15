@@ -61,6 +61,99 @@ class InstructorApiController extends Controller
     }
 
     /**
+     * Detail progres satu peserta dalam sebuah course: ringkasan + rincian
+     * skor kuis, essay, dan studi kasus (mirror laporan progres web).
+     */
+    public function participantProgress(Request $request, Course $course, User $participant)
+    {
+        $this->authorizeCourse($request->user(), $course);
+
+        $p = $participant->getProgressForCourse($course);
+
+        // Kuis: attempt terbaru per kuis di course ini.
+        $quizzes = $participant->quizAttempts()
+            ->whereHas('quiz.lesson.course', fn ($q) => $q->where('id', $course->id))
+            ->with('quiz.questions')
+            ->orderByDesc('completed_at')
+            ->get()
+            ->groupBy('quiz_id')
+            ->map(function ($group) {
+                $a = $group->first();
+                $totalMarks = $a->quiz?->questions?->sum('marks')
+                    ?: $a->quiz?->questions?->count() ?: 1;
+                return [
+                    'title' => $a->quiz?->title ?? 'Kuis',
+                    'score' => (int) $a->score,
+                    'maxScore' => (int) $totalMarks,
+                    'percentage' => $totalMarks > 0
+                        ? round(($a->score / $totalMarks) * 100, 1) : 0,
+                    'passed' => (bool) $a->passed,
+                ];
+            })
+            ->values();
+
+        // Essay milik peserta di course ini.
+        $essays = $participant->essaySubmissions()
+            ->whereHas('content.lesson.course', fn ($q) => $q->where('id', $course->id))
+            ->with(['content', 'answers'])
+            ->get()
+            ->map(function ($s) {
+                $scoring = (bool) ($s->content->scoring_enabled ?? true);
+                return [
+                    'title' => $s->content?->title ?? 'Essay',
+                    'scoringEnabled' => $scoring,
+                    'score' => $scoring ? $s->total_score : null,
+                    'maxScore' => $scoring ? $s->max_total_score : null,
+                    'graded' => (bool) $s->is_fully_graded,
+                    'status' => $s->status,
+                ];
+            })
+            ->values();
+
+        // Studi kasus milik peserta di course ini (yang sudah dikumpulkan).
+        $cases = $participant->caseStudySubmissions()
+            ->whereHas('content.lesson.course', fn ($q) => $q->where('id', $course->id))
+            ->whereIn('status', ['submitted', 'graded'])
+            ->with('content')
+            ->get()
+            ->map(function ($s) {
+                $scoring = (bool) ($s->content->scoring_enabled ?? true);
+                return [
+                    'title' => $s->content?->title ?? 'Studi Kasus',
+                    'scoringEnabled' => $scoring,
+                    'score' => ($scoring && $s->status === 'graded') ? $s->score : null,
+                    'graded' => $s->status === 'graded',
+                    'status' => $s->status,
+                ];
+            })
+            ->values();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'participant' => [
+                    'id' => (string) $participant->id,
+                    'name' => $participant->name,
+                    'email' => $participant->email,
+                ],
+                'overall' => [
+                    'progressPercentage' => (float) ($p['progress_percentage'] ?? 0),
+                    'completedContents' => (int) ($p['completed_contents'] ?? 0),
+                    'totalContents' => (int) ($p['total_contents'] ?? 0),
+                    'completedLessons' => (int) ($p['completed_lessons'] ?? 0),
+                    'totalLessons' => (int) ($p['total_lessons'] ?? 0),
+                    'completedQuizzes' => (int) ($p['completed_quizzes'] ?? 0),
+                    'totalQuizzes' => (int) ($p['total_quizzes'] ?? 0),
+                    'averageQuizScore' => (float) ($p['average_quiz_score'] ?? 0),
+                ],
+                'quizzes' => $quizzes,
+                'essays' => $essays,
+                'caseStudies' => $cases,
+            ],
+        ]);
+    }
+
+    /**
      * Antrian penilaian: semua submission essay + studi kasus dalam course,
      * masing-masing ditandai 'pending' (perlu dinilai) atau 'graded'.
      */

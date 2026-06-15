@@ -63,6 +63,7 @@ Route::middleware('mobile.api.user')->group(function () {
     Route::get('/mobile/instructor/dashboard', [InstructorApiController::class, 'dashboard']);
     Route::get('/mobile/instructor/grading-queue', [InstructorApiController::class, 'globalGradingQueue']);
     Route::get('/mobile/courses/{course}/participants', [InstructorApiController::class, 'participants']);
+    Route::get('/mobile/courses/{course}/participants/{participant}/progress', [InstructorApiController::class, 'participantProgress']);
     Route::get('/mobile/courses/{course}/grading-queue', [InstructorApiController::class, 'gradingQueue']);
     Route::get('/mobile/essays/submissions/{submission}', [InstructorApiController::class, 'essaySubmission']);
     Route::post('/mobile/essays/submissions/{submission}/grade', [InstructorApiController::class, 'gradeEssay']);
