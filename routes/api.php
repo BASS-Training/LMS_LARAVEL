@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\LessonProgressApiController;
 use App\Http\Controllers\Api\QuizApiController;
 use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\DiscussionApiController;
+use App\Http\Controllers\Api\InstructorApiController;
 
 Route::post('/mobile/auth/login', [AuthApiController::class, 'login']);
 Route::post('/mobile/auth/register', [AuthApiController::class, 'register']);
@@ -56,4 +57,13 @@ Route::middleware('mobile.api.user')->group(function () {
     Route::get('/mobile/lessons/{content}/discussions', [DiscussionApiController::class, 'index']);
     Route::post('/mobile/lessons/{content}/discussions', [DiscussionApiController::class, 'store']);
     Route::post('/mobile/discussions/{discussion}/replies', [DiscussionApiController::class, 'storeReply']);
+
+    // Instructor / admin (mobile): lihat peserta & progres, dan nilai essay / studi kasus.
+    // Menulis ke tabel yang sama dengan web → grading tersinkron dua arah.
+    Route::get('/mobile/courses/{course}/participants', [InstructorApiController::class, 'participants']);
+    Route::get('/mobile/courses/{course}/grading-queue', [InstructorApiController::class, 'gradingQueue']);
+    Route::get('/mobile/essays/submissions/{submission}', [InstructorApiController::class, 'essaySubmission']);
+    Route::post('/mobile/essays/submissions/{submission}/grade', [InstructorApiController::class, 'gradeEssay']);
+    Route::get('/mobile/case-studies/submissions/{submission}', [InstructorApiController::class, 'caseStudySubmission']);
+    Route::post('/mobile/case-studies/submissions/{submission}/grade', [InstructorApiController::class, 'gradeCaseStudy']);
 });
