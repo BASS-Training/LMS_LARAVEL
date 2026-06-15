@@ -145,6 +145,7 @@ class AuthApiController extends Controller
                 'gender' => $user->gender,
                 'institution_name' => $user->institution_name,
                 'occupation' => $user->occupation,
+                'created_at' => optional($user->created_at)?->toISOString(),
             ],
         ];
     }
