@@ -68,82 +68,105 @@ class InstructorApiController extends Controller
     {
         $this->authorizeCourse($request->user(), $course);
 
-        $contentIds = $course->lessons()
-            ->with('contents:id,lesson_id,title,type,scoring_enabled,requires_review,grading_mode')
-            ->get()
-            ->pluck('contents')
-            ->flatten();
+        [$essayIds, $caseIds, $lessonTitles] = $this->contentsForCourses([$course->id]);
 
-        $essayContentIds = $contentIds->where('type', 'essay')->pluck('id')->all();
-        $caseContentIds = $contentIds->where('type', 'case_study')->pluck('id')->all();
-        $lessonTitleByContentId = $course->lessons()->with('contents:id,lesson_id')->get()
-            ->flatMap(fn ($lesson) => $lesson->contents->mapWithKeys(
-                fn ($c) => [$c->id => $lesson->title]
-            ))->all();
+        return response()->json([
+            'status' => 'success',
+            'data' => $this->buildQueueItems($essayIds, $caseIds, $lessonTitles),
+        ]);
+    }
 
-        $items = [];
+    /**
+     * Inbox penilaian global: gabungan semua submission perlu-dinilai dari SEMUA
+     * course yang dikelola (instruktur: yang diampu; admin: semua).
+     */
+    public function globalGradingQueue(Request $request)
+    {
+        $user = $request->user();
+        abort_if(!$user, 401, 'Unauthenticated.');
 
-        if (!empty($essayContentIds)) {
-            $essaySubs = EssaySubmission::whereIn('content_id', $essayContentIds)
-                ->with(['user:id,name', 'content', 'answers'])
-                ->latest()
-                ->get();
-
-            foreach ($essaySubs as $sub) {
-                if ($sub->answers->isEmpty()) {
-                    continue; // belum benar-benar mengerjakan
-                }
-                $items[] = [
-                    'id' => 'essay-' . $sub->id,
-                    'submissionId' => (string) $sub->id,
-                    'type' => 'essay',
-                    'participantId' => (string) $sub->user_id,
-                    'participantName' => $sub->user?->name ?? 'Peserta',
-                    'contentId' => (string) $sub->content_id,
-                    'contentTitle' => $sub->content?->title ?? 'Essay',
-                    'lessonTitle' => $lessonTitleByContentId[$sub->content_id] ?? '',
-                    'scoringEnabled' => (bool) ($sub->content?->scoring_enabled ?? true),
-                    'status' => $sub->isProcessedByInstructor() ? 'graded' : 'pending',
-                    'submittedAt' => optional($sub->created_at)?->toISOString(),
-                ];
-            }
+        $courseIds = $this->managedCourseIds($user);
+        if (empty($courseIds)) {
+            return response()->json(['status' => 'success', 'data' => []]);
         }
 
-        if (!empty($caseContentIds)) {
-            $caseSubs = CaseStudySubmission::whereIn('content_id', $caseContentIds)
-                ->whereIn('status', ['submitted', 'graded'])
-                ->with(['user:id,name', 'content'])
-                ->latest('submitted_at')
-                ->get();
+        [$essayIds, $caseIds, $lessonTitles] = $this->contentsForCourses($courseIds);
 
-            foreach ($caseSubs as $sub) {
-                $items[] = [
-                    'id' => 'cs-' . $sub->id,
-                    'submissionId' => (string) $sub->id,
-                    'type' => 'case_study',
-                    'participantId' => (string) $sub->user_id,
-                    'participantName' => $sub->user?->name ?? 'Peserta',
-                    'contentId' => (string) $sub->content_id,
-                    'contentTitle' => $sub->content?->title ?? 'Studi Kasus',
-                    'lessonTitle' => $lessonTitleByContentId[$sub->content_id] ?? '',
-                    'scoringEnabled' => (bool) ($sub->content?->scoring_enabled ?? true),
-                    'status' => $sub->status === 'graded' ? 'graded' : 'pending',
-                    'submittedAt' => optional($sub->submitted_at ?? $sub->updated_at)?->toISOString(),
-                ];
-            }
+        return response()->json([
+            'status' => 'success',
+            'data' => $this->buildQueueItems($essayIds, $caseIds, $lessonTitles),
+        ]);
+    }
+
+    /**
+     * Dashboard agregat untuk instruktur/admin (mirror metrik web
+     * getInstructorStats/getAdminStats), dalam sekali panggil.
+     */
+    public function dashboard(Request $request)
+    {
+        $user = $request->user();
+        abort_if(!$user, 401, 'Unauthenticated.');
+
+        $isAdmin = $user->can('manage all courses');
+
+        $coursesQuery = Course::query();
+        if (!$isAdmin) {
+            $coursesQuery->whereHas('instructors', fn ($q) => $q->where('user_id', $user->id));
         }
+        $courses = $coursesQuery->withCount('enrolledUsers')
+            ->orderByDesc('created_at')
+            ->get(['id', 'title', 'status', 'created_at']);
+        $courseIds = $courses->pluck('id')->all();
 
-        // Pending dulu, lalu terbaru.
-        usort($items, function ($a, $b) {
-            if ($a['status'] !== $b['status']) {
-                return $a['status'] === 'pending' ? -1 : 1;
-            }
-            return strcmp($b['submittedAt'] ?? '', $a['submittedAt'] ?? '');
+        // Essay menunggu dinilai (graded_at null) per course.
+        $essayPending = empty($courseIds) ? collect() : DB::table('essay_submissions')
+            ->join('contents', 'essay_submissions.content_id', '=', 'contents.id')
+            ->join('lessons', 'contents.lesson_id', '=', 'lessons.id')
+            ->whereIn('lessons.course_id', $courseIds)
+            ->whereNull('essay_submissions.graded_at')
+            ->select('lessons.course_id', DB::raw('count(*) as c'))
+            ->groupBy('lessons.course_id')
+            ->pluck('c', 'lessons.course_id');
+
+        // Studi kasus menunggu dinilai (status submitted) per course.
+        $casePending = empty($courseIds) ? collect() : DB::table('case_study_submissions')
+            ->join('contents', 'case_study_submissions.content_id', '=', 'contents.id')
+            ->join('lessons', 'contents.lesson_id', '=', 'lessons.id')
+            ->whereIn('lessons.course_id', $courseIds)
+            ->where('case_study_submissions.status', 'submitted')
+            ->select('lessons.course_id', DB::raw('count(*) as c'))
+            ->groupBy('lessons.course_id')
+            ->pluck('c', 'lessons.course_id');
+
+        $totalParticipants = empty($courseIds) ? 0 : DB::table('course_user')
+            ->whereIn('course_id', $courseIds)
+            ->distinct()
+            ->count('user_id');
+
+        $perCourse = $courses->map(function (Course $c) use ($essayPending, $casePending) {
+            $pending = (int) ($essayPending[$c->id] ?? 0) + (int) ($casePending[$c->id] ?? 0);
+            return [
+                'id' => (string) $c->id,
+                'title' => $c->title,
+                'status' => $c->status,
+                'participantCount' => (int) $c->enrolled_users_count,
+                'pendingCount' => $pending,
+            ];
         });
 
         return response()->json([
             'status' => 'success',
-            'data' => array_values($items),
+            'data' => [
+                'role' => $isAdmin ? 'admin' : 'instructor',
+                'name' => $user->name,
+                'totals' => [
+                    'courses' => $courses->count(),
+                    'published' => $courses->where('status', 'published')->count(),
+                    'participants' => $totalParticipants,
+                    'pendingGrading' => (int) $perCourse->sum('pendingCount'),
+                ],
+                'courses' => $perCourse->values(),
+            ],
         ]);
     }
 
@@ -384,6 +407,118 @@ class InstructorApiController extends Controller
         }
 
         abort(403, 'Anda bukan instruktur untuk course ini.');
+    }
+
+    /**
+     * ID course yang dikelola: admin → semua; instruktur → yang diampu.
+     */
+    private function managedCourseIds(User $user): array
+    {
+        if ($user->can('manage all courses')) {
+            return Course::pluck('id')->all();
+        }
+        return Course::whereHas('instructors', fn ($q) => $q->where('user_id', $user->id))
+            ->pluck('id')->all();
+    }
+
+    /**
+     * Untuk sekumpulan course, kembalikan [essayContentIds, caseContentIds,
+     * lessonTitleByContentId] dalam satu query.
+     */
+    private function contentsForCourses(array $courseIds): array
+    {
+        if (empty($courseIds)) {
+            return [[], [], []];
+        }
+
+        $rows = DB::table('contents')
+            ->join('lessons', 'contents.lesson_id', '=', 'lessons.id')
+            ->whereIn('lessons.course_id', $courseIds)
+            ->whereIn('contents.type', ['essay', 'case_study'])
+            ->select('contents.id', 'contents.type', 'lessons.title as lesson_title')
+            ->get();
+
+        $essayIds = [];
+        $caseIds = [];
+        $lessonTitles = [];
+        foreach ($rows as $row) {
+            $lessonTitles[$row->id] = $row->lesson_title;
+            if ($row->type === 'essay') {
+                $essayIds[] = $row->id;
+            } else {
+                $caseIds[] = $row->id;
+            }
+        }
+
+        return [$essayIds, $caseIds, $lessonTitles];
+    }
+
+    /**
+     * Bangun daftar item antrian penilaian (essay + studi kasus), urut: pending
+     * dulu lalu terbaru.
+     */
+    private function buildQueueItems(array $essayContentIds, array $caseContentIds, array $lessonTitles): array
+    {
+        $items = [];
+
+        if (!empty($essayContentIds)) {
+            $essaySubs = EssaySubmission::whereIn('content_id', $essayContentIds)
+                ->with(['user:id,name', 'content', 'answers'])
+                ->latest()
+                ->get();
+
+            foreach ($essaySubs as $sub) {
+                if ($sub->answers->isEmpty()) {
+                    continue; // belum benar-benar mengerjakan
+                }
+                $items[] = [
+                    'id' => 'essay-' . $sub->id,
+                    'submissionId' => (string) $sub->id,
+                    'type' => 'essay',
+                    'participantId' => (string) $sub->user_id,
+                    'participantName' => $sub->user?->name ?? 'Peserta',
+                    'contentId' => (string) $sub->content_id,
+                    'contentTitle' => $sub->content?->title ?? 'Essay',
+                    'lessonTitle' => $lessonTitles[$sub->content_id] ?? '',
+                    'scoringEnabled' => (bool) ($sub->content?->scoring_enabled ?? true),
+                    'status' => $sub->isProcessedByInstructor() ? 'graded' : 'pending',
+                    'submittedAt' => optional($sub->created_at)?->toISOString(),
+                ];
+            }
+        }
+
+        if (!empty($caseContentIds)) {
+            $caseSubs = CaseStudySubmission::whereIn('content_id', $caseContentIds)
+                ->whereIn('status', ['submitted', 'graded'])
+                ->with(['user:id,name', 'content'])
+                ->latest('submitted_at')
+                ->get();
+
+            foreach ($caseSubs as $sub) {
+                $items[] = [
+                    'id' => 'cs-' . $sub->id,
+                    'submissionId' => (string) $sub->id,
+                    'type' => 'case_study',
+                    'participantId' => (string) $sub->user_id,
+                    'participantName' => $sub->user?->name ?? 'Peserta',
+                    'contentId' => (string) $sub->content_id,
+                    'contentTitle' => $sub->content?->title ?? 'Studi Kasus',
+                    'lessonTitle' => $lessonTitles[$sub->content_id] ?? '',
+                    'scoringEnabled' => (bool) ($sub->content?->scoring_enabled ?? true),
+                    'status' => $sub->status === 'graded' ? 'graded' : 'pending',
+                    'submittedAt' => optional($sub->submitted_at ?? $sub->updated_at)?->toISOString(),
+                ];
+            }
+        }
+
+        usort($items, function ($a, $b) {
+            if ($a['status'] !== $b['status']) {
+                return $a['status'] === 'pending' ? -1 : 1;
+            }
+            return strcmp($b['submittedAt'] ?? '', $a['submittedAt'] ?? '');
+        });
+
+        return array_values($items);
     }
 
     /**

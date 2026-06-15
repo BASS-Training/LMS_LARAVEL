@@ -60,6 +60,8 @@ Route::middleware('mobile.api.user')->group(function () {
 
     // Instructor / admin (mobile): lihat peserta & progres, dan nilai essay / studi kasus.
     // Menulis ke tabel yang sama dengan web → grading tersinkron dua arah.
+    Route::get('/mobile/instructor/dashboard', [InstructorApiController::class, 'dashboard']);
+    Route::get('/mobile/instructor/grading-queue', [InstructorApiController::class, 'globalGradingQueue']);
     Route::get('/mobile/courses/{course}/participants', [InstructorApiController::class, 'participants']);
     Route::get('/mobile/courses/{course}/grading-queue', [InstructorApiController::class, 'gradingQueue']);
     Route::get('/mobile/essays/submissions/{submission}', [InstructorApiController::class, 'essaySubmission']);
