@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\QuizApiController;
 use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\DiscussionApiController;
 use App\Http\Controllers\Api\InstructorApiController;
+use App\Http\Controllers\Api\NotificationApiController;
 
 Route::post('/mobile/auth/login', [AuthApiController::class, 'login']);
 Route::post('/mobile/auth/register', [AuthApiController::class, 'register']);
@@ -57,6 +58,12 @@ Route::middleware('mobile.api.user')->group(function () {
     Route::get('/mobile/lessons/{content}/discussions', [DiscussionApiController::class, 'index']);
     Route::post('/mobile/lessons/{content}/discussions', [DiscussionApiController::class, 'store']);
     Route::post('/mobile/discussions/{discussion}/replies', [DiscussionApiController::class, 'storeReply']);
+
+    // Notifikasi (gabungan: notifikasi DB + pengumuman web).
+    Route::get('/mobile/notifications', [NotificationApiController::class, 'index']);
+    Route::get('/mobile/notifications/unread-count', [NotificationApiController::class, 'unreadCount']);
+    Route::post('/mobile/notifications/mark-read', [NotificationApiController::class, 'markRead']);
+    Route::post('/mobile/notifications/mark-all-read', [NotificationApiController::class, 'markAllRead']);
 
     // Instructor / admin (mobile): lihat peserta & progres, dan nilai essay / studi kasus.
     // Menulis ke tabel yang sama dengan web → grading tersinkron dua arah.

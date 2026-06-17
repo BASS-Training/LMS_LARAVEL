@@ -484,7 +484,42 @@ class ContentController extends Controller
     public function store(Request $request, Lesson $lesson)
     {
         $this->authorize('update', $lesson->course);
-        return $this->save($request, $lesson, new Content());
+
+        $content = new Content();
+        $response = $this->save($request, $lesson, $content);
+
+        // Notify enrolled participants about the newly published material.
+        if ($content->exists && $content->wasRecentlyCreated) {
+            $this->notifyNewContent($lesson, $content);
+        }
+
+        return $response;
+    }
+
+    /** Kirim notifikasi "materi baru" ke peserta yang terdaftar di course. */
+    private function notifyNewContent(Lesson $lesson, Content $content): void
+    {
+        try {
+            $course = $lesson->course;
+            if (! $course) {
+                return;
+            }
+
+            $payload = [
+                'category' => 'new_content',
+                'title' => 'Materi baru',
+                'message' => '"'.$content->title.'" ditambahkan di '.$course->title,
+                'courseId' => (string) $course->id,
+                'courseTitle' => $course->title,
+                'contentId' => (string) $content->id,
+            ];
+
+            foreach ($course->enrolledUsers as $user) {
+                $user->notify(new \App\Notifications\MobileNotification($payload));
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('notifyNewContent failed: '.$e->getMessage());
+        }
     }
 
     public function edit(Lesson $lesson, Content $content)
