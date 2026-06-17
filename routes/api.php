@@ -57,6 +57,7 @@ Route::middleware('mobile.api.user')->group(function () {
     // Discussions (topic + replies) — shared tables with the web, so posts sync both ways.
     // Feed agregat lintas course (hub diskusi mobile) — letakkan sebelum route param.
     Route::get('/mobile/discussions', [DiscussionApiController::class, 'feed']);
+    Route::get('/mobile/discussions/structure', [DiscussionApiController::class, 'structure']);
     Route::get('/mobile/lessons/{content}/discussions', [DiscussionApiController::class, 'index']);
     Route::post('/mobile/lessons/{content}/discussions', [DiscussionApiController::class, 'store']);
     Route::post('/mobile/discussions/{discussion}/replies', [DiscussionApiController::class, 'storeReply']);

@@ -27,13 +27,7 @@ class DiscussionApiController extends Controller
     public function feed(Request $request): JsonResponse
     {
         $user = $request->user();
-
-        $courseIds = $user->can('manage all courses')
-            ? Course::pluck('id')
-            : Course::where(function ($q) use ($user) {
-                $q->whereHas('enrolledUsers', fn ($x) => $x->where('users.id', $user->id))
-                    ->orWhereHas('instructors', fn ($x) => $x->where('users.id', $user->id));
-            })->pluck('id');
+        $courseIds = $this->accessibleCourseIds($user);
 
         $discussions = Discussion::with([
                 'user:id,name',
@@ -70,6 +64,67 @@ class DiscussionApiController extends Controller
         ->values();
 
         return response()->json(['status' => 'success', 'data' => $items]);
+    }
+
+    /**
+     * Course → lesson (content) structure for the discussion hub's context
+     * selector, with a discussion count per lesson. Scoped to courses the user
+     * can access. "Lesson" here == backend Content (mobile maps lesson==content).
+     */
+    public function structure(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $courseIds = $this->accessibleCourseIds($user);
+
+        $counts = Discussion::query()
+            ->selectRaw('content_id, COUNT(*) as c')
+            ->groupBy('content_id')
+            ->pluck('c', 'content_id');
+
+        $courses = Course::whereIn('id', $courseIds)
+            ->with([
+                'lessons' => fn ($q) => $q->orderBy('order'),
+                'lessons.contents' => fn ($q) => $q->orderBy('order'),
+            ])
+            ->orderBy('title')
+            ->get();
+
+        $data = $courses->map(function (Course $course) use ($counts) {
+            $lessons = collect();
+            foreach ($course->lessons as $lesson) {
+                foreach ($lesson->contents as $content) {
+                    $lessons->push([
+                        'contentId' => (string) $content->id,
+                        'lessonTitle' => $content->title,
+                        'type' => $content->type,
+                        'discussionCount' => (int) ($counts[$content->id] ?? 0),
+                    ]);
+                }
+            }
+
+            return [
+                'courseId' => (string) $course->id,
+                'courseTitle' => $course->title,
+                'lessons' => $lessons->values(),
+            ];
+        })
+        ->filter(fn ($c) => $c['lessons']->isNotEmpty())
+        ->values();
+
+        return response()->json(['status' => 'success', 'data' => $data]);
+    }
+
+    /** Course ids the user can access: enrolled / instructs, or admin = all. */
+    private function accessibleCourseIds($user)
+    {
+        if ($user->can('manage all courses')) {
+            return Course::pluck('id');
+        }
+
+        return Course::where(function ($q) use ($user) {
+            $q->whereHas('enrolledUsers', fn ($x) => $x->where('users.id', $user->id))
+                ->orWhereHas('instructors', fn ($x) => $x->where('users.id', $user->id));
+        })->pluck('id');
     }
 
     /** List discussions (with replies) for a lesson/content. */
