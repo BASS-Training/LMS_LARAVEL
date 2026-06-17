@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Content;
+use App\Models\Course;
 use App\Models\Discussion;
 use App\Models\DiscussionReply;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * Mobile discussion API. Mirrors the web discussion feature (topic + replies)
@@ -16,6 +19,59 @@ use Illuminate\Http\Request;
  */
 class DiscussionApiController extends Controller
 {
+    /**
+     * Aggregated discussion feed across all courses the user can access
+     * (enrolled / instructs / admin), most-recent-activity first. Powers the
+     * mobile discussion hub. Still grouped per lesson via `contentId`.
+     */
+    public function feed(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $courseIds = $user->can('manage all courses')
+            ? Course::pluck('id')
+            : Course::where(function ($q) use ($user) {
+                $q->whereHas('enrolledUsers', fn ($x) => $x->where('users.id', $user->id))
+                    ->orWhereHas('instructors', fn ($x) => $x->where('users.id', $user->id));
+            })->pluck('id');
+
+        $discussions = Discussion::with([
+                'user:id,name',
+                'content:id,title,lesson_id',
+                'content.lesson:id,title,course_id',
+                'content.lesson.course:id,title',
+            ])
+            ->withCount('replies')
+            ->withMax('replies', 'created_at')
+            ->whereHas('content.lesson', fn ($q) => $q->whereIn('course_id', $courseIds))
+            ->get();
+
+        $items = $discussions->map(function (Discussion $d) {
+            $lastActivity = $d->replies_max_created_at
+                ? Carbon::parse($d->replies_max_created_at)
+                : $d->created_at;
+            $course = $d->content?->lesson?->course;
+
+            return [
+                'id' => (string) $d->id,
+                'title' => $d->title,
+                'snippet' => Str::limit(trim(strip_tags($d->body)), 120),
+                'contentId' => (string) $d->content_id,
+                'lessonTitle' => $d->content?->title,
+                'courseId' => $course ? (string) $course->id : null,
+                'courseTitle' => $course?->title,
+                'authorName' => $d->user?->name ?? 'Pengguna',
+                'repliesCount' => (int) ($d->replies_count ?? 0),
+                'lastActivityAt' => optional($lastActivity)?->toISOString(),
+            ];
+        })
+        ->sortByDesc('lastActivityAt')
+        ->take(60)
+        ->values();
+
+        return response()->json(['status' => 'success', 'data' => $items]);
+    }
+
     /** List discussions (with replies) for a lesson/content. */
     public function index(Content $content): JsonResponse
     {

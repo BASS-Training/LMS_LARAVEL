@@ -46,6 +46,7 @@ class DiscussionReplyObserver
             'courseId' => $course ? (string) $course->id : null,
             'courseTitle' => $course?->title,
             'contentId' => $content ? (string) $content->id : null,
+            'lessonTitle' => $content?->title,
             'discussionId' => (string) $discussion->id,
         ];
 

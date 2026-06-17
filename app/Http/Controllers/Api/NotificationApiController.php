@@ -109,6 +109,8 @@ class NotificationApiController extends Controller
                     'courseId' => $d['courseId'] ?? null,
                     'courseTitle' => $d['courseTitle'] ?? null,
                     'contentId' => $d['contentId'] ?? null,
+                    'lessonTitle' => $d['lessonTitle'] ?? null,
+                    'discussionId' => $d['discussionId'] ?? null,
                     'isRead' => $n->read_at !== null,
                     'createdAt' => optional($n->created_at)?->toISOString(),
                 ];
