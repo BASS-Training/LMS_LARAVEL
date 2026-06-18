@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\DiscussionApiController;
 use App\Http\Controllers\Api\InstructorApiController;
 use App\Http\Controllers\Api\NotificationApiController;
+use App\Http\Controllers\Api\AgendaApiController;
 
 Route::post('/mobile/auth/login', [AuthApiController::class, 'login']);
 Route::post('/mobile/auth/register', [AuthApiController::class, 'register']);
@@ -61,6 +62,9 @@ Route::middleware('mobile.api.user')->group(function () {
     Route::get('/mobile/lessons/{content}/discussions', [DiscussionApiController::class, 'index']);
     Route::post('/mobile/lessons/{content}/discussions', [DiscussionApiController::class, 'store']);
     Route::post('/mobile/discussions/{discussion}/replies', [DiscussionApiController::class, 'storeReply']);
+
+    // Agenda: sesi terjadwal (Zoom) mendatang & berlangsung lintas course.
+    Route::get('/mobile/agenda', [AgendaApiController::class, 'index']);
 
     // Notifikasi (gabungan: notifikasi DB + pengumuman web).
     Route::get('/mobile/notifications', [NotificationApiController::class, 'index']);
