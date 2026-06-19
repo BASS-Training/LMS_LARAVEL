@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\DiscussionApiController;
 use App\Http\Controllers\Api\InstructorApiController;
 use App\Http\Controllers\Api\NotificationApiController;
 use App\Http\Controllers\Api\AgendaApiController;
+use App\Http\Controllers\Api\ProfileApiController;
 
 Route::post('/mobile/auth/login', [AuthApiController::class, 'login']);
 Route::post('/mobile/auth/register', [AuthApiController::class, 'register']);
@@ -23,6 +24,9 @@ Route::post('/mobile/auth/register', [AuthApiController::class, 'register']);
 Route::middleware('mobile.api.user')->group(function () {
     Route::get('/mobile/auth/me', [AuthApiController::class, 'me']);
     Route::post('/mobile/auth/logout', [AuthApiController::class, 'logout']);
+
+    // Update profil (data dasar + foto). POST karena multipart upload file.
+    Route::post('/mobile/profile', [ProfileApiController::class, 'update']);
 
     Route::get('/mobile/courses', [CourseApiController::class, 'index']);
     // Saved courses (bookmark) — mobile-only. Letakkan sebelum route {course}

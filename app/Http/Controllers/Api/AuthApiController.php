@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Concerns\PresentsMobileUser;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -11,6 +12,8 @@ use Illuminate\Validation\Rule;
 
 class AuthApiController extends Controller
 {
+    use PresentsMobileUser;
+
     public function login(Request $request)
     {
         $payload = $request->validate([
@@ -33,7 +36,7 @@ class AuthApiController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Login berhasil.',
-            'data' => $this->transformUserResponse($user, $token),
+            'data' => $this->presentMobileUser($user, $token),
         ]);
     }
 
@@ -92,7 +95,7 @@ class AuthApiController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Registrasi berhasil.',
-            'data' => $this->transformUserResponse($user, $token),
+            'data' => $this->presentMobileUser($user, $token),
         ], 201);
     }
 
@@ -109,7 +112,7 @@ class AuthApiController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $this->transformUserResponse($user),
+            'data' => $this->presentMobileUser($user),
         ]);
     }
 
@@ -124,54 +127,6 @@ class AuthApiController extends Controller
             'status' => 'success',
             'message' => 'Logout berhasil.',
         ]);
-    }
-
-    private function transformUserResponse(User $user, ?string $token = null): array
-    {
-        $roles = $this->extractRoles($user);
-
-        return [
-            'token' => $token,
-            'user' => [
-                'id' => (string) $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $this->resolvePrimaryRole($roles, $user->role ?? null),
-                'primary_role' => $this->resolvePrimaryRole($roles, $user->role ?? null),
-                'roles' => $roles,
-                'registration_program' => $user->registration_program,
-                'avpn_verification_status' => $user->avpn_verification_status,
-                'date_of_birth' => optional($user->date_of_birth)?->format('Y-m-d'),
-                'gender' => $user->gender,
-                'institution_name' => $user->institution_name,
-                'occupation' => $user->occupation,
-                'created_at' => optional($user->created_at)?->toISOString(),
-            ],
-        ];
-    }
-
-    private function extractRoles(User $user): array
-    {
-        $roles = $user->getRoleNames()->values()->all();
-
-        if (empty($roles) && !empty($user->role)) {
-            $roles = [(string) $user->role];
-        }
-
-        return array_values(array_unique(array_map('strval', $roles)));
-    }
-
-    private function resolvePrimaryRole(array $roles, ?string $fallback = null): string
-    {
-        $precedence = ['super-admin', 'admin', 'instructor', 'event-organizer', 'participant'];
-
-        foreach ($precedence as $role) {
-            if (in_array($role, $roles, true)) {
-                return $role;
-            }
-        }
-
-        return $fallback ?: 'participant';
     }
 
     private function issueToken(User $user): string

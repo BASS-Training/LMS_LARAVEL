@@ -36,6 +36,7 @@ class User extends Authenticatable
         'institution_name',
         'gender',
         'occupation',
+        'avatar',
         'phone',
         'monthly_income',
     ];
