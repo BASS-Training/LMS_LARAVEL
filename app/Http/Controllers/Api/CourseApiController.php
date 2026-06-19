@@ -231,6 +231,9 @@ class CourseApiController extends Controller
             'instructor' => $course->instructors->pluck('name')->filter()->implode(', '),
             'color' => '#6C5CE7',
             'icon' => '📚',
+            // Gambar sampul yang diunggah dari web (nullable). Mobile memakainya
+            // bila ada; jika null, mobile jatuh ke cover gradient + emoji default.
+            'thumbnailUrl' => $course->thumbnail ? asset('storage/' . $course->thumbnail) : null,
             'chaptersCount' => $course->lessons->count(),
             'duration' => '0 min',
             'is_saved' => in_array($course->id, $savedIds),
