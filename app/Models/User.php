@@ -36,6 +36,7 @@ class User extends Authenticatable
         'institution_name',
         'gender',
         'occupation',
+        'avatar',
         'phone',
         'monthly_income',
     ];
@@ -81,6 +82,15 @@ class User extends Authenticatable
     public function enrolledCourses()
     {
         return $this->courses();
+    }
+
+    /**
+     * Relasi ke kursus yang disimpan/bookmark user (khusus aplikasi mobile).
+     * Tersimpan di pivot `saved_courses` agar koleksi melekat ke akun.
+     */
+    public function savedCourses()
+    {
+        return $this->belongsToMany(Course::class, 'saved_courses')->withTimestamps();
     }
 
     /**
@@ -286,6 +296,22 @@ class User extends Authenticatable
     public function essaySubmissions()
     {
         return $this->hasMany(EssaySubmission::class);
+    }
+
+    /**
+     * Relasi ke case study submissions
+     */
+    public function caseStudySubmissions()
+    {
+        return $this->hasMany(CaseStudySubmission::class);
+    }
+
+    /**
+     * Relasi ke feedback submissions (konten tipe 'feedback')
+     */
+    public function feedbackSubmissions()
+    {
+        return $this->hasMany(FeedbackSubmission::class);
     }
 
     /**
@@ -552,6 +578,12 @@ class User extends Authenticatable
 
             // Siswa dianggap sudah menyelesaikan essay jika sudah submit (pending_grade atau completed)
             return in_array($this->getContentStatus($content), ['completed', 'pending_grade']);
+        } elseif ($content->type === 'case_study') {
+            // Case study dianggap selesai jika peserta sudah submit (atau sudah dinilai).
+            return $this->caseStudySubmissions()
+                ->where('content_id', $content->id)
+                ->whereIn('status', ['submitted', 'graded'])
+                ->exists();
         } else {
             return $this->completedContents()
                 ->where('content_id', $content->id)

@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\Question;
 use App\Models\QuizAttempt;
 use App\Models\EssaySubmission;
+use App\Models\CaseStudySubmission;
 use Illuminate\Http\Request;
 
 class CourseResultsApiController extends Controller
@@ -42,6 +43,15 @@ class CourseResultsApiController extends Controller
                 $query->where('id', $course->id);
             })
             ->with(['content.essayQuestions', 'answers'])
+            ->latest()
+            ->get();
+
+        $caseStudySubmissions = CaseStudySubmission::where('user_id', $user->id)
+            ->whereIn('status', ['submitted', 'graded'])
+            ->whereHas('content.lesson.course', function ($query) use ($course) {
+                $query->where('id', $course->id);
+            })
+            ->with('content')
             ->latest()
             ->get();
 
@@ -154,6 +164,32 @@ class CourseResultsApiController extends Controller
                 'maxScore' => $submission->max_total_score !== null ? (float) $submission->max_total_score : null,
                 'passed' => null,
                 'questions' => $attemptQuestions,
+            ];
+        }
+
+        foreach ($caseStudySubmissions as $submission) {
+            $content = $submission->content;
+            $isGraded = $submission->status === 'graded';
+            $scoringEnabled = (bool) ($content?->scoring_enabled ?? true);
+
+            $results[] = [
+                'id' => 'cs-' . $submission->id,
+                'courseId' => (string) $course->id,
+                'courseTitle' => $course->title,
+                'lessonId' => (string) ($content?->id ?? ''),
+                'lessonTitle' => $content?->title ?? '',
+                'lessonType' => 'case_study',
+                'attemptNumber' => 1,
+                'submittedAt' => optional($submission->submitted_at ?? $submission->updated_at)?->toISOString(),
+                'graded' => $isGraded,
+                'score' => ($isGraded && $scoringEnabled && $submission->score !== null)
+                    ? (float) $submission->score
+                    : null,
+                'maxScore' => ($scoringEnabled) ? 100.0 : null,
+                'passed' => null,
+                'feedback' => $submission->feedback,
+                'statusLabel' => $isGraded ? 'Sudah Dinilai' : 'Sudah Dikumpulkan',
+                'questions' => [],
             ];
         }
 

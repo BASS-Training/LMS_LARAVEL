@@ -484,14 +484,49 @@ class ContentController extends Controller
     public function store(Request $request, Lesson $lesson)
     {
         $this->authorize('update', $lesson->course);
-        return $this->save($request, $lesson, new Content());
+
+        $content = new Content();
+        $response = $this->save($request, $lesson, $content);
+
+        // Notify enrolled participants about the newly published material.
+        if ($content->exists && $content->wasRecentlyCreated) {
+            $this->notifyNewContent($lesson, $content);
+        }
+
+        return $response;
+    }
+
+    /** Kirim notifikasi "materi baru" ke peserta yang terdaftar di course. */
+    private function notifyNewContent(Lesson $lesson, Content $content): void
+    {
+        try {
+            $course = $lesson->course;
+            if (! $course) {
+                return;
+            }
+
+            $payload = [
+                'category' => 'new_content',
+                'title' => 'Materi baru',
+                'message' => '"'.$content->title.'" ditambahkan di '.$course->title,
+                'courseId' => (string) $course->id,
+                'courseTitle' => $course->title,
+                'contentId' => (string) $content->id,
+            ];
+
+            foreach ($course->enrolledUsers as $user) {
+                $user->notify(new \App\Notifications\MobileNotification($payload));
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('notifyNewContent failed: '.$e->getMessage());
+        }
     }
 
     public function edit(Lesson $lesson, Content $content)
     {
         $this->authorize('update', $lesson->course);
         // TAMBAH load essayQuestions
-        $content->load(['quiz.questions.options', 'essayQuestions', 'images', 'documents']);
+        $content->load(['quiz.questions.options', 'essayQuestions', 'images', 'documents', 'feedbackQuestions']);
         return view('contents.edit', compact('lesson', 'content'));
     }
 
@@ -520,7 +555,7 @@ class ContentController extends Controller
         $rules = [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => ['required', Rule::in(['text', 'video', 'document', 'image', 'quiz', 'essay', 'zoom'])],
+            'type' => ['required', Rule::in(['text', 'video', 'document', 'image', 'quiz', 'essay', 'zoom', 'case_study', 'feedback'])],
             'order' => 'nullable|integer',
             'is_optional' => 'sometimes|boolean',
             'document_access_type' => ['nullable', Rule::in(['both', 'download_only', 'preview_only'])],
@@ -611,6 +646,14 @@ class ContentController extends Controller
             }
         }
 
+        if ($request->input('type') === 'case_study') {
+            // Template (struktur bab/subbab/tabel) dikirim sebagai JSON string dari builder.
+            $rules['case_study_template'] = 'required|string';
+            $rules['allow_answer_download'] = 'sometimes|boolean';
+            $rules['review_mode'] = 'nullable|in:scoring,feedback_only,no_review';
+            $rules['grading_mode'] = 'nullable|in:individual,overall';
+        }
+
         if ($request->input('type') === 'zoom') {
             $rules['zoom_link'] = 'required|url';
             $rules['zoom_meeting_id'] = 'required|string|max:255';
@@ -619,6 +662,21 @@ class ContentController extends Controller
             $rules['scheduled_start'] = 'nullable|required_if:is_scheduled,true|date|after:now';
             $rules['scheduled_end'] = 'nullable|required_if:is_scheduled,true|date|after:scheduled_start';
             $rules['timezone'] = 'nullable|string|in:Asia/Jakarta,UTC,Asia/Kuala_Lumpur,Asia/Singapore';
+        }
+
+        if ($request->input('type') === 'feedback') {
+            // Form survei (tanpa penilaian). Pertanyaan dikirim sebagai array dari builder.
+            $rules['is_anonymous'] = 'sometimes|boolean';
+            $rules['questions'] = 'required|array|min:1';
+            $rules['questions.*.type'] = 'required|in:rating,single_choice,multi_choice,text';
+            $rules['questions.*.question'] = 'required|string';
+            $rules['questions.*.help_text'] = 'nullable|string';
+            $rules['questions.*.is_required'] = 'sometimes';
+            $rules['questions.*.scale_max'] = 'nullable|integer|min:2|max:10';
+            $rules['questions.*.min_label'] = 'nullable|string|max:100';
+            $rules['questions.*.max_label'] = 'nullable|string|max:100';
+            $rules['questions.*.options'] = 'nullable|array';
+            $rules['questions.*.options.*'] = 'nullable|string|max:255';
         }
 
         $validated = $request->validate($rules);
@@ -708,6 +766,35 @@ class ContentController extends Controller
                 ]);
             }
 
+            // 🆕 CASE STUDY: scoring settings (reuse review_mode seperti essay) + flag download.
+            if ($validated['type'] === 'case_study') {
+                $reviewMode = $request->input('review_mode', 'scoring');
+                switch ($reviewMode) {
+                    case 'feedback_only':
+                        $content->scoring_enabled = false;
+                        $content->requires_review = true;
+                        break;
+                    case 'no_review':
+                        $content->scoring_enabled = false;
+                        $content->requires_review = false;
+                        break;
+                    case 'scoring':
+                    default:
+                        $content->scoring_enabled = true;
+                        $content->requires_review = true;
+                        break;
+                }
+                $content->grading_mode = $request->input('grading_mode', 'overall');
+                $content->allow_answer_download = (bool) $request->boolean('allow_answer_download');
+            }
+
+            // 🆕 FEEDBACK: form survei tanpa penilaian/review.
+            if ($validated['type'] === 'feedback') {
+                $content->scoring_enabled = false;
+                $content->requires_review = false;
+                $content->is_anonymous = (bool) $request->boolean('is_anonymous');
+            }
+
             // ✅ REFACTOR: Simplified body handling - NEVER touch body for existing essay content
             if ($bodySource) {
                 // 🚨 CRITICAL: Untuk essay type yang sudah exist, JANGAN PERNAH TOUCH BODY!
@@ -751,6 +838,14 @@ class ContentController extends Controller
                 }
 
                 $content->body = json_encode($zoomData);
+            } elseif ($validated['type'] === 'case_study') {
+                // Normalisasi template JSON sebelum disimpan ke body.
+                $template = json_decode($request->input('case_study_template'), true);
+                if (!is_array($template) || !isset($template['sections']) || !is_array($template['sections'])) {
+                    throw new \Exception('Struktur template case study tidak valid.');
+                }
+                $template['version'] = $template['version'] ?? 1;
+                $content->body = json_encode($template);
             } else {
                 // ✅ GUARD: Jangan set body = null untuk existing essay
                 if (!($validated['type'] === 'essay' && $content->exists)) {
@@ -1033,6 +1128,11 @@ class ContentController extends Controller
                 }
             }
 
+            // 🆕 FEEDBACK: sinkronkan pertanyaan form (update/buat/hapus berbasis id).
+            if ($validated['type'] === 'feedback') {
+                $this->saveFeedbackQuestions($content, $request->input('questions', []));
+            }
+
             DB::commit();
 
             // ✅ DEBUG: Log hasil akhir setelah commit untuk essay
@@ -1092,6 +1192,71 @@ class ContentController extends Controller
                 ]);
             }
         });
+    }
+
+    /**
+     * Sinkronkan pertanyaan form feedback dari builder. Pertanyaan yang punya
+     * `id` di-update, yang tanpa id dibuat baru, dan yang sudah tidak ada di
+     * builder dihapus (jawaban ikut terhapus via cascade). Tanpa penilaian.
+     */
+    private function saveFeedbackQuestions($content, array $questionsData): void
+    {
+        $keepIds = [];
+        $order = 0;
+
+        foreach (array_values($questionsData) as $q) {
+            $text = trim($q['question'] ?? '');
+            if ($text === '') {
+                continue;
+            }
+            $order++;
+            $type = $q['type'] ?? 'text';
+
+            $config = null;
+            if ($type === 'rating') {
+                $config = [
+                    'max' => (int) ($q['scale_max'] ?? 5),
+                    'min_label' => $q['min_label'] ?? null,
+                    'max_label' => $q['max_label'] ?? null,
+                ];
+            } elseif (in_array($type, ['single_choice', 'multi_choice'], true)) {
+                $options = [];
+                $i = 0;
+                foreach (($q['options'] ?? []) as $optLabel) {
+                    $label = trim((string) $optLabel);
+                    if ($label === '') {
+                        continue;
+                    }
+                    $i++;
+                    $options[] = ['id' => 'o' . $i, 'label' => $label];
+                }
+                $config = ['options' => $options];
+            }
+
+            $attrs = [
+                'type' => $type,
+                'question' => $text,
+                'help_text' => $q['help_text'] ?? null,
+                'is_required' => filter_var($q['is_required'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                'order' => $order,
+                'config' => $config,
+            ];
+
+            if (!empty($q['id'])) {
+                $existing = $content->feedbackQuestions()->whereKey($q['id'])->first();
+                if ($existing) {
+                    $existing->update($attrs);
+                    $keepIds[] = $existing->id;
+                    continue;
+                }
+            }
+
+            $created = $content->feedbackQuestions()->create($attrs);
+            $keepIds[] = $created->id;
+        }
+
+        // Hapus pertanyaan yang dibuang di builder (jawaban ikut via cascade).
+        $content->feedbackQuestions()->whereNotIn('id', $keepIds ?: [0])->delete();
     }
 
     private function saveQuiz(array $quizData, Lesson $lesson, ?int $quizId): Quiz

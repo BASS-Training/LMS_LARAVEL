@@ -213,6 +213,24 @@
                                         <div class="text-xs font-medium">Zoom</div>
                                     </div>
                                 </label>
+
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="type" value="case_study" x-model="content.type" class="sr-only">
+                                    <div class="p-4 border-2 rounded-xl text-center transition-all duration-300 hover:shadow-md"
+                                         :class="content.type === 'case_study' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300'">
+                                        <div class="text-2xl mb-2">📋</div>
+                                        <div class="text-xs font-medium">Studi Kasus</div>
+                                    </div>
+                                </label>
+
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="type" value="feedback" x-model="content.type" class="sr-only">
+                                    <div class="p-4 border-2 rounded-xl text-center transition-all duration-300 hover:shadow-md"
+                                         :class="content.type === 'feedback' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300'">
+                                        <div class="text-2xl mb-2">💬</div>
+                                        <div class="text-xs font-medium">Feedback</div>
+                                    </div>
+                                </label>
                             </div>
 
                             <div class="mt-6">
@@ -1398,6 +1416,18 @@
                         </div>
                     </div>
 
+                    <template x-if="isType('case_study')">
+                        <div class="animate-fadeIn">
+                            @include('contents.partials.case-study-builder')
+                        </div>
+                    </template>
+
+                    <template x-if="isType('feedback')">
+                        <div class="animate-fadeIn">
+                            @include('contents.partials.feedback-builder')
+                        </div>
+                    </template>
+
                     <div class="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-gray-200 space-y-4 sm:space-y-0">
                         <div class="flex items-center space-x-4">
                             <a href="{{ route('courses.show', $lesson->course) }}"
@@ -1705,7 +1735,8 @@
                         'image': 'Gambar',
                         'quiz': 'Kuis',
                         'essay': 'Esai',
-                        'zoom': 'Zoom Meeting'
+                        'zoom': 'Zoom Meeting',
+                        'case_study': 'Studi Kasus'
                     };
                     return labels[type] || type;
                 },

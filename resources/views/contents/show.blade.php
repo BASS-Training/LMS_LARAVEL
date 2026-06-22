@@ -989,6 +989,14 @@
                                     {{-- Essay Questions Section with Autosave --}}
                                     @include('contents.partials.essay-section-improved')
 
+                                @elseif($content->type == 'case_study')
+                                    {{-- Studi Kasus: render template + form pengisian peserta --}}
+                                    @include('contents.partials.case-study-attempt')
+
+                                @elseif($content->type == 'feedback')
+                                    {{-- Feedback: form survei (tanpa nilai) --}}
+                                    @include('contents.partials.feedback-attempt')
+
                                 @elseif($content->type == 'quiz' && $content->quiz)
                                     <!-- PERBAIKAN: Tampilkan quiz content dengan benar -->
                                     <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-8 border border-purple-100">
