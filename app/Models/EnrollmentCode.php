@@ -20,7 +20,9 @@ class EnrollmentCode extends Model
     use HasFactory;
 
     public const STATUS_AVAILABLE = 'available';
+
     public const STATUS_REDEEMED = 'redeemed';
+
     public const STATUS_REVOKED = 'revoked';
 
     protected $fillable = [
@@ -81,7 +83,7 @@ class EnrollmentCode extends Model
     /**
      * Cek apakah kode boleh diredeem oleh $user.
      *
-     * @return string|null  null jika boleh; pesan error (Bahasa Indonesia) jika tidak.
+     * @return string|null null jika boleh; pesan error (Bahasa Indonesia) jika tidak.
      */
     public function redeemErrorFor(User $user): ?string
     {
@@ -93,7 +95,7 @@ class EnrollmentCode extends Model
             return 'Kode ini sudah pernah digunakan.';
         }
 
-        if (!$this->isAvailable()) {
+        if (! $this->isAvailable()) {
             return 'Kode tidak dapat digunakan.';
         }
 
