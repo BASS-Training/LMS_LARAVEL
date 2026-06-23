@@ -14,14 +14,13 @@
                 </h2>
                 <p class="text-sm text-gray-600 mt-1">{{ $course->title }}</p>
             </div>
-            <div class="hidden md:flex items-center space-x-3">
-                <div class="text-sm text-gray-500">
-                    <svg class="w-5 h-5 inline mr-1 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
-                    </svg>
-                    Token Management
-                </div>
-            </div>
+            <a href="{{ route('courses.enrollment-codes', $course) }}"
+               class="hidden md:inline-flex items-center px-3 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Kode Pribadi (sekali-pakai)
+            </a>
         </div>
     </x-slot>
 
