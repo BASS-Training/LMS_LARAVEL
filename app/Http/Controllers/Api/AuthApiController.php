@@ -2,17 +2,22 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\Concerns\PresentsMobileUser;
+use App\Http\Controllers\Controller;
+use App\Models\EmailOtp;
 use App\Models\User;
+use App\Services\OtpService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class AuthApiController extends Controller
 {
     use PresentsMobileUser;
+
+    public function __construct(private OtpService $otp) {}
 
     public function login(Request $request)
     {
@@ -24,7 +29,7 @@ class AuthApiController extends Controller
         $email = strtolower(trim($payload['email']));
 
         $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
-        if (!$user || !Hash::check($payload['password'], $user->password)) {
+        if (! $user || ! Hash::check($payload['password'], $user->password)) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Email atau password salah.',
@@ -82,6 +87,8 @@ class AuthApiController extends Controller
             'occupation' => $payload['occupation'],
             'password' => $payload['password'],
             'role' => 'participant',
+            // Akun BARU: verifikasi email WAJIB (bukan opsional seperti akun lama).
+            'email_verification_optional' => false,
         ]);
 
         try {
@@ -90,11 +97,20 @@ class AuthApiController extends Controller
             // Keep legacy role column if Spatie role is unavailable in this environment.
         }
 
+        // Kirim OTP verifikasi. Dibungkus try/catch supaya kegagalan kirim email
+        // (mis. SMTP belum siap) TIDAK menggagalkan registrasi — user bisa minta
+        // kirim ulang dari layar OTP.
+        try {
+            $this->otp->send($user->email, EmailOtp::PURPOSE_EMAIL_VERIFICATION, $user->name);
+        } catch (\Throwable $e) {
+            Log::warning('Gagal mengirim OTP verifikasi saat registrasi: '.$e->getMessage());
+        }
+
         $token = $this->issueToken($user);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Registrasi berhasil.',
+            'message' => 'Registrasi berhasil. Silakan verifikasi email kamu.',
             'data' => $this->presentMobileUser($user, $token),
         ], 201);
     }
@@ -103,7 +119,7 @@ class AuthApiController extends Controller
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unauthenticated.',
