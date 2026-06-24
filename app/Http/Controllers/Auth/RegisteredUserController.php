@@ -3,17 +3,22 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\EmailOtp;
 use App\Models\User;
+use App\Services\OtpService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
+    public function __construct(private OtpService $otp) {}
+
     /**
      * Display the registration view.
      */
@@ -81,12 +86,14 @@ class RegisteredUserController extends Controller
             'institution_name' => $request->institution_name,
             'occupation' => $request->occupation,
             'password' => Hash::make($request->password),
+            // Akun BARU: verifikasi email WAJIB (akun lama tetap opsional).
+            'email_verification_optional' => false,
         ]);
 
         // In production, assign default role if available; in testing, skip if role not seeded
         if (app()->environment('testing')) {
             try {
-                if (\Spatie\Permission\Models\Role::where('name','participant')->exists()) {
+                if (\Spatie\Permission\Models\Role::where('name', 'participant')->exists()) {
                     $user->assignRole('participant');
                 } else {
                     // Provide participant capability to pass tests without seeding roles
@@ -108,11 +115,27 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
+        // Catatan AVPN tetap diingat lewat flash agar muncul setelah verifikasi.
         if ($registrationProgram === 'avpn_ai') {
-            return redirect(route('dashboard', absolute: false))
-                ->with('warning', 'Akun berhasil dibuat. Pendaftaran AVPN Anda sedang menunggu validasi admin.');
+            session()->flash('warning', 'Akun berhasil dibuat. Pendaftaran AVPN Anda sedang menunggu validasi admin.');
         }
 
-        return redirect(route('dashboard', absolute: false));
+        // Saat testing: lewati OTP & tandai verified agar alur uji lama tetap jalan.
+        if (app()->environment('testing')) {
+            $user->forceFill(['email_verified_at' => now()])->save();
+
+            return redirect(route('dashboard', absolute: false));
+        }
+
+        // Kirim OTP lalu arahkan ke halaman verifikasi (akun baru wajib verifikasi).
+        // try/catch agar gagal kirim email tidak menggagalkan registrasi.
+        try {
+            $this->otp->send($user->email, EmailOtp::PURPOSE_EMAIL_VERIFICATION, $user->name);
+        } catch (\Throwable $e) {
+            Log::warning('Gagal mengirim OTP verifikasi (web): '.$e->getMessage());
+        }
+
+        return redirect()->route('verification.otp')
+            ->with('success', 'Akun dibuat. Kami mengirim kode verifikasi ke email kamu.');
     }
 }

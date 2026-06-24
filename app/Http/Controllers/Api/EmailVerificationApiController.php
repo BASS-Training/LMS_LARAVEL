@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\EmailOtp;
 use App\Services\OtpService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Verifikasi email berbasis OTP (mobile). Semua endpoint butuh login
@@ -32,7 +33,16 @@ class EmailVerificationApiController extends Controller
             ]);
         }
 
-        $wait = $this->otp->send($user->email, EmailOtp::PURPOSE_EMAIL_VERIFICATION, $user->name);
+        try {
+            $wait = $this->otp->send($user->email, EmailOtp::PURPOSE_EMAIL_VERIFICATION, $user->name);
+        } catch (\Throwable $e) {
+            Log::warning('Gagal mengirim OTP verifikasi (mobile): '.$e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal mengirim email saat ini. Coba lagi beberapa saat.',
+            ], 500);
+        }
 
         if ($wait !== null) {
             return response()->json([
