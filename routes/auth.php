@@ -11,7 +11,7 @@ use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\OtpVerificationController;
 use App\Http\Controllers\Auth\PasswordController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\PasswordResetOtpController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
@@ -27,12 +27,21 @@ Route::middleware('guest')->group(function () {
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
-    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
+    // Lupa password berbasis OTP (disamakan dengan mobile).
+    Route::get('forgot-password', [PasswordResetOtpController::class, 'request'])
         ->name('password.request');
 
-    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
+    Route::post('forgot-password', [PasswordResetOtpController::class, 'sendOtp'])
         ->name('password.email');
 
+    Route::get('reset-password-otp', [PasswordResetOtpController::class, 'showReset'])
+        ->name('password.otp');
+
+    Route::post('reset-password-otp', [PasswordResetOtpController::class, 'reset'])
+        ->middleware('throttle:10,1')
+        ->name('password.otp.update');
+
+    // Jalur link bawaan lama (dibiarkan ada agar tidak merusak referensi; tidak dipakai).
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
         ->name('password.reset');
 
