@@ -14,6 +14,8 @@ class EmailOtp extends Model
 
     public const PURPOSE_PASSWORD_RESET = 'password_reset';
 
+    public const PURPOSE_EMAIL_CHANGE = 'email_change';
+
     public const MAX_ATTEMPTS = 5;
 
     protected $fillable = [

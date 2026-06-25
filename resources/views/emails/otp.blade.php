@@ -1,9 +1,13 @@
 @php
     $isReset = $purpose === 'password_reset';
-    $title = $isReset ? 'Reset Password' : 'Verifikasi Email';
+    $isChange = $purpose === 'email_change';
+    $title = $isReset ? 'Reset Password' : ($isChange ? 'Ubah Email' : 'Verifikasi Email');
     $intro = $isReset
         ? 'Kami menerima permintaan untuk mereset password akun BASS Academy kamu. Gunakan kode di bawah ini untuk melanjutkan.'
-        : 'Terima kasih sudah bergabung di BASS Academy. Masukkan kode di bawah ini di aplikasi untuk memverifikasi email kamu.';
+        : ($isChange
+            ? 'Kami menerima permintaan untuk mengganti email akun BASS Academy kamu ke alamat ini. Masukkan kode di bawah ini untuk mengonfirmasi bahwa email ini benar milikmu.'
+            : 'Terima kasih sudah bergabung di BASS Academy. Masukkan kode di bawah ini di aplikasi untuk memverifikasi email kamu.');
+    $ignoreLabel = $isReset ? 'reset password' : ($isChange ? 'penggantian email' : 'verifikasi');
 @endphp
 <!DOCTYPE html>
 <html lang="id">
@@ -46,7 +50,7 @@
                                 Kode ini berlaku selama <strong>{{ $expiresMinutes }} menit</strong>. Jangan bagikan kode ini kepada siapa pun.
                             </p>
                             <p style="margin:12px 0 0 0; font-size:13px; line-height:1.6; color:#6b7280;">
-                                Jika kamu tidak meminta {{ $isReset ? 'reset password' : 'verifikasi' }} ini, abaikan saja email ini.
+                                Jika kamu tidak meminta {{ $ignoreLabel }} ini, abaikan saja email ini.
                             </p>
                         </td>
                     </tr>

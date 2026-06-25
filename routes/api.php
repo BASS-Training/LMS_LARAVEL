@@ -35,6 +35,11 @@ Route::middleware('mobile.api.user')->group(function () {
     Route::post('/mobile/auth/email/send-otp', [EmailVerificationApiController::class, 'sendOtp']);
     Route::post('/mobile/auth/email/verify-otp', [EmailVerificationApiController::class, 'verifyOtp']);
 
+    // Ubah email (pola verifikasi-dulu): OTP dikirim ke email BARU, email akun
+    // baru berubah setelah OTP-nya benar — aman dari lockout akibat salah ketik.
+    Route::post('/mobile/auth/email/change/send-otp', [EmailVerificationApiController::class, 'sendChangeEmailOtp']);
+    Route::post('/mobile/auth/email/change', [EmailVerificationApiController::class, 'changeEmail']);
+
     // Ganti password saat sudah login (butuh password lama).
     Route::post('/mobile/auth/password/change', [PasswordApiController::class, 'change']);
 

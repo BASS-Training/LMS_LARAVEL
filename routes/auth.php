@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\ChatController as ApiChatController;
 use App\Http\Controllers\Api\MessageController as ApiMessageController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
+use App\Http\Controllers\Auth\EmailChangeController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -62,6 +63,17 @@ Route::middleware('auth')->group(function () {
     Route::post('verify-otp/resend', [OtpVerificationController::class, 'resend'])
         ->middleware('throttle:6,1')
         ->name('verification.otp.resend');
+
+    // Ubah email berbasis OTP (pola verifikasi-dulu): OTP ke email BARU,
+    // email akun baru berubah setelah OTP-nya benar — aman dari lockout.
+    Route::post('email/change/send-otp', [EmailChangeController::class, 'sendOtp'])
+        ->middleware('throttle:6,1')
+        ->name('email.change.send');
+    Route::get('email/change/verify', [EmailChangeController::class, 'showVerify'])
+        ->name('email.change.otp');
+    Route::post('email/change', [EmailChangeController::class, 'update'])
+        ->middleware('throttle:10,1')
+        ->name('email.change.update');
 
     Route::get('verify-email', EmailVerificationPromptController::class)
         ->name('verification.notice');

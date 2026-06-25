@@ -22,9 +22,11 @@ class OtpMail extends Mailable
 
     public function build(): self
     {
-        $subject = $this->purpose === 'password_reset'
-            ? 'Kode Reset Password - BASS Academy'
-            : 'Kode Verifikasi Email - BASS Academy';
+        $subject = match ($this->purpose) {
+            'password_reset' => 'Kode Reset Password - BASS Academy',
+            'email_change' => 'Kode Ubah Email - BASS Academy',
+            default => 'Kode Verifikasi Email - BASS Academy',
+        };
 
         return $this->subject($subject)
             ->view('emails.otp', [

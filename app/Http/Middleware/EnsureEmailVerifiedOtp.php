@@ -25,6 +25,12 @@ class EnsureEmailVerifiedOtp
         'verification.otp',
         'verification.otp.verify',
         'verification.otp.resend',
+        // Ubah email juga jalan keluar yang sah dari status "wajib verifikasi":
+        // user yang salah ketik email saat daftar bisa pindah ke email valid
+        // (yang sekaligus terverifikasi) tanpa terkunci di halaman OTP.
+        'email.change.send',
+        'email.change.otp',
+        'email.change.update',
         'logout',
         // Sisakan jalur bawaan Laravel agar tetap berfungsi bila dipakai.
         'verification.notice',
