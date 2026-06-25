@@ -43,11 +43,19 @@
             </button>
         </form>
 
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900">
-                {{ __('Keluar') }}
-            </button>
-        </form>
+        @if ($mustVerify)
+            {{-- Akun baru wajib verifikasi: tidak ada halaman sebelumnya, jadi keluar = logout. --}}
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900">
+                    {{ __('Keluar') }}
+                </button>
+            </form>
+        @else
+            {{-- Verifikasi sukarela dari Profil: cukup kembali, jangan logout. --}}
+            <a href="{{ route('profile.edit') }}" class="underline text-sm text-gray-600 hover:text-gray-900">
+                {{ __('Kembali ke Profil') }}
+            </a>
+        @endif
     </div>
 </x-guest-layout>

@@ -29,7 +29,12 @@ class OtpVerificationController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return view('auth.verify-otp', ['email' => $user->email]);
+        // mustVerify=true -> akun baru yang dipaksa (tombol keluar = logout).
+        // false -> akun lama yang verifikasi sukarela dari Profil (cukup kembali).
+        return view('auth.verify-otp', [
+            'email' => $user->email,
+            'mustVerify' => $user->mustVerifyEmail(),
+        ]);
     }
 
     /**
