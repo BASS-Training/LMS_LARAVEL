@@ -6,6 +6,7 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\CourseClassController;
+use App\Http\Controllers\EnrollmentCodeController;
 use App\Http\Controllers\TokenEnrollmentController;
 use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\ContentController;
@@ -160,6 +161,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/courses/{course}/token/generate', [CourseController::class, 'generateToken'])->name('courses.token.generate')->middleware('permission:manage course tokens');
     Route::post('/courses/{course}/token/regenerate', [CourseController::class, 'regenerateToken'])->name('courses.token.regenerate')->middleware('permission:manage course tokens');
     Route::post('/courses/{course}/token/toggle', [CourseController::class, 'toggleToken'])->name('courses.token.toggle')->middleware('permission:manage course tokens');
+
+    // Enrollment Codes (kode pribadi sekali-pakai) — sistem baru
+    Route::get('/courses/{course}/enrollment-codes', [EnrollmentCodeController::class, 'index'])->name('courses.enrollment-codes')->middleware('permission:manage course tokens');
+    Route::post('/courses/{course}/enrollment-codes', [EnrollmentCodeController::class, 'store'])->name('courses.enrollment-codes.store')->middleware('permission:manage course tokens');
+    Route::post('/courses/{course}/enrollment-codes/{code}/revoke', [EnrollmentCodeController::class, 'revoke'])->name('courses.enrollment-codes.revoke')->middleware('permission:manage course tokens');
+    Route::delete('/courses/{course}/enrollment-codes/{code}', [EnrollmentCodeController::class, 'destroy'])->name('courses.enrollment-codes.destroy')->middleware('permission:manage course tokens');
 
     Route::get('/courses/{course}/progress', [CourseController::class, 'showProgress'])->name('courses.progress');
     Route::get('/courses/{course}/progress/pdf', [CourseController::class, 'downloadProgressPdf'])->name('courses.progress.pdf');

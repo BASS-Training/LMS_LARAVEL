@@ -3,18 +3,16 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Models\Feedback;
-use App\Models\CourseClass;
+use App\Notifications\CustomResetPasswordNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use App\Notifications\CustomResetPasswordNotification;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, HasRoles, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -60,11 +58,44 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'email_verification_optional' => 'boolean',
             'avpn_google_form_submitted_at' => 'datetime',
             'avpn_verified_at' => 'datetime',
             'password' => 'hashed',
             'date_of_birth' => 'date',
         ];
+    }
+
+    /**
+     * =================================================================
+     * VERIFIKASI EMAIL (soft enforcement) — satu sumber kebenaran.
+     * =================================================================
+     * Aturan: akun lama (`email_verification_optional = true`) tidak pernah
+     * dipaksa; akun baru (false) wajib verifikasi sebelum memakai aplikasi.
+     * Login TIDAK PERNAH diblokir di sini — gating dilakukan di lapisan
+     * fitur/registrasi, bukan saat autentikasi.
+     */
+    public function isEmailVerified(): bool
+    {
+        return ! is_null($this->email_verified_at);
+    }
+
+    /**
+     * TRUE hanya untuk akun BARU yang belum verifikasi (verifikasi wajib).
+     * Dipakai untuk mengarahkan ke layar OTP setelah daftar/login.
+     */
+    public function mustVerifyEmail(): bool
+    {
+        return is_null($this->email_verified_at) && ! $this->email_verification_optional;
+    }
+
+    /**
+     * TRUE untuk akun mana pun yang belum verifikasi (lama maupun baru).
+     * Dipakai untuk menampilkan "nudge"/saran verifikasi di Profil — tidak memaksa.
+     */
+    public function shouldNudgeEmailVerification(): bool
+    {
+        return is_null($this->email_verified_at);
     }
 
     /**
@@ -152,6 +183,7 @@ class User extends Authenticatable
     {
         $instructorClasses = $this->instructorClasses()->get();
         $participantClasses = $this->participantClasses()->get();
+
         return $instructorClasses->merge($participantClasses)->unique('id');
     }
 
@@ -232,7 +264,7 @@ class User extends Authenticatable
                             ->first();
 
                         if ($latestAttempt) {
-                            if (!$quiz->relationLoaded('questions')) {
+                            if (! $quiz->relationLoaded('questions')) {
                                 $quiz->load('questions');
                             }
 
@@ -370,8 +402,6 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
-
-
     /**
      * Check if user is enrolled in a specific course
      */
@@ -403,10 +433,18 @@ class User extends Authenticatable
     {
         $roles = $this->getRoleNames();
 
-        if ($roles->contains('super-admin')) return 'Super Admin';
-        if ($roles->contains('event-organizer')) return 'Event Organizer';
-        if ($roles->contains('instructor')) return 'Instruktur';
-        if ($roles->contains('participant')) return 'Peserta';
+        if ($roles->contains('super-admin')) {
+            return 'Super Admin';
+        }
+        if ($roles->contains('event-organizer')) {
+            return 'Event Organizer';
+        }
+        if ($roles->contains('instructor')) {
+            return 'Instruktur';
+        }
+        if ($roles->contains('participant')) {
+            return 'Peserta';
+        }
 
         return 'Pengguna';
     }
@@ -426,6 +464,7 @@ class User extends Authenticatable
         if ($this->can('view progress reports') || $this->can('view certificate management')) {
             return $this->eventOrganizedCourses();
         }
+
         return Course::whereRaw('1 = 0');
     }
 
@@ -448,7 +487,6 @@ class User extends Authenticatable
         return Announcement::unreadForUser($this)->count();
     }
 
-
     /**
      * Mark announcement sebagai read
      */
@@ -467,7 +505,6 @@ class User extends Authenticatable
             ->exists();
     }
 
-
     // 🚨 BARU: Helper method untuk mendapatkan recent announcement reads
     public function getRecentAnnouncementReadsAttribute()
     {
@@ -477,7 +514,6 @@ class User extends Authenticatable
             ->take(5)
             ->get();
     }
-
 
     /**
      * Scope for filtering users by role
@@ -524,7 +560,7 @@ class User extends Authenticatable
      */
     public function getFullDisplayNameAttribute(): string
     {
-        return $this->name . ' (' . $this->primary_role . ')';
+        return $this->name.' ('.$this->primary_role.')';
     }
 
     /**
@@ -545,7 +581,7 @@ class User extends Authenticatable
                 ->where('content_id', $content->id)
                 ->first();
 
-            if (!$attendance) {
+            if (! $attendance) {
                 return false; // No attendance record = not completed
             }
 
@@ -555,7 +591,7 @@ class User extends Authenticatable
             }
 
             // Must be marked as present or excused
-            if (!in_array($attendance->status, ['present', 'excused'])) {
+            if (! in_array($attendance->status, ['present', 'excused'])) {
                 return false; // Absent or late = not completed
             }
 
@@ -572,7 +608,7 @@ class User extends Authenticatable
                 ->where('content_id', $content->id)
                 ->first();
 
-            if (!$submission) {
+            if (! $submission) {
                 return false;
             }
 
@@ -621,7 +657,6 @@ class User extends Authenticatable
             'course_updates' => true,
         ];
     }
-
 
     // Add these relationships to your existing User model
     // ========================================
@@ -684,7 +719,7 @@ class User extends Authenticatable
         // If course period is specified, check course-specific permissions
         if ($coursePeriodId) {
             $coursePeriod = \App\Models\CourseClass::find($coursePeriodId);
-            if (!$coursePeriod) {
+            if (! $coursePeriod) {
                 return false;
             }
 
@@ -698,9 +733,9 @@ class User extends Authenticatable
         // For general chat, allow if users share any course OR one is high-level role
         // Check if they share any course
         $sharedCourses = $this->getSharedCoursePeriods($targetUser);
+
         return $sharedCourses->isNotEmpty();
     }
-
 
     /**
      * Get common active course periods with another user
@@ -795,9 +830,6 @@ class User extends Authenticatable
 
     /**
      * Menghitung progres kursus untuk pengguna ini secara akurat.
-     *
-     * @param Course $course
-     * @return float
      */
     public function courseProgress(Course $course): float
     {
@@ -828,7 +860,7 @@ class User extends Authenticatable
             if ($item->type == 'essay') {
                 $submission = $this->essaySubmissions()->where('content_id', $item->id)->first();
 
-                if (!$submission) {
+                if (! $submission) {
                     return false; // Belum submit
                 }
 
@@ -839,16 +871,17 @@ class User extends Authenticatable
                     if ($submission->answers()->count() === 0) {
                         return false;
                     }
+
                     continue;
                 }
 
                 // FITUR BARU: Jika essay tidak perlu review (latihan mandiri), langsung lanjut
-                if (!($item->requires_review ?? true)) {
+                if (! ($item->requires_review ?? true)) {
                     continue; // Skip validasi grading untuk latihan mandiri
                 }
 
                 // New system - check berdasarkan grading mode dan scoring
-                if (!$item->scoring_enabled) {
+                if (! $item->scoring_enabled) {
                     // Tanpa scoring - cek feedback
                     if ($item->grading_mode === 'overall') {
                         if ($submission->answers()->whereNotNull('feedback')->count() === 0) {
@@ -957,12 +990,12 @@ class User extends Authenticatable
     public function isEligibleForCertificate(Course $course): bool
     {
         // Check if course has certificate template
-        if (!$course->certificate_template_id) {
+        if (! $course->certificate_template_id) {
             return false;
         }
 
         // Check if enrolled
-        if (!$this->courses()->where('course_id', $course->id)->exists()) {
+        if (! $this->courses()->where('course_id', $course->id)->exists()) {
             return false;
         }
 
@@ -973,7 +1006,7 @@ class User extends Authenticatable
         }
 
         // Check all graded items completed
-        if (!$this->areAllGradedItemsMarked($course)) {
+        if (! $this->areAllGradedItemsMarked($course)) {
             return false;
         }
 
@@ -1011,7 +1044,7 @@ class User extends Authenticatable
                 ->where('content_id', $content->id)
                 ->first();
 
-            if (!$submission) {
+            if (! $submission) {
                 return 'not_started';
             }
 
@@ -1023,12 +1056,12 @@ class User extends Authenticatable
             }
 
             // FITUR BARU: Jika essay tidak perlu review (latihan mandiri), langsung completed
-            if (!($content->requires_review ?? true)) {
+            if (! ($content->requires_review ?? true)) {
                 return $submission->answers()->count() > 0 ? 'completed' : 'not_started';
             }
 
             // New system - check berdasarkan scoring dan grading mode
-            if (!$content->scoring_enabled) {
+            if (! $content->scoring_enabled) {
                 // Tanpa scoring
                 if ($content->grading_mode === 'overall') {
                     // Overall tanpa scoring
@@ -1122,14 +1155,14 @@ class User extends Authenticatable
      */
     public function isInCoursePeriod($coursePeriod): bool
     {
-        if (!$coursePeriod) {
+        if (! $coursePeriod) {
             return false;
         }
 
         // Convert to model if ID is passed
         if (is_numeric($coursePeriod)) {
             $coursePeriod = \App\Models\CourseClass::find($coursePeriod);
-            if (!$coursePeriod) {
+            if (! $coursePeriod) {
                 return false;
             }
         }
@@ -1151,9 +1184,9 @@ class User extends Authenticatable
 
         // Check if user is participant in this course period
         $isParticipant = $coursePeriod->participants()->where('user_id', $this->id)->exists();
+
         return $isParticipant;
     }
-
 
     /**
      * Get shared course periods with another user
@@ -1214,7 +1247,7 @@ class User extends Authenticatable
         // If specific course period is selected
         if ($coursePeriodId) {
             $coursePeriod = \App\Models\CourseClass::find($coursePeriodId);
-            if (!$coursePeriod) {
+            if (! $coursePeriod) {
                 return collect();
             }
 
@@ -1268,7 +1301,7 @@ class User extends Authenticatable
         $enrolledCourseIds = $this->courses()->pluck('course_id');
         $courseIds = $courseIds->merge($enrolledCourseIds);
 
-        // As instructor  
+        // As instructor
         $instructorCourseIds = $this->taughtCourses()->pluck('course_id');
         $courseIds = $courseIds->merge($instructorCourseIds);
 

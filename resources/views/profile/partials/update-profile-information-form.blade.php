@@ -25,7 +25,10 @@
 
         <div>
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
+            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full bg-gray-100 cursor-not-allowed text-gray-500" :value="old('email', $user->email)" readonly required autocomplete="username" />
+            <p class="mt-1 text-xs text-gray-500">
+                {{ __('Email tidak bisa diubah di sini. Gunakan kartu "Ubah Email" di atas agar email baru dikonfirmasi lebih dulu (aman dari salah ketik).') }}
+            </p>
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
 
             @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())

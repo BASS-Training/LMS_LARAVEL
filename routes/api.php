@@ -1,29 +1,47 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AgendaApiController;
 use App\Http\Controllers\Api\AuthApiController;
-use App\Http\Controllers\Api\EnrollmentApiController;
+use App\Http\Controllers\Api\CaseStudyApiController;
 use App\Http\Controllers\Api\CourseApiController;
 use App\Http\Controllers\Api\CourseResultsApiController;
-use App\Http\Controllers\Api\EssayApiController;
-use App\Http\Controllers\Api\CaseStudyApiController;
-use App\Http\Controllers\Api\FeedbackApiController;
-use App\Http\Controllers\Api\LessonProgressApiController;
-use App\Http\Controllers\Api\QuizApiController;
-use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\DiscussionApiController;
+use App\Http\Controllers\Api\DocumentController;
+use App\Http\Controllers\Api\EmailVerificationApiController;
+use App\Http\Controllers\Api\EnrollmentApiController;
+use App\Http\Controllers\Api\EssayApiController;
+use App\Http\Controllers\Api\FeedbackApiController;
 use App\Http\Controllers\Api\InstructorApiController;
+use App\Http\Controllers\Api\LessonProgressApiController;
 use App\Http\Controllers\Api\NotificationApiController;
-use App\Http\Controllers\Api\AgendaApiController;
+use App\Http\Controllers\Api\PasswordApiController;
 use App\Http\Controllers\Api\ProfileApiController;
+use App\Http\Controllers\Api\QuizApiController;
+use Illuminate\Support\Facades\Route;
 
 Route::post('/mobile/auth/login', [AuthApiController::class, 'login']);
 Route::post('/mobile/auth/register', [AuthApiController::class, 'register']);
 
+// Lupa password (publik, tanpa login): kirim OTP lalu reset.
+Route::post('/mobile/auth/password/send-otp', [PasswordApiController::class, 'sendOtp']);
+Route::post('/mobile/auth/password/reset', [PasswordApiController::class, 'reset']);
+
 Route::middleware('mobile.api.user')->group(function () {
     Route::get('/mobile/auth/me', [AuthApiController::class, 'me']);
     Route::post('/mobile/auth/logout', [AuthApiController::class, 'logout']);
+
+    // Verifikasi email (OTP). Tidak memblokir login; dipakai akun baru (wajib)
+    // maupun akun lama (opsional, lewat nudge di Profil).
+    Route::post('/mobile/auth/email/send-otp', [EmailVerificationApiController::class, 'sendOtp']);
+    Route::post('/mobile/auth/email/verify-otp', [EmailVerificationApiController::class, 'verifyOtp']);
+
+    // Ubah email (pola verifikasi-dulu): OTP dikirim ke email BARU, email akun
+    // baru berubah setelah OTP-nya benar — aman dari lockout akibat salah ketik.
+    Route::post('/mobile/auth/email/change/send-otp', [EmailVerificationApiController::class, 'sendChangeEmailOtp']);
+    Route::post('/mobile/auth/email/change', [EmailVerificationApiController::class, 'changeEmail']);
+
+    // Ganti password saat sudah login (butuh password lama).
+    Route::post('/mobile/auth/password/change', [PasswordApiController::class, 'change']);
 
     // Update profil (data dasar + foto). POST karena multipart upload file.
     Route::post('/mobile/profile', [ProfileApiController::class, 'update']);

@@ -1,17 +1,20 @@
 <?php
+
 // routes/auth.php - hanya untuk authentication dan API murni
 
+use App\Http\Controllers\Api\ChatController as ApiChatController;
+use App\Http\Controllers\Api\MessageController as ApiMessageController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
+use App\Http\Controllers\Auth\EmailChangeController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\OtpVerificationController;
 use App\Http\Controllers\Auth\PasswordController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\PasswordResetOtpController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\Api\ChatController as ApiChatController;
-use App\Http\Controllers\Api\MessageController as ApiMessageController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -25,12 +28,21 @@ Route::middleware('guest')->group(function () {
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
-    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
+    // Lupa password berbasis OTP (disamakan dengan mobile).
+    Route::get('forgot-password', [PasswordResetOtpController::class, 'request'])
         ->name('password.request');
 
-    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
+    Route::post('forgot-password', [PasswordResetOtpController::class, 'sendOtp'])
         ->name('password.email');
 
+    Route::get('reset-password-otp', [PasswordResetOtpController::class, 'showReset'])
+        ->name('password.otp');
+
+    Route::post('reset-password-otp', [PasswordResetOtpController::class, 'reset'])
+        ->middleware('throttle:10,1')
+        ->name('password.otp.update');
+
+    // Jalur link bawaan lama (dibiarkan ada agar tidak merusak referensi; tidak dipakai).
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
         ->name('password.reset');
 
@@ -39,6 +51,30 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    // Verifikasi email berbasis OTP (dipakai aplikasi ini; menggantikan
+    // alur link bawaan di bawah, yang dibiarkan agar tidak merusak apa pun).
+    Route::get('verify-otp', [OtpVerificationController::class, 'show'])
+        ->name('verification.otp');
+    Route::post('verify-otp/start', [OtpVerificationController::class, 'start'])
+        ->middleware('throttle:6,1')
+        ->name('verification.otp.start');
+    Route::post('verify-otp', [OtpVerificationController::class, 'verify'])
+        ->name('verification.otp.verify');
+    Route::post('verify-otp/resend', [OtpVerificationController::class, 'resend'])
+        ->middleware('throttle:6,1')
+        ->name('verification.otp.resend');
+
+    // Ubah email berbasis OTP (pola verifikasi-dulu): OTP ke email BARU,
+    // email akun baru berubah setelah OTP-nya benar — aman dari lockout.
+    Route::post('email/change/send-otp', [EmailChangeController::class, 'sendOtp'])
+        ->middleware('throttle:6,1')
+        ->name('email.change.send');
+    Route::get('email/change/verify', [EmailChangeController::class, 'showVerify'])
+        ->name('email.change.otp');
+    Route::post('email/change', [EmailChangeController::class, 'update'])
+        ->middleware('throttle:10,1')
+        ->name('email.change.update');
+
     Route::get('verify-email', EmailVerificationPromptController::class)
         ->name('verification.notice');
 
