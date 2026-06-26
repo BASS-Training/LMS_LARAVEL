@@ -996,6 +996,9 @@
 
                                     <form id="unenroll-form" method="POST" action="{{ route('courses.unenroll_mass', $course) }}" onsubmit="return confirm('Anda yakin ingin mencabut akses peserta terpilih?');">
                                         @csrf @method('DELETE')
+                                        <template x-for="userId in selectedUnenrollUsers" :key="`unenroll-${userId}`">
+                                            <input type="hidden" name="user_ids[]" :value="userId">
+                                        </template>
 
                                         <!-- Search Input -->
                                         <div class="mb-4">
@@ -1017,7 +1020,7 @@
 
                                             <template x-for="participant in enrolledParticipantsData" :key="participant.id">
                                                 <div class="flex items-center p-3 bg-white rounded-xl border border-orange-200 hover:bg-orange-50 transition-colors">
-                                                    <input type="checkbox" name="user_ids[]" :value="participant.id" x-model="selectedUnenrollUsers" class="mr-3 rounded border-orange-300 text-orange-600 focus:ring-orange-500">
+                                                    <input type="checkbox" :value="participant.id" x-model="selectedUnenrollUsers" class="mr-3 rounded border-orange-300 text-orange-600 focus:ring-orange-500">
                                                     <div class="flex items-center space-x-3">
                                                         <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center">
                                                             <span class="text-white text-sm font-semibold" x-text="participant.name.charAt(0).toUpperCase()"></span>
@@ -1072,6 +1075,9 @@
 
                                 <form id="enroll-form" method="POST" action="{{ route('courses.enroll', $course) }}">
                                     @csrf
+                                    <template x-for="userId in selectedEnrollUsers" :key="`enroll-${userId}`">
+                                        <input type="hidden" name="user_ids[]" :value="userId">
+                                    </template>
 
                                     <!-- Search Input -->
                                     <div class="mb-4">
@@ -1093,7 +1099,7 @@
 
                                         <template x-for="user in unEnrolledParticipantsData" :key="user.id">
                                             <div class="flex items-center p-3 bg-white rounded-xl border border-emerald-200 hover:bg-emerald-50 transition-colors">
-                                                <input type="checkbox" name="user_ids[]" :value="user.id" x-model="selectedEnrollUsers" class="mr-3 rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500">
+                                                <input type="checkbox" :value="user.id" x-model="selectedEnrollUsers" class="mr-3 rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500">
                                                 <div class="flex items-center space-x-3">
                                                     <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center">
                                                         <span class="text-white text-sm font-semibold" x-text="user.name.charAt(0).toUpperCase()"></span>
