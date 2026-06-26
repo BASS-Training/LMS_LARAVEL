@@ -164,11 +164,13 @@ class CourseController extends Controller
     {
         $this->authorize('view', $course);
         $user = Auth::user();
+        $canManageCourse = $user->can('update', $course);
+        $userListLimit = 100;
 
         // [LOGIKA BARU] Jika pengguna adalah peserta, coba arahkan langsung ke materi pertama.
         if ($user && $user->can('attempt quizzes')) {
             // Pastikan peserta terdaftar di kursus ini untuk bisa langsung masuk
-            if ($course->enrolledUsers->contains($user)) {
+            if ($course->enrolledUsers()->where('user_id', $user->id)->exists()) {
                 // Urutkan lesson berdasarkan 'order' jika ada, jika tidak pakai 'id'
                 $firstLesson = $course->lessons()->orderBy('order', 'asc')->orderBy('id', 'asc')->first();
 
@@ -186,7 +188,16 @@ class CourseController extends Controller
 
         // Jika bukan peserta, atau jika tidak ada content, atau jika tidak terdaftar,
         // tampilkan halaman detail seperti biasa.
-        $course->load('lessons.contents', 'instructors', 'enrolledUsers');
+        $course->load('lessons.contents', 'instructors');
+
+        if ($canManageCourse) {
+            $course->load([
+                'eventOrganizers',
+            ]);
+        } else {
+            $course->setRelation('eventOrganizers', collect());
+        }
+        $course->setRelation('enrolledUsers', collect());
 
         // Filter periods for instructors - only show periods they are assigned to
         if ($user->isInstructorFor($course) && !$user->can('manage all courses') && !$user->isEventOrganizerFor($course)) {
@@ -197,29 +208,35 @@ class CourseController extends Controller
             $course->load('periods');
         }
 
-        $availableInstructors = User::permission('manage own courses')
-            ->whereNotIn('id', $course->instructors->pluck('id'))
-            ->orderBy('name')
-            ->get();
+        $availableInstructors = collect();
+        $unEnrolledParticipants = collect();
+        $availableOrganizers = collect();
+        $exportHistories = collect();
 
-        $unEnrolledParticipants = User::permission('attempt quizzes')
-            ->whereDoesntHave('courses', function ($query) use ($course) {
-                $query->where('course_id', $course->id);
-            })
-            ->orderBy('name')
-            ->get();
+        if ($canManageCourse) {
+            $availableInstructors = User::permission('manage own courses')
+                ->select('id', 'name', 'email')
+                ->whereNotIn('id', $course->instructors->pluck('id'))
+                ->orderBy('name')
+                ->limit($userListLimit)
+                ->get();
 
-        $availableOrganizers = User::permission('view progress reports')
-            ->whereNotIn('id', $course->eventOrganizers->pluck('id'))
-            ->orderBy('name')
-            ->get();
+            $availableOrganizers = User::permission('view progress reports')
+                ->select('id', 'name', 'email')
+                ->whereNotIn('id', $course->eventOrganizers->pluck('id'))
+                ->orderBy('name')
+                ->limit($userListLimit)
+                ->get();
+        }
 
-        $exportHistories = ExportHistory::where('course_id', $course->id)
-            ->where('user_id', $user->id)
-            ->with('courseClass')
-            ->latest()
-            ->limit(10)
-            ->get();
+        if ($user->can('viewProgress', $course)) {
+            $exportHistories = ExportHistory::where('course_id', $course->id)
+                ->where('user_id', $user->id)
+                ->with('courseClass')
+                ->latest()
+                ->limit(10)
+                ->get();
+        }
 
         return view('courses.show', compact('course', 'availableInstructors', 'availableOrganizers', 'unEnrolledParticipants', 'exportHistories'));
     }
@@ -413,6 +430,56 @@ class CourseController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Peserta berhasil didaftarkan.');
+    }
+
+    public function searchParticipants(Request $request, Course $course)
+    {
+        $this->authorize('update', $course);
+
+        $validated = $request->validate([
+            'type' => ['required', Rule::in(['enrolled', 'available'])],
+            'q' => ['nullable', 'string', 'max:100'],
+            'page' => ['nullable', 'integer', 'min:1'],
+            'per_page' => ['nullable', 'integer', 'min:10', 'max:50'],
+        ]);
+
+        $search = trim($validated['q'] ?? '');
+        $perPage = (int) ($validated['per_page'] ?? 25);
+
+        if ($validated['type'] === 'enrolled') {
+            $query = $course->enrolledUsers()
+                ->select('users.id', 'users.name', 'users.email');
+        } else {
+            $query = User::permission('attempt quizzes')
+                ->select('id', 'name', 'email')
+                ->whereDoesntHave('courses', function ($query) use ($course) {
+                    $query->where('course_id', $course->id);
+                });
+        }
+
+        if ($search !== '') {
+            $query->where(function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%');
+            });
+        }
+
+        $participants = $query
+            ->orderBy('name')
+            ->paginate($perPage)
+            ->withQueryString();
+
+        return response()->json([
+            'data' => $participants->items(),
+            'meta' => [
+                'current_page' => $participants->currentPage(),
+                'from' => $participants->firstItem(),
+                'last_page' => $participants->lastPage(),
+                'per_page' => $participants->perPage(),
+                'to' => $participants->lastItem(),
+                'total' => $participants->total(),
+            ],
+        ]);
     }
 
     /**
