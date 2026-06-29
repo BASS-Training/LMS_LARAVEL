@@ -153,6 +153,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('permission:view courses|manage all courses');
     Route::post('/courses/{course}/enroll', [CourseController::class, 'enrollParticipant'])->name('courses.enroll')->middleware('permission:add class participants');
     Route::delete('/courses/{course}/unenroll-mass', [CourseController::class, 'unenrollParticipants'])->name('courses.unenroll_mass')->middleware('permission:remove class participants');
+    Route::get('/courses/{course}/participants/search', [CourseController::class, 'searchParticipants'])->name('courses.participants.search');
     Route::post('/courses/{course}/add-instructor', [CourseController::class, 'addInstructor'])->name('courses.addInstructor')->middleware('permission:assign instructors');
     Route::delete('/courses/{course}/remove-instructor', [CourseController::class, 'removeInstructor'])->name('courses.removeInstructor')->middleware('permission:assign instructors');
 

@@ -37,11 +37,11 @@ class CoursePolicy
             return true;
         }
 
-        if ($user->can('manage own courses') && $course->instructors->contains($user)) {
+        if ($user->can('manage own courses') && $course->instructors()->whereKey($user->id)->exists()) {
             return true;
         }
 
-        if ($course->status === 'published' && $course->enrolledUsers->contains($user)) {
+        if ($course->status === 'published' && $course->enrolledUsers()->whereKey($user->id)->exists()) {
             return true;
         }
 
@@ -57,7 +57,7 @@ class CoursePolicy
      */
     public function viewProgress(User $user, Course $course): bool
     {
-        return $course->instructors->contains($user) || $user->can('view progress reports');
+        return $course->instructors()->whereKey($user->id)->exists() || $user->can('view progress reports');
     }
 
     /**
@@ -91,6 +91,18 @@ class CoursePolicy
     }
 
     /**
+     * Menentukan siapa yang boleh mengelola peserta kursus.
+     */
+    public function manageParticipants(User $user, Course $course): bool
+    {
+        if (! $course->instructors()->whereKey($user->id)->exists()) {
+            return false;
+        }
+
+        return $user->can('add class participants') || $user->can('remove class participants');
+    }
+
+    /**
      * Menentukan siapa yang boleh MENGHAPUS kursus.
      */
     public function delete(User $user, Course $course): bool
@@ -103,7 +115,7 @@ class CoursePolicy
      */
     public function viewGradebook(User $user, Course $course): bool
     {
-        return $user->can('grade quizzes') && $course->instructors->contains($user);
+        return $user->can('grade quizzes') && $course->instructors()->whereKey($user->id)->exists();
     }
 
     /**
@@ -111,6 +123,6 @@ class CoursePolicy
      */
     public function grade(User $user, Course $course): bool
     {
-        return $course->instructors->contains($user);
+        return $course->instructors()->whereKey($user->id)->exists();
     }
 }

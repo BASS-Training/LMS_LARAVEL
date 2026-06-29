@@ -144,6 +144,8 @@
                                     <span>Event Organizer</span>
                                 </div>
                             </button>
+                        @endcan
+                        @can('manageParticipants', $course)
                             <button @click="currentTab = 'participants'"
                                     :class="{'border-indigo-500 text-indigo-600 bg-indigo-50': currentTab === 'participants', 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50': currentTab !== 'participants'}"
                                     class="whitespace-nowrap py-4 px-4 border-b-2 font-semibold text-sm rounded-t-lg transition-all duration-200">
@@ -907,6 +909,9 @@
                         </div>
                     </div>
 
+                @endcan
+
+                @can('manageParticipants', $course)
                     <!-- Participants Tab -->
                     <div x-show="currentTab === 'participants'" x-cloak class="p-8"
                          x-data="{
@@ -914,23 +919,66 @@
                             selectedUnenrollUsers: [],
                             searchTermEnroll: '',
                             searchTermUnenroll: '',
-                            unEnrolledParticipantsData: {{ Js::from($unEnrolledParticipants) }},
-                            enrolledParticipantsData: {{ Js::from($course->enrolledUsers) }},
-                            get filteredUnEnrolledParticipants() {
-                                if (this.searchTermEnroll === '') return this.unEnrolledParticipantsData;
-                                return this.unEnrolledParticipantsData.filter(user =>
-                                    user.name.toLowerCase().includes(this.searchTermEnroll.toLowerCase()) ||
-                                    user.email.toLowerCase().includes(this.searchTermEnroll.toLowerCase())
-                                );
+                            unEnrolledParticipantsData: [],
+                            enrolledParticipantsData: [],
+                            enrolledMeta: { total: 0, current_page: 1, last_page: 1, from: null, to: null },
+                            availableMeta: { total: 0, current_page: 1, last_page: 1, from: null, to: null },
+                            enrolledLoading: false,
+                            availableLoading: false,
+                            participantsLoaded: false,
+                            searchTimers: {},
+                            searchUrl: '{{ route('courses.participants.search', $course) }}',
+                            initParticipants() {
+                                this.$watch('currentTab', value => {
+                                    if (value === 'participants' && !this.participantsLoaded) {
+                                        this.participantsLoaded = true;
+                                        this.loadParticipants('enrolled');
+                                        this.loadParticipants('available');
+                                    }
+                                });
                             },
-                            get filteredEnrolledParticipants() {
-                                if (this.searchTermUnenroll === '') return this.enrolledParticipantsData;
-                                return this.enrolledParticipantsData.filter(user =>
-                                    user.name.toLowerCase().includes(this.searchTermUnenroll.toLowerCase()) ||
-                                    user.email.toLowerCase().includes(this.searchTermUnenroll.toLowerCase())
-                                );
+                            loadParticipants(type, page = 1) {
+                                const isEnrolled = type === 'enrolled';
+                                const params = new URLSearchParams({
+                                    type,
+                                    page,
+                                    per_page: 25,
+                                    q: isEnrolled ? this.searchTermUnenroll : this.searchTermEnroll
+                                });
+
+                                if (isEnrolled) {
+                                    this.enrolledLoading = true;
+                                } else {
+                                    this.availableLoading = true;
+                                }
+
+                                fetch(`${this.searchUrl}?${params.toString()}`, {
+                                    headers: { 'Accept': 'application/json' }
+                                })
+                                    .then(response => response.json())
+                                    .then(payload => {
+                                        if (isEnrolled) {
+                                            this.enrolledParticipantsData = payload.data;
+                                            this.enrolledMeta = payload.meta;
+                                        } else {
+                                            this.unEnrolledParticipantsData = payload.data;
+                                            this.availableMeta = payload.meta;
+                                        }
+                                    })
+                                    .finally(() => {
+                                        if (isEnrolled) {
+                                            this.enrolledLoading = false;
+                                        } else {
+                                            this.availableLoading = false;
+                                        }
+                                    });
+                            },
+                            debouncedLoad(type) {
+                                clearTimeout(this.searchTimers[type]);
+                                this.searchTimers[type] = setTimeout(() => this.loadParticipants(type), 350);
                             }
-                        }">
+                        }"
+                         x-init="initParticipants()">
                         <div class="mb-8">
                             <h3 class="text-2xl font-bold text-gray-900">Manajemen Peserta Kursus</h3>
                             <p class="text-gray-600 mt-1">Kelola pendaftaran dan akses peserta kursus</p>
@@ -947,22 +995,15 @@
                                     </div>
                                     <div>
                                         <h4 class="text-lg font-bold text-orange-900">Peserta Terdaftar</h4>
-                                        <p class="text-sm text-orange-700">{{ $course->enrolledUsers->count() }} peserta aktif</p>
+                                        <p class="text-sm text-orange-700" x-text="`${enrolledMeta.total} peserta aktif`"></p>
                                     </div>
                                 </div>
 
-                                @if($course->enrolledUsers->isEmpty())
-                                    <div class="text-center py-8">
-                                        <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                            <svg class="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                                            </svg>
-                                        </div>
-                                        <p class="text-orange-600 font-medium">Belum ada peserta terdaftar</p>
-                                    </div>
-                                @else
                                     <form id="unenroll-form" method="POST" action="{{ route('courses.unenroll_mass', $course) }}" onsubmit="return confirm('Anda yakin ingin mencabut akses peserta terpilih?');">
                                         @csrf @method('DELETE')
+                                        <template x-for="userId in selectedUnenrollUsers" :key="`unenroll-${userId}`">
+                                            <input type="hidden" name="user_ids[]" :value="userId">
+                                        </template>
 
                                         <!-- Search Input -->
                                         <div class="mb-4">
@@ -972,15 +1013,19 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                                     </svg>
                                                 </div>
-                                                <input type="text" x-model="searchTermUnenroll" placeholder="Cari peserta terdaftar..." class="block w-full pl-10 pr-3 py-2 border border-orange-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-orange-500 focus:border-orange-500">
+                                                <input type="text" x-model="searchTermUnenroll" @input="debouncedLoad('enrolled')" placeholder="Cari peserta terdaftar..." class="block w-full pl-10 pr-3 py-2 border border-orange-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-orange-500 focus:border-orange-500">
                                             </div>
                                         </div>
 
                                         <!-- Participants List -->
                                         <div class="space-y-3 mb-6 max-h-80 overflow-y-auto">
-                                            <template x-for="participant in filteredEnrolledParticipants" :key="participant.id">
+                                            <div x-show="enrolledLoading" class="text-center py-8">
+                                                <p class="text-orange-600 font-medium">Memuat peserta...</p>
+                                            </div>
+
+                                            <template x-for="participant in enrolledParticipantsData" :key="participant.id">
                                                 <div class="flex items-center p-3 bg-white rounded-xl border border-orange-200 hover:bg-orange-50 transition-colors">
-                                                    <input type="checkbox" name="user_ids[]" :value="participant.id" x-model="selectedUnenrollUsers" class="mr-3 rounded border-orange-300 text-orange-600 focus:ring-orange-500">
+                                                    <input type="checkbox" :value="participant.id" x-model="selectedUnenrollUsers" class="mr-3 rounded border-orange-300 text-orange-600 focus:ring-orange-500">
                                                     <div class="flex items-center space-x-3">
                                                         <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center">
                                                             <span class="text-white text-sm font-semibold" x-text="participant.name.charAt(0).toUpperCase()"></span>
@@ -993,11 +1038,19 @@
                                                 </div>
                                             </template>
 
-                                            <template x-if="filteredEnrolledParticipants.length === 0">
+                                            <template x-if="!enrolledLoading && enrolledParticipantsData.length === 0">
                                                 <div class="text-center py-8">
-                                                    <p class="text-orange-600 font-medium">Tidak ada hasil pencarian</p>
+                                                    <p class="text-orange-600 font-medium">Belum ada peserta terdaftar atau tidak ada hasil pencarian</p>
                                                 </div>
                                             </template>
+                                        </div>
+
+                                        <div class="flex items-center justify-between gap-3 mb-6 text-sm text-orange-700">
+                                            <span x-text="enrolledMeta.total > 0 ? `Menampilkan ${enrolledMeta.from}-${enrolledMeta.to} dari ${enrolledMeta.total}` : 'Tidak ada data'"></span>
+                                            <div class="flex gap-2">
+                                                <button type="button" @click="loadParticipants('enrolled', enrolledMeta.current_page - 1)" :disabled="enrolledMeta.current_page <= 1 || enrolledLoading" class="px-3 py-1.5 bg-white border border-orange-300 rounded-lg disabled:opacity-50">Prev</button>
+                                                <button type="button" @click="loadParticipants('enrolled', enrolledMeta.current_page + 1)" :disabled="enrolledMeta.current_page >= enrolledMeta.last_page || enrolledLoading" class="px-3 py-1.5 bg-white border border-orange-300 rounded-lg disabled:opacity-50">Next</button>
+                                            </div>
                                         </div>
 
                                         <button type="submit" x-bind:disabled="selectedUnenrollUsers.length === 0"
@@ -1009,7 +1062,6 @@
                                             Cabut Akses Terpilih
                                         </button>
                                     </form>
-                                @endif
                             </div>
 
                             <!-- Available Participants -->
@@ -1022,12 +1074,15 @@
                                     </div>
                                     <div>
                                         <h4 class="text-lg font-bold text-emerald-900">Daftarkan Peserta</h4>
-                                        <p class="text-sm text-emerald-700">{{ $unEnrolledParticipants->count() }} calon peserta tersedia</p>
+                                        <p class="text-sm text-emerald-700" x-text="`${availableMeta.total} calon peserta tersedia`"></p>
                                     </div>
                                 </div>
 
                                 <form id="enroll-form" method="POST" action="{{ route('courses.enroll', $course) }}">
                                     @csrf
+                                    <template x-for="userId in selectedEnrollUsers" :key="`enroll-${userId}`">
+                                        <input type="hidden" name="user_ids[]" :value="userId">
+                                    </template>
 
                                     <!-- Search Input -->
                                     <div class="mb-4">
@@ -1037,15 +1092,19 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                                 </svg>
                                             </div>
-                                            <input type="text" x-model="searchTermEnroll" placeholder="Cari calon peserta..." class="block w-full pl-10 pr-3 py-2 border border-emerald-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500">
+                                            <input type="text" x-model="searchTermEnroll" @input="debouncedLoad('available')" placeholder="Cari calon peserta..." class="block w-full pl-10 pr-3 py-2 border border-emerald-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500">
                                         </div>
                                     </div>
 
                                     <!-- Available Users List -->
                                     <div class="space-y-3 mb-6 max-h-80 overflow-y-auto">
-                                        <template x-for="user in filteredUnEnrolledParticipants" :key="user.id">
+                                        <div x-show="availableLoading" class="text-center py-8">
+                                            <p class="text-emerald-600 font-medium">Memuat calon peserta...</p>
+                                        </div>
+
+                                        <template x-for="user in unEnrolledParticipantsData" :key="user.id">
                                             <div class="flex items-center p-3 bg-white rounded-xl border border-emerald-200 hover:bg-emerald-50 transition-colors">
-                                                <input type="checkbox" name="user_ids[]" :value="user.id" x-model="selectedEnrollUsers" class="mr-3 rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500">
+                                                <input type="checkbox" :value="user.id" x-model="selectedEnrollUsers" class="mr-3 rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500">
                                                 <div class="flex items-center space-x-3">
                                                     <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center">
                                                         <span class="text-white text-sm font-semibold" x-text="user.name.charAt(0).toUpperCase()"></span>
@@ -1058,7 +1117,7 @@
                                             </div>
                                         </template>
 
-                                        <template x-if="filteredUnEnrolledParticipants.length === 0">
+                                        <template x-if="!availableLoading && unEnrolledParticipantsData.length === 0">
                                             <div class="text-center py-8">
                                                 <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                                     <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1070,7 +1129,13 @@
                                         </template>
                                     </div>
 
-                                    {{-- REMOVED: Pagination links --}}
+                                    <div class="flex items-center justify-between gap-3 mb-6 text-sm text-emerald-700">
+                                        <span x-text="availableMeta.total > 0 ? `Menampilkan ${availableMeta.from}-${availableMeta.to} dari ${availableMeta.total}` : 'Tidak ada data'"></span>
+                                        <div class="flex gap-2">
+                                            <button type="button" @click="loadParticipants('available', availableMeta.current_page - 1)" :disabled="availableMeta.current_page <= 1 || availableLoading" class="px-3 py-1.5 bg-white border border-emerald-300 rounded-lg disabled:opacity-50">Prev</button>
+                                            <button type="button" @click="loadParticipants('available', availableMeta.current_page + 1)" :disabled="availableMeta.current_page >= availableMeta.last_page || availableLoading" class="px-3 py-1.5 bg-white border border-emerald-300 rounded-lg disabled:opacity-50">Next</button>
+                                        </div>
+                                    </div>
 
                                     <button type="submit" x-bind:disabled="selectedEnrollUsers.length === 0"
                                             :class="selectedEnrollUsers.length === 0 ? 'opacity-50 cursor-not-allowed' : ''"
