@@ -379,6 +379,30 @@ class User extends Authenticatable
     }
 
     /**
+     * Agenda pribadi milik peserta (disinkronkan dari mobile).
+     */
+    public function personalAgendaItems()
+    {
+        return $this->hasMany(PersonalAgendaItem::class);
+    }
+
+    /**
+     * Best score mini-game per game milik peserta.
+     */
+    public function gameScores()
+    {
+        return $this->hasMany(UserGameScore::class);
+    }
+
+    /**
+     * Baseline tier achievement yang sudah dirayakan.
+     */
+    public function achievementTiers()
+    {
+        return $this->hasMany(UserAchievementTier::class);
+    }
+
+    /**
      * =================================================================
      * PENYESUAIAN UNTUK MEMPERBAIKI ERROR GRADEBOOK
      * =================================================================

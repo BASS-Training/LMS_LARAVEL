@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AchievementApiController;
 use App\Http\Controllers\Api\AgendaApiController;
 use App\Http\Controllers\Api\AuthApiController;
 use App\Http\Controllers\Api\CaseStudyApiController;
@@ -11,7 +12,9 @@ use App\Http\Controllers\Api\EmailVerificationApiController;
 use App\Http\Controllers\Api\EnrollmentApiController;
 use App\Http\Controllers\Api\EssayApiController;
 use App\Http\Controllers\Api\FeedbackApiController;
+use App\Http\Controllers\Api\GameScoreApiController;
 use App\Http\Controllers\Api\InstructorApiController;
+use App\Http\Controllers\Api\PersonalAgendaApiController;
 use App\Http\Controllers\Api\LessonProgressApiController;
 use App\Http\Controllers\Api\NotificationApiController;
 use App\Http\Controllers\Api\PasswordApiController;
@@ -87,6 +90,20 @@ Route::middleware('mobile.api.user')->group(function () {
 
     // Agenda: sesi terjadwal (Zoom) mendatang & berlangsung lintas course.
     Route::get('/mobile/agenda', [AgendaApiController::class, 'index']);
+
+    // Agenda pribadi peserta (per-user, sinkron lintas device).
+    Route::get('/mobile/agenda/personal', [PersonalAgendaApiController::class, 'index']);
+    Route::post('/mobile/agenda/personal', [PersonalAgendaApiController::class, 'store']);
+    Route::delete('/mobile/agenda/personal/{id}', [PersonalAgendaApiController::class, 'destroy']);
+
+    // Best score mini-game (per-user).
+    Route::get('/mobile/games/scores', [GameScoreApiController::class, 'index']);
+    Route::post('/mobile/games/scores', [GameScoreApiController::class, 'store']);
+    Route::post('/mobile/games/scores/merge', [GameScoreApiController::class, 'merge']);
+
+    // Baseline perayaan achievement (per-user).
+    Route::get('/mobile/achievements/tiers', [AchievementApiController::class, 'index']);
+    Route::post('/mobile/achievements/tiers/sync', [AchievementApiController::class, 'sync']);
 
     // Notifikasi (gabungan: notifikasi DB + pengumuman web).
     Route::get('/mobile/notifications', [NotificationApiController::class, 'index']);
