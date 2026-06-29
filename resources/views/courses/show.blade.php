@@ -144,6 +144,8 @@
                                     <span>Event Organizer</span>
                                 </div>
                             </button>
+                        @endcan
+                        @can('manageParticipants', $course)
                             <button @click="currentTab = 'participants'"
                                     :class="{'border-indigo-500 text-indigo-600 bg-indigo-50': currentTab === 'participants', 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50': currentTab !== 'participants'}"
                                     class="whitespace-nowrap py-4 px-4 border-b-2 font-semibold text-sm rounded-t-lg transition-all duration-200">
@@ -907,6 +909,9 @@
                         </div>
                     </div>
 
+                @endcan
+
+                @can('manageParticipants', $course)
                     <!-- Participants Tab -->
                     <div x-show="currentTab === 'participants'" x-cloak class="p-8"
                          x-data="{

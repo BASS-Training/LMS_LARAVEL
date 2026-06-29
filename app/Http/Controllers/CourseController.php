@@ -7,6 +7,7 @@ use App\Models\ExportHistory;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use App\Models\CertificateTemplate;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -407,24 +408,39 @@ class CourseController extends Controller
      */
     public function enrollParticipant(Request $request, Course $course)
     {
-        $this->authorize('update', $course);
+        $this->authorize('manageParticipants', $course);
 
         $request->validate([
             'user_ids' => 'required|array',
             'user_ids.*' => 'exists:users,id',
         ]);
 
+        $requestedUserIds = collect($request->user_ids)
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
+
+        $participantUserIds = User::permission('attempt quizzes')
+            ->whereIn('id', $requestedUserIds)
+            ->pluck('id');
+
+        if ($participantUserIds->count() !== $requestedUserIds->count()) {
+            throw ValidationException::withMessages([
+                'user_ids' => 'Hanya user dengan akses peserta yang dapat didaftarkan ke kursus.',
+            ]);
+        }
+
         // Gunakan syncWithoutDetaching untuk menambahkan user tanpa menghapus yang sudah ada
-        $course->enrolledUsers()->syncWithoutDetaching($request->user_ids);
+        $course->enrolledUsers()->syncWithoutDetaching($participantUserIds->all());
 
         // ✅ LOG PARTICIPANT ENROLLMENT
-        $enrolledUsers = User::whereIn('id', $request->user_ids)->get(['id', 'name', 'email']);
+        $enrolledUsers = User::whereIn('id', $participantUserIds)->get(['id', 'name', 'email']);
         \App\Models\ActivityLog::log('participants_enrolled', [
-            'description' => "Enrolled " . count($request->user_ids) . " participant(s) to course: {$course->title}",
+            'description' => "Enrolled " . $participantUserIds->count() . " participant(s) to course: {$course->title}",
             'metadata' => [
                 'course_id' => $course->id,
                 'course_title' => $course->title,
-                'participant_count' => count($request->user_ids),
+                'participant_count' => $participantUserIds->count(),
                 'participants' => $enrolledUsers->map(fn($u) => ['id' => $u->id, 'name' => $u->name, 'email' => $u->email])->toArray(),
             ]
         ]);
@@ -434,7 +450,7 @@ class CourseController extends Controller
 
     public function searchParticipants(Request $request, Course $course)
     {
-        $this->authorize('update', $course);
+        $this->authorize('manageParticipants', $course);
 
         $validated = $request->validate([
             'type' => ['required', Rule::in(['enrolled', 'available'])],
@@ -487,7 +503,7 @@ class CourseController extends Controller
      */
     public function unenrollParticipants(Request $request, Course $course)
     {
-        $this->authorize('update', $course);
+        $this->authorize('manageParticipants', $course);
 
         $request->validate([
             'user_ids' => 'required|array',
