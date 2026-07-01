@@ -78,6 +78,7 @@ class QuizApiController extends Controller
                 'totalQuestions' => count($questions),
                 'timeLimit' => $quiz->time_limit ?? 0,
                 'passingScore' => (int) ($quiz->passing_percentage ?? 70),
+                'enableLeaderboard' => (bool) ($quiz->enable_leaderboard ?? false),
                 'questions' => $questions,
                 'userAttempt' => $userAttempt,
                 'completed' => $completed,
@@ -227,6 +228,61 @@ class QuizApiController extends Controller
                 'passed' => $attempt->passed,
                 'percentage' => $totalMarks > 0 ? round(($score / $totalMarks) * 100, 2) : 0,
                 'attemptId' => (string) $attempt->id,
+            ],
+        ], 200);
+    }
+
+    /**
+     * Leaderboard peserta untuk sebuah kuis (mobile).
+     *
+     * Hanya tersedia bila admin mengaktifkan "Aktifkan Leaderboard" di web.
+     * Mengembalikan peringkat berdasarkan skor terbaik tiap peserta (lalu waktu
+     * tercepat), menandai baris milik user saat ini, plus ringkasan peringkat &
+     * jumlah peserta agar mobile bisa menampilkan "Peringkat Anda: #x dari y".
+     */
+    public function leaderboard(Request $request, Quiz $quiz)
+    {
+        if ($accessError = $this->ensureQuizAccess($request, $quiz)) {
+            return $accessError;
+        }
+
+        if (!$quiz->enable_leaderboard) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Leaderboard tidak tersedia untuk kuis ini.',
+            ], 403);
+        }
+
+        $user = $request->user();
+        $entries = $quiz->getLeaderboardWithBestAttempts();
+
+        $currentUserRank = null;
+        $data = $entries->map(function ($entry) use ($user, &$currentUserRank) {
+            $isCurrentUser = $user && (int) $entry['user']->id === (int) $user->id;
+            if ($isCurrentUser) {
+                $currentUserRank = $entry['rank'];
+            }
+
+            return [
+                'rank' => $entry['rank'],
+                'name' => $entry['user']->name,
+                'score' => $entry['score'],
+                'totalMarks' => $entry['total_marks'],
+                'percentage' => (float) $entry['percentage'],
+                'passed' => (bool) $entry['passed'],
+                'isCurrentUser' => $isCurrentUser,
+                'completedAt' => optional($entry['completed_at'])?->toISOString(),
+                'duration' => $entry['duration'],
+            ];
+        })->values();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'quizTitle' => $quiz->title,
+                'totalParticipants' => $data->count(),
+                'currentUserRank' => $currentUserRank,
+                'entries' => $data,
             ],
         ], 200);
     }

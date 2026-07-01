@@ -287,6 +287,20 @@ class CourseApiController extends Controller
                             'documentAccessType' => $content->document_access_type,
                             'allowAnswerDownload' => (bool) ($content->allow_answer_download ?? false),
                             'isCompleted' => $user ? $this->isContentCompletedFast($content, $completionCtx) : false,
+                            // Kehadiran (attendance): bila diaktifkan admin di web, konten
+                            // berikutnya terkunci sampai instruktur menandai kehadiran
+                            // peserta. Mobile memakai ini untuk menampilkan status &
+                            // catatan, serta menonaktifkan tombol "Lanjut".
+                            'attendanceRequired' => (bool) ($content->attendance_required ?? false),
+                            'minAttendanceMinutes' => $content->min_attendance_minutes !== null
+                                ? (int) $content->min_attendance_minutes
+                                : null,
+                            'attendanceNotes' => $content->attendance_notes,
+                            // Status kehadiran user saat ini: present|absent|late|excused,
+                            // atau null bila instruktur belum menandai (menunggu ACC).
+                            'attendanceStatus' => optional(
+                                $completionCtx['attendance'][$content->id] ?? null
+                            )->status,
                             'zoomLink' => $content->type === 'zoom'
                                 ? (json_decode($content->body ?? '{}', true)['link'] ?? null)
                                 : null,

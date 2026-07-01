@@ -65,6 +65,9 @@ Route::middleware('mobile.api.user')->group(function () {
     Route::post('/mobile/quizzes/{quiz}/attempts', [QuizApiController::class, 'startAttempt']);
     Route::post('/mobile/quizzes/{quiz}/attempts/{attempt}/submit', [QuizApiController::class, 'submitAttempt']);
 
+    // Leaderboard kuis (hanya bila admin mengaktifkannya di web).
+    Route::get('/mobile/quizzes/{quiz}/leaderboard', [QuizApiController::class, 'leaderboard']);
+
     Route::post('/mobile/essays/{content}/submit', [EssayApiController::class, 'submit']);
     Route::post('/mobile/essays/{content}/draft', [EssayApiController::class, 'autosave']);
 
