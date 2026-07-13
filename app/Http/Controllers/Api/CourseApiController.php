@@ -132,6 +132,7 @@ class CourseApiController extends Controller
                 'essay' => [],
                 'caseStudy' => [],
                 'attendance' => [],
+                'docStatus' => [],
             ];
         }
 
@@ -170,6 +171,17 @@ class CourseApiController extends Controller
             ->get(['content_id', 'status', 'duration_minutes'])
             ->keyBy('content_id');
 
+        // Status pengumpulan dokumen terbaru per konten (urut attempt asc → last wins).
+        $docStatus = [];
+        DB::table('document_submissions')
+            ->where('user_id', $user->id)
+            ->whereIn('content_id', $contentIds)
+            ->orderBy('attempt')
+            ->get(['content_id', 'status'])
+            ->each(function ($r) use (&$docStatus) {
+                $docStatus[$r->content_id] = $r->status;
+            });
+
         return [
             'completed' => array_flip($completed),
             'passedQuiz' => array_flip($passedQuiz),
@@ -177,6 +189,7 @@ class CourseApiController extends Controller
             'caseStudy' => array_flip($caseStudy),
             'feedback' => array_flip($feedback),
             'attendance' => $attendance,
+            'docStatus' => $docStatus,
         ];
     }
 
@@ -215,6 +228,12 @@ class CourseApiController extends Controller
                 return isset($ctx['caseStudy'][$id]);
             case 'feedback':
                 return isset($ctx['feedback'][$id]);
+            case 'document':
+                // Gating hanya berlaku bila pengumpulan aktif DAN wajib lulus.
+                if (($content->collect_submission ?? false) && ($content->require_submission_pass ?? false)) {
+                    return ($ctx['docStatus'][$id] ?? null) === 'passed';
+                }
+                return isset($ctx['completed'][$id]);
             default:
                 return isset($ctx['completed'][$id]);
         }
@@ -288,6 +307,11 @@ class CourseApiController extends Controller
                             // Pengumpulan tugas dokumen: bila true, mobile menampilkan
                             // panel unggah/kumpulkan (detail via endpoint by-lesson).
                             'collectSubmission' => (bool) ($content->collect_submission ?? false),
+                            // Bila true, konten berikutnya terkunci sampai pengumpulan
+                            // dinilai LULUS. submissionStatus = status attempt terbaru
+                            // (draft|submitted|passed|failed) atau null bila belum ada.
+                            'requireSubmissionPass' => (bool) ($content->require_submission_pass ?? false),
+                            'submissionStatus' => $completionCtx['docStatus'][$content->id] ?? null,
                             'allowAnswerDownload' => (bool) ($content->allow_answer_download ?? false),
                             'isCompleted' => $user ? $this->isContentCompletedFast($content, $completionCtx) : false,
                             // Kehadiran (attendance): bila diaktifkan admin di web, konten

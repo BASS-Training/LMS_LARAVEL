@@ -28,6 +28,7 @@ class Content extends Model
         'submission_instructions',
         'submission_max_size_mb',
         'submission_allowed_types',
+        'require_submission_pass',
         'allow_answer_download',
         'is_anonymous',
         'order',
@@ -53,6 +54,7 @@ class Content extends Model
         'requires_review' => 'boolean',
         'is_optional' => 'boolean',
         'collect_submission' => 'boolean',
+        'require_submission_pass' => 'boolean',
         'submission_max_size_mb' => 'integer',
         'allow_answer_download' => 'boolean',
         'is_anonymous' => 'boolean',
@@ -246,6 +248,14 @@ class Content extends Model
     public function collectsSubmission(): bool
     {
         return $this->type === 'document' && ($this->collect_submission ?? false);
+    }
+
+    /**
+     * Apakah konten ini mengunci progres sampai pengumpulan dinilai LULUS.
+     */
+    public function requiresSubmissionPass(): bool
+    {
+        return $this->collectsSubmission() && ($this->require_submission_pass ?? false);
     }
 
     /**

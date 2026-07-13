@@ -78,6 +78,14 @@
                 </div>
             @endif
 
+            {{-- Info: konten terkunci sampai lulus (bila diaktifkan admin & belum lulus) --}}
+            @if($content->require_submission_pass && !$isPassed)
+                <div class="flex items-center gap-2 rounded-xl bg-indigo-50 border border-indigo-100 px-4 py-2.5 text-sm text-indigo-800">
+                    <span>🔒</span>
+                    <span>Konten berikutnya terkunci sampai tugas Anda dinilai <strong>Lulus</strong>.</span>
+                </div>
+            @endif
+
             {{-- Status banner --}}
             @if($isWaiting)
                 <div class="flex items-start gap-3 rounded-xl bg-amber-50 border border-amber-200 p-4">

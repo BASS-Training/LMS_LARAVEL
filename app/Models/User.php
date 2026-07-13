@@ -339,6 +339,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Relasi ke pengumpulan dokumen (konten tipe 'document' dgn collect_submission).
+     */
+    public function documentSubmissions()
+    {
+        return $this->hasMany(DocumentSubmission::class);
+    }
+
+    /**
      * Relasi ke feedback submissions (konten tipe 'feedback')
      */
     public function feedbackSubmissions()
@@ -643,6 +651,17 @@ class User extends Authenticatable
             return $this->caseStudySubmissions()
                 ->where('content_id', $content->id)
                 ->whereIn('status', ['submitted', 'graded'])
+                ->exists();
+        } elseif (
+            $content->type === 'document'
+            && ($content->collect_submission ?? false)
+            && ($content->require_submission_pass ?? false)
+        ) {
+            // Dokumen dengan "wajib lulus": selesai hanya bila ada pengumpulan
+            // yang dinilai LULUS. Sebelum itu konten berikutnya terkunci.
+            return $this->documentSubmissions()
+                ->where('content_id', $content->id)
+                ->where('status', 'passed')
                 ->exists();
         } else {
             return $this->completedContents()

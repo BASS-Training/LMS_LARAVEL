@@ -981,6 +981,16 @@
                                     </label>
 
                                     <div x-show="collect" x-cloak class="mt-4 space-y-4 pl-8">
+                                        <label class="flex items-start gap-3 cursor-pointer bg-white rounded-lg border border-indigo-100 p-3">
+                                            <input type="hidden" name="require_submission_pass" value="0">
+                                            <input type="checkbox" name="require_submission_pass" value="1"
+                                                   {{ old('require_submission_pass', $content->require_submission_pass ?? false) ? 'checked' : '' }}
+                                                   class="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                            <span>
+                                                <span class="block text-sm font-semibold text-gray-800">🔒 Wajib LULUS untuk lanjut</span>
+                                                <span class="block text-xs text-gray-500 mt-0.5">Peserta tidak dapat membuka konten berikutnya sampai pengumpulannya dinilai Lulus oleh instruktur.</span>
+                                            </span>
+                                        </label>
                                         <div>
                                             <label for="submission_instructions" class="block text-sm font-semibold text-gray-700 mb-1">Instruksi Tugas (opsional)</label>
                                             <textarea name="submission_instructions" id="submission_instructions" rows="3"

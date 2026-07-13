@@ -561,6 +561,7 @@ class ContentController extends Controller
             'document_access_type' => ['nullable', Rule::in(['both', 'download_only', 'preview_only'])],
             // Pengumpulan tugas dokumen
             'collect_submission' => 'sometimes|boolean',
+            'require_submission_pass' => 'sometimes|boolean',
             'submission_instructions' => 'nullable|string|max:5000',
             'submission_max_size_mb' => 'nullable|integer|min:1|max:100',
             'submission_allowed_types' => 'nullable|string|max:255',
@@ -737,6 +738,8 @@ class ContentController extends Controller
 
             // ✅ PENGUMPULAN DOKUMEN: hanya berlaku untuk tipe 'document'.
             $content->collect_submission = ($content->type === 'document') && $request->boolean('collect_submission');
+            // Wajib lulus untuk lanjut hanya berlaku bila pengumpulan aktif.
+            $content->require_submission_pass = $content->collect_submission && $request->boolean('require_submission_pass');
             if (!$content->collect_submission) {
                 $content->submission_instructions = null;
                 $content->submission_max_size_mb = null;
