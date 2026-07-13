@@ -85,6 +85,13 @@ class ContentController extends Controller
             }
         }
 
+        // Dokumen dengan pengumpulan tugas: penyelesaian datang dari alur
+        // submission (mengumpulkan untuk dokumen biasa, atau dinilai LULUS bila
+        // wajib lulus), BUKAN dari tombol "Tandai Selesai" manual.
+        if ($content->collectsSubmission()) {
+            $canComplete = false;
+        }
+
         $spreadsheetPreview = $this->buildSpreadsheetPreview($content);
 
         return view('contents.show', compact('content', 'course', 'unlockedContents', 'hasPassedQuizBefore', 'orderedContents', 'attendanceStatus', 'canComplete', 'spreadsheetPreview'));
@@ -466,6 +473,17 @@ class ContentController extends Controller
 
             // Untuk unlock, cukup sudah submit - tidak perlu menunggu grading
             return $submission->answers()->count() > 0;
+        } elseif (
+            $content->type === 'document'
+            && ($content->collect_submission ?? false)
+            && ($content->require_submission_pass ?? false)
+        ) {
+            // Dokumen "wajib lulus": konten berikutnya baru terbuka setelah ada
+            // pengumpulan yang dinilai LULUS.
+            return $user->documentSubmissions()
+                ->where('content_id', $content->id)
+                ->where('status', 'passed')
+                ->exists();
         } else {
             return $user->completedContents()
                 ->where('content_id', $content->id)

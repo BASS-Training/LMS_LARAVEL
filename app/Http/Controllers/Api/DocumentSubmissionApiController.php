@@ -156,9 +156,12 @@ class DocumentSubmissionApiController extends Controller
         }
 
         $submission->update(['status' => 'submitted', 'submitted_at' => now()]);
-        $user->completedContents()->syncWithoutDetaching([
-            $content->id => ['completed' => true, 'completed_at' => now()],
-        ]);
+        // Bila wajib lulus, penyelesaian menunggu nilai LULUS (di grade()).
+        if (!$content->requiresSubmissionPass()) {
+            $user->completedContents()->syncWithoutDetaching([
+                $content->id => ['completed' => true, 'completed_at' => now()],
+            ]);
+        }
 
         return response()->json([
             'status' => 'success',
@@ -233,6 +236,16 @@ class DocumentSubmissionApiController extends Controller
             'graded_at' => now(),
             'graded_by' => $request->user()->id,
         ]);
+
+        if ($content->requiresSubmissionPass()) {
+            if ($validated['result'] === 'passed') {
+                $submission->user->completedContents()->syncWithoutDetaching([
+                    $content->id => ['completed' => true, 'completed_at' => now()],
+                ]);
+            } else {
+                $submission->user->completedContents()->updateExistingPivot($content->id, ['completed' => false]);
+            }
+        }
 
         return response()->json([
             'status' => 'success',

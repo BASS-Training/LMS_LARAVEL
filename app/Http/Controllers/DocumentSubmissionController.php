@@ -115,11 +115,14 @@ class DocumentSubmissionController extends Controller
 
         $submission->update(['status' => 'submitted', 'submitted_at' => now()]);
 
-        // Tandai konten selesai agar peserta bisa melanjutkan (konsisten dgn
-        // case_study). Penilaian lulus/belum-lulus terpisah dari completion.
-        $user->completedContents()->syncWithoutDetaching([
-            $content->id => ['completed' => true, 'completed_at' => now()],
-        ]);
+        // Bila TIDAK wajib lulus, mengumpulkan langsung menyelesaikan konten
+        // (peserta boleh lanjut). Bila wajib lulus, penyelesaian menunggu nilai
+        // LULUS dari instruktur (ditangani di grade()).
+        if (!$content->requiresSubmissionPass()) {
+            $user->completedContents()->syncWithoutDetaching([
+                $content->id => ['completed' => true, 'completed_at' => now()],
+            ]);
+        }
 
         return back()->with('success', 'Tugas berhasil dikumpulkan. Menunggu penilaian instruktur.');
     }
@@ -185,6 +188,17 @@ class DocumentSubmissionController extends Controller
             'graded_at' => now(),
             'graded_by' => Auth::id(),
         ]);
+
+        // Sinkronkan penyelesaian konten dgn hasil (hanya relevan bila wajib lulus).
+        if ($content->requiresSubmissionPass()) {
+            if ($validated['result'] === 'passed') {
+                $submission->user->completedContents()->syncWithoutDetaching([
+                    $content->id => ['completed' => true, 'completed_at' => now()],
+                ]);
+            } else {
+                $submission->user->completedContents()->updateExistingPivot($content->id, ['completed' => false]);
+            }
+        }
 
         $msg = $validated['result'] === 'passed'
             ? 'Peserta dinilai LULUS.'
