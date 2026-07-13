@@ -211,6 +211,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/case-studies/{content}/download', [App\Http\Controllers\CaseStudyController::class, 'download'])->name('case-studies.download');
     Route::get('/case-studies/{content}/submissions/{submission}/download', [App\Http\Controllers\CaseStudyController::class, 'download'])->name('case-studies.download-submission');
 
+    // Pengumpulan tugas dokumen oleh peserta (konten tipe 'document')
+    Route::post('/document-submissions/{content}/upload', [App\Http\Controllers\DocumentSubmissionController::class, 'upload'])->name('document-submissions.upload');
+    Route::delete('/document-submissions/{content}/file', [App\Http\Controllers\DocumentSubmissionController::class, 'removeFile'])->name('document-submissions.remove-file');
+    Route::post('/document-submissions/{content}/submit', [App\Http\Controllers\DocumentSubmissionController::class, 'submit'])->name('document-submissions.submit');
+    Route::get('/document-submissions/{content}/{submission}/download', [App\Http\Controllers\DocumentSubmissionController::class, 'download'])->name('document-submissions.download');
+
     // Feedback (form survei, tanpa penilaian)
     Route::post('/feedback/{content}/submit', [App\Http\Controllers\FeedbackController::class, 'store'])->name('feedback.store');
 
@@ -494,6 +500,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('case-studies.review');
         Route::post('/case-studies/{content}/submissions/{submission}/grade', [App\Http\Controllers\CaseStudyController::class, 'grade'])
             ->name('case-studies.grade');
+
+        // Penilaian pengumpulan dokumen (document submission)
+        Route::get('/document-submissions/{content}/submissions', [App\Http\Controllers\DocumentSubmissionController::class, 'submissions'])
+            ->name('document-submissions.index');
+        Route::post('/document-submissions/{content}/submissions/{submission}/grade', [App\Http\Controllers\DocumentSubmissionController::class, 'grade'])
+            ->name('document-submissions.grade');
 
         // Hasil agregat Feedback (untuk instruktur/admin)
         Route::get('/feedback/{content}/results', [App\Http\Controllers\FeedbackController::class, 'results'])

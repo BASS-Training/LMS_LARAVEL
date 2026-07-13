@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\CourseApiController;
 use App\Http\Controllers\Api\CourseResultsApiController;
 use App\Http\Controllers\Api\DiscussionApiController;
 use App\Http\Controllers\Api\DocumentController;
+use App\Http\Controllers\Api\DocumentSubmissionApiController;
 use App\Http\Controllers\Api\EmailVerificationApiController;
 use App\Http\Controllers\Api\EnrollmentApiController;
 use App\Http\Controllers\Api\EssayApiController;
@@ -65,6 +66,9 @@ Route::middleware('mobile.api.user')->group(function () {
     Route::post('/mobile/quizzes/{quiz}/attempts', [QuizApiController::class, 'startAttempt']);
     Route::post('/mobile/quizzes/{quiz}/attempts/{attempt}/submit', [QuizApiController::class, 'submitAttempt']);
 
+    // Leaderboard kuis (hanya bila admin mengaktifkannya di web).
+    Route::get('/mobile/quizzes/{quiz}/leaderboard', [QuizApiController::class, 'leaderboard']);
+
     Route::post('/mobile/essays/{content}/submit', [EssayApiController::class, 'submit']);
     Route::post('/mobile/essays/{content}/draft', [EssayApiController::class, 'autosave']);
 
@@ -75,6 +79,15 @@ Route::middleware('mobile.api.user')->group(function () {
     Route::post('/mobile/case-studies/{content}/submit', [CaseStudyApiController::class, 'submit']);
     Route::post('/mobile/case-studies/{content}/draft', [CaseStudyApiController::class, 'autosave']);
     Route::get('/mobile/case-studies/{content}/download', [CaseStudyApiController::class, 'download']);
+
+    // Pengumpulan tugas dokumen (konten tipe 'document' dgn collect_submission)
+    Route::get('/mobile/document-submissions/by-lesson/{content}', [DocumentSubmissionApiController::class, 'getByLesson']);
+    Route::post('/mobile/document-submissions/{content}/upload', [DocumentSubmissionApiController::class, 'upload']);
+    Route::delete('/mobile/document-submissions/{content}/file', [DocumentSubmissionApiController::class, 'removeFile']);
+    Route::post('/mobile/document-submissions/{content}/submit', [DocumentSubmissionApiController::class, 'submit']);
+    // Instruktur/admin: lihat & nilai
+    Route::get('/mobile/document-submissions/{content}/manage', [DocumentSubmissionApiController::class, 'manage']);
+    Route::post('/mobile/document-submissions/{submission}/grade', [DocumentSubmissionApiController::class, 'grade']);
 
     // Feedback (form survei, tanpa penilaian)
     Route::get('/mobile/feedback/by-lesson/{content}', [FeedbackApiController::class, 'getByLesson']);

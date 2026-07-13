@@ -364,6 +364,56 @@
                                     <div id="documents_preview" class="mt-3 space-y-2"></div>
                                 </div>
 
+                                <!-- Pengumpulan Tugas Dokumen (untuk tipe document) -->
+                                <div class="mt-6" x-show="document.querySelector('input[name=\"type\"]:checked')?.value === 'document'"
+                                     x-data="{ collect: {{ old('collect_submission') ? 'true' : 'false' }} }">
+                                    <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4">
+                                        <label class="flex items-start gap-3 cursor-pointer">
+                                            <input type="hidden" name="collect_submission" value="0">
+                                            <input type="checkbox" name="collect_submission" value="1" x-model="collect"
+                                                   class="mt-1 h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                            <span>
+                                                <span class="block font-semibold text-gray-900">📥 Aktifkan Pengumpulan Tugas</span>
+                                                <span class="block text-xs text-gray-500 mt-0.5">Peserta dapat mengunggah dokumen, mengumpulkannya, lalu dinilai. Jika belum lulus, peserta dapat mengunggah percobaan berikutnya.</span>
+                                            </span>
+                                        </label>
+
+                                        <div x-show="collect" x-cloak class="mt-4 space-y-4 pl-8">
+                                            <label class="flex items-start gap-3 cursor-pointer bg-white rounded-lg border border-indigo-100 p-3">
+                                                <input type="hidden" name="require_submission_pass" value="0">
+                                                <input type="checkbox" name="require_submission_pass" value="1"
+                                                       {{ old('require_submission_pass') ? 'checked' : '' }}
+                                                       class="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                                <span>
+                                                    <span class="block text-sm font-semibold text-gray-800">🔒 Wajib LULUS untuk lanjut</span>
+                                                    <span class="block text-xs text-gray-500 mt-0.5">Peserta tidak dapat membuka konten berikutnya sampai pengumpulannya dinilai Lulus oleh instruktur.</span>
+                                                </span>
+                                            </label>
+                                            <div>
+                                                <label for="submission_instructions" class="block text-sm font-semibold text-gray-700 mb-1">Instruksi Tugas (opsional)</label>
+                                                <textarea name="submission_instructions" id="submission_instructions" rows="3"
+                                                          class="block w-full rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                          placeholder="Contoh: Unggah makalah Anda dalam format PDF, maksimal 10 halaman.">{{ old('submission_instructions') }}</textarea>
+                                            </div>
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <div>
+                                                    <label for="submission_max_size_mb" class="block text-sm font-semibold text-gray-700 mb-1">Batas Ukuran File (MB)</label>
+                                                    <input type="number" name="submission_max_size_mb" id="submission_max_size_mb" min="1" max="100"
+                                                           value="{{ old('submission_max_size_mb') }}" placeholder="20"
+                                                           class="block w-full rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                </div>
+                                                <div>
+                                                    <label for="submission_allowed_types" class="block text-sm font-semibold text-gray-700 mb-1">Tipe File Diizinkan</label>
+                                                    <input type="text" name="submission_allowed_types" id="submission_allowed_types"
+                                                           value="{{ old('submission_allowed_types') }}" placeholder="pdf,doc,docx,ppt,pptx,xls,xlsx"
+                                                           class="block w-full rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                    <p class="text-xs text-gray-500 mt-1">Pisah dengan koma. Kosongkan untuk default.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- Multiple Images Uploader (untuk tipe image) -->
                                 <div class="mt-6">
                                     <label for="images" class="block text-sm font-semibold text-gray-700 mb-2">

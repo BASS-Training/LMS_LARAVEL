@@ -61,23 +61,30 @@ class LogActivity
                 '_token', 'password', 'password_confirmation', 'current_password', 'new_password', 'new_password_confirmation'
             ])->toArray();
 
-            // Append file metadata (name + size only, not the file object itself)
+            // Append file metadata (name + size only, not the file object itself).
+            // Baca metadata secara AMAN: file yang gagal diunggah (mis. melebihi
+            // upload_max_filesize/post_max_size) berada dalam kondisi invalid dan
+            // getMimeType()/getSize() akan melempar karena path temp kosong.
+            // Gunakan getClientMimeType() (tidak menyentuh disk) + guard isValid().
+            $fileMeta = function ($f) {
+                try {
+                    return [
+                        'name' => $f->getClientOriginalName(),
+                        'size' => $f->isValid() ? $f->getSize() : null,
+                        'mime' => $f->getClientMimeType(),
+                        'valid' => $f->isValid(),
+                    ];
+                } catch (\Throwable $e) {
+                    return ['name' => null, 'size' => null, 'mime' => null, 'valid' => false];
+                }
+            };
+
             if ($request->hasFile('*') || count($request->allFiles()) > 0) {
                 $filesMeta = [];
                 foreach ($request->allFiles() as $key => $file) {
-                    if (is_array($file)) {
-                        $filesMeta[$key] = collect($file)->map(fn($f) => [
-                            'name' => $f->getClientOriginalName(),
-                            'size' => $f->getSize(),
-                            'mime' => $f->getMimeType(),
-                        ])->toArray();
-                    } else {
-                        $filesMeta[$key] = [
-                            'name' => $file->getClientOriginalName(),
-                            'size' => $file->getSize(),
-                            'mime' => $file->getMimeType(),
-                        ];
-                    }
+                    $filesMeta[$key] = is_array($file)
+                        ? collect($file)->map($fileMeta)->toArray()
+                        : $fileMeta($file);
                 }
                 $input['_uploaded_files'] = $filesMeta;
             }
