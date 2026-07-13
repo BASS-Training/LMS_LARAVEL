@@ -24,6 +24,10 @@ class Content extends Model
         'body',
         'file_path',
         'document_access_type',
+        'collect_submission',
+        'submission_instructions',
+        'submission_max_size_mb',
+        'submission_allowed_types',
         'allow_answer_download',
         'is_anonymous',
         'order',
@@ -48,6 +52,8 @@ class Content extends Model
         'scoring_enabled' => 'boolean',
         'requires_review' => 'boolean',
         'is_optional' => 'boolean',
+        'collect_submission' => 'boolean',
+        'submission_max_size_mb' => 'integer',
         'allow_answer_download' => 'boolean',
         'is_anonymous' => 'boolean',
         'attendance_required' => 'boolean',
@@ -223,6 +229,23 @@ class Content extends Model
     public function caseStudySubmissions()
     {
         return $this->hasMany(CaseStudySubmission::class);
+    }
+
+    /**
+     * Relasi ke pengumpulan dokumen peserta (konten tipe 'document' dengan
+     * collect_submission = true). Berisi semua attempt dari semua peserta.
+     */
+    public function documentSubmissions()
+    {
+        return $this->hasMany(DocumentSubmission::class);
+    }
+
+    /**
+     * Apakah konten ini mengaktifkan pengumpulan dokumen oleh peserta.
+     */
+    public function collectsSubmission(): bool
+    {
+        return $this->type === 'document' && ($this->collect_submission ?? false);
     }
 
     /**

@@ -966,6 +966,45 @@
                                     </p>
                                 </div>
 
+                                {{-- Pengumpulan Tugas Dokumen --}}
+                                <div x-show="isType('document')"
+                                     x-data="{ collect: {{ old('collect_submission', $content->collect_submission ?? false) ? 'true' : 'false' }} }"
+                                     class="mb-6 bg-indigo-50 border border-indigo-100 rounded-xl p-4">
+                                    <label class="flex items-start gap-3 cursor-pointer">
+                                        <input type="hidden" name="collect_submission" value="0">
+                                        <input type="checkbox" name="collect_submission" value="1" x-model="collect"
+                                               class="mt-1 h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                        <span>
+                                            <span class="block font-semibold text-gray-900">📥 Aktifkan Pengumpulan Tugas</span>
+                                            <span class="block text-xs text-gray-500 mt-0.5">Peserta dapat mengunggah dokumen, mengumpulkannya, lalu dinilai. Jika belum lulus, peserta dapat mengunggah percobaan berikutnya.</span>
+                                        </span>
+                                    </label>
+
+                                    <div x-show="collect" x-cloak class="mt-4 space-y-4 pl-8">
+                                        <div>
+                                            <label for="submission_instructions" class="block text-sm font-semibold text-gray-700 mb-1">Instruksi Tugas (opsional)</label>
+                                            <textarea name="submission_instructions" id="submission_instructions" rows="3"
+                                                      class="block w-full rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                      placeholder="Contoh: Unggah makalah Anda dalam format PDF, maksimal 10 halaman.">{{ old('submission_instructions', $content->submission_instructions) }}</textarea>
+                                        </div>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div>
+                                                <label for="submission_max_size_mb" class="block text-sm font-semibold text-gray-700 mb-1">Batas Ukuran File (MB)</label>
+                                                <input type="number" name="submission_max_size_mb" id="submission_max_size_mb" min="1" max="100"
+                                                       value="{{ old('submission_max_size_mb', $content->submission_max_size_mb) }}" placeholder="20"
+                                                       class="block w-full rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                            </div>
+                                            <div>
+                                                <label for="submission_allowed_types" class="block text-sm font-semibold text-gray-700 mb-1">Tipe File Diizinkan</label>
+                                                <input type="text" name="submission_allowed_types" id="submission_allowed_types"
+                                                       value="{{ old('submission_allowed_types', $content->submission_allowed_types) }}" placeholder="pdf,doc,docx,ppt,pptx,xls,xlsx"
+                                                       class="block w-full rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                <p class="text-xs text-gray-500 mt-1">Pisah dengan koma. Kosongkan untuk default.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div x-show="content.file_path && !uploadedFileName" class="mb-4 p-4 bg-white rounded-lg border border-green-200">
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center">

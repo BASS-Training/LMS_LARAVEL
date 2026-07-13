@@ -285,6 +285,9 @@ class CourseApiController extends Controller
                             'filePath' => $documentUrl,
                             'documentUrl' => $documentUrl,
                             'documentAccessType' => $content->document_access_type,
+                            // Pengumpulan tugas dokumen: bila true, mobile menampilkan
+                            // panel unggah/kumpulkan (detail via endpoint by-lesson).
+                            'collectSubmission' => (bool) ($content->collect_submission ?? false),
                             'allowAnswerDownload' => (bool) ($content->allow_answer_download ?? false),
                             'isCompleted' => $user ? $this->isContentCompletedFast($content, $completionCtx) : false,
                             // Kehadiran (attendance): bila diaktifkan admin di web, konten

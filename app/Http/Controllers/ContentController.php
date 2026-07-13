@@ -559,6 +559,11 @@ class ContentController extends Controller
             'order' => 'nullable|integer',
             'is_optional' => 'sometimes|boolean',
             'document_access_type' => ['nullable', Rule::in(['both', 'download_only', 'preview_only'])],
+            // Pengumpulan tugas dokumen
+            'collect_submission' => 'sometimes|boolean',
+            'submission_instructions' => 'nullable|string|max:5000',
+            'submission_max_size_mb' => 'nullable|integer|min:1|max:100',
+            'submission_allowed_types' => 'nullable|string|max:255',
             // Attendance fields
             'attendance_required' => 'sometimes|boolean',
             'min_attendance_minutes' => 'nullable|integer|min:1',
@@ -728,6 +733,17 @@ class ContentController extends Controller
             if (!$content->attendance_required) {
                 $content->min_attendance_minutes = null;
                 $content->attendance_notes = null;
+            }
+
+            // ✅ PENGUMPULAN DOKUMEN: hanya berlaku untuk tipe 'document'.
+            $content->collect_submission = ($content->type === 'document') && $request->boolean('collect_submission');
+            if (!$content->collect_submission) {
+                $content->submission_instructions = null;
+                $content->submission_max_size_mb = null;
+                $content->submission_allowed_types = null;
+            } elseif (!empty($content->submission_allowed_types)) {
+                // Normalisasi: buang spasi & lowercase (mis. "PDF, Docx" -> "pdf,docx").
+                $content->submission_allowed_types = strtolower(preg_replace('/\s+/', '', $content->submission_allowed_types));
             }
 
             // 🆕 TAMBAHAN: Set essay settings berdasarkan review_mode

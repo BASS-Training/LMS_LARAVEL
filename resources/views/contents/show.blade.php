@@ -1219,6 +1219,11 @@
                     </div>
                 </div>
 
+                <!-- Pengumpulan Tugas Dokumen (jika diaktifkan admin) -->
+                @if($content->collectsSubmission())
+                    @include('contents.partials.document-submission')
+                @endif
+
                 <!-- Discussion Section - Always max-w-4xl -->
                 <div class="max-w-4xl mx-auto px-6 lg:px-8 pb-6">
                     <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
