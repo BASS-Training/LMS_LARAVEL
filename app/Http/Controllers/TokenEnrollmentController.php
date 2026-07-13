@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use App\Models\CourseClass;
+use App\Models\EnrollmentCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -80,14 +81,27 @@ class TokenEnrollmentController extends Controller
      */
     public function enroll(Request $request)
     {
+        // max:32 agar kode pribadi ber-prefix (opsional) tidak tertolak.
         $request->validate([
-            'token' => 'required|string|max:20'
+            'token' => 'required|string|max:32'
         ]);
 
         $token = strtoupper(trim($request->token));
         $user = Auth::user();
 
         return DB::transaction(function () use ($token, $user) {
+            // === JALUR BARU: kode pendaftaran sekali-pakai (aditif) ===
+            // Dahulukan pencarian di tabel enrollment_codes. Bila tidak ada yang
+            // cocok, jatuh ke jalur token bersama lama di bawah, sehingga
+            // perilaku course/kelas lama TIDAK berubah sama sekali.
+            $code = EnrollmentCode::where('code', $token)
+                ->lockForUpdate()
+                ->first();
+
+            if ($code) {
+                return $this->redeemEnrollmentCode($code, $user);
+            }
+
             // Try to find course first with lock to prevent race condition
             $course = Course::where('enrollment_token', $token)
                 ->lockForUpdate()
@@ -248,6 +262,80 @@ class TokenEnrollmentController extends Controller
                 'token' => 'Token tidak valid atau sudah tidak aktif.'
             ]);
         });
+    }
+
+    /**
+     * Redeem kode pendaftaran pribadi (sekali-pakai) untuk web.
+     * Meniru logika EnrollmentApiController::redeemEnrollmentCode namun
+     * mengembalikan redirect/withErrors alih-alih JSON.
+     */
+    private function redeemEnrollmentCode(EnrollmentCode $code, $user)
+    {
+        // 1. Validasi kode: sekali-pakai, kadaluarsa, dibatalkan, bind email.
+        if ($error = $code->redeemErrorFor($user)) {
+            return back()->withErrors(['token' => $error]);
+        }
+
+        // 2. Tentukan target: kelas (prioritas) atau course.
+        $class = null;
+        $course = null;
+
+        if ($code->course_class_id) {
+            $class = CourseClass::with('course')->find($code->course_class_id);
+            if (!$class) {
+                return back()->withErrors(['token' => 'Kelas untuk kode ini tidak ditemukan.']);
+            }
+            $course = $class->course;
+            if (!$course) {
+                return back()->withErrors(['token' => 'Course untuk kelas ini tidak ditemukan.']);
+            }
+        } elseif ($code->course_id) {
+            $course = Course::find($code->course_id);
+            if (!$course) {
+                return back()->withErrors(['token' => 'Course untuk kode ini tidak ditemukan.']);
+            }
+        } else {
+            return back()->withErrors(['token' => 'Kode tidak terhubung ke course mana pun.']);
+        }
+
+        // 3. Gating program (mis. AVPN) — sama seperti jalur token lama.
+        $programType = $class
+            ? ($class->program_type ?? ($course->program_type ?? 'regular'))
+            : ($course->program_type ?? 'regular');
+
+        if ($accessError = $this->getProgramAccessError($user, $programType)) {
+            return back()->withErrors(['token' => $accessError]);
+        }
+
+        // 4. Jika sudah terdaftar: jangan dobel, dan JANGAN konsumsi kode
+        //    (biar kode tidak hangus karena salah pencet).
+        if ($class) {
+            if ($class->participants()->where('users.id', $user->id)->exists()) {
+                return redirect()->route('courses.show', $course)
+                    ->with('success', 'Anda sudah terdaftar di kelas ini.');
+            }
+            if (!$class->hasAvailableSlots()) {
+                return back()->withErrors(['token' => "Kelas sudah penuh. Maksimal {$class->max_participants} peserta."]);
+            }
+            if (!$course->enrolledUsers()->where('users.id', $user->id)->exists()) {
+                $course->enrolledUsers()->attach($user->id);
+            }
+            $class->participants()->attach($user->id);
+        } else {
+            if ($course->enrolledUsers()->where('users.id', $user->id)->exists()) {
+                return redirect()->route('courses.show', $course)
+                    ->with('success', 'Anda sudah terdaftar di course ini.');
+            }
+            $course->enrolledUsers()->attach($user->id);
+        }
+
+        // 5. Sukses → konsumsi kode (sekali-pakai).
+        $code->markRedeemedBy($user);
+
+        return redirect()->route('courses.show', $course)
+            ->with('success', $class
+                ? "Berhasil bergabung dengan kelas: {$class->name} di kursus {$course->title}"
+                : "Berhasil bergabung dengan kursus: {$course->title}");
     }
 
     /**
