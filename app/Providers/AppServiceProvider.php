@@ -135,5 +135,6 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\DiscussionReply::observe(\App\Observers\DiscussionReplyObserver::class);
         \App\Models\EssaySubmission::observe(\App\Observers\EssaySubmissionObserver::class);
         \App\Models\CaseStudySubmission::observe(\App\Observers\CaseStudySubmissionObserver::class);
+        \App\Models\DocumentSubmission::observe(\App\Observers\DocumentSubmissionObserver::class);
     }
 }

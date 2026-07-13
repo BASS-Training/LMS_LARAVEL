@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\EssayAnswer;
 use App\Models\EssaySubmission;
 use App\Models\CaseStudySubmission;
+use App\Models\DocumentSubmission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -161,11 +162,11 @@ class InstructorApiController extends Controller
     {
         $this->authorizeCourse($request->user(), $course);
 
-        [$essayIds, $caseIds, $lessonTitles] = $this->contentsForCourses([$course->id]);
+        [$essayIds, $caseIds, $docIds, $lessonTitles] = $this->contentsForCourses([$course->id]);
 
         return response()->json([
             'status' => 'success',
-            'data' => $this->buildQueueItems($essayIds, $caseIds, $lessonTitles),
+            'data' => $this->buildQueueItems($essayIds, $caseIds, $docIds, $lessonTitles),
         ]);
     }
 
@@ -183,11 +184,11 @@ class InstructorApiController extends Controller
             return response()->json(['status' => 'success', 'data' => []]);
         }
 
-        [$essayIds, $caseIds, $lessonTitles] = $this->contentsForCourses($courseIds);
+        [$essayIds, $caseIds, $docIds, $lessonTitles] = $this->contentsForCourses($courseIds);
 
         return response()->json([
             'status' => 'success',
-            'data' => $this->buildQueueItems($essayIds, $caseIds, $lessonTitles),
+            'data' => $this->buildQueueItems($essayIds, $caseIds, $docIds, $lessonTitles),
         ]);
     }
 
@@ -521,36 +522,45 @@ class InstructorApiController extends Controller
     private function contentsForCourses(array $courseIds): array
     {
         if (empty($courseIds)) {
-            return [[], [], []];
+            return [[], [], [], []];
         }
 
         $rows = DB::table('contents')
             ->join('lessons', 'contents.lesson_id', '=', 'lessons.id')
             ->whereIn('lessons.course_id', $courseIds)
-            ->whereIn('contents.type', ['essay', 'case_study'])
+            ->where(function ($q) {
+                $q->whereIn('contents.type', ['essay', 'case_study'])
+                    ->orWhere(function ($q2) {
+                        $q2->where('contents.type', 'document')
+                            ->where('contents.collect_submission', true);
+                    });
+            })
             ->select('contents.id', 'contents.type', 'lessons.title as lesson_title')
             ->get();
 
         $essayIds = [];
         $caseIds = [];
+        $docIds = [];
         $lessonTitles = [];
         foreach ($rows as $row) {
             $lessonTitles[$row->id] = $row->lesson_title;
             if ($row->type === 'essay') {
                 $essayIds[] = $row->id;
+            } elseif ($row->type === 'document') {
+                $docIds[] = $row->id;
             } else {
                 $caseIds[] = $row->id;
             }
         }
 
-        return [$essayIds, $caseIds, $lessonTitles];
+        return [$essayIds, $caseIds, $docIds, $lessonTitles];
     }
 
     /**
      * Bangun daftar item antrian penilaian (essay + studi kasus), urut: pending
      * dulu lalu terbaru.
      */
-    private function buildQueueItems(array $essayContentIds, array $caseContentIds, array $lessonTitles): array
+    private function buildQueueItems(array $essayContentIds, array $caseContentIds, array $docContentIds, array $lessonTitles): array
     {
         $items = [];
 
@@ -599,6 +609,36 @@ class InstructorApiController extends Controller
                     'lessonTitle' => $lessonTitles[$sub->content_id] ?? '',
                     'scoringEnabled' => (bool) ($sub->content?->scoring_enabled ?? true),
                     'status' => $sub->status === 'graded' ? 'graded' : 'pending',
+                    'submittedAt' => optional($sub->submitted_at ?? $sub->updated_at)?->toISOString(),
+                ];
+            }
+        }
+
+        if (!empty($docContentIds)) {
+            $docSubs = DocumentSubmission::whereIn('content_id', $docContentIds)
+                ->whereIn('status', ['submitted', 'passed', 'failed'])
+                ->with(['user:id,name', 'content'])
+                ->orderBy('attempt')
+                ->get();
+
+            // Hanya attempt TERBARU per (peserta, konten) yang masuk antrian.
+            $latestPerUserContent = [];
+            foreach ($docSubs as $sub) {
+                $latestPerUserContent[$sub->user_id . '-' . $sub->content_id] = $sub;
+            }
+
+            foreach ($latestPerUserContent as $sub) {
+                $items[] = [
+                    'id' => 'doc-' . $sub->id,
+                    'submissionId' => (string) $sub->id,
+                    'type' => 'document',
+                    'participantId' => (string) $sub->user_id,
+                    'participantName' => $sub->user?->name ?? 'Peserta',
+                    'contentId' => (string) $sub->content_id,
+                    'contentTitle' => $sub->content?->title ?? 'Dokumen',
+                    'lessonTitle' => $lessonTitles[$sub->content_id] ?? '',
+                    'scoringEnabled' => (bool) ($sub->content?->scoring_enabled ?? true),
+                    'status' => $sub->status === 'submitted' ? 'pending' : 'graded',
                     'submittedAt' => optional($sub->submitted_at ?? $sub->updated_at)?->toISOString(),
                 ];
             }
