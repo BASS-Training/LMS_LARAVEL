@@ -159,12 +159,17 @@
                         <p class="text-center text-xs text-gray-500">Langsung bisa diakses setelah mendaftar.</p>
 
                     @else
-                        {{-- Fase 2: diganti tombol checkout Midtrans --}}
-                        <button type="button" disabled
-                                class="w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-gray-200 text-gray-500 font-semibold cursor-not-allowed">
-                            Beli Sekarang
-                        </button>
-                        <p class="text-center text-xs text-gray-500">Pembayaran online segera hadir.</p>
+                        <form method="POST" action="{{ route('checkout.store', $course) }}">
+                            @csrf
+                            <button type="submit"
+                                    class="w-full inline-flex items-center justify-center gap-2 min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-red-800 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                                Beli Sekarang
+                            </button>
+                        </form>
+                        <p class="text-center text-xs text-gray-500">
+                            Bayar via QRIS, e-wallet, transfer bank, atau kartu.
+                        </p>
                     @endif
 
                     <div class="pt-4 border-t border-gray-100 space-y-2 text-sm text-gray-600">

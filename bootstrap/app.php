@@ -20,6 +20,12 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\EnsureEmailVerifiedOtp::class,
         ]);
 
+        // Webhook Midtrans datang dari server mereka, tanpa sesi/token CSRF.
+        // Keasliannya dijamin lewat verifikasi signature_key di CheckoutController.
+        $middleware->validateCsrfTokens(except: [
+            'webhooks/midtrans',
+        ]);
+
         // Aliases for route middleware
         $middleware->alias([
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,

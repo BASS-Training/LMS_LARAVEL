@@ -30,6 +30,7 @@ use App\Http\Controllers\FileControlController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\CheckoutController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,6 +55,20 @@ Route::get('/certificates/download/{code}', [CertificateController::class, 'publ
 Route::get('/katalog', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/katalog/{course}', [ShopController::class, 'show'])->name('shop.show');
 Route::post('/katalog/{course}/daftar-gratis', [ShopController::class, 'enrollFree'])->name('shop.enroll-free');
+
+/*
+| Pembelian kursus.
+|
+| Webhook Midtrans sengaja PUBLIK & tanpa CSRF (dipanggil server Midtrans,
+| bukan browser). Keasliannya diverifikasi lewat signature_key — lihat
+| CheckoutController::notification(). Ini satu-satunya jalur yang memberi
+| akses kursus; halaman "selesai" hanya menampilkan status.
+*/
+Route::post('/webhooks/midtrans', [CheckoutController::class, 'notification'])->name('checkout.notification');
+
+Route::post('/katalog/{course}/beli', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::get('/pesanan', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::get('/pesanan/{order}', [CheckoutController::class, 'finish'])->name('checkout.finish');
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
