@@ -248,6 +248,8 @@
                                      @enderror
                                  </div>
 
+                                 @include('courses.partials.shop-fields')
+
                                  <div class="group mt-4">
                                      <label for="program_type" class="flex items-center text-sm font-semibold text-gray-700 mb-2">
                                          <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

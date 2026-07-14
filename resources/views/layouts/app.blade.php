@@ -35,7 +35,7 @@
                 {{-- ── LEFT: Logo + desktop links ── --}}
                 <div class="flex items-center min-w-0">
                     {{-- Logo --}}
-                    <a href="{{ route('dashboard') }}" class="flex-shrink-0 mr-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bass-red rounded-md" aria-label="Kembali ke Dashboard">
+                    <a href="{{ Auth::check() ? route('dashboard') : route('shop.index') }}" class="flex-shrink-0 mr-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bass-red rounded-md" aria-label="Beranda">
                         <img src="{{ asset('images/logo.png') }}"
                              alt="{{ config('app.name') }} Logo"
                              class="h-12 w-auto"
@@ -57,6 +57,12 @@
                             Kelola Kursus
                         </a>
                         @endcan
+
+                        {{-- Etalase kursus — terbuka untuk semua, termasuk tamu. --}}
+                        <a href="{{ route('shop.index') }}"
+                           class="nav-link-custom {{ request()->routeIs('shop.*') ? 'active' : '' }}">
+                            Katalog
+                        </a>
 
                         @can('view progress reports')
                         <a href="{{ route('eo.courses.index') }}"
@@ -236,6 +242,12 @@
                     Kelola Kursus
                 </a>
                 @endcan
+
+                <a href="{{ route('shop.index') }}"
+                   class="responsive-nav-link-custom {{ request()->routeIs('shop.*') ? 'active' : '' }}">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                    Katalog Kursus
+                </a>
 
                 @can('view progress reports')
                 <a href="{{ route('eo.courses.index') }}"

@@ -17,6 +17,9 @@ class Course extends Model
         'objectives',
         'thumbnail',
         'status',
+        'visibility',
+        'price',
+        'short_description',
         'certificate_template_id',
         'enrollment_token',
         'token_enabled',
@@ -32,6 +35,7 @@ class Course extends Model
         'token_expires_at' => 'datetime',
         'training_start_date' => 'date',
         'training_end_date' => 'date',
+        'price' => 'integer',
     ];
 
     /**
@@ -442,5 +446,52 @@ class Course extends Model
             'random' => 'Random',
             default => 'Random',
         };
+    }
+
+    // ========================================
+    // ETALASE / KATALOG (SHOP)
+    // ========================================
+
+    /**
+     * Course yang boleh tampil di etalase publik: sudah published DAN
+     * sengaja ditandai untuk dikatalogkan. Draft tidak pernah bocor.
+     */
+    public function scopeInCatalog($query)
+    {
+        return $query->where('status', 'published')->where('visibility', 'catalog');
+    }
+
+    public function isInCatalog(): bool
+    {
+        return $this->status === 'published' && $this->visibility === 'catalog';
+    }
+
+    public function isFree(): bool
+    {
+        return (int) ($this->price ?? 0) <= 0;
+    }
+
+    public function isPaid(): bool
+    {
+        return ! $this->isFree();
+    }
+
+    /**
+     * "Gratis" atau "Rp 250.000".
+     */
+    public function getPriceLabelAttribute(): string
+    {
+        return $this->isFree()
+            ? 'Gratis'
+            : 'Rp ' . number_format((int) $this->price, 0, ',', '.');
+    }
+
+    public function isEnrolledBy(?User $user): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        return $this->enrolledUsers()->whereKey($user->id)->exists();
     }
 }

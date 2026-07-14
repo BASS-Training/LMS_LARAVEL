@@ -29,6 +29,7 @@ use App\Http\Controllers\EssayQuestionController;
 use App\Http\Controllers\FileControlController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\ShopController;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,6 +45,15 @@ Route::get('/certificates/verify/{code}', [CertificateController::class, 'verify
 
 // Ini adalah route untuk download dari halaman verifikasi
 Route::get('/certificates/download/{code}', [CertificateController::class, 'publicDownload'])->name('certificates.public-download');
+
+/*
+| Etalase kursus (katalog) — sengaja PUBLIK supaya link-nya bisa dibagikan
+| dan terindeks mesin pencari. Hanya course published+catalog yang tampil,
+| dan hanya judul kurikulum yang dibuka — isi konten tetap terkunci.
+*/
+Route::get('/katalog', [ShopController::class, 'index'])->name('shop.index');
+Route::get('/katalog/{course}', [ShopController::class, 'show'])->name('shop.show');
+Route::post('/katalog/{course}/daftar-gratis', [ShopController::class, 'enrollFree'])->name('shop.enroll-free');
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
