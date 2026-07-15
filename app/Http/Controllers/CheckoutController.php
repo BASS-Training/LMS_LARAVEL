@@ -60,6 +60,39 @@ class CheckoutController extends Controller
     }
 
     /**
+     * Pengguna ingin ganti metode pembayaran.
+     *
+     * Snap "mengunci" tampilan ke metode yang sudah dipilih saat transaksi
+     * dilanjutkan, jadi cara bersih untuk berganti metode adalah: batalkan
+     * pesanan lama, lalu buat pesanan baru (Snap fresh → daftar metode muncul).
+     * Tidak ada risiko dobel bayar — order_code lama sudah dibatalkan di kedua
+     * sisi (DB kita + Midtrans).
+     */
+    public function changeMethod(Order $order)
+    {
+        abort_unless($order->user_id === Auth::id(), 403);
+
+        // Jangan-jangan sebenarnya sudah lunas (webhook belum masuk di
+        // localhost). Cek dulu ke Midtrans sebelum membatalkan apa pun.
+        $order = $this->orders->refreshFromGateway($order);
+
+        if ($order->isPaid() || $order->course->isEnrolledBy(Auth::user())) {
+            return redirect()->route('checkout.finish', $order);
+        }
+
+        $this->orders->abandon($order);
+
+        try {
+            $fresh = $this->orders->checkout($order->course, Auth::user());
+        } catch (RuntimeException $e) {
+            return redirect()->route('shop.show', $order->course)
+                ->withErrors(['shop' => $e->getMessage()]);
+        }
+
+        return redirect()->away($fresh->snap_redirect_url);
+    }
+
+    /**
      * Daftar pesanan milik pengguna.
      */
     public function index()

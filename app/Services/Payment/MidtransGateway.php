@@ -106,6 +106,32 @@ class MidtransGateway
     }
 
     /**
+     * Batalkan transaksi di sisi Midtrans (best-effort).
+     *
+     * Dipakai saat pengguna ingin ganti metode pembayaran: transaksi lama
+     * harus benar-benar dimatikan supaya tidak ada dua transaksi hidup untuk
+     * kursus yang sama. Midtrans hanya mengizinkan cancel untuk transaksi yang
+     * belum settle — kalau gagal (misal sudah expire/settle), cukup diabaikan.
+     */
+    public function cancelTransaction(string $orderCode): bool
+    {
+        $response = Http::withBasicAuth(config('midtrans.server_key'), '')
+            ->acceptJson()
+            ->post($this->cancelUrl($orderCode));
+
+        if ($response->failed()) {
+            Log::info('Midtrans cancel tidak berhasil (mungkin belum ada / sudah selesai)', [
+                'order_code' => $orderCode,
+                'status' => $response->status(),
+            ]);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Pastikan notifikasi webhook benar-benar dari Midtrans.
      *
      * signature_key = sha512(order_id + status_code + gross_amount + server_key)
@@ -144,5 +170,14 @@ class MidtransGateway
             : 'https://api.sandbox.midtrans.com';
 
         return $base . '/v2/' . urlencode($orderCode) . '/status';
+    }
+
+    private function cancelUrl(string $orderCode): string
+    {
+        $base = config('midtrans.is_production')
+            ? 'https://api.midtrans.com'
+            : 'https://api.sandbox.midtrans.com';
+
+        return $base . '/v2/' . urlencode($orderCode) . '/cancel';
     }
 }

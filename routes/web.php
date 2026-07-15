@@ -69,6 +69,7 @@ Route::post('/webhooks/midtrans', [CheckoutController::class, 'notification'])->
 Route::post('/katalog/{course}/beli', [CheckoutController::class, 'store'])->name('checkout.store');
 Route::get('/pesanan', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::get('/pesanan/{order}', [CheckoutController::class, 'finish'])->name('checkout.finish');
+Route::post('/pesanan/{order}/ganti-metode', [CheckoutController::class, 'changeMethod'])->name('checkout.change-method');
 
 Route::middleware(['auth', 'verified'])->group(function () {
 

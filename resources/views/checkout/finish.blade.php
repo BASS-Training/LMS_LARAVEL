@@ -49,6 +49,17 @@
                    class="mt-3 w-full inline-flex items-center justify-center min-h-[44px] rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors">
                     Muat Ulang Status
                 </a>
+
+                <form method="POST" action="{{ route('checkout.change-method', $order) }}" class="mt-3">
+                    @csrf
+                    <button type="submit"
+                            class="w-full inline-flex items-center justify-center min-h-[44px] rounded-lg text-gray-500 text-sm font-medium hover:text-bass-red transition-colors">
+                        Ganti metode pembayaran
+                    </button>
+                </form>
+                <p class="mt-1 text-center text-xs text-gray-400">
+                    Membuat tagihan baru dan membatalkan yang ini — tidak ada dobel bayar.
+                </p>
             </div>
 
         @else

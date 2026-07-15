@@ -76,6 +76,28 @@ class OrderService
     }
 
     /**
+     * Batalkan pesanan pending supaya pengguna bisa mulai lagi dengan metode
+     * pembayaran berbeda. Transaksi lama juga dimatikan di sisi Midtrans agar
+     * tidak ada dua transaksi hidup untuk kursus yang sama.
+     *
+     * Aman: pesanan yang SUDAH lunas tidak pernah dibatalkan.
+     */
+    public function abandon(Order $order): void
+    {
+        if ($order->isPaid()) {
+            return;
+        }
+
+        if ($this->gateway->isConfigured()) {
+            $this->gateway->cancelTransaction($order->order_code);
+        }
+
+        if ($order->status === 'pending') {
+            $order->update(['status' => 'cancelled']);
+        }
+    }
+
+    /**
      * Terapkan status dari Midtrans ke pesanan. Sumbernya boleh webhook
      * maupun hasil query status — keduanya berasal dari Midtrans, bukan dari
      * browser pengguna.
