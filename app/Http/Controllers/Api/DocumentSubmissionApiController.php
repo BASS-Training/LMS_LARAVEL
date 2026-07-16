@@ -51,6 +51,9 @@ class DocumentSubmissionApiController extends Controller
                 'lessonId' => (string) $content->id,
                 'courseId' => (string) $content->lesson?->course?->id,
                 'collectSubmission' => true,
+                // Wajib lulus untuk lanjut: dipakai mobile untuk mengunci tombol
+                // "Lanjut" sampai pengumpulan dinilai LULUS.
+                'requireSubmissionPass' => (bool) ($content->require_submission_pass ?? false),
                 'instructions' => $content->submission_instructions,
                 'maxSizeMb' => $this->maxSizeMb($content),
                 'allowedTypes' => $this->allowedTypes($content),
