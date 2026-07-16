@@ -722,8 +722,38 @@
                                             </div>
                                         {{-- Preview Section (jika bisa di-preview dan akses type bukan download_only) --}}
                                         @elseif($isPreviewable && $accessType !== 'download_only')
-                                            <div class="mb-6 bg-white rounded-xl overflow-hidden shadow-lg" x-data="{ loading: true, error: false }">
-                                                <div class="aspect-[4/3] md:aspect-video relative">
+                                            <style>
+                                                #doc-preview-card:fullscreen,
+                                                #doc-preview-card:-webkit-full-screen { width: 100vw; height: 100vh; border-radius: 0; background: #fff; display: flex; flex-direction: column; }
+                                                #doc-preview-card:fullscreen .doc-preview-area,
+                                                #doc-preview-card:-webkit-full-screen .doc-preview-area { flex: 1 1 auto; height: auto; }
+                                                #doc-preview-card:not(:fullscreen) .doc-fs-exit { display: none; }
+                                                #doc-preview-card:fullscreen .doc-fs-enter { display: none; }
+                                            </style>
+                                            <div id="doc-preview-card" class="mb-6 bg-white rounded-xl overflow-hidden shadow-lg" x-data="{ loading: true, error: false }">
+                                                {{-- Toolbar preview: zoom (khusus PDF) + Layar Penuh --}}
+                                                <div class="flex items-center justify-between gap-2 px-3 py-2 bg-gray-50 border-b border-gray-200">
+                                                    <div class="flex items-center gap-1">
+                                                        @if($fileExtension === 'pdf')
+                                                            <button type="button" id="doc-zoom-out" title="Perkecil" class="w-8 h-8 inline-flex items-center justify-center rounded-lg text-gray-600 hover:bg-gray-200 transition">
+                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                                                            </button>
+                                                            <span id="doc-zoom-label" class="text-xs font-medium text-gray-700 w-12 text-center tabular-nums">100%</span>
+                                                            <button type="button" id="doc-zoom-in" title="Perbesar" class="w-8 h-8 inline-flex items-center justify-center rounded-lg text-gray-600 hover:bg-gray-200 transition">
+                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                                            </button>
+                                                        @else
+                                                            <span class="text-xs text-gray-500">Preview dokumen</span>
+                                                        @endif
+                                                    </div>
+                                                    <button type="button" id="doc-fullscreen-btn" title="Layar Penuh" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition">
+                                                        <svg class="w-4 h-4 doc-fs-enter" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                                                        <svg class="w-4 h-4 doc-fs-exit" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4m0 5H4m5 0L4 4m11 5h5m-5 0V4m0 5l5-5M9 15v5m0-5H4m5 0l-5 5m11-5h5m-5 0v5m0-5l5 5"/></svg>
+                                                        <span class="doc-fs-enter">Layar Penuh</span>
+                                                        <span class="doc-fs-exit">Keluar</span>
+                                                    </button>
+                                                </div>
+                                                <div class="doc-preview-area h-[75vh] relative">
                                                     {{-- Loading State --}}
                                                     <div x-show="loading" class="absolute inset-0 flex items-center justify-center bg-gray-100">
                                                         <div class="text-center">
@@ -826,43 +856,78 @@
 
                                                                     if (!window.pdfjsLib) { showFallback(); return; }
 
+                                                                    // Zoom state (dikontrol via toolbar) + PDF yang sedang aktif
+                                                                    let currentPdf = null;
+                                                                    let zoomFactor = 1.0;
+                                                                    const zoomLabelEl = document.getElementById('doc-zoom-label');
+                                                                    const updateZoomLabel = () => { if (zoomLabelEl) zoomLabelEl.textContent = Math.round(zoomFactor * 100) + '%'; };
+
+                                                                    const renderAllPages = function() {
+                                                                        if (!currentPdf || !pagesEl) return Promise.resolve();
+                                                                        clearPages();
+                                                                        const total = currentPdf.numPages;
+                                                                        let firstRendered = false;
+                                                                        const renderPage = function(num) {
+                                                                            return currentPdf.getPage(num).then(function(page) {
+                                                                                const containerWidth = pagesEl.clientWidth || 800;
+                                                                                const initialViewport = page.getViewport({ scale: 1.0 });
+                                                                                const fitScale = containerWidth / initialViewport.width;
+                                                                                const scale = fitScale * zoomFactor;
+                                                                                const viewport = page.getViewport({ scale: scale });
+                                                                                const wrapper = document.createElement('div');
+                                                                                wrapper.className = 'bg-white rounded-xl shadow-xl';
+                                                                                wrapper.style.width = 'max-content';
+                                                                                wrapper.style.marginLeft = 'auto';
+                                                                                wrapper.style.marginRight = 'auto';
+                                                                                const canvas = document.createElement('canvas');
+                                                                                canvas.className = 'h-auto block';
+                                                                                const ctx = canvas.getContext('2d');
+                                                                                canvas.width = Math.floor(viewport.width);
+                                                                                canvas.height = Math.floor(viewport.height);
+                                                                                wrapper.appendChild(canvas);
+                                                                                pagesEl.appendChild(wrapper);
+                                                                                const renderContext = { canvasContext: ctx, viewport: viewport };
+                                                                                return page.render(renderContext).promise.then(function() {
+                                                                                    if (!firstRendered) { firstRendered = true; showPdfViewer(); }
+                                                                                });
+                                                                            });
+                                                                        };
+                                                                        let chain = Promise.resolve();
+                                                                        for (let i = 1; i <= total; i++) {
+                                                                            chain = chain.then(() => renderPage(i));
+                                                                        }
+                                                                        return chain.catch(function() { showFallback(); });
+                                                                    };
+                                                                    // Diekspos supaya handler fullscreen bisa render ulang mengikuti lebar baru
+                                                                    window.rerenderDocPdf = renderAllPages;
+
                                                                     window.loadDocumentPdf = function(pdfUrl) {
                                                                         try {
                                                                             showLoading();
                                                                             clearPages();
+                                                                            zoomFactor = 1.0;
+                                                                            updateZoomLabel();
                                                                             pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
                                                                                 if (!pagesEl) { throw new Error('No pages container'); }
-                                                                                const total = pdf.numPages;
-                                                                                let firstRendered = false;
-                                                                                const renderPage = function(num) {
-                                                                                    return pdf.getPage(num).then(function(page) {
-                                                                                        const containerWidth = pagesEl.clientWidth || 800;
-                                                                                        const initialViewport = page.getViewport({ scale: 1.0 });
-                                                                                        const scale = Math.min(2.0, containerWidth / initialViewport.width);
-                                                                                        const viewport = page.getViewport({ scale: scale });
-                                                                                        const wrapper = document.createElement('div');
-                                                                                        wrapper.className = 'bg-white rounded-xl shadow-xl overflow-hidden flex justify-center';
-                                                                                        const canvas = document.createElement('canvas');
-                                                                                        canvas.className = 'max-w-full h-auto';
-                                                                                        const ctx = canvas.getContext('2d');
-                                                                                        canvas.width = Math.floor(viewport.width);
-                                                                                        canvas.height = Math.floor(viewport.height);
-                                                                                        wrapper.appendChild(canvas);
-                                                                                        pagesEl.appendChild(wrapper);
-                                                                                        const renderContext = { canvasContext: ctx, viewport: viewport };
-                                                                                        return page.render(renderContext).promise.then(function() {
-                                                                                            if (!firstRendered) { firstRendered = true; showPdfViewer(); }
-                                                                                        });
-                                                                                    });
-                                                                                };
-                                                                                let chain = Promise.resolve();
-                                                                                for (let i = 1; i <= total; i++) {
-                                                                                    chain = chain.then(() => renderPage(i));
-                                                                                }
-                                                                                return chain;
+                                                                                currentPdf = pdf;
+                                                                                return renderAllPages();
                                                                             }).catch(function() { showFallback(); });
                                                                         } catch (e) { showFallback(); }
                                                                     };
+
+                                                                    // Kontrol zoom
+                                                                    const zoomInBtn = document.getElementById('doc-zoom-in');
+                                                                    const zoomOutBtn = document.getElementById('doc-zoom-out');
+                                                                    if (zoomInBtn) zoomInBtn.addEventListener('click', function() {
+                                                                        zoomFactor = Math.min(3.0, Math.round((zoomFactor + 0.25) * 100) / 100);
+                                                                        updateZoomLabel();
+                                                                        renderAllPages();
+                                                                    });
+                                                                    if (zoomOutBtn) zoomOutBtn.addEventListener('click', function() {
+                                                                        zoomFactor = Math.max(0.5, Math.round((zoomFactor - 0.25) * 100) / 100);
+                                                                        updateZoomLabel();
+                                                                        renderAllPages();
+                                                                    });
 
                                                                     window.loadDocumentEmbed = function(embedUrl) {
                                                                         try {
@@ -930,6 +995,30 @@
                                                         </script>
                                                     @endif
                                                 </div>
+                                                {{-- Layar Penuh (Fullscreen API) — berlaku untuk PDF & Office --}}
+                                                <script>
+                                                    (function(){
+                                                        const card = document.getElementById('doc-preview-card');
+                                                        const btn = document.getElementById('doc-fullscreen-btn');
+                                                        if (!card || !btn) return;
+                                                        const isFs = () => document.fullscreenElement === card || document.webkitFullscreenElement === card;
+                                                        btn.addEventListener('click', function(){
+                                                            if (isFs()) {
+                                                                (document.exitFullscreen || document.webkitExitFullscreen || function(){}).call(document);
+                                                            } else {
+                                                                (card.requestFullscreen || card.webkitRequestFullscreen || function(){}).call(card);
+                                                            }
+                                                        });
+                                                        // Saat masuk/keluar fullscreen, lebar berubah → render ulang PDF agar pas
+                                                        const onChange = function(){
+                                                            if (typeof window.rerenderDocPdf === 'function') {
+                                                                setTimeout(function(){ window.rerenderDocPdf(); }, 150);
+                                                            }
+                                                        };
+                                                        document.addEventListener('fullscreenchange', onChange);
+                                                        document.addEventListener('webkitfullscreenchange', onChange);
+                                                    })();
+                                                </script>
                                             </div>
                                         @endif
 
