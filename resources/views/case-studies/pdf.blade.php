@@ -64,7 +64,7 @@
             @endif
 
             @if(!empty($section['instruction']))
-                <div class="instruction">{{ $section['instruction'] }}</div>
+                <div class="instruction">{!! nl2br(e($section['instruction'])) !!}</div>
             @endif
 
             @foreach(($section['blocks'] ?? []) as $block)
