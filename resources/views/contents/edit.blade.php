@@ -1054,7 +1054,11 @@
                                     </div>
                                 </div>
 
-                                <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-green-400 transition-colors duration-300">
+                                                <div class="border-2 border-dashed rounded-xl p-8 text-center transition-colors duration-300"
+                                     :class="dragOver ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-green-400'"
+                                     @dragover.prevent="dragOver = true"
+                                     @dragleave.prevent="dragOver = false"
+                                     @drop.prevent="handleFileDrop($event)">
                                     <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                                     </svg>
@@ -1678,6 +1682,7 @@
                 formHasErrors: false,
                 uploadedFileName: '',
                 uploadedImagePreviewUrl: null,
+                dragOver: false,
 
                 initForm() {
                     if (!this.content.hasOwnProperty('grading_mode')) {
@@ -1961,6 +1966,23 @@
                     } else {
                         this.uploadedImagePreviewUrl = null;
                     }
+                },
+
+                handleFileDrop(event) {
+                    this.dragOver = false;
+                    const file = event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0];
+                    if (!file) return;
+                    if (this.isType('image') && !file.type.startsWith('image/')) {
+                        alert('Konten bertipe gambar hanya menerima file gambar.');
+                        return;
+                    }
+                    // Masukkan file hasil drop ke input tersembunyi agar ikut ter-submit bersama form.
+                    const input = document.getElementById('file_upload');
+                    if (!input) return;
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    input.files = dt.files;
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
                 },
 
                 // Quiz management methods

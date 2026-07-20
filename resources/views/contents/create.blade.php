@@ -318,7 +318,7 @@
                                 <label for="file_upload" class="block text-sm font-semibold text-gray-700 mb-3">
                                     📁 Unggah File
                                 </label>
-                                <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-green-400 transition-colors duration-300">
+                                <div id="file_dropzone" class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-green-400 transition-colors duration-300">
                                     <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                                     </svg>
@@ -734,6 +734,29 @@
             input.value = '';
             preview.classList.add('hidden');
         }
+
+        // Drag & drop file utama: masukkan file hasil drop ke input tersembunyi agar ikut ter-submit form.
+        (function(){
+            const dropzone = document.getElementById('file_dropzone');
+            const input = document.getElementById('file_upload');
+            if (!dropzone || !input) return;
+            const highlight = on => {
+                dropzone.classList.toggle('border-green-500', on);
+                dropzone.classList.toggle('bg-green-50', on);
+            };
+            dropzone.addEventListener('dragover', function(e) { e.preventDefault(); highlight(true); });
+            dropzone.addEventListener('dragleave', function(e) { e.preventDefault(); highlight(false); });
+            dropzone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                highlight(false);
+                const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+                if (!file) return;
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                input.files = dt.files;
+                handleFileSelect(input);
+            });
+        })();
 
         // Preview untuk multiple images
         (function(){
