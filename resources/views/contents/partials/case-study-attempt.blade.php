@@ -43,7 +43,7 @@
         <div>
             <h2 class="text-xl font-bold text-gray-900">📋 {{ $content->title }}</h2>
             @if($content->description)
-                <p class="text-gray-600 mt-1">{{ $content->description }}</p>
+                <p class="text-gray-600 mt-1" style="white-space: pre-line;">{{ $content->description }}</p>
             @endif
         </div>
         <div class="flex items-center gap-2">
@@ -91,7 +91,7 @@
                             {{ $section['title'] ?: ($level === 1 ? 'Bab' : 'Subbab') }}
                         </h3>
                         @if(!empty($section['instruction']))
-                            <p class="text-sm text-gray-500 mt-1 mb-3">{{ $section['instruction'] }}</p>
+                            <p class="text-sm text-gray-700 mt-1 mb-3" style="white-space: pre-line;">{{ $section['instruction'] }}</p>
                         @endif
 
                         <div class="space-y-4 mt-3">
