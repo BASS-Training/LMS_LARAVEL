@@ -15,12 +15,13 @@ use App\Http\Controllers\Api\EssayApiController;
 use App\Http\Controllers\Api\FeedbackApiController;
 use App\Http\Controllers\Api\GameScoreApiController;
 use App\Http\Controllers\Api\InstructorApiController;
-use App\Http\Controllers\Api\PersonalAgendaApiController;
 use App\Http\Controllers\Api\LessonProgressApiController;
 use App\Http\Controllers\Api\NotificationApiController;
 use App\Http\Controllers\Api\PasswordApiController;
+use App\Http\Controllers\Api\PersonalAgendaApiController;
 use App\Http\Controllers\Api\ProfileApiController;
 use App\Http\Controllers\Api\QuizApiController;
+use App\Http\Controllers\Api\ShopApiController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/mobile/auth/login', [AuthApiController::class, 'login']);
@@ -55,6 +56,15 @@ Route::middleware('mobile.api.user')->group(function () {
     // agar segmen literal "saved" tidak tertangkap sebagai parameter course.
     Route::get('/mobile/courses/saved', [CourseApiController::class, 'saved']);
     Route::post('/mobile/courses/{course}/save', [CourseApiController::class, 'toggleSave']);
+
+    /*
+    | Etalase kursus ("Jelajahi"). Terpisah dari /mobile/courses yang hanya
+    | berisi kursus milik user. TIDAK ADA jalur pembelian di sini — kebijakan
+    | anti-steering Google Play. Hanya kursus GRATIS yang bisa diikuti langsung.
+    */
+    Route::get('/mobile/catalog', [ShopApiController::class, 'index']);
+    Route::get('/mobile/catalog/{course}', [ShopApiController::class, 'show']);
+    Route::post('/mobile/catalog/{course}/daftar-gratis', [ShopApiController::class, 'enrollFree']);
     Route::get('/documents/{path}', [DocumentController::class, 'show'])->where('path', '.*');
     Route::get('/mobile/courses/{course}/results', [CourseResultsApiController::class, 'index']);
     Route::post('/mobile/enroll', [EnrollmentApiController::class, 'enroll']);
