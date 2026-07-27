@@ -244,13 +244,25 @@ class InstructorApiController extends Controller
             ->groupBy('lessons.course_id')
             ->pluck('c', 'lessons.course_id');
 
+        // Dokumen menunggu dinilai (status submitted) per course.
+        $docPending = empty($courseIds) ? collect() : DB::table('document_submissions')
+            ->join('contents', 'document_submissions.content_id', '=', 'contents.id')
+            ->join('lessons', 'contents.lesson_id', '=', 'lessons.id')
+            ->whereIn('lessons.course_id', $courseIds)
+            ->where('document_submissions.status', 'submitted')
+            ->select('lessons.course_id', DB::raw('count(*) as c'))
+            ->groupBy('lessons.course_id')
+            ->pluck('c', 'lessons.course_id');
+
         $totalParticipants = empty($courseIds) ? 0 : DB::table('course_user')
             ->whereIn('course_id', $courseIds)
             ->distinct()
             ->count('user_id');
 
-        $perCourse = $courses->map(function (Course $c) use ($essayPending, $casePending) {
-            $pending = (int) ($essayPending[$c->id] ?? 0) + (int) ($casePending[$c->id] ?? 0);
+        $perCourse = $courses->map(function (Course $c) use ($essayPending, $casePending, $docPending) {
+            $pending = (int) ($essayPending[$c->id] ?? 0)
+                + (int) ($casePending[$c->id] ?? 0)
+                + (int) ($docPending[$c->id] ?? 0);
             return [
                 'id' => (string) $c->id,
                 'title' => $c->title,
