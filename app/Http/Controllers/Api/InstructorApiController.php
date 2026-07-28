@@ -269,6 +269,7 @@ class InstructorApiController extends Controller
                 'status' => $c->status,
                 'participantCount' => (int) $c->enrolled_users_count,
                 'pendingCount' => $pending,
+                'createdAt' => optional($c->created_at)?->toISOString(),
             ];
         });
 
