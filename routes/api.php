@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AchievementApiController;
 use App\Http\Controllers\Api\AgendaApiController;
 use App\Http\Controllers\Api\AuthApiController;
 use App\Http\Controllers\Api\CaseStudyApiController;
+use App\Http\Controllers\Api\CertificateApiController;
 use App\Http\Controllers\Api\CourseApiController;
 use App\Http\Controllers\Api\CourseResultsApiController;
 use App\Http\Controllers\Api\DiscussionApiController;
@@ -123,6 +124,10 @@ Route::middleware('mobile.api.user')->group(function () {
     Route::get('/mobile/notifications/unread-count', [NotificationApiController::class, 'unreadCount']);
     Route::post('/mobile/notifications/mark-read', [NotificationApiController::class, 'markRead']);
     Route::post('/mobile/notifications/mark-all-read', [NotificationApiController::class, 'markAllRead']);
+
+    // Sertifikat peserta — aturan kelayakan & PDF sama persis dengan web.
+    Route::get('/mobile/certificates', [CertificateApiController::class, 'index']);
+    Route::post('/mobile/certificates/{course}/generate', [CertificateApiController::class, 'generate']);
 
     // Instructor / admin (mobile): lihat peserta & progres, dan nilai essay / studi kasus.
     // Menulis ke tabel yang sama dengan web → grading tersinkron dua arah.
