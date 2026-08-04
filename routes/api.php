@@ -34,6 +34,10 @@ Route::middleware('mobile.api.user')->group(function () {
     Route::get('/mobile/auth/me', [AuthApiController::class, 'me']);
     Route::post('/mobile/auth/logout', [AuthApiController::class, 'logout']);
 
+    // Hapus permanen akun peserta (butuh konfirmasi password). Wajib untuk
+    // App Store (Guideline 5.1.1(v)) karena aplikasi mengizinkan buat akun.
+    Route::delete('/mobile/auth/account', [AuthApiController::class, 'deleteAccount']);
+
     // Verifikasi email (OTP). Tidak memblokir login; dipakai akun baru (wajib)
     // maupun akun lama (opsional, lewat nudge di Profil).
     Route::post('/mobile/auth/email/send-otp', [EmailVerificationApiController::class, 'sendOtp']);

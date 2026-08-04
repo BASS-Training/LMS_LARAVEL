@@ -8,6 +8,7 @@ use App\Models\EmailOtp;
 use App\Models\User;
 use App\Services\OtpService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -142,6 +143,74 @@ class AuthApiController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Logout berhasil.',
+        ]);
+    }
+
+    /**
+     * Hapus permanen akun peserta yang sedang login (butuh konfirmasi password).
+     * Dipakai fitur "Hapus Akun" di aplikasi mobile — wajib App Store Guideline
+     * 5.1.1(v) untuk aplikasi yang mengizinkan pembuatan akun.
+     */
+    public function deleteAccount(Request $request)
+    {
+        $user = $request->user();
+        if (! $user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthenticated.',
+            ], 401);
+        }
+
+        $payload = $request->validate([
+            'password' => ['required', 'string'],
+        ]);
+
+        // Konfirmasi identitas: password harus benar sebelum penghapusan permanen.
+        if (! Hash::check($payload['password'], $user->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Password salah. Penghapusan akun dibatalkan.',
+            ], 422);
+        }
+
+        // Batasi ke peserta. Akun pengelola (admin/instruktur/EO) diprovisi lewat
+        // web dan sebagian datanya (mis. kuis yang dibuat) memakai FK cascade —
+        // menghapusnya dari aplikasi bisa ikut menghapus materi milik bersama.
+        if ($user->role !== 'participant') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Akun pengelola tidak dapat dihapus lewat aplikasi. Silakan hubungi admin.',
+            ], 403);
+        }
+
+        try {
+            DB::transaction(function () use ($user) {
+                // Cabut sesi & peran, lalu hard-delete. Seluruh data pribadi
+                // (enrolmen, progres, submission, sertifikat, diskusi, dsb.) ikut
+                // terhapus lewat foreign key onDelete('cascade'); referensi audit
+                // di-set null. User tidak memakai SoftDeletes → benar-benar hilang.
+                $user->forceFill(['api_token' => null])->save();
+
+                try {
+                    $user->syncRoles([]);
+                } catch (\Throwable $e) {
+                    // Spatie mungkin tidak tersedia di environment ini — abaikan.
+                }
+
+                $user->delete();
+            });
+        } catch (\Throwable $e) {
+            Log::error('Gagal menghapus akun mobile: '.$e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menghapus akun. Silakan coba lagi nanti.',
+            ], 500);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Akun kamu telah dihapus permanen.',
         ]);
     }
 
