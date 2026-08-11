@@ -13,6 +13,7 @@ class Order extends Model
         'user_id',
         'course_id',
         'order_code',
+        'invoice_number',
         'amount',
         'status',
         'payment_type',
@@ -20,6 +21,10 @@ class Order extends Model
         'snap_token',
         'snap_redirect_url',
         'paid_at',
+        'payment_confirmed_at',
+        'verified_by',
+        'verified_at',
+        'rejection_reason',
         'expires_at',
         'raw_response',
     ];
@@ -27,6 +32,8 @@ class Order extends Model
     protected $casts = [
         'amount' => 'integer',
         'paid_at' => 'datetime',
+        'payment_confirmed_at' => 'datetime',
+        'verified_at' => 'datetime',
         'expires_at' => 'datetime',
         'raw_response' => 'array',
     ];
@@ -41,6 +48,12 @@ class Order extends Model
         return $this->belongsTo(Course::class);
     }
 
+    /** Super-admin yang menyetujui akses (mode verifikasi manual). */
+    public function verifiedBy()
+    {
+        return $this->belongsTo(User::class, 'verified_by');
+    }
+
     public function isPending(): bool
     {
         return $this->status === 'pending';
@@ -49,6 +62,26 @@ class Order extends Model
     public function isPaid(): bool
     {
         return $this->status === 'paid';
+    }
+
+    /** Uang sudah masuk, tapi menunggu persetujuan manusia sebelum akses dibuka. */
+    public function isAwaitingVerification(): bool
+    {
+        return $this->status === 'awaiting_verification';
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->status === 'rejected';
+    }
+
+    /**
+     * Uang sudah dikonfirmasi Midtrans (baik akses sudah dibuka maupun masih
+     * menunggu verifikasi). Dipakai untuk memutuskan apakah invoice tersedia.
+     */
+    public function isPaymentConfirmed(): bool
+    {
+        return $this->payment_confirmed_at !== null;
     }
 
     /**
@@ -69,12 +102,32 @@ class Order extends Model
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
-            'paid' => 'Lunas',
+            'paid' => 'Lunas & akses terbuka',
             'pending' => 'Menunggu pembayaran',
+            'awaiting_verification' => 'Menunggu verifikasi',
+            'rejected' => 'Ditolak',
             'failed' => 'Gagal',
             'expired' => 'Kedaluwarsa',
             'cancelled' => 'Dibatalkan',
             default => ucfirst($this->status),
+        };
+    }
+
+    /**
+     * Warna badge (Tailwind) per status — dipakai di riwayat & halaman status.
+     * Mengembalikan [bg, text].
+     *
+     * @return array{0:string,1:string}
+     */
+    public function getStatusColorsAttribute(): array
+    {
+        return match ($this->status) {
+            'paid' => ['bg-emerald-100', 'text-emerald-800'],
+            'awaiting_verification' => ['bg-amber-100', 'text-amber-800'],
+            'pending' => ['bg-blue-100', 'text-blue-800'],
+            'rejected', 'failed' => ['bg-red-100', 'text-red-800'],
+            'expired', 'cancelled' => ['bg-gray-100', 'text-gray-700'],
+            default => ['bg-gray-100', 'text-gray-700'],
         };
     }
 }

@@ -111,24 +111,24 @@ class OrderService
             $payload['fraud_status'] ?? null
         );
 
-        // Sudah lunas → jangan proses ulang, jangan pernah turunkan statusnya.
-        if ($order->isPaid()) {
+        // Uang sudah dikonfirmasi (lunas / menunggu verifikasi) atau sudah
+        // ditolak → jangan proses ulang & jangan pernah turunkan statusnya.
+        if ($order->isPaymentConfirmed() || $order->isRejected()) {
             return $order;
         }
 
+        // Uang masuk → konfirmasi + tentukan akses otomatis vs verifikasi manual.
+        if ($status === 'paid') {
+            return $this->confirmPayment($order, $payload);
+        }
+
+        // Belum lunas (pending/failed/cancelled/expired) — catat status apa adanya.
         $order->fill([
             'payment_type' => $payload['payment_type'] ?? $order->payment_type,
             'transaction_id' => $payload['transaction_id'] ?? $order->transaction_id,
             'raw_response' => $payload,
+            'status' => $status,
         ]);
-
-        if ($status === 'paid') {
-            $this->fulfill($order, $payload);
-
-            return $order->refresh();
-        }
-
-        $order->status = $status;
         $order->save();
 
         return $order;
@@ -140,7 +140,9 @@ class OrderService
      */
     public function refreshFromGateway(Order $order): Order
     {
-        if ($order->isPaid() || ! $this->gateway->isConfigured()) {
+        // Uang sudah dikonfirmasi (paid / awaiting_verification / rejected) →
+        // tak perlu tanya ulang.
+        if ($order->isPaymentConfirmed() || ! $this->gateway->isConfigured()) {
             return $order;
         }
 
@@ -154,40 +156,124 @@ class OrderService
     }
 
     /**
-     * Tandai lunas + daftarkan peserta ke kursus.
+     * Midtrans memastikan UANG masuk. Ini memisahkan "uang diterima" dari
+     * "akses diberikan":
+     *  - course biasa  → akses OTOMATIS (langsung enroll + lunas).
+     *  - course dgn requires_payment_verification → status awaiting_verification
+     *    (uang aman, tapi akses ditahan sampai super-admin menyetujui).
      *
-     * Enroll di level course (tanpa CourseClass) — sama seperti jalur kode
-     * enrollment yang tidak terikat kelas. syncWithoutDetaching membuatnya
-     * aman dipanggil berkali-kali.
+     * Idempotent + lockForUpdate: notifikasi ganda dari Midtrans tidak boleh
+     * dobel-proses, dan nomor invoice hanya dibuat sekali.
      *
      * @param  array<string, mixed>  $payload
      */
-    private function fulfill(Order $order, array $payload): void
+    private function confirmPayment(Order $order, array $payload): Order
     {
-        DB::transaction(function () use ($order, $payload) {
-            // Kunci barisnya: dua notifikasi yang datang bersamaan tidak boleh
-            // sama-sama lolos pengecekan "belum lunas".
-            $locked = Order::whereKey($order->id)->lockForUpdate()->first();
+        return DB::transaction(function () use ($order, $payload) {
+            $locked = Order::whereKey($order->id)->with('course')->lockForUpdate()->first();
 
-            if (! $locked || $locked->status === 'paid') {
-                return;
+            if (! $locked || $locked->isPaymentConfirmed()) {
+                return $locked ?? $order;
+            }
+
+            $locked->fill([
+                'payment_type' => $payload['payment_type'] ?? $locked->payment_type,
+                'transaction_id' => $payload['transaction_id'] ?? $locked->transaction_id,
+                'raw_response' => $payload,
+                'payment_confirmed_at' => now(),
+                'invoice_number' => 'INV/' . now()->format('ymd') . '/'
+                    . str_pad((string) $locked->id, 4, '0', STR_PAD_LEFT),
+            ]);
+
+            if ($locked->course->requiresPaymentVerification()) {
+                $locked->status = 'awaiting_verification';
+                $locked->save();
+
+                Log::info('Pembayaran dikonfirmasi — menunggu verifikasi manual', [
+                    'order_code' => $locked->order_code,
+                    'user_id' => $locked->user_id,
+                    'course_id' => $locked->course_id,
+                ]);
+            } else {
+                $locked->status = 'paid';
+                $locked->paid_at = now();
+                $locked->save();
+
+                $locked->course->enrolledUsers()->syncWithoutDetaching([$locked->user_id]);
+
+                Log::info('Pesanan lunas & peserta di-enroll (otomatis)', [
+                    'order_code' => $locked->order_code,
+                    'user_id' => $locked->user_id,
+                    'course_id' => $locked->course_id,
+                ]);
+            }
+
+            return $locked->refresh();
+        });
+    }
+
+    /**
+     * Super-admin MENYETUJUI pembayaran yang sedang ditinjau → buka akses.
+     * Hanya boleh dari status awaiting_verification; idempotent.
+     */
+    public function approve(Order $order, User $admin): Order
+    {
+        return DB::transaction(function () use ($order, $admin) {
+            $locked = Order::whereKey($order->id)->with('course')->lockForUpdate()->first();
+
+            if (! $locked || ! $locked->isAwaitingVerification()) {
+                return $locked ?? $order;
             }
 
             $locked->update([
                 'status' => 'paid',
                 'paid_at' => now(),
-                'payment_type' => $payload['payment_type'] ?? $locked->payment_type,
-                'transaction_id' => $payload['transaction_id'] ?? $locked->transaction_id,
-                'raw_response' => $payload,
+                'verified_by' => $admin->id,
+                'verified_at' => now(),
             ]);
 
             $locked->course->enrolledUsers()->syncWithoutDetaching([$locked->user_id]);
 
-            Log::info('Pesanan lunas & peserta di-enroll', [
+            Log::info('Pembayaran diverifikasi & peserta di-enroll', [
                 'order_code' => $locked->order_code,
                 'user_id' => $locked->user_id,
                 'course_id' => $locked->course_id,
+                'verified_by' => $admin->id,
             ]);
+
+            return $locked->refresh();
+        });
+    }
+
+    /**
+     * Super-admin MENOLAK pembayaran setelah ditinjau (mis. dana tak cocok saat
+     * rekonsiliasi bank). Akses tidak dibuka. Refund diproses manual di Midtrans.
+     * Hanya boleh dari status awaiting_verification; idempotent.
+     */
+    public function reject(Order $order, User $admin, string $reason): Order
+    {
+        return DB::transaction(function () use ($order, $admin, $reason) {
+            $locked = Order::whereKey($order->id)->lockForUpdate()->first();
+
+            if (! $locked || ! $locked->isAwaitingVerification()) {
+                return $locked ?? $order;
+            }
+
+            $locked->update([
+                'status' => 'rejected',
+                'rejection_reason' => $reason,
+                'verified_by' => $admin->id,
+                'verified_at' => now(),
+            ]);
+
+            Log::warning('Pembayaran ditolak setelah ditinjau', [
+                'order_code' => $locked->order_code,
+                'user_id' => $locked->user_id,
+                'course_id' => $locked->course_id,
+                'verified_by' => $admin->id,
+            ]);
+
+            return $locked->refresh();
         });
     }
 

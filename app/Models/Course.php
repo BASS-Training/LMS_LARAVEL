@@ -19,6 +19,7 @@ class Course extends Model
         'status',
         'visibility',
         'price',
+        'requires_payment_verification',
         'short_description',
         'certificate_template_id',
         'enrollment_token',
@@ -36,6 +37,7 @@ class Course extends Model
         'training_start_date' => 'date',
         'training_end_date' => 'date',
         'price' => 'integer',
+        'requires_payment_verification' => 'boolean',
     ];
 
     /**
@@ -474,6 +476,15 @@ class Course extends Model
     public function isPaid(): bool
     {
         return ! $this->isFree();
+    }
+
+    /**
+     * Pembelian course ini harus ditinjau/diverifikasi manusia dulu sebelum
+     * peserta mendapat akses (mode manual). Default false = akses otomatis.
+     */
+    public function requiresPaymentVerification(): bool
+    {
+        return (bool) $this->requires_payment_verification;
     }
 
     /**
