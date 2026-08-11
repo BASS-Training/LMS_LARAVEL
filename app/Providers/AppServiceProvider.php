@@ -132,6 +132,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Mobile notification triggers (sinkron web↔mobile lewat model events):
         // balasan diskusi & nilai essay / studi kasus yang keluar.
+        \App\Models\Discussion::observe(\App\Observers\DiscussionObserver::class);
         \App\Models\DiscussionReply::observe(\App\Observers\DiscussionReplyObserver::class);
         \App\Models\EssaySubmission::observe(\App\Observers\EssaySubmissionObserver::class);
         \App\Models\CaseStudySubmission::observe(\App\Observers\CaseStudySubmissionObserver::class);

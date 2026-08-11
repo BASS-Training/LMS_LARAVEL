@@ -24,7 +24,7 @@
                         {{ $section['title'] ?: ($level === 1 ? 'Bab' : 'Subbab') }}
                     </h4>
                     @if(!empty($section['instruction']))
-                        <p class="text-sm text-gray-500 mt-1">{{ $section['instruction'] }}</p>
+                        <p class="text-sm text-gray-500 mt-1" style="white-space: pre-line;">{{ $section['instruction'] }}</p>
                     @endif
 
                     <div class="space-y-3 mt-2">

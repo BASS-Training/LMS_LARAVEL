@@ -263,6 +263,19 @@ class CourseApiController extends Controller
                     'sectionNumber' => $index + 1,
                     'title' => $lesson->title,
                     'description' => $lesson->description ?? '',
+                    // Prasyarat antar-section (backend: lesson). Bila admin
+                    // menyetelnya di web, section ini terkunci sampai section
+                    // prasyarat selesai. Dulu HANYA web yang menegakkan aturan
+                    // ini; mobile mengabaikannya. Sekarang field-nya dikirim agar
+                    // mobile bisa menegakkan aturan yang sama.
+                    // - prerequisiteId: id section yang harus tuntas dulu (null = tanpa prasyarat).
+                    // - isOptional: bila section ini dijadikan prasyarat section
+                    //   lain, `true` berarti boleh dilewati (tidak mengunci) —
+                    //   mengikuti `is_optional` yang dipakai web.
+                    'prerequisiteId' => $lesson->prerequisite_id
+                        ? (string) $lesson->prerequisite_id
+                        : null,
+                    'isOptional' => (bool) ($lesson->is_optional ?? false),
                     'lessons' => $lesson->contents->filter(function ($content) {
                         // Hide draft quizzes from peserta listing
                         if ($content->quiz_id && $content->quiz && $content->quiz->status === 'draft') {

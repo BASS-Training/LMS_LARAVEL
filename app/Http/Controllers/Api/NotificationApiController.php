@@ -18,7 +18,7 @@ use Illuminate\Support\Str;
 class NotificationApiController extends Controller
 {
     /** Categories from the notifications table we surface in the mobile feed. */
-    private const CATEGORIES = ['discussion_reply', 'grade', 'new_content'];
+    private const CATEGORIES = ['discussion_reply', 'grade', 'new_content', 'new_submission'];
 
     /** Merged, date-sorted feed (most recent first). */
     public function index(Request $request): JsonResponse
@@ -111,6 +111,9 @@ class NotificationApiController extends Controller
                     'contentId' => $d['contentId'] ?? null,
                     'lessonTitle' => $d['lessonTitle'] ?? null,
                     'discussionId' => $d['discussionId'] ?? null,
+                    'submissionId' => $d['submissionId'] ?? null,
+                    'submissionType' => $d['submissionType'] ?? null,
+                    'participantName' => $d['participantName'] ?? null,
                     'isRead' => $n->read_at !== null,
                     'createdAt' => optional($n->created_at)?->toISOString(),
                 ];

@@ -162,11 +162,11 @@ class InstructorApiController extends Controller
     {
         $this->authorizeCourse($request->user(), $course);
 
-        [$essayIds, $caseIds, $docIds, $lessonTitles] = $this->contentsForCourses([$course->id]);
+        [$essayIds, $caseIds, $docIds, $lessonTitles, $courseInfo] = $this->contentsForCourses([$course->id]);
 
         return response()->json([
             'status' => 'success',
-            'data' => $this->buildQueueItems($essayIds, $caseIds, $docIds, $lessonTitles),
+            'data' => $this->buildQueueItems($essayIds, $caseIds, $docIds, $lessonTitles, $courseInfo),
         ]);
     }
 
@@ -181,14 +181,26 @@ class InstructorApiController extends Controller
 
         $courseIds = $this->managedCourseIds($user);
         if (empty($courseIds)) {
-            return response()->json(['status' => 'success', 'data' => []]);
+            return response()->json(['status' => 'success', 'data' => [], 'meta' => ['pendingTotal' => 0]]);
         }
 
-        [$essayIds, $caseIds, $docIds, $lessonTitles] = $this->contentsForCourses($courseIds);
+        [$essayIds, $caseIds, $docIds, $lessonTitles, $courseInfo] = $this->contentsForCourses($courseIds);
+
+        $items = $this->buildQueueItems($essayIds, $caseIds, $docIds, $lessonTitles, $courseInfo);
+
+        // Inbox global hanya menampilkan yang PERLU dinilai. Dengan course besar,
+        // mengirim semua submission (termasuk yang sudah dinilai) membuat payload
+        // ribuan item & aplikasi lambat. Kirim hanya pending, terbaru dulu, dan
+        // batasi jumlahnya (sisanya tetap bisa dibuka lewat penilaian per-kelas).
+        $pending = array_values(array_filter($items, fn ($i) => $i['status'] === 'pending'));
+        // buildQueueItems sudah mengurutkan pending lebih dulu lalu terbaru, jadi
+        // $pending sudah terbaru-dulu. Batasi ke 300 item terbaru.
+        $limited = array_slice($pending, 0, 300);
 
         return response()->json([
             'status' => 'success',
-            'data' => $this->buildQueueItems($essayIds, $caseIds, $docIds, $lessonTitles),
+            'data' => $limited,
+            'meta' => ['pendingTotal' => count($pending)],
         ]);
     }
 
@@ -232,19 +244,32 @@ class InstructorApiController extends Controller
             ->groupBy('lessons.course_id')
             ->pluck('c', 'lessons.course_id');
 
+        // Dokumen menunggu dinilai (status submitted) per course.
+        $docPending = empty($courseIds) ? collect() : DB::table('document_submissions')
+            ->join('contents', 'document_submissions.content_id', '=', 'contents.id')
+            ->join('lessons', 'contents.lesson_id', '=', 'lessons.id')
+            ->whereIn('lessons.course_id', $courseIds)
+            ->where('document_submissions.status', 'submitted')
+            ->select('lessons.course_id', DB::raw('count(*) as c'))
+            ->groupBy('lessons.course_id')
+            ->pluck('c', 'lessons.course_id');
+
         $totalParticipants = empty($courseIds) ? 0 : DB::table('course_user')
             ->whereIn('course_id', $courseIds)
             ->distinct()
             ->count('user_id');
 
-        $perCourse = $courses->map(function (Course $c) use ($essayPending, $casePending) {
-            $pending = (int) ($essayPending[$c->id] ?? 0) + (int) ($casePending[$c->id] ?? 0);
+        $perCourse = $courses->map(function (Course $c) use ($essayPending, $casePending, $docPending) {
+            $pending = (int) ($essayPending[$c->id] ?? 0)
+                + (int) ($casePending[$c->id] ?? 0)
+                + (int) ($docPending[$c->id] ?? 0);
             return [
                 'id' => (string) $c->id,
                 'title' => $c->title,
                 'status' => $c->status,
                 'participantCount' => (int) $c->enrolled_users_count,
                 'pendingCount' => $pending,
+                'createdAt' => optional($c->created_at)?->toISOString(),
             ];
         });
 
@@ -522,11 +547,12 @@ class InstructorApiController extends Controller
     private function contentsForCourses(array $courseIds): array
     {
         if (empty($courseIds)) {
-            return [[], [], [], []];
+            return [[], [], [], [], []];
         }
 
         $rows = DB::table('contents')
             ->join('lessons', 'contents.lesson_id', '=', 'lessons.id')
+            ->join('courses', 'lessons.course_id', '=', 'courses.id')
             ->whereIn('lessons.course_id', $courseIds)
             ->where(function ($q) {
                 $q->whereIn('contents.type', ['essay', 'case_study'])
@@ -535,15 +561,26 @@ class InstructorApiController extends Controller
                             ->where('contents.collect_submission', true);
                     });
             })
-            ->select('contents.id', 'contents.type', 'lessons.title as lesson_title')
+            ->select(
+                'contents.id',
+                'contents.type',
+                'lessons.title as lesson_title',
+                'lessons.course_id',
+                'courses.title as course_title'
+            )
             ->get();
 
         $essayIds = [];
         $caseIds = [];
         $docIds = [];
         $lessonTitles = [];
+        $courseInfo = []; // content_id => ['id' => courseId, 'title' => courseTitle]
         foreach ($rows as $row) {
             $lessonTitles[$row->id] = $row->lesson_title;
+            $courseInfo[$row->id] = [
+                'id' => (string) $row->course_id,
+                'title' => $row->course_title,
+            ];
             if ($row->type === 'essay') {
                 $essayIds[] = $row->id;
             } elseif ($row->type === 'document') {
@@ -553,14 +590,14 @@ class InstructorApiController extends Controller
             }
         }
 
-        return [$essayIds, $caseIds, $docIds, $lessonTitles];
+        return [$essayIds, $caseIds, $docIds, $lessonTitles, $courseInfo];
     }
 
     /**
      * Bangun daftar item antrian penilaian (essay + studi kasus), urut: pending
      * dulu lalu terbaru.
      */
-    private function buildQueueItems(array $essayContentIds, array $caseContentIds, array $docContentIds, array $lessonTitles): array
+    private function buildQueueItems(array $essayContentIds, array $caseContentIds, array $docContentIds, array $lessonTitles, array $courseInfo = []): array
     {
         $items = [];
 
@@ -583,6 +620,8 @@ class InstructorApiController extends Controller
                     'contentId' => (string) $sub->content_id,
                     'contentTitle' => $sub->content?->title ?? 'Essay',
                     'lessonTitle' => $lessonTitles[$sub->content_id] ?? '',
+                    'courseId' => $courseInfo[$sub->content_id]['id'] ?? '',
+                    'courseTitle' => $courseInfo[$sub->content_id]['title'] ?? '',
                     'scoringEnabled' => (bool) ($sub->content?->scoring_enabled ?? true),
                     'status' => $sub->isProcessedByInstructor() ? 'graded' : 'pending',
                     'submittedAt' => optional($sub->created_at)?->toISOString(),
@@ -607,6 +646,8 @@ class InstructorApiController extends Controller
                     'contentId' => (string) $sub->content_id,
                     'contentTitle' => $sub->content?->title ?? 'Studi Kasus',
                     'lessonTitle' => $lessonTitles[$sub->content_id] ?? '',
+                    'courseId' => $courseInfo[$sub->content_id]['id'] ?? '',
+                    'courseTitle' => $courseInfo[$sub->content_id]['title'] ?? '',
                     'scoringEnabled' => (bool) ($sub->content?->scoring_enabled ?? true),
                     'status' => $sub->status === 'graded' ? 'graded' : 'pending',
                     'submittedAt' => optional($sub->submitted_at ?? $sub->updated_at)?->toISOString(),
@@ -637,6 +678,8 @@ class InstructorApiController extends Controller
                     'contentId' => (string) $sub->content_id,
                     'contentTitle' => $sub->content?->title ?? 'Dokumen',
                     'lessonTitle' => $lessonTitles[$sub->content_id] ?? '',
+                    'courseId' => $courseInfo[$sub->content_id]['id'] ?? '',
+                    'courseTitle' => $courseInfo[$sub->content_id]['title'] ?? '',
                     'scoringEnabled' => (bool) ($sub->content?->scoring_enabled ?? true),
                     'status' => $sub->status === 'submitted' ? 'pending' : 'graded',
                     'submittedAt' => optional($sub->submitted_at ?? $sub->updated_at)?->toISOString(),

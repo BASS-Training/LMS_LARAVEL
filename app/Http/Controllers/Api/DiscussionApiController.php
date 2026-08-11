@@ -29,6 +29,16 @@ class DiscussionApiController extends Controller
         $user = $request->user();
         $courseIds = $this->accessibleCourseIds($user);
 
+        // Filter opsional ke satu course (forum per-kelas). Tetap dibatasi ke
+        // course yang boleh diakses — kalau bukan miliknya, hasil jadi kosong.
+        $filterCourse = $request->query('course');
+        $scoped = $filterCourse !== null && $filterCourse !== '';
+        if ($scoped) {
+            $courseIds = collect($courseIds)
+                ->filter(fn ($id) => (string) $id === (string) $filterCourse)
+                ->values();
+        }
+
         $discussions = Discussion::with([
                 'user:id,name',
                 'content:id,title,lesson_id',
@@ -59,9 +69,13 @@ class DiscussionApiController extends Controller
                 'lastActivityAt' => optional($lastActivity)?->toISOString(),
             ];
         })
-        ->sortByDesc('lastActivityAt')
-        ->take(60)
-        ->values();
+        ->sortByDesc('lastActivityAt');
+
+        // Forum per-kelas menampilkan semua diskusi; feed global lama dibatasi 60.
+        if (!$scoped) {
+            $items = $items->take(60);
+        }
+        $items = $items->values();
 
         return response()->json(['status' => 'success', 'data' => $items]);
     }
@@ -105,6 +119,7 @@ class DiscussionApiController extends Controller
             return [
                 'courseId' => (string) $course->id,
                 'courseTitle' => $course->title,
+                'createdAt' => optional($course->created_at)?->toISOString(),
                 'lessons' => $lessons->values(),
             ];
         })

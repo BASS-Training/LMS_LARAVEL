@@ -723,6 +723,8 @@
                                         {{-- Preview Section (jika bisa di-preview dan akses type bukan download_only) --}}
                                         @elseif($isPreviewable && $accessType !== 'download_only')
                                             <style>
+                                                /* Tinggi area preview di-set di sini (bukan hanya kelas Tailwind) agar tidak kolaps saat build CSS di server belum diperbarui */
+                                                #doc-preview-card .doc-preview-area { height: 75vh; position: relative; }
                                                 #doc-preview-card:fullscreen,
                                                 #doc-preview-card:-webkit-full-screen { width: 100vw; height: 100vh; border-radius: 0; background: #fff; display: flex; flex-direction: column; }
                                                 #doc-preview-card:fullscreen .doc-preview-area,
