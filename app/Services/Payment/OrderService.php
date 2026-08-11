@@ -84,7 +84,9 @@ class OrderService
      */
     public function abandon(Order $order): void
     {
-        if ($order->isPaid()) {
+        // Jangan pernah membatalkan pesanan yang uangnya sudah dikonfirmasi
+        // (lunas ATAU menunggu verifikasi) — dananya sudah masuk.
+        if ($order->isPaymentConfirmed()) {
             return;
         }
 

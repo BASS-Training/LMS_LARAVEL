@@ -31,6 +31,7 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\Admin\PaymentVerificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,7 +70,23 @@ Route::post('/webhooks/midtrans', [CheckoutController::class, 'notification'])->
 Route::post('/katalog/{course}/beli', [CheckoutController::class, 'store'])->name('checkout.store');
 Route::get('/pesanan', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::get('/pesanan/{order}', [CheckoutController::class, 'finish'])->name('checkout.finish');
+Route::get('/pesanan/{order}/invoice', [CheckoutController::class, 'invoice'])->name('checkout.invoice');
 Route::post('/pesanan/{order}/ganti-metode', [CheckoutController::class, 'changeMethod'])->name('checkout.change-method');
+
+/*
+| Verifikasi pembayaran manual — KHUSUS super-admin.
+| Untuk course dengan requires_payment_verification=true: uang sudah masuk,
+| akses ditahan sampai disetujui di sini.
+*/
+Route::middleware(['auth', 'role:super-admin'])
+    ->prefix('admin/verifikasi-pembayaran')
+    ->name('admin.payment-verifications.')
+    ->group(function () {
+        Route::get('/', [PaymentVerificationController::class, 'index'])->name('index');
+        Route::get('/{order}', [PaymentVerificationController::class, 'show'])->name('show');
+        Route::post('/{order}/setujui', [PaymentVerificationController::class, 'approve'])->name('approve');
+        Route::post('/{order}/tolak', [PaymentVerificationController::class, 'reject'])->name('reject');
+    });
 
 Route::middleware(['auth', 'verified'])->group(function () {
 

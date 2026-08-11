@@ -21,6 +21,7 @@ class StoreCourseRequest extends FormRequest
             'status' => 'required|in:draft,published',
             'visibility' => 'nullable|in:private,catalog',
             'price' => 'nullable|integer|min:0|max:1000000000',
+            'requires_payment_verification' => 'nullable|boolean',
             'short_description' => 'nullable|string|max:255',
             'program_type' => 'required|in:regular,avpn_ai',
             'training_start_date' => 'nullable|date|required_with:training_end_date',

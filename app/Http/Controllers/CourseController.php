@@ -113,6 +113,7 @@ class CourseController extends Controller
                 'status' => $validatedData['status'],
                 'visibility' => $validatedData['visibility'],
                 'price' => $validatedData['price'],
+                'requires_payment_verification' => $validatedData['requires_payment_verification'] ?? false,
                 'short_description' => $validatedData['short_description'],
                 'program_type' => $validatedData['program_type'],
                 'training_start_date' => $validatedData['training_start_date'] ?? null,
@@ -264,6 +265,7 @@ class CourseController extends Controller
             'status' => 'required|in:draft,published',
             'visibility' => 'nullable|in:private,catalog',
             'price' => 'nullable|integer|min:0|max:1000000000',
+            'requires_payment_verification' => 'nullable|boolean',
             'short_description' => 'nullable|string|max:255',
             'program_type' => 'required|in:regular,avpn_ai',
             'training_start_date' => 'nullable|date|required_with:training_end_date',
@@ -316,7 +318,7 @@ class CourseController extends Controller
 
             // ✅ LOG COURSE UPDATE WITH BEFORE/AFTER
             $changes = [];
-            $fields = ['title', 'description', 'objectives', 'status', 'visibility', 'price', 'short_description', 'program_type', 'training_start_date', 'training_end_date', 'thumbnail', 'certificate_template_id'];
+            $fields = ['title', 'description', 'objectives', 'status', 'visibility', 'price', 'requires_payment_verification', 'short_description', 'program_type', 'training_start_date', 'training_end_date', 'thumbnail', 'certificate_template_id'];
 
             foreach ($fields as $field) {
                 if ($originalData[$field] != $course->$field) {
@@ -361,6 +363,7 @@ class CourseController extends Controller
             $data['visibility'] = 'private';
             $data['price'] = null;
             $data['short_description'] = null;
+            $data['requires_payment_verification'] = false;
 
             return $data;
         }
@@ -368,6 +371,7 @@ class CourseController extends Controller
         $data['visibility'] = 'catalog';
         $data['price'] = (int) ($data['price'] ?? 0);
         $data['short_description'] = $data['short_description'] ?? null;
+        $data['requires_payment_verification'] = (bool) ($data['requires_payment_verification'] ?? false);
 
         return $data;
     }

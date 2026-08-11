@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\Order;
 use App\Services\Payment\MidtransGateway;
 use App\Services\Payment\OrderService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -60,6 +61,29 @@ class CheckoutController extends Controller
     }
 
     /**
+     * Unduh invoice (PDF) sebuah pesanan.
+     *
+     * Akses hanya untuk PEMILIK order atau super-admin, dan hanya setelah
+     * pembayaran dikonfirmasi Midtrans (saat itulah nomor invoice dibuat).
+     */
+    public function invoice(Order $order)
+    {
+        abort_unless(
+            $order->user_id === Auth::id() || Auth::user()->hasRole('super-admin'),
+            403
+        );
+        abort_unless($order->isPaymentConfirmed(), 404);
+
+        $order->load(['course', 'user']);
+
+        $pdf = Pdf::loadView('invoices.pdf', ['order' => $order])->setPaper('a4');
+
+        return $pdf->download(
+            'Invoice-' . str_replace('/', '-', (string) $order->invoice_number) . '.pdf'
+        );
+    }
+
+    /**
      * Pengguna ingin ganti metode pembayaran.
      *
      * Snap "mengunci" tampilan ke metode yang sudah dipilih saat transaksi
@@ -76,7 +100,9 @@ class CheckoutController extends Controller
         // localhost). Cek dulu ke Midtrans sebelum membatalkan apa pun.
         $order = $this->orders->refreshFromGateway($order);
 
-        if ($order->isPaid() || $order->course->isEnrolledBy(Auth::user())) {
+        // Uang sudah masuk (lunas atau menunggu verifikasi) → jangan buat tagihan
+        // baru; cukup tampilkan statusnya.
+        if ($order->isPaymentConfirmed() || $order->course->isEnrolledBy(Auth::user())) {
             return redirect()->route('checkout.finish', $order);
         }
 

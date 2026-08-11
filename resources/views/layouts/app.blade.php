@@ -119,6 +119,17 @@
                                     <a href="{{ route('admin.auto-grade.index') }}"    class="dropdown-item-custom" role="menuitem">Penilaian Otomatis</a>
                                     <a href="{{ route('admin.force-complete.index') }}" class="dropdown-item-custom" role="menuitem">Force Complete Konten</a>
                                 </div>
+                                @role('super-admin')
+                                <div class="py-1" role="none">
+                                    @php($pendingVerif = \App\Models\Order::where('status', 'awaiting_verification')->count())
+                                    <a href="{{ route('admin.payment-verifications.index') }}" class="dropdown-item-custom flex items-center justify-between" role="menuitem">
+                                        <span>Verifikasi Pembayaran</span>
+                                        @if ($pendingVerif > 0)
+                                            <span class="ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-amber-500 text-white text-xs font-bold">{{ $pendingVerif }}</span>
+                                        @endif
+                                    </a>
+                                </div>
+                                @endrole
                                 <div class="py-1" role="none">
                                     <a href="{{ route('file-control.index') }}"    class="dropdown-item-custom" role="menuitem">File Manager</a>
                                     <a href="{{ route('activity-logs.index') }}"   class="dropdown-item-custom" role="menuitem">Log Aktivitas</a>
@@ -278,6 +289,9 @@
                     <a href="{{ route('certificate-management.index') }}"  class="responsive-nav-link-custom">Manajemen Sertifikat</a>
                     <a href="{{ route('admin.auto-grade.index') }}"   class="responsive-nav-link-custom">Penilaian Otomatis</a>
                     <a href="{{ route('admin.force-complete.index') }}" class="responsive-nav-link-custom">Force Complete Konten</a>
+                    @role('super-admin')
+                    <a href="{{ route('admin.payment-verifications.index') }}" class="responsive-nav-link-custom">Verifikasi Pembayaran</a>
+                    @endrole
                     <a href="{{ route('file-control.index') }}"   class="responsive-nav-link-custom">File Manager</a>
                     <a href="{{ route('activity-logs.index') }}"  class="responsive-nav-link-custom">Log Aktivitas</a>
                 </div>

@@ -7,6 +7,7 @@
     $shopVisibility = old('visibility', $course->visibility ?? 'private');
     $shopPrice = old('price', $course->price ?? null);
     $shopShortDesc = old('short_description', $course->short_description ?? '');
+    $shopRequiresVerif = (bool) old('requires_payment_verification', $course->requires_payment_verification ?? false);
 @endphp
 
 <div class="group mt-4" x-data="{ inCatalog: '{{ $shopVisibility }}' === 'catalog' }">
@@ -69,6 +70,25 @@
                 @error('short_description')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
+            </div>
+
+            {{-- Mode verifikasi pembayaran --}}
+            <div class="rounded-md border border-gray-200 bg-gray-50 p-3">
+                <label class="flex items-start gap-3 cursor-pointer">
+                    <input type="hidden" name="requires_payment_verification" value="0">
+                    <input type="checkbox" name="requires_payment_verification" value="1"
+                           @checked($shopRequiresVerif)
+                           class="mt-0.5 w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                    <span>
+                        <span class="block text-sm font-medium text-gray-800">🔒 Butuh verifikasi manual sebelum akses</span>
+                        <span class="block text-xs text-gray-500 mt-0.5">
+                            Setelah pembayaran lunas, akses <strong>tidak langsung</strong> terbuka. Pesanan masuk
+                            antrian <strong>Verifikasi Pembayaran</strong> dan super-admin harus menyetujui dulu —
+                            cocok bila keuangan ingin mencocokkan dana ke rekening terlebih dahulu.
+                            Jika dimatikan, akses terbuka <strong>otomatis</strong> begitu Midtrans memastikan lunas.
+                        </span>
+                    </span>
+                </label>
             </div>
         </div>
     </div>
