@@ -505,4 +505,24 @@ class Course extends Model
 
         return $this->enrolledUsers()->whereKey($user->id)->exists();
     }
+
+    /**
+     * User adalah PENGELOLA course ini (bukan calon pembeli): super-admin
+     * (akses ke semua course) atau instruktur yang ditugaskan di course ini.
+     * Pengelola sudah punya akses penuh, jadi tidak boleh/ perlu membeli.
+     */
+    public function isManagedBy(?User $user): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        if ($user->hasRole('super-admin')) {
+            return true;
+        }
+
+        return $this->relationLoaded('instructors')
+            ? $this->instructors->contains('id', $user->id)
+            : $this->instructors()->whereKey($user->id)->exists();
+    }
 }

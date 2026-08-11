@@ -60,6 +60,7 @@ class ShopController extends Controller
             'search' => $search,
             'priceFilter' => $priceFilter,
             'enrolledIds' => $this->enrolledIds($courses->pluck('id')->all()),
+            'managedIds' => $this->managedIds($courses),
         ]);
     }
 
@@ -79,6 +80,7 @@ class ShopController extends Controller
         return view('shop.show', [
             'course' => $course,
             'isEnrolled' => $course->isEnrolledBy($user),
+            'isManager' => $course->isManagedBy($user),
             'totalContents' => $course->lessons->sum(fn ($lesson) => $lesson->contents->count()),
         ]);
     }
@@ -92,6 +94,12 @@ class ShopController extends Controller
         abort_unless($course->isInCatalog(), 404);
 
         $user = Auth::user();
+
+        // Pengelola sudah punya akses penuh — arahkan ke pengelolaan, bukan enroll.
+        if ($course->isManagedBy($user)) {
+            return redirect()->route('courses.show', $course)
+                ->with('success', 'Anda pengelola kursus ini — semua materi bisa langsung dibuka.');
+        }
 
         if ($course->isPaid()) {
             return back()->withErrors(['shop' => 'Kursus ini berbayar. Silakan lanjut ke pembayaran.']);
@@ -136,5 +144,27 @@ class ShopController extends Controller
             ->whereIn('courses.id', $courseIds)
             ->pluck('courses.id')
             ->all();
+    }
+
+    /**
+     * ID course yang DIKELOLA user login (super-admin: semua; instruktur:
+     * course-nya) — buat menandai kartu "Dikelola" alih-alih tombol beli.
+     *
+     * @param  \Illuminate\Support\Collection<int,\App\Models\Course>  $courses
+     * @return array<int>
+     */
+    private function managedIds($courses): array
+    {
+        $user = Auth::user();
+
+        if (! $user) {
+            return [];
+        }
+
+        if ($user->hasRole('super-admin')) {
+            return $courses->pluck('id')->all();
+        }
+
+        return $courses->filter(fn ($c) => $c->isManagedBy($user))->pluck('id')->all();
     }
 }

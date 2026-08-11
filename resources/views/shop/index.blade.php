@@ -49,7 +49,10 @@
     @else
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             @foreach ($courses as $course)
-                @php $owned = in_array($course->id, $enrolledIds, true); @endphp
+                @php
+                    $owned = in_array($course->id, $enrolledIds, true);
+                    $managed = in_array($course->id, $managedIds, true);
+                @endphp
 
                 <a href="{{ route('shop.show', $course) }}"
                    class="group flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-gray-300 transition-all">
@@ -68,7 +71,11 @@
                             </div>
                         @endif
 
-                        @if ($owned)
+                        @if ($managed)
+                            <span class="absolute top-2 left-2 px-2 py-1 rounded-md bg-gray-900 text-white text-xs font-semibold shadow">
+                                Dikelola
+                            </span>
+                        @elseif ($owned)
                             <span class="absolute top-2 left-2 px-2 py-1 rounded-md bg-emerald-600 text-white text-xs font-semibold shadow">
                                 Sudah dimiliki
                             </span>

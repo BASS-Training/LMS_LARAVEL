@@ -38,6 +38,12 @@ class OrderService
             throw new RuntimeException('Kursus ini tidak dijual.');
         }
 
+        // Pengelola (super-admin / instruktur course ini) sudah punya akses —
+        // jangan biarkan membuat order (mencegah salah beli, apalagi di produksi).
+        if ($course->isManagedBy($user)) {
+            throw new RuntimeException('Anda pengelola kursus ini, jadi tidak perlu membelinya.');
+        }
+
         if ($course->isEnrolledBy($user)) {
             throw new RuntimeException('Anda sudah terdaftar di kursus ini.');
         }
