@@ -15,6 +15,8 @@ class Order extends Model
         'order_code',
         'invoice_number',
         'amount',
+        'base_amount',
+        'fee_amount',
         'status',
         'payment_type',
         'transaction_id',
@@ -31,6 +33,8 @@ class Order extends Model
 
     protected $casts = [
         'amount' => 'integer',
+        'base_amount' => 'integer',
+        'fee_amount' => 'integer',
         'paid_at' => 'datetime',
         'payment_confirmed_at' => 'datetime',
         'verified_at' => 'datetime',
@@ -96,7 +100,30 @@ class Order extends Model
 
     public function getAmountLabelAttribute(): string
     {
-        return 'Rp ' . number_format((int) $this->amount, 0, ',', '.');
+        return $this->rupiah($this->amount);
+    }
+
+    /** Harga kursus (pendapatan penjual) — jatuh balik ke total bila kosong. */
+    public function getBaseAmountLabelAttribute(): string
+    {
+        return $this->rupiah($this->base_amount ?: $this->amount);
+    }
+
+    /** Biaya layanan yang dibebankan ke pembeli. */
+    public function getFeeAmountLabelAttribute(): string
+    {
+        return $this->rupiah($this->fee_amount);
+    }
+
+    /** Ada biaya layanan yang dirinci pada pesanan ini. */
+    public function hasFee(): bool
+    {
+        return (int) $this->fee_amount > 0;
+    }
+
+    private function rupiah(int|string|null $value): string
+    {
+        return 'Rp ' . number_format((int) $value, 0, ',', '.');
     }
 
     public function getStatusLabelAttribute(): string

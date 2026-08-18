@@ -126,9 +126,33 @@
                 </div>
 
                 <div class="p-6 space-y-4">
-                    <p class="text-3xl font-bold {{ $course->isFree() ? 'text-emerald-600' : 'text-gray-900' }}">
-                        {{ $course->price_label }}
-                    </p>
+                    @if ($breakdown && $breakdown['fee'] > 0)
+                        <div>
+                            <p class="text-3xl font-bold text-gray-900">
+                                Rp {{ number_format($breakdown['total'], 0, ',', '.') }}
+                            </p>
+                            <p class="mt-0.5 text-xs text-gray-400">Sudah termasuk {{ strtolower($feeLabel) }}</p>
+
+                            <dl class="mt-3 space-y-1.5 text-sm">
+                                <div class="flex justify-between text-gray-600">
+                                    <dt>Harga kursus</dt>
+                                    <dd>Rp {{ number_format($breakdown['base'], 0, ',', '.') }}</dd>
+                                </div>
+                                <div class="flex justify-between text-gray-600">
+                                    <dt>{{ $feeLabel }}</dt>
+                                    <dd>Rp {{ number_format($breakdown['fee'], 0, ',', '.') }}</dd>
+                                </div>
+                                <div class="flex justify-between pt-1.5 border-t border-gray-100 font-semibold text-gray-900">
+                                    <dt>Total</dt>
+                                    <dd>Rp {{ number_format($breakdown['total'], 0, ',', '.') }}</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    @else
+                        <p class="text-3xl font-bold {{ $course->isFree() ? 'text-emerald-600' : 'text-gray-900' }}">
+                            {{ $course->price_label }}
+                        </p>
+                    @endif
 
                     @if (! Auth::check())
                         <a href="{{ route('login') }}"

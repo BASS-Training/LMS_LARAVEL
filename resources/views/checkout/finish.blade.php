@@ -146,6 +146,16 @@
                 <dt class="text-gray-500">Kursus</dt>
                 <dd class="text-gray-900 text-right ml-4">{{ $order->course->title }}</dd>
             </div>
+            @if ($order->hasFee())
+                <div class="flex justify-between">
+                    <dt class="text-gray-500">Harga kursus</dt>
+                    <dd class="text-gray-900">{{ $order->base_amount_label }}</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-gray-500">{{ config('midtrans.fee.label', 'Biaya layanan') }}</dt>
+                    <dd class="text-gray-900">{{ $order->fee_amount_label }}</dd>
+                </div>
+            @endif
             <div class="flex justify-between">
                 <dt class="text-gray-500">Total</dt>
                 <dd class="font-semibold text-gray-900">{{ $order->amount_label }}</dd>

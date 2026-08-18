@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
+use App\Services\Payment\ServiceFee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -64,7 +65,7 @@ class ShopController extends Controller
         ]);
     }
 
-    public function show(Course $course)
+    public function show(Course $course, ServiceFee $fee)
     {
         abort_unless($course->isInCatalog(), 404);
 
@@ -77,11 +78,16 @@ class ShopController extends Controller
 
         $user = Auth::user();
 
+        // Rincian harga (harga + biaya layanan) hanya relevan untuk kursus berbayar.
+        $breakdown = $course->isPaid() ? $fee->forBase((int) $course->price) : null;
+
         return view('shop.show', [
             'course' => $course,
             'isEnrolled' => $course->isEnrolledBy($user),
             'isManager' => $course->isManagedBy($user),
             'totalContents' => $course->lessons->sum(fn ($lesson) => $lesson->contents->count()),
+            'breakdown' => $breakdown,
+            'feeLabel' => $fee->label(),
         ]);
     }
 

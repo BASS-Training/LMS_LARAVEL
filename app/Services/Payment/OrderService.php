@@ -22,7 +22,10 @@ use RuntimeException;
  */
 class OrderService
 {
-    public function __construct(private MidtransGateway $gateway) {}
+    public function __construct(
+        private MidtransGateway $gateway,
+        private ServiceFee $fee,
+    ) {}
 
     /**
      * Ambil pesanan yang masih bisa dibayar, atau buat yang baru lengkap
@@ -48,24 +51,35 @@ class OrderService
             throw new RuntimeException('Anda sudah terdaftar di kursus ini.');
         }
 
+        // Rincian harga: pembeli menanggung biaya layanan gateway.
+        // total = harga kursus + biaya layanan (di-snapshot ke order).
+        $breakdown = $this->fee->forBase((int) $course->price);
+
         // Jangan bikin pesanan baru kalau yang lama masih hidup — biar tidak
-        // menumpuk order pending dan pengguna bisa lanjut bayar.
+        // menumpuk order pending dan pengguna bisa lanjut bayar. Dicocokkan pada
+        // HARGA DASAR: kalau tarif biaya layanan berubah, order lama tak dipakai
+        // ulang supaya rinciannya selalu konsisten dengan tagihan.
         $existing = Order::where('user_id', $user->id)
             ->where('course_id', $course->id)
             ->where('status', 'pending')
             ->latest()
             ->first();
 
-        if ($existing && $existing->isPayable() && $existing->amount === (int) $course->price) {
+        if ($existing
+            && $existing->isPayable()
+            && (int) $existing->base_amount === $breakdown['base']
+            && (int) $existing->amount === $breakdown['total']) {
             return $existing;
         }
 
-        return DB::transaction(function () use ($course, $user) {
+        return DB::transaction(function () use ($course, $user, $breakdown) {
             $order = Order::create([
                 'user_id' => $user->id,
                 'course_id' => $course->id,
                 'order_code' => $this->generateOrderCode(),
-                'amount' => (int) $course->price, // snapshot harga dari DB
+                'base_amount' => $breakdown['base'], // harga kursus (pendapatan penjual)
+                'fee_amount' => $breakdown['fee'],   // biaya layanan yang dibebankan ke pembeli
+                'amount' => $breakdown['total'],     // TOTAL yang ditagih ke Midtrans
                 'status' => 'pending',
                 'expires_at' => now()->addHours((int) config('midtrans.expiry_hours', 24)),
             ]);

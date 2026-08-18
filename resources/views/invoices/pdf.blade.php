@@ -108,16 +108,31 @@
                     <div style="font-weight:bold;">{{ $order->course->title }}</div>
                     <div class="muted" style="font-size:11px;">Akses kursus — selamanya</div>
                 </td>
-                <td class="num">{{ $order->amount_label }}</td>
+                <td class="num">{{ $order->base_amount_label }}</td>
             </tr>
+            @if ($order->hasFee())
+            <tr>
+                <td>
+                    <div style="font-weight:bold;">{{ config('midtrans.fee.label', 'Biaya layanan') }}</div>
+                    <div class="muted" style="font-size:11px;">Biaya pemrosesan pembayaran</div>
+                </td>
+                <td class="num">{{ $order->fee_amount_label }}</td>
+            </tr>
+            @endif
         </tbody>
     </table>
 
     <table class="totals">
         <tr>
             <td class="muted">Subtotal</td>
-            <td style="text-align:right;">{{ $order->amount_label }}</td>
+            <td style="text-align:right;">{{ $order->base_amount_label }}</td>
         </tr>
+        @if ($order->hasFee())
+        <tr>
+            <td class="muted">{{ config('midtrans.fee.label', 'Biaya layanan') }}</td>
+            <td style="text-align:right;">{{ $order->fee_amount_label }}</td>
+        </tr>
+        @endif
         <tr class="grand">
             <td>Total</td>
             <td style="text-align:right;">{{ $order->amount_label }}</td>

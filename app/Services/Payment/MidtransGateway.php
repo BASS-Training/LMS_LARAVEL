@@ -34,6 +34,29 @@ class MidtransGateway
 
         $expiryHours = (int) config('midtrans.expiry_hours', 24);
 
+        // Midtrans mewajibkan gross_amount == Σ(price × quantity) item_details.
+        // Harga kursus & biaya layanan jadi baris terpisah agar transparan di
+        // popup Snap sekaligus menjaga totalnya tetap cocok. Base dihitung dari
+        // (amount − fee) supaya selalu pas walau kolom base_amount belum terisi.
+        $fee = (int) $order->fee_amount;
+        $base = (int) $order->amount - $fee;
+
+        $items = [[
+            'id' => (string) $order->course_id,
+            'name' => mb_substr($order->course->title, 0, 50),
+            'price' => $base,
+            'quantity' => 1,
+        ]];
+
+        if ($fee > 0) {
+            $items[] = [
+                'id' => 'SERVICE-FEE',
+                'name' => mb_substr((string) config('midtrans.fee.label', 'Biaya layanan'), 0, 50),
+                'price' => $fee,
+                'quantity' => 1,
+            ];
+        }
+
         $response = Http::withBasicAuth(config('midtrans.server_key'), '')
             ->acceptJson()
             ->asJson()
@@ -42,12 +65,7 @@ class MidtransGateway
                     'order_id' => $order->order_code,
                     'gross_amount' => (int) $order->amount,
                 ],
-                'item_details' => [[
-                    'id' => (string) $order->course_id,
-                    'name' => mb_substr($order->course->title, 0, 50),
-                    'price' => (int) $order->amount,
-                    'quantity' => 1,
-                ]],
+                'item_details' => $items,
                 'customer_details' => [
                     'first_name' => $order->user->name,
                     'email' => $order->user->email,
