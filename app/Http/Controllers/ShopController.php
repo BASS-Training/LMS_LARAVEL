@@ -78,8 +78,13 @@ class ShopController extends Controller
 
         $user = Auth::user();
 
-        // Rincian harga (harga + biaya layanan) hanya relevan untuk kursus berbayar.
-        $breakdown = $course->isPaid() ? $fee->forBase((int) $course->price) : null;
+        // Rincian harga hanya relevan untuk kursus berbayar. Saat pemilihan
+        // metode aktif, biaya layanan berbeda per metode → tampilkan estimasi
+        // TERMURAH ("mulai dari"); rincian persis muncul di halaman pilih metode.
+        $methodsEnabled = $course->isPaid() && $fee->methodsEnabled();
+        $breakdown = $course->isPaid()
+            ? ($methodsEnabled ? $fee->cheapest((int) $course->price) : $fee->forBase((int) $course->price))
+            : null;
 
         return view('shop.show', [
             'course' => $course,
@@ -87,6 +92,7 @@ class ShopController extends Controller
             'isManager' => $course->isManagedBy($user),
             'totalContents' => $course->lessons->sum(fn ($lesson) => $lesson->contents->count()),
             'breakdown' => $breakdown,
+            'methodsEnabled' => $methodsEnabled,
             'feeLabel' => $fee->label(),
         ]);
     }

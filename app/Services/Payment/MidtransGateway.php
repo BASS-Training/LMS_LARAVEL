@@ -18,6 +18,10 @@ use RuntimeException;
  */
 class MidtransGateway
 {
+    public function __construct(
+        private ServiceFee $fee,
+    ) {}
+
     public function isConfigured(): bool
     {
         return ! empty(config('midtrans.server_key'));
@@ -57,27 +61,38 @@ class MidtransGateway
             ];
         }
 
+        $payload = [
+            'transaction_details' => [
+                'order_id' => $order->order_code,
+                'gross_amount' => (int) $order->amount,
+            ],
+            'item_details' => $items,
+            'customer_details' => [
+                'first_name' => $order->user->name,
+                'email' => $order->user->email,
+            ],
+            'expiry' => [
+                'unit' => 'hour',
+                'duration' => $expiryHours,
+            ],
+            'callbacks' => [
+                'finish' => route('checkout.finish', $order),
+            ],
+        ];
+
+        // Kunci popup Snap ke metode yang sudah dipilih pembeli. Biaya layanan
+        // di order sudah dihitung untuk metode INI, jadi jangan biarkan pembeli
+        // beralih ke metode lain di dalam Snap (bisa bikin biaya tak cocok).
+        $channels = $this->fee->channelsFor($order->payment_method_key);
+
+        if ($channels) {
+            $payload['enabled_payments'] = $channels;
+        }
+
         $response = Http::withBasicAuth(config('midtrans.server_key'), '')
             ->acceptJson()
             ->asJson()
-            ->post($this->snapUrl(), [
-                'transaction_details' => [
-                    'order_id' => $order->order_code,
-                    'gross_amount' => (int) $order->amount,
-                ],
-                'item_details' => $items,
-                'customer_details' => [
-                    'first_name' => $order->user->name,
-                    'email' => $order->user->email,
-                ],
-                'expiry' => [
-                    'unit' => 'hour',
-                    'duration' => $expiryHours,
-                ],
-                'callbacks' => [
-                    'finish' => route('checkout.finish', $order),
-                ],
-            ]);
+            ->post($this->snapUrl(), $payload);
 
         if ($response->failed()) {
             Log::error('Midtrans Snap gagal', [

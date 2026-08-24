@@ -67,6 +67,7 @@ Route::post('/katalog/{course}/daftar-gratis', [ShopController::class, 'enrollFr
 */
 Route::post('/webhooks/midtrans', [CheckoutController::class, 'notification'])->name('checkout.notification');
 
+Route::get('/katalog/{course}/beli', [CheckoutController::class, 'choose'])->name('checkout.choose');
 Route::post('/katalog/{course}/beli', [CheckoutController::class, 'store'])->name('checkout.store');
 Route::get('/pesanan', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::get('/pesanan/{order}', [CheckoutController::class, 'finish'])->name('checkout.finish');

@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\Order;
 use App\Services\Payment\MidtransGateway;
 use App\Services\Payment\OrderService;
+use App\Services\Payment\ServiceFee;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -18,22 +19,81 @@ class CheckoutController extends Controller
     public function __construct(
         private OrderService $orders,
         private MidtransGateway $gateway,
+        private ServiceFee $fee,
     ) {
         // notification() dipanggil server Midtrans, bukan pengguna — tanpa auth.
         $this->middleware('auth')->except('notification');
     }
 
     /**
-     * Peserta menekan "Beli Sekarang" → buat pesanan → lempar ke halaman Midtrans.
+     * Peserta menekan "Beli" → halaman PILIH METODE pembayaran (biaya layanan
+     * ditampilkan persis per metode). Jika fitur per-metode dimatikan, langsung
+     * buat pesanan tarif-gabungan dan lempar ke Snap (perilaku lama, 1 klik).
      */
-    public function store(Course $course)
+    public function choose(Course $course)
     {
         abort_unless($course->isInCatalog(), 404);
 
+        $user = Auth::user();
+
+        if ($course->isFree() || $course->isManagedBy($user) || $course->isEnrolledBy($user)) {
+            return redirect()->route('shop.show', $course);
+        }
+
+        if (! $this->gateway->isConfigured()) {
+            return redirect()->route('shop.show', $course)
+                ->withErrors(['shop' => 'Pembayaran belum dikonfigurasi. Hubungi admin.']);
+        }
+
+        // Mode tarif gabungan (tanpa pemilihan metode) → checkout langsung.
+        if (! $this->fee->methodsEnabled()) {
+            return $this->createAndRedirect($course, null);
+        }
+
+        return view('checkout.choose', [
+            'course' => $course,
+            'base' => (int) $course->price,
+            'options' => $this->fee->options((int) $course->price),
+            'feeLabel' => $this->fee->label(),
+        ]);
+    }
+
+    /**
+     * Peserta memilih metode → buat pesanan dengan biaya metode itu → Snap
+     * (dikunci ke metode terpilih).
+     */
+    public function store(Course $course, Request $request)
+    {
+        abort_unless($course->isInCatalog(), 404);
+
+        $methodKey = null;
+
+        if ($this->fee->methodsEnabled()) {
+            $validated = $request->validate([
+                'method' => 'required|string',
+            ]);
+            $methodKey = $validated['method'];
+
+            // Metode harus salah satu yang aktif di config.
+            if (! $this->fee->channelsFor($methodKey)) {
+                return redirect()->route('checkout.choose', $course)
+                    ->withErrors(['shop' => 'Metode pembayaran tidak valid. Silakan pilih lagi.']);
+            }
+        }
+
+        return $this->createAndRedirect($course, $methodKey);
+    }
+
+    /**
+     * Buat pesanan + lempar ke Snap, atau balik dengan error yang ramah.
+     */
+    private function createAndRedirect(Course $course, ?string $methodKey)
+    {
         try {
-            $order = $this->orders->checkout($course, Auth::user());
+            $order = $this->orders->checkout($course, Auth::user(), $methodKey);
         } catch (RuntimeException $e) {
-            return back()->withErrors(['shop' => $e->getMessage()]);
+            return redirect()->route('shop.show', $course)
+                ->withErrors(['shop' => $e->getMessage()]);
         }
 
         if ($course->isEnrolledBy(Auth::user())) {
@@ -86,11 +146,11 @@ class CheckoutController extends Controller
     /**
      * Pengguna ingin ganti metode pembayaran.
      *
-     * Snap "mengunci" tampilan ke metode yang sudah dipilih saat transaksi
-     * dilanjutkan, jadi cara bersih untuk berganti metode adalah: batalkan
-     * pesanan lama, lalu buat pesanan baru (Snap fresh → daftar metode muncul).
-     * Tidak ada risiko dobel bayar — order_code lama sudah dibatalkan di kedua
-     * sisi (DB kita + Midtrans).
+     * Karena metode kini dipilih di halaman kita (dan biaya layanan mengikuti
+     * metode), berganti metode = batalkan pesanan lama lalu kembali ke halaman
+     * pilih metode. Tidak ada risiko dobel bayar — order_code lama dibatalkan di
+     * kedua sisi (DB kita + Midtrans). Pesanan yang sudah lunas tak pernah
+     * dibatalkan.
      */
     public function changeMethod(Order $order)
     {
@@ -108,14 +168,12 @@ class CheckoutController extends Controller
 
         $this->orders->abandon($order);
 
-        try {
-            $fresh = $this->orders->checkout($order->course, Auth::user());
-        } catch (RuntimeException $e) {
-            return redirect()->route('shop.show', $order->course)
-                ->withErrors(['shop' => $e->getMessage()]);
+        // Mode tarif gabungan (1 klik) → buat langsung; jika per-metode → pilih.
+        if (! $this->fee->methodsEnabled()) {
+            return $this->createAndRedirect($order->course, null);
         }
 
-        return redirect()->away($fresh->snap_redirect_url);
+        return redirect()->route('checkout.choose', $order->course);
     }
 
     /**

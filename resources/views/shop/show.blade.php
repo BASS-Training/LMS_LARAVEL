@@ -126,7 +126,13 @@
                 </div>
 
                 <div class="p-6 space-y-4">
-                    @if ($breakdown && $breakdown['fee'] > 0)
+                    @if ($breakdown && $breakdown['fee'] > 0 && ($methodsEnabled ?? false))
+                        {{-- Biaya layanan berbeda per metode → tampilkan harga saja;
+                             biaya persisnya muncul saat memilih metode di checkout. --}}
+                        <p class="text-3xl font-bold text-gray-900">
+                            Rp {{ number_format($breakdown['base'], 0, ',', '.') }}
+                        </p>
+                    @elseif ($breakdown && $breakdown['fee'] > 0)
                         <div>
                             <p class="text-3xl font-bold text-gray-900">
                                 Rp {{ number_format($breakdown['total'], 0, ',', '.') }}
@@ -193,16 +199,13 @@
                         <p class="text-center text-xs text-gray-500">Langsung bisa diakses setelah mendaftar.</p>
 
                     @else
-                        <form method="POST" action="{{ route('checkout.store', $course) }}">
-                            @csrf
-                            <button type="submit"
-                                    class="w-full inline-flex items-center justify-center gap-2 min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-red-800 transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                                Beli Sekarang
-                            </button>
-                        </form>
+                        <a href="{{ route('checkout.choose', $course) }}"
+                           class="w-full inline-flex items-center justify-center gap-2 min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-red-800 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                            Beli Sekarang
+                        </a>
                         <p class="text-center text-xs text-gray-500">
-                            Bayar via QRIS, e-wallet, transfer bank, atau kartu.
+                            Pilih metode: QRIS, e-wallet, transfer bank, atau kartu.
                         </p>
                     @endif
 

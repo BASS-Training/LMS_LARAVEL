@@ -19,6 +19,7 @@ class Order extends Model
         'fee_amount',
         'status',
         'payment_type',
+        'payment_method_key',
         'transaction_id',
         'snap_token',
         'snap_redirect_url',
@@ -119,6 +120,26 @@ class Order extends Model
     public function hasFee(): bool
     {
         return (int) $this->fee_amount > 0;
+    }
+
+    /**
+     * Label metode pembayaran yang dipilih pembeli (mis. "QRIS",
+     * "Transfer Bank (Virtual Account)"). Jatuh balik ke payment_type dari
+     * Midtrans, lalu strip '—' bila keduanya kosong.
+     */
+    public function getPaymentMethodLabelAttribute(): string
+    {
+        if ($this->payment_method_key) {
+            $label = config('midtrans.methods.list.' . $this->payment_method_key . '.label');
+
+            if ($label) {
+                return (string) $label;
+            }
+        }
+
+        return $this->payment_type
+            ? ucwords(str_replace('_', ' ', (string) $this->payment_type))
+            : '—';
     }
 
     private function rupiah(int|string|null $value): string

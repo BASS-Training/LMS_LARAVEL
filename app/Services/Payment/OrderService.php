@@ -30,8 +30,12 @@ class OrderService
     /**
      * Ambil pesanan yang masih bisa dibayar, atau buat yang baru lengkap
      * dengan link pembayaran Snap.
+     *
+     * @param  string|null  $methodKey  Metode yang dipilih pembeli di awal
+     *   (mis. 'qris', 'bank_transfer'). Menentukan biaya layanan yang dipakai
+     *   dan mengunci Snap ke metode itu. null → tarif gabungan + semua metode.
      */
-    public function checkout(Course $course, User $user): Order
+    public function checkout(Course $course, User $user, ?string $methodKey = null): Order
     {
         if (! $this->gateway->isConfigured()) {
             throw new RuntimeException('Pembayaran belum dikonfigurasi. Hubungi admin.');
@@ -51,14 +55,20 @@ class OrderService
             throw new RuntimeException('Anda sudah terdaftar di kursus ini.');
         }
 
-        // Rincian harga: pembeli menanggung biaya layanan gateway.
-        // total = harga kursus + biaya layanan (di-snapshot ke order).
-        $breakdown = $this->fee->forBase((int) $course->price);
+        // Wajib pilih metode jika fitur per-metode aktif — supaya biaya yang
+        // ditagih benar-benar sesuai metode & Snap bisa dikunci ke metode itu.
+        if ($this->fee->methodsEnabled() && ! $this->fee->channelsFor($methodKey)) {
+            throw new RuntimeException('Silakan pilih metode pembayaran terlebih dahulu.');
+        }
 
-        // Jangan bikin pesanan baru kalau yang lama masih hidup — biar tidak
-        // menumpuk order pending dan pengguna bisa lanjut bayar. Dicocokkan pada
-        // HARGA DASAR: kalau tarif biaya layanan berubah, order lama tak dipakai
-        // ulang supaya rinciannya selalu konsisten dengan tagihan.
+        // Rincian harga: pembeli menanggung biaya layanan gateway sesuai metode.
+        // total = harga kursus + biaya layanan (di-snapshot ke order).
+        $breakdown = $this->fee->forMethod((int) $course->price, $methodKey);
+
+        // Jangan bikin pesanan baru kalau yang lama masih hidup DENGAN metode &
+        // tarif yang sama — biar tidak menumpuk order pending dan pengguna bisa
+        // lanjut bayar. Kalau metode/tarif berbeda, buat order baru supaya
+        // rincian & popup Snap konsisten dengan pilihan sekarang.
         $existing = Order::where('user_id', $user->id)
             ->where('course_id', $course->id)
             ->where('status', 'pending')
@@ -67,12 +77,13 @@ class OrderService
 
         if ($existing
             && $existing->isPayable()
+            && $existing->payment_method_key === $methodKey
             && (int) $existing->base_amount === $breakdown['base']
             && (int) $existing->amount === $breakdown['total']) {
             return $existing;
         }
 
-        return DB::transaction(function () use ($course, $user, $breakdown) {
+        return DB::transaction(function () use ($course, $user, $breakdown, $methodKey) {
             $order = Order::create([
                 'user_id' => $user->id,
                 'course_id' => $course->id,
@@ -80,6 +91,7 @@ class OrderService
                 'base_amount' => $breakdown['base'], // harga kursus (pendapatan penjual)
                 'fee_amount' => $breakdown['fee'],   // biaya layanan yang dibebankan ke pembeli
                 'amount' => $breakdown['total'],     // TOTAL yang ditagih ke Midtrans
+                'payment_method_key' => $methodKey,  // metode pilihan (dasar biaya + kunci Snap)
                 'status' => 'pending',
                 'expires_at' => now()->addHours((int) config('midtrans.expiry_hours', 24)),
             ]);

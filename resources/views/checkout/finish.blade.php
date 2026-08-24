@@ -160,10 +160,10 @@
                 <dt class="text-gray-500">Total</dt>
                 <dd class="font-semibold text-gray-900">{{ $order->amount_label }}</dd>
             </div>
-            @if ($order->payment_type)
+            @if ($order->payment_type || $order->payment_method_key)
                 <div class="flex justify-between">
                     <dt class="text-gray-500">Metode</dt>
-                    <dd class="text-gray-900 capitalize">{{ str_replace('_', ' ', $order->payment_type) }}</dd>
+                    <dd class="text-gray-900">{{ $order->payment_method_label }}</dd>
                 </div>
             @endif
 
