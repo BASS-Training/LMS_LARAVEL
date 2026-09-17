@@ -27,6 +27,7 @@ export default {
             colors: {
                 'bass-red':  '#DA1E1E',
                 'bass-gold': '#FFD600',
+                'navy':      '#17243A',
             },
             maxWidth: {
                 'screen-2xl': '1440px',

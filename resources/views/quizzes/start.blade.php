@@ -1,27 +1,27 @@
 <x-app-layout>
-    <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <div class="min-h-screen bg-gray-50">
         <!-- Header Section -->
-        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+        <div class="bg-white border-b-4 border-bass-red">
             <div class="max-w-7xl mx-auto px-6 py-8">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-4">
                         <!-- Back Button -->
                         <a href="{{ url()->previous() }}"
-                           class="inline-flex items-center p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           class="inline-flex items-center p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
+                            <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                             </svg>
                         </a>
 
                         <div>
-                            <h1 class="text-3xl font-bold">{{ $quiz->title }}</h1>
-                            <p class="text-indigo-100 mt-1">Siap untuk mengetes pengetahuan Anda?</p>
+                            <h1 class="text-3xl font-bold text-gray-900">{{ $quiz->title }}</h1>
+                            <p class="text-gray-600 mt-1">Siap untuk mengetes pengetahuan Anda?</p>
                         </div>
                     </div>
 
                     @if($quiz->enable_leaderboard)
                         <a href="{{ route('quizzes.leaderboard', $quiz) }}"
-                           class="hidden md:flex items-center px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors text-sm font-medium">
+                           class="hidden md:flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm font-medium text-gray-700">
                             <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
                             </svg>
@@ -33,15 +33,15 @@
         </div>
 
         <!-- Main Content -->
-        <div class="max-w-7xl mx-auto px-6 py-8">
-            <div class="grid lg:grid-cols-3 gap-8">
+        <div class="max-w-5xl mx-auto px-6 py-8">
+            <div class="space-y-8">
 
-                <!-- Left Column: Quiz Info -->
-                <div class="lg:col-span-2 space-y-6">
+                <!-- Quiz Info -->
+                <div class="space-y-6">
                     <!-- Quiz Info Card -->
                     <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
                         <!-- Card Header -->
-                        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white">
+                        <div class="bg-bass-red p-6 text-white">
                             <div class="flex items-center">
                                 <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -50,7 +50,7 @@
                                 </div>
                                 <div>
                                     <h2 class="text-xl font-bold">Instruksi Kuis</h2>
-                                    <p class="text-blue-100 text-sm">Baca dengan teliti sebelum memulai</p>
+                                    <p class="text-white/90 text-sm">Baca dengan teliti sebelum memulai</p>
                                 </div>
                             </div>
                         </div>
@@ -96,7 +96,7 @@
                         <!-- Total Questions -->
                         <div class="bg-white rounded-xl shadow-lg p-4 border border-gray-100 hover:shadow-xl transition-shadow">
                             <div class="flex items-center justify-between">
-                                <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center">
+                                <div class="w-10 h-10 bg-gray-100 text-navy rounded-lg flex items-center justify-center">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
@@ -111,7 +111,7 @@
                         <!-- Total Points -->
                         <div class="bg-white rounded-xl shadow-lg p-4 border border-gray-100 hover:shadow-xl transition-shadow">
                             <div class="flex items-center justify-between">
-                                <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center">
+                                <div class="w-10 h-10 bg-gray-100 text-navy rounded-lg flex items-center justify-center">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
                                     </svg>
@@ -162,7 +162,7 @@
                     <!-- Start Button -->
                     <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
                         <div class="text-center mb-4">
-                            <div class="w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <div class="w-16 h-16 bg-bass-red rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
                                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
@@ -174,7 +174,7 @@
                         <form action="{{ route('quizzes.start_attempt', $quiz) }}" method="POST">
                             @csrf
                             <button type="submit"
-                                    class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2">
+                                    class="w-full bg-bass-red hover:bg-[#B91818] text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-100 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
@@ -188,17 +188,15 @@
                     </div>
                 </div>
 
-                <!-- Right Column: Leaderboard Only -->
-                <div class="space-y-6">
-                    <!-- Leaderboard -->
-                    @if($quiz->enable_leaderboard)
+                <!-- Leaderboard -->
+                @if($quiz->enable_leaderboard)
                         @php
                             $leaderboard = $quiz->getLeaderboardWithBestAttempts(10);
                         @endphp
 
-                        <div class="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl shadow-xl border-2 border-yellow-300 overflow-hidden">
+                        <div class="bg-white rounded-2xl shadow-xl border-2 border-gray-200 overflow-hidden">
                             <!-- Leaderboard Header -->
-                            <div class="bg-gradient-to-r from-yellow-400 to-amber-500 p-6 text-white">
+                            <div class="bg-navy p-6 text-white">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center">
                                         <div class="w-12 h-12 bg-white/30 rounded-xl flex items-center justify-center mr-3">
@@ -208,7 +206,7 @@
                                         </div>
                                         <div>
                                             <h3 class="text-xl font-bold">🏆 Leaderboard</h3>
-                                            <p class="text-xs text-yellow-100">Top 10 Peserta Terbaik</p>
+                                            <p class="text-xs text-white/80">Top 10 Peserta Terbaik</p>
                                         </div>
                                     </div>
                                 </div>
@@ -222,14 +220,14 @@
                                             @php
                                                 $isTop3 = $entry['rank'] <= 3;
                                                 $rankBg = match($entry['rank']) {
-                                                    1 => 'bg-gradient-to-r from-yellow-400 to-yellow-500',
-                                                    2 => 'bg-gradient-to-r from-gray-300 to-gray-400',
-                                                    3 => 'bg-gradient-to-r from-orange-400 to-orange-500',
+                                                    1 => 'bg-[#F6C945]',
+                                                    2 => 'bg-gray-300',
+                                                    3 => 'bg-orange-400',
                                                     default => 'bg-gray-200'
                                                 };
                                                 $rankTextColor = $entry['rank'] <= 3 ? 'text-white' : 'text-gray-700';
                                             @endphp
-                                            <div class="flex items-center p-3 rounded-xl {{ $isTop3 ? 'bg-white shadow-lg border-2 border-yellow-300' : 'bg-white shadow border border-gray-200' }} hover:scale-102 transition-transform">
+                                            <div class="flex items-center p-3 rounded-xl {{ $isTop3 ? 'bg-white shadow-lg border-2 border-gray-200' : 'bg-white shadow border border-gray-100' }} hover:scale-102 transition-transform">
                                                 <!-- Rank Badge -->
                                                 <div class="flex-shrink-0 mr-3">
                                                     <div class="w-10 h-10 {{ $rankBg }} rounded-full flex items-center justify-center {{ $isTop3 ? 'shadow-md' : '' }}">
@@ -240,7 +238,7 @@
                                                 <!-- User Info -->
                                                 <div class="flex-1 min-w-0">
                                                     <div class="flex items-center">
-                                                        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-bold mr-2 text-sm">
+                                                        <div class="w-9 h-9 rounded-full bg-navy flex items-center justify-center text-white font-bold mr-2 text-sm">
                                                             {{ strtoupper(substr($entry['user']->name, 0, 1)) }}
                                                         </div>
                                                         <div class="min-w-0 flex-1">
@@ -271,7 +269,7 @@
 
                                     <div class="mt-4 text-center">
                                         <a href="{{ route('quizzes.leaderboard', $quiz) }}"
-                                           class="inline-flex items-center text-sm font-medium text-amber-700 hover:text-amber-800">
+                                           class="inline-flex items-center text-sm font-medium text-navy hover:text-bass-red transition-colors">
                                             Lihat Semua Peringkat
                                             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -290,15 +288,14 @@
                                     </div>
                                 @endif
 
-                                <div class="mt-4 p-3 bg-gradient-to-r from-amber-100 to-yellow-100 rounded-lg border border-amber-200">
-                                    <p class="text-xs text-center text-amber-800 font-medium">
+                                <div class="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                    <p class="text-xs text-center text-gray-600 font-medium">
                                         💪 Raih posisi teratas dan buktikan kemampuanmu!
                                     </p>
                                 </div>
                             </div>
                         </div>
-                    @endif
-                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -365,19 +362,19 @@
         }
 
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #fbbf24, #f59e0b);
+            background: #DA1E1E;
             border-radius: 10px;
             border: 2px solid #f1f5f9;
         }
 
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #f59e0b, #d97706);
+            background: #B91818;
         }
 
         /* For Firefox */
         .custom-scrollbar {
             scrollbar-width: thin;
-            scrollbar-color: #fbbf24 #f1f5f9;
+            scrollbar-color: #DA1E1E #f1f5f9;
         }
 
         /* Smooth transitions */

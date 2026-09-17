@@ -6,7 +6,7 @@
                     <i class="fas fa-clipboard-check text-2xl"></i>
                     <h2 class="text-3xl font-bold">Hasil Kuis</h2>
                 </div>
-                <p class="text-blue-100 text-lg">{{ $quiz->title }}</p>
+                <p class="text-white/80 text-lg">{{ $quiz->title }}</p>
             </div>
         </div>
     </x-slot>
@@ -14,7 +14,7 @@
     <!-- Add required CSS -->
     <style>
         .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #17243A;
         }
 
         .card-shadow {
@@ -22,11 +22,11 @@
         }
 
         .success-gradient {
-            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            background: #168A50;
         }
 
         .fail-gradient {
-            background: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
+            background: #B91C1C;
         }
 
         .score-circle {
@@ -99,7 +99,7 @@
                         <i class="fas {{ $isPassed ? 'fa-check-circle' : 'fa-times-circle' }} text-4xl pulse-icon"></i>
                         <h2 class="text-2xl font-bold">{{ $isPassed ? 'Selamat! Anda Lulus' : 'Tidak Lulus' }}</h2>
                     </div>
-                    <p class="{{ $isPassed ? 'text-green-100' : 'text-red-100' }}">
+                    <p class="{{ $isPassed ? 'text-white/90' : 'text-white/90' }}">
                         {{ $isPassed ? 'Excellent work! Keep up the great progress!' : 'Jangan menyerah! Terus belajar dan coba lagi' }}
                     </p>
                 </div>
@@ -110,7 +110,7 @@
                         <div class="flex items-center space-x-6 mb-6 lg:mb-0">
                             <div class="score-circle" style="background: conic-gradient({{ $isPassed ? '#4ade80' : '#ef4444' }} 0deg {{ $percentage * 3.6 }}deg, #e5e7eb {{ $percentage * 3.6 }}deg 360deg);">
                                 <div class="score-text text-center">
-                                    <div class="text-3xl font-bold text-gray-800">{{ number_format($percentage, 1) }}%</div>
+                                    <div class="text-xl font-bold text-gray-800">{{ number_format($percentage, 1) }}%</div>
                                     <div class="text-sm text-gray-500">Nilai Anda</div>
                                 </div>
                             </div>
@@ -127,10 +127,10 @@
 
                         <!-- Stats Cards -->
                         <div class="grid grid-cols-2 gap-4">
-                            <div class="bg-blue-50 p-4 rounded-lg text-center">
-                                <i class="fas fa-question-circle text-blue-500 text-xl mb-2"></i>
+                            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                <i class="fas fa-question-circle text-navy text-xl mb-2"></i>
                                 <div class="text-sm text-gray-600">Total Soal</div>
-                                <div class="text-lg font-semibold text-blue-600">{{ $quiz->questions->count() }}</div>
+                                <div class="text-lg font-semibold text-navy">{{ $quiz->questions->count() }}</div>
                             </div>
                             <div class="bg-green-50 p-4 rounded-lg text-center">
                                 <i class="fas fa-check-circle text-green-500 text-xl mb-2"></i>
@@ -206,7 +206,7 @@
                     @if($quiz->show_answers_after_attempt)
                         <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
                             <h4 class="font-semibold text-gray-800 mb-4 flex items-center">
-                                <i class="fas fa-list-check mr-2 text-blue-500"></i>
+                                <i class="fas fa-list-check mr-2 text-bass-red"></i>
                                 Detail Jawaban
                             </h4>
 
@@ -321,7 +321,7 @@
                         @endphp
 
                         @if($leaderboard->count() > 0)
-                            <div class="bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-200 rounded-xl p-6 mb-8">
+                            <div class="bg-white rounded-xl p-6 mb-8">
                                 <div class="flex items-center justify-between mb-4">
                                     <h4 class="font-bold text-gray-800 flex items-center text-lg">
                                         <svg class="w-6 h-6 mr-2 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
@@ -329,7 +329,7 @@
                                         </svg>
                                         Top 5 Leaderboard
                                     </h4>
-                                    <a href="{{ route('quizzes.leaderboard', $quiz) }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                                    <a href="{{ route('quizzes.leaderboard', $quiz) }}" class="text-sm text-bass-red hover:text-red-700 font-medium">
                                         Lihat Semua →
                                     </a>
                                 </div>
@@ -386,7 +386,7 @@
                     <div class="flex flex-col sm:flex-row gap-4 justify-center">
                         {{-- [FIX] Kembali ke halaman content --}}
                         <a href="{{ route('contents.show', $content) }}"
-                           class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold btn-hover flex items-center justify-center space-x-2">
+                           class="bg-navy hover:bg-[#243A52] text-white px-8 py-3 rounded-lg font-semibold btn-hover flex items-center justify-center space-x-2">
                             <i class="fas fa-arrow-left"></i>
                             <span>Kembali ke Materi</span>
                         </a>
@@ -394,7 +394,7 @@
                         <!-- Tombol Coba Lagi - HANYA JIKA TIDAK LULUS -->
                         @if(!$hasPassedQuizBefore)
                             <a href="{{ route('quizzes.start', $quiz) }}"
-                               class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold btn-hover flex items-center justify-center space-x-2">
+                               class="bg-bass-red hover:bg-[#B91818] text-white px-8 py-3 rounded-lg font-semibold btn-hover flex items-center justify-center space-x-2">
                                 <i class="fas fa-redo"></i>
                                 <span>Coba Lagi</span>
                             </a>
@@ -410,7 +410,7 @@
                         <!-- Tombol Lanjut ke Materi Berikutnya (jika lulus) -->
                         @if($isPassed)
                              {{-- [PERBAIKAN] Arahkan juga ke halaman materi agar pengguna bisa klik tombol 'selesai' --}}
-                             <a href="{{ route('contents.show', $content->id) }}" class="px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2">
+                             <a href="{{ route('contents.show', $content->id) }}" class="px-6 py-3 bg-bass-red hover:bg-[#B91818] text-white font-bold rounded-lg shadow-lg focus:outline-none focus:ring-4 focus:ring-red-300 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2">
                                 <i class="fas fa-check"></i>
                                 <span>Lanjut Belajar</span>
                             </a>
@@ -424,7 +424,7 @@
                 <!-- Performance Chart -->
                 <div class="bg-white rounded-lg card-shadow p-6">
                     <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
-                        <i class="fas fa-chart-bar mr-2 text-blue-500"></i>
+                        <i class="fas fa-chart-bar mr-2 text-bass-red"></i>
                         Analisis Performa
                     </h3>
                     <div class="space-y-4">
@@ -452,7 +452,7 @@
                 <!-- Next Steps -->
                 <div class="bg-white rounded-lg card-shadow p-6">
                     <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
-                        <i class="fas fa-route mr-2 text-purple-500"></i>
+                        <i class="fas fa-route mr-2 text-bass-red"></i>
                         Langkah Selanjutnya
                     </h3>
                     <div class="space-y-3">
@@ -465,20 +465,20 @@
                             </div>
                         @else
                             <div class="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
-                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <span class="text-blue-600 font-semibold text-sm">1</span>
+                                <div class="w-8 h-8 bg-navy rounded-full flex items-center justify-center">
+                                    <span class="text-white font-semibold text-sm">1</span>
                                 </div>
                                 <span class="text-sm text-gray-700">Review materi pelajaran</span>
                             </div>
                             <div class="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
-                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                                    <span class="text-green-600 font-semibold text-sm">2</span>
+                                <div class="w-8 h-8 bg-navy rounded-full flex items-center justify-center">
+                                    <span class="text-white font-semibold text-sm">2</span>
                                 </div>
                                 <span class="text-sm text-gray-700">Diskusi dengan instruktur</span>
                             </div>
                             <div class="flex items-center space-x-3 p-3 bg-purple-50 rounded-lg">
-                                <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                                    <span class="text-purple-600 font-semibold text-sm">3</span>
+                                <div class="w-8 h-8 bg-navy rounded-full flex items-center justify-center">
+                                    <span class="text-white font-semibold text-sm">3</span>
                                 </div>
                                 <span class="text-sm text-gray-700">Ulangi kuis</span>
                             </div>
