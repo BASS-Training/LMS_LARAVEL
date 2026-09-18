@@ -117,7 +117,7 @@
                                 <!-- Progress Card - MORE COMPACT -->
                                 <div class="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-4 border border-gray-200 dark:border-gray-700">
                                     <h3 class="text-base font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
-                                        <svg class="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-5 h-5 text-bass-red mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                                         </svg>
                                         Progress Essay
@@ -126,10 +126,10 @@
                                     <div class="mb-3">
                                         <div class="flex items-center justify-between mb-2">
                                             <span id="progress-text" class="text-xs font-semibold text-gray-700 dark:text-gray-300">0 / {{ $questions->count() }}</span>
-                                            <span id="progress-percentage" class="text-xs font-bold text-indigo-600">0%</span>
+                                            <span id="progress-percentage" class="text-xs font-bold text-bass-red">0%</span>
                                         </div>
                                         <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                            <div id="progress-bar" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                            <div id="progress-bar" class="bg-bass-red h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
                                         </div>
                                     </div>
 
@@ -142,8 +142,8 @@
                                     </div>
 
                                     <!-- Current Question Info -->
-                                    <div class="mt-3 p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg border border-indigo-200 dark:border-indigo-700">
-                                        <div class="text-xs text-indigo-700 dark:text-indigo-300">
+                                    <div class="mt-3 p-2 bg-red-50 dark:bg-red-900/30 rounded-lg border border-red-200 dark:border-red-700">
+                                        <div class="text-xs text-gray-600 dark:text-gray-300">
                                             <span class="font-semibold">Soal Aktif:</span>
                                             <span id="current-question-display" class="ml-2 text-base font-bold">1</span>
                                             <span class="text-gray-600 dark:text-gray-400">/ {{ $questions->count() }}</span>
@@ -154,7 +154,7 @@
                                 <!-- Question Navigation - MORE COMPACT -->
                                 <div class="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-4 border border-gray-200 dark:border-gray-700">
                                     <h4 class="text-sm font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
-                                        <svg class="w-4 h-4 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-4 h-4 text-bass-red mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
                                         </svg>
                                         Navigasi Soal
@@ -164,7 +164,7 @@
                                     <div class="grid grid-cols-5 gap-1.5">
                                         @for($i = 1; $i <= $questions->count(); $i++)
                                             <button type="button" onclick="goToQuestion({{ $i - 1 }})"
-                                                    class="question-nav-btn w-full aspect-square rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-bold transition-all duration-200 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:scale-105"
+                                                    class="question-nav-btn w-full aspect-square rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-bold transition-all duration-200 hover:border-bass-red hover:bg-red-50 dark:hover:bg-red-900/30 hover:scale-105"
                                                     data-question="{{ $i - 1 }}"
                                                     title="Soal {{ $i }}">
                                                 {{ $i }}
@@ -183,7 +183,7 @@
                                             <span class="text-gray-600 dark:text-gray-400">Sudah dijawab</span>
                                         </div>
                                         <div class="flex items-center space-x-2">
-                                            <div class="w-5 h-5 rounded border-2 border-indigo-500 bg-indigo-100 dark:bg-indigo-900/30"></div>
+                                            <div class="w-5 h-5 rounded border-2 border-bass-red bg-red-50 dark:bg-red-900/30"></div>
                                             <span class="text-gray-600 dark:text-gray-400">Sedang dilihat</span>
                                         </div>
                                     </div>
@@ -218,10 +218,10 @@
 
                                             <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 w-full">
                                                 <!-- Question Header - WIDER -->
-                                                <div class="bg-gradient-to-r from-indigo-50 via-purple-50 to-blue-50 dark:from-indigo-900/30 dark:via-purple-900/30 dark:to-blue-900/30 px-6 lg:px-10 py-5 border-b border-gray-200 dark:border-gray-700">
+                                                <div class="bg-gray-50 dark:bg-gray-800 px-6 lg:px-10 py-5 border-b border-gray-200 dark:border-gray-700">
                                                     <div class="flex items-center justify-between flex-wrap gap-4">
                                                         <div class="flex items-center space-x-4">
-                                                            <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg shadow-lg">
+                                                            <div class="bg-navy text-white w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg shadow-lg">
                                                                 {{ $index + 1 }}
                                                             </div>
                                                             <div>
@@ -230,7 +230,7 @@
                                                                 </span>
                                                                 @if ($content->scoring_enabled)
                                                                     <div class="flex items-center space-x-3 mt-1">
-                                                                        <span class="text-sm text-indigo-600 dark:text-indigo-400 font-medium">
+                                                                        <span class="text-sm text-bass-red dark:text-gray-400 font-medium">
                                                                             <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
                                                                             </svg>{{ $question->max_score }} poin
@@ -251,7 +251,7 @@
                                                 <!-- Question Content - MAXIMUM WIDTH & HEIGHT -->
                                                 <div class="p-6 lg:p-10 bg-white dark:bg-gray-900 min-h-[650px]">
                                                     <div class="mb-6">
-                                                        <div class="p-5 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl border-l-4 border-indigo-500">
+                                                        <div class="p-5 bg-red-50 dark:bg-red-900/30 rounded-xl border-l-4 border-bass-red">
                                                             <p class="text-xl font-medium text-gray-900 dark:text-gray-100 leading-relaxed whitespace-pre-line">{{ $question->question }}</p>
                                                         </div>
                                                     </div>
@@ -264,7 +264,7 @@
                                                             name="answer_{{ $question->id }}"
                                                             id="answer_{{ $question->id }}"
                                                             data-question-id="{{ $question->id }}"
-                                                            class="essay-answer w-full border-2 border-gray-300 dark:border-gray-600 rounded-xl px-5 py-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-800 dark:text-gray-200 resize-y min-h-[500px] text-base leading-relaxed transition-all duration-200"
+                                                            class="essay-answer w-full border-2 border-gray-300 dark:border-gray-600 rounded-xl px-5 py-4 focus:ring-2 focus:ring-bass-red focus:border-bass-red dark:bg-gray-800 dark:text-gray-200 resize-y min-h-[500px] text-base leading-relaxed transition-all duration-200"
                                                             placeholder="Tulis jawaban Anda di sini... (klik Simpan Jawaban untuk menyimpan draft)"
                                                             required>{{ old("answer_{$question->id}") }}</textarea>
 
@@ -296,13 +296,13 @@
                                                         </button>
 
                                                         <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                                                            Soal <span class="text-indigo-600 font-bold">{{ $index + 1 }}</span> dari {{ $questions->count() }}
+                                                            Soal <span class="text-bass-red font-bold">{{ $index + 1 }}</span> dari {{ $questions->count() }}
                                                         </div>
 
                                                         <div class="flex items-center gap-3 flex-wrap">
                                                             <button type="button"
                                                                     onclick="saveCurrentAnswer(true)"
-                                                                    class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-all duration-200 {{ $index === $questions->count() - 1 ? 'hidden' : '' }}"
+                                                                    class="px-5 py-3 bg-bass-red hover:bg-[#B91818] text-white font-semibold rounded-lg transition-all duration-200 {{ $index === $questions->count() - 1 ? 'hidden' : '' }}"
                                                                     id="save-next-btn-{{ $index }}">
                                                                 Simpan Jawaban & Lanjut
                                                                 <svg class="w-4 h-4 inline ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -322,7 +322,7 @@
 
                                                             <button type="button"
                                                                     onclick="saveCurrentAnswer(false)"
-                                                                    class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-all duration-200 {{ $index !== $questions->count() - 1 ? 'hidden' : '' }}"
+                                                                    class="px-5 py-3 bg-bass-red hover:bg-[#B91818] text-white font-semibold rounded-lg transition-all duration-200 {{ $index !== $questions->count() - 1 ? 'hidden' : '' }}"
                                                                     id="save-btn-{{ $index }}">
                                                                 Simpan Jawaban
                                                             </button>
@@ -369,7 +369,7 @@
                                 <div class="grid grid-cols-2 gap-4 text-sm">
                                     <div>
                                         <span class="text-gray-500 dark:text-gray-400">Pertanyaan Dijawab:</span>
-                                        <br><span id="modal-answered-count" class="font-bold text-indigo-600">0 / {{ $questions->count() }}</span>
+                                        <br><span id="modal-answered-count" class="font-bold text-bass-red">0 / {{ $questions->count() }}</span>
                                     </div>
                                     <div>
                                         <span class="text-gray-500 dark:text-gray-400">Total Pertanyaan:</span>
@@ -960,7 +960,7 @@
                             id="question"
                             name="question"
                             rows="4"
-                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red sm:text-sm"
                             placeholder="Masukkan pertanyaan essay..."
                             required
                         ></textarea>
@@ -978,7 +978,7 @@
                                 name="max_score"
                                 min="1"
                                 value="100"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red sm:text-sm"
                                 required
                             >
                         </div>
@@ -986,7 +986,7 @@
                         <input type="hidden" name="max_score" value="0">
                     @endif
 
-                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md transition-colors">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-bass-red hover:bg-[#B91818] text-white font-medium rounded-md transition-colors">
                         Tambah Pertanyaan
                     </button>
                 </form>
@@ -1009,7 +1009,7 @@
                                         </div>
                                         <div class="flex items-center gap-2 ml-4">
                                             <button type="button"
-                                                    class="edit-question-btn text-indigo-600 hover:text-indigo-800 p-2 rounded-lg hover:bg-indigo-50 transition-colors"
+                                                    class="edit-question-btn text-bass-red hover:text-[#B91818] p-2 rounded-lg hover:bg-red-50 transition-colors"
                                                     data-question-id="{{ $question->id }}"
                                                     title="Edit pertanyaan">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1045,7 +1045,7 @@
                                                 <textarea
                                                     name="question"
                                                     rows="4"
-                                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red sm:text-sm"
                                                     required>{{ $question->question }}</textarea>
                                             </div>
 
@@ -1059,7 +1059,7 @@
                                                         name="max_score"
                                                         min="1"
                                                         value="{{ $question->max_score }}"
-                                                        class="block w-32 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                        class="block w-32 rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red sm:text-sm"
                                                         required>
                                                 </div>
                                             @else
@@ -1067,7 +1067,7 @@
                                             @endif
 
                                             <div class="flex items-center gap-2">
-                                                <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md transition-colors">
+                                                <button type="submit" class="inline-flex items-center px-4 py-2 bg-bass-red hover:bg-[#B91818] text-white font-medium rounded-md transition-colors">
                                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                     </svg>

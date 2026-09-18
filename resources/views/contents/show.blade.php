@@ -34,7 +34,7 @@
             }
         }
     }"
-    class="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    class="flex flex-col min-h-screen bg-gray-50">
 
         <!-- Alert Messages -->
         @if(session('success'))
@@ -95,7 +95,7 @@
 
         <!-- Mobile Header -->
         <div class="lg:hidden bg-white shadow-sm border-b p-4 flex items-center justify-between sticky top-0 z-30">
-            <button @click="toggleSidebar()" class="p-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
+            <button @click="toggleSidebar()" class="p-2 rounded-xl bg-navy text-white hover:bg-[#1a2f50] transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
@@ -103,12 +103,12 @@
             <div class="flex-1 mx-4">
                 <h1 class="text-lg font-bold text-gray-900 truncate">{{ $content->title }}</h1>
                 <div class="flex items-center space-x-2 mt-1">
-                    <span class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-medium capitalize">
+                    <span class="px-2 py-1 bg-red-50 text-bass-red rounded-full text-xs font-medium capitalize">
                         {{ ucfirst($content->type) }}
                     </span>
                 </div>
             </div>
-            <button @click="showProgress = !showProgress" class="p-2 rounded-xl bg-purple-100 text-purple-600 hover:bg-purple-200 transition-colors">
+            <button @click="showProgress = !showProgress" class="p-2 rounded-xl bg-red-50 text-bass-red hover:bg-red-100 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                 </svg>
@@ -132,11 +132,11 @@
                 12px 0 40px -10px rgba(139, 92, 246, 0.1);">
 
             <!-- Sidebar Header -->
-            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
+            <div class="bg-navy p-6 text-white">
                 <div class="flex items-center justify-between">
                     <div class="flex-1 min-w-0">
                         <h3 class="text-xl font-bold truncate">{{ $course->title }}</h3>
-                        <p class="text-indigo-100 text-sm mt-1">Pembelajaran Interaktif</p>
+                        <p class="text-gray-200 text-sm mt-1">Pembelajaran Interaktif</p>
                     </div>
                     <button @click="sidebarOpen = false" class="p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,10 +165,10 @@
                         <span class="font-semibold">{{ $progressPercentage }}%</span>
                     </div>
                     <div class="w-full bg-white/20 rounded-full h-2">
-                        <div class="bg-gradient-to-r from-yellow-400 to-green-400 h-2 rounded-full transition-all duration-500"
+                        <div class="bg-green-500 h-2 rounded-full transition-all duration-500"
                              style="width: {{ $progressPercentage }}%"></div>
                     </div>
-                    <p class="text-xs text-indigo-100 mt-1">{{ $completedContentsCount }}/{{ $totalContentsInCourse }} konten selesai</p>
+                    <p class="text-xs text-gray-200 mt-1">{{ $completedContentsCount }}/{{ $totalContentsInCourse }} konten selesai</p>
                 </div>
             </div>
 
@@ -177,8 +177,8 @@
                 @foreach ($course->lessons->sortBy('order') as $lesson)
                     <div class="mb-6 last:mb-2">
                         <!-- Lesson Header - Redesigned -->
-                        <div class="flex items-center mb-3 pb-3 border-b-2 border-indigo-100">
-                            <div class="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-xl flex items-center justify-center text-sm font-bold mr-3 shadow-sm">
+                        <div class="flex items-center mb-3 pb-3 border-b-2 border-red-200">
+                            <div class="w-9 h-9 bg-navy text-white rounded-xl flex items-center justify-center text-sm font-bold mr-3 shadow-sm">
                                 {{ $loop->iteration }}
                             </div>
                             <div class="flex-1 min-w-0">
@@ -198,7 +198,7 @@
                                 @endphp
                                 <div class="flex items-center mt-1 space-x-2">
                                     <div class="flex-1 bg-gray-200 rounded-full h-1.5">
-                                        <div class="bg-gradient-to-r from-green-400 to-emerald-500 h-1.5 rounded-full transition-all duration-300" style="width: {{ $lessonProgress }}%"></div>
+                                        <div class="bg-green-500 h-1.5 rounded-full transition-all duration-300" style="width: {{ $lessonProgress }}%"></div>
                                     </div>
                                     <span class="text-xs font-semibold text-gray-600 whitespace-nowrap">
                                         {{ $lessonCompletedCount }}/{{ $lessonContentsCount }}
@@ -239,7 +239,7 @@
                                         <a href="{{ route('contents.show', $c) }}"
                                            class="group block p-2.5 rounded-lg transition-all duration-200 border
                                                   {{ $isCurrent
-                                                      ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md border-indigo-400 scale-[1.02]'
+                                                      ? 'bg-navy text-white shadow-md border-bass-red scale-[1.02]'
                                                       : ($isCompleted
                                                           ? 'bg-green-50 hover:bg-green-100 text-green-900 border-green-200 hover:border-green-300'
                                                           : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-200 hover:border-gray-300 hover:shadow-sm') }}">
@@ -343,13 +343,13 @@
         <main class="flex-1 flex flex-col min-h-screen lg:min-h-0">
             <header class="hidden lg:flex items-center justify-between p-6 bg-white border-b border-gray-200">
                 <div class="flex items-center space-x-4">
-                    <button @click="toggleSidebar()" class="p-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
+                    <button @click="toggleSidebar()" class="p-2 rounded-xl bg-navy text-white hover:bg-[#1a2f50] transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                     </button>
                     <div>
                         <h1 class="text-2xl font-bold text-gray-900">{{ $content->title }}</h1>
                         <div class="flex items-center space-x-2 mt-1">
-                            <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium capitalize">{{ ucfirst($content->type) }}</span>
+                            <span class="px-3 py-1 bg-red-50 text-bass-red rounded-full text-sm font-medium capitalize">{{ ucfirst($content->type) }}</span>
                             @if($content->description)<span class="text-gray-400">•</span><span class="text-sm text-gray-600">{{ Str::limit($content->description, 50) }}</span>@endif
                         </div>
                     </div>
@@ -429,10 +429,10 @@
                     <!-- Content Card -->
                     <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
                         <!-- Content Header (Mobile) -->
-                        <div class="lg:hidden bg-gradient-to-r from-indigo-500 to-purple-600 p-6 text-white">
+                        <div class="lg:hidden bg-navy p-6 text-white">
                             <h2 class="text-xl font-bold mb-2">{{ $content->title }}</h2>
                             @if($content->description)
-                                <p class="text-indigo-100">{{ $content->description }}</p>
+                                <p class="text-gray-200">{{ $content->description }}</p>
                             @endif
                         </div>
 
@@ -566,9 +566,9 @@
                                                 <div class="mt-3 grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2">
                                                     <template x-for="(src, i) in slides" :key="'thumb-'+i">
                                                         <button @click="setSlide(i)" class="relative group rounded-lg overflow-hidden border"
-                                                                :class="activeDot(i) ? 'border-indigo-500' : 'border-gray-200'">
+                                                                :class="activeDot(i) ? 'border-bass-red' : 'border-gray-200'">
                                                             <img loading="lazy" :src="src" :alt="'thumb '+(i+1)" class="w-full h-16 object-cover">
-                                                            <span x-show="activeDot(i)" class="absolute inset-0 ring-2 ring-indigo-500" style="display:none"></span>
+                                                            <span x-show="activeDot(i)" class="absolute inset-0 ring-2 ring-bass-red" style="display:none"></span>
                                                         </button>
                                                     </template>
                                                 </div>
@@ -600,7 +600,7 @@
                                         $isPreviewable = in_array($fileExtension, $previewableExtensions);
                                     @endphp
 
-                                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 border border-blue-100">
+                                    <div class="bg-gray-50 rounded-2xl p-8 border border-blue-100">
                                         <div class="flex items-center justify-center mb-6">
                                             <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center">
                                                 <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
@@ -616,13 +616,13 @@
                                                 $badgeClass = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ';
                                                 $badgeText = '';
                                                 if ($accessType === 'both') {
-                                                    $badgeClass .= 'bg-indigo-100 text-indigo-700';
+                                                    $badgeClass .= 'bg-red-50 text-bass-red';
                                                     $badgeText = '👁️💾 Preview & Download';
                                                 } elseif ($accessType === 'download_only') {
                                                     $badgeClass .= 'bg-green-100 text-green-700';
                                                     $badgeText = '💾 Download Saja';
                                                 } else {
-                                                    $badgeClass .= 'bg-purple-100 text-purple-700';
+                                                    $badgeClass .= 'bg-red-50 text-bass-red';
                                                     $badgeText = '👁️ Preview Saja';
                                                 }
                                             @endphp
@@ -634,7 +634,7 @@
                                                 <div class="bg-white rounded-xl border p-4">
                                                     <div class="flex items-center justify-between mb-3">
                                                         <p class="text-sm font-semibold text-gray-700">Lampiran Dokumen</p>
-                                                        <a href="#" class="text-xs text-indigo-600 hover:underline js-doc-preview" data-url="{{ $fileUrl }}" data-full-url="{{ $fullFileUrl }}" data-ext="{{ $fileExtension }}">Tampilkan file utama</a>
+                                                        <a href="#" class="text-xs text-bass-red hover:underline js-doc-preview" data-url="{{ $fileUrl }}" data-full-url="{{ $fullFileUrl }}" data-ext="{{ $fileExtension }}">Tampilkan file utama</a>
                                                     </div>
                                                     <ul class="space-y-2 text-sm">
                                                         @foreach($content->documents as $doc)
@@ -656,22 +656,22 @@
                                                                     @elseif($accessType === 'preview_only')
                                                                         @if($docExt === 'pdf')
                                                                             @if($fileExtension === 'pdf')
-                                                                                <a href="#" class="text-indigo-600 hover:underline js-doc-preview" data-url="{{ $docUrl }}" data-full-url="{{ $docFullUrl }}" data-ext="{{ $docExt }}">Preview</a>
+                                                                                <a href="#" class="text-bass-red hover:underline js-doc-preview" data-url="{{ $docUrl }}" data-full-url="{{ $docFullUrl }}" data-ext="{{ $docExt }}">Preview</a>
                                                                             @else
-                                                                                <a href="#" class="text-indigo-600 hover:underline js-doc-preview" data-url="{{ $docUrl }}" data-full-url="{{ $docFullUrl }}" data-ext="{{ $docExt }}">Preview</a>
+                                                                                <a href="#" class="text-bass-red hover:underline js-doc-preview" data-url="{{ $docUrl }}" data-full-url="{{ $docFullUrl }}" data-ext="{{ $docExt }}">Preview</a>
                                                                             @endif
                                                                         @else
-                                                                             <a href="#" class="text-indigo-600 hover:underline js-doc-preview" data-url="{{ $docUrl }}" data-full-url="{{ $docFullUrl }}" data-ext="{{ $docExt }}">Preview</a>
+                                                                             <a href="#" class="text-bass-red hover:underline js-doc-preview" data-url="{{ $docUrl }}" data-full-url="{{ $docFullUrl }}" data-ext="{{ $docExt }}">Preview</a>
                                                                         @endif
                                                                     @else
                                                                         @if($docExt === 'pdf')
                                                                             @if($fileExtension === 'pdf')
-                                                                                <a href="#" class="text-indigo-600 hover:underline js-doc-preview" data-url="{{ $docUrl }}" data-full-url="{{ $docFullUrl }}" data-ext="{{ $docExt }}">Preview</a>
+                                                                                <a href="#" class="text-bass-red hover:underline js-doc-preview" data-url="{{ $docUrl }}" data-full-url="{{ $docFullUrl }}" data-ext="{{ $docExt }}">Preview</a>
                                                                             @else
-                                                                                <a href="#" class="text-indigo-600 hover:underline js-doc-preview" data-url="{{ $docUrl }}" data-full-url="{{ $docFullUrl }}" data-ext="{{ $docExt }}">Preview</a>
+                                                                                <a href="#" class="text-bass-red hover:underline js-doc-preview" data-url="{{ $docUrl }}" data-full-url="{{ $docFullUrl }}" data-ext="{{ $docExt }}">Preview</a>
                                                                             @endif
                                                                         @else
-                                                                             <a href="#" class="text-indigo-600 hover:underline js-doc-preview" data-url="{{ $docUrl }}" data-full-url="{{ $docFullUrl }}" data-ext="{{ $docExt }}">Preview</a>
+                                                                             <a href="#" class="text-bass-red hover:underline js-doc-preview" data-url="{{ $docUrl }}" data-full-url="{{ $docFullUrl }}" data-ext="{{ $docExt }}">Preview</a>
                                                                         @endif
                                                                         <a href="{{ $docUrl }}" download class="text-green-600 hover:underline">Unduh</a>
                                                                     @endif
@@ -748,7 +748,7 @@
                                                             <span class="text-xs text-gray-500">Preview dokumen</span>
                                                         @endif
                                                     </div>
-                                                    <button type="button" id="doc-fullscreen-btn" title="Layar Penuh" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition">
+                                                    <button type="button" id="doc-fullscreen-btn" title="Layar Penuh" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-navy bg-gray-100 hover:bg-gray-200 transition">
                                                         <svg class="w-4 h-4 doc-fs-enter" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
                                                         <svg class="w-4 h-4 doc-fs-exit" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4m0 5H4m5 0L4 4m11 5h5m-5 0V4m0 5l5-5M9 15v5m0-5H4m5 0l-5 5m11-5h5m-5 0v5m0-5l5 5"/></svg>
                                                         <span class="doc-fs-enter">Layar Penuh</span>
@@ -759,7 +759,7 @@
                                                     {{-- Loading State --}}
                                                     <div x-show="loading" class="absolute inset-0 flex items-center justify-center bg-gray-100">
                                                         <div class="text-center">
-                                                            <svg class="animate-spin h-10 w-10 text-indigo-600 mx-auto mb-3" fill="none" viewBox="0 0 24 24">
+                                                            <svg class="animate-spin h-10 w-10 text-bass-red mx-auto mb-3" fill="none" viewBox="0 0 24 24">
                                                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                             </svg>
@@ -781,7 +781,7 @@
                                                     {{-- PDF Preview using PDF.js to avoid iframe blocking in production --}}
                                                     @if($fileExtension === 'pdf')
                                                         <div id="doc-pdf-loading" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-100">
-                                                            <div class="w-12 h-12 border-4 border-gray-300 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+                                                            <div class="w-12 h-12 border-4 border-gray-300 border-t-bass-red rounded-full animate-spin mb-4"></div>
                                                             <p class="text-sm text-gray-600">Memuat preview dokumen...</p>
                                                         </div>
                                                         <div id="doc-pdf-viewer" class="hidden absolute inset-0 overflow-auto">
@@ -1028,7 +1028,7 @@
                                         @if($accessType !== 'preview_only')
                                             <div class="text-center">
                                                 <a href="{{ $fileUrl }}" download
-                                                   class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+                                                   class="inline-flex items-center px-6 py-3 bg-navy text-white font-semibold rounded-xl hover:bg-[#B91818] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
                                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                                     </svg>
@@ -1090,9 +1090,9 @@
 
                                 @elseif($content->type == 'quiz' && $content->quiz)
                                     <!-- PERBAIKAN: Tampilkan quiz content dengan benar -->
-                                    <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-8 border border-purple-100">
+                                    <div class="bg-gray-50 rounded-2xl p-8 border border-red-200">
                                         <div class="text-center mb-6">
-                                            <div class="w-20 h-20 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                            <div class="w-20 h-20 bg-red-50 text-bass-red rounded-2xl flex items-center justify-center mx-auto mb-4">
                                                 <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
                                                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                                 </svg>
@@ -1105,15 +1105,15 @@
 
                                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                                             <div class="bg-white p-4 rounded-xl text-center">
-                                                <div class="text-2xl font-bold text-purple-600">{{ $content->quiz->questions->count() }}</div>
+                                                <div class="text-2xl font-bold text-bass-red">{{ $content->quiz->questions->count() }}</div>
                                                 <div class="text-sm text-gray-600">Pertanyaan</div>
                                             </div>
                                             <div class="bg-white p-4 rounded-xl text-center">
-                                                <div class="text-2xl font-bold text-purple-600">{{ $content->quiz->questions->sum('marks') }}</div>
+                                                <div class="text-2xl font-bold text-bass-red">{{ $content->quiz->questions->sum('marks') }}</div>
                                                 <div class="text-sm text-gray-600">Total Poin</div>
                                             </div>
                                             <div class="bg-white p-4 rounded-xl text-center">
-                                                <div class="text-2xl font-bold text-purple-600">
+                                                <div class="text-2xl font-bold text-bass-red">
                                                     @if($content->quiz->time_limit)
                                                         {{ $content->quiz->time_limit }} min
                                                     @else
@@ -1150,7 +1150,7 @@
                                                                         {{ $attempt->score }}/{{ $content->quiz->questions->sum('marks') }}
                                                                     </div>
                                                                     <a href="{{ route('quizzes.result', [$content->quiz, $attempt]) }}"
-                                                                       class="text-xs text-indigo-600 hover:text-indigo-800">Lihat Detail</a>
+                                                                       class="text-xs text-bass-red hover:text-[#B91818]">Lihat Detail</a>
                                                                 </div>
                                                             @endif
                                                         </div>
@@ -1174,7 +1174,7 @@
                                                 @endphp
                                                 @if($lastPassedAttempt)
                                                     <a href="{{ route('quizzes.result', ['quiz' => $content->quiz, 'attempt' => $lastPassedAttempt]) }}"
-                                                    class="inline-flex items-center px-6 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                                                    class="inline-flex items-center px-6 py-3 bg-navy text-white font-semibold rounded-xl hover:bg-[#B91818] transition-all duration-200 shadow-lg hover:shadow-xl">
                                                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                                         Lihat Hasil Kelulusan
                                                     </a>
@@ -1182,7 +1182,7 @@
                                             @else
                                                 {{-- Jika belum pernah lulus, tampilkan tombol Mulai/Coba Lagi --}}
                                                 <a href="{{ route('quizzes.start', $content->quiz) }}"
-                                                class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+                                                class="inline-flex items-center px-8 py-4 bg-bass-red text-white font-bold rounded-xl hover:bg-[#B91818] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
                                                     <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.01M15 10h1.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                                     </svg>
@@ -1197,7 +1197,7 @@
                                         $zoomDetails = json_decode($content->body, true);
                                         $schedulingStatus = $content->getSchedulingStatus();
                                     @endphp
-                                    <div class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-8 border border-blue-100">
+                                    <div class="bg-gray-50 rounded-2xl p-8 border border-blue-100">
                                         <div class="text-center mb-6">
                                             <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                                                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1280,7 +1280,7 @@
                                         <div class="text-center">
                                             @if($schedulingStatus['can_join'])
                                                 <a href="{{ $zoomDetails['link'] ?? '#' }}" target="_blank" 
-                                                class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+                                                class="inline-flex items-center px-8 py-4 bg-navy text-white font-bold rounded-xl hover:bg-[#B91818] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
                                                     <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                                                     </svg>
@@ -1318,14 +1318,14 @@
                 <!-- Discussion Section - Always max-w-4xl -->
                 <div class="max-w-4xl mx-auto px-6 lg:px-8 pb-6">
                     <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                        <div class="bg-gradient-to-r from-purple-500 to-pink-600 p-6 text-white">
+                        <div class="bg-bass-red p-6 text-white">
                             <h3 class="text-xl font-bold flex items-center">
                                 <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a9.863 9.863 0 01-4.906-1.304L3 21l1.304-5.094A9.863 9.863 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z"/>
                                 </svg>
                                 Diskusi & Tanya Jawab
                             </h3>
-                            <p class="text-purple-100 mt-1">Berbagi pemikiran dan bertanya tentang materi ini</p>
+                            <p class="text-gray-200 mt-1">Berbagi pemikiran dan bertanya tentang materi ini</p>
                         </div>
                         <div class="p-6 lg:p-8">
                             @include('contents.partials.discussion-section')
@@ -1416,7 +1416,7 @@
                             @if ($canGoNext || ((($content->is_optional ?? false)) && $nextContent))
                                 <form action="{{ route('contents.complete_and_continue', $content->id) }}" method="POST" class="w-full">
                                     @csrf
-                                    <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg group">
+                                    <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-3 bg-navy hover:hover:bg-[#B91818] hover:bg-[#B91818] text-white font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg group">
                                     <span class="text-sm mr-2">Selanjutnya</span>
                                     <svg class="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -1429,7 +1429,7 @@
                                     <form action="{{ route('contents.complete_and_continue', $content->id) }}" method="POST" class="w-full">
                                         @csrf
                                         <button type="submit"
-                                               class="w-full inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg">
+                                               class="w-full inline-flex items-center justify-center px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg">
                                                 Selesaikan Kursus
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -1438,7 +1438,7 @@
                                     </form>
                                 @else
                                     <a href="javascript:void(0)" onclick="window.history.back()"
-                                       class="w-full inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg">
+                                       class="w-full inline-flex items-center justify-center px-4 py-3 bg-navy hover:bg-[#B91818] text-white font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg">
                                         <span class="text-sm mr-2">Kembali ke Dashboard</span>
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
@@ -1508,7 +1508,7 @@
                             @if ($canGoNext || ((($content->is_optional ?? false)) && $nextContent))
                                 <form action="{{ route('contents.complete_and_continue', $content->id) }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105">
+                                    <button type="submit" class="inline-flex items-center px-6 py-3 bg-navy hover:hover:bg-[#B91818] hover:bg-[#B91818] text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105">
                                     <span class="mr-2">Selanjutnya</span>
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -1520,7 +1520,7 @@
                                 <form action="{{ route('contents.complete_and_continue', $content->id) }}" method="POST">
                                     @csrf
                                     <button type="submit"
-                                        class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105">
+                                        class="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105">
                                             Selesai & Lanjutkan
                                     </button>
                                 </form>
@@ -1575,7 +1575,7 @@
              @click="showProgress = false">
             <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl" @click.stop>
                 <div class="text-center mb-6">
-                    <div class="w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div class="w-16 h-16 bg-navy rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                     </div>
                     <h3 class="text-xl font-bold text-gray-900 mb-2">Progress Pembelajaran</h3>
@@ -1585,12 +1585,12 @@
                 <div class="space-y-4">
                     <div class="flex justify-between items-center">
                         <span class="text-sm font-medium text-gray-700">Total Progress</span>
-                        <span class="text-lg font-bold text-indigo-600">{{ $progressPercentage }}%</span>
+                        <span class="text-lg font-bold text-bass-red">{{ $progressPercentage }}%</span>
                     </div>
 
                     <div class="relative">
                         <div class="w-full bg-gray-200 rounded-full h-4">
-                            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 h-4 rounded-full transition-all duration-1000 relative overflow-hidden"
+                            <div class="bg-navy h-4 rounded-full transition-all duration-1000 relative overflow-hidden"
                                  style="width: {{ $progressPercentage }}%">
                                 <div class="absolute inset-0 bg-white/20 rounded-full animate-pulse"></div>
                             </div>
@@ -1606,7 +1606,7 @@
                             <div class="text-gray-500">Selesai</div>
                         </div>
                         <div class="text-center">
-                            <div class="font-semibold text-indigo-600">{{ $totalContentsInCourse - $completedContentsCount }}</div>
+                            <div class="font-semibold text-bass-red">{{ $totalContentsInCourse - $completedContentsCount }}</div>
                             <div class="text-gray-500">Tersisa</div>
                         </div>
                         <div class="text-center">
@@ -1621,7 +1621,7 @@
                             @if($canComplete)
                                 <p class="text-sm text-gray-600 text-center">Tandai konten ini sebagai selesai?</p>
                                 <button @click="markAsCompleted(); showProgress = false"
-                                        class="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 hover:scale-105">
+                                        class="w-full px-4 py-3 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-all duration-200 hover:scale-105">
                                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                     </svg>
@@ -1745,21 +1745,21 @@
         }
 
         .content-sidebar-scroll::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #6366f1, #8b5cf6);
+            background: linear-gradient(180deg, #17243A, #DA1E1E);
             border-radius: 10px;
             border: 2px solid #f1f5f9;
-            box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 2px 4px rgba(23, 36, 58, 0.2);
         }
 
         .content-sidebar-scroll::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #4f46e5, #7c3aed);
-            box-shadow: 0 4px 8px rgba(99, 102, 241, 0.3);
+            background: linear-gradient(180deg, #17243A, #DA1E1E);
+            box-shadow: 0 4px 8px rgba(23, 36, 58, 0.3);
         }
 
         /* For Firefox */
         .content-sidebar-scroll {
             scrollbar-width: thin;
-            scrollbar-color: #6366f1 #f1f5f9;
+            scrollbar-color: #17243A #f1f5f9;
         }
 
         /* Smooth scroll behavior */

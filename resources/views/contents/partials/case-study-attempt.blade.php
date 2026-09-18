@@ -60,7 +60,7 @@
             @endif
             @if($isSubmitted && $content->allow_answer_download)
                 <a href="{{ route('case-studies.download', $content) }}"
-                   class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow">
+                   class="inline-flex items-center px-4 py-2 bg-bass-red hover:bg-[#B91818] text-white text-sm font-semibold rounded-lg shadow">
                     ⬇ Unduh PDF
                 </a>
             @endif
@@ -143,7 +143,7 @@
                                                                                name="answers[{{ $sid }}][{{ $bid }}][{{ $rc }}]"
                                                                                rows="1"
                                                                                placeholder="{{ $cell['text'] ?? '' }}"
-                                                                               class="cs-cell-input px-2 py-1 border border-gray-200 rounded text-sm leading-snug resize-none overflow-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-200">{{ $answerFor($sid, $bid, $rc) }}</textarea>
+                                                                               class="cs-cell-input px-2 py-1 border border-gray-200 rounded text-sm leading-snug resize-none overflow-hidden focus:border-bass-red focus:ring-1 focus:ring-bass-red focus:ring-opacity-50">{{ $answerFor($sid, $bid, $rc) }}</textarea>
                                                                     @endif
                                                                 @else
                                                                     <span class="text-sm text-gray-800">{{ $cell['text'] ?? '' }}</span>
@@ -166,7 +166,7 @@
                 <div class="mt-8 flex items-center justify-between border-t border-gray-200 pt-6">
                     <span id="cs-autosave-status" class="text-xs text-gray-400"></span>
                     <button type="submit"
-                            class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl hover:from-indigo-700 hover:to-purple-700 shadow-lg">
+                            class="inline-flex items-center px-6 py-3 bg-bass-red text-white font-semibold rounded-xl hover:bg-[#B91818] shadow-lg">
                         Kumpulkan Jawaban
                     </button>
                 </div>

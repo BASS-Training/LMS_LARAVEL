@@ -24,7 +24,7 @@
 
                         <div class="mb-4">
                             <label for="title" class="block text-sm font-medium text-gray-700">Judul Pelajaran</label>
-                            <input type="text" name="title" id="title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" value="{{ old('title', $lesson->title) }}" required autofocus>
+                            <input type="text" name="title" id="title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red focus:ring-opacity-50" value="{{ old('title', $lesson->title) }}" required autofocus>
                             @error('title')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -32,7 +32,7 @@
 
                         <div class="mb-4">
                             <label for="description" class="block text-sm font-medium text-gray-700">Deskripsi Pelajaran (Opsional)</label>
-                            <textarea name="description" id="description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">{{ old('description', $lesson->description) }}</textarea>
+                            <textarea name="description" id="description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red focus:ring-opacity-50">{{ old('description', $lesson->description) }}</textarea>
                             @error('description')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -40,7 +40,7 @@
 
                         <div class="mb-4">
                             <label for="prerequisite_id" class="block text-sm font-medium text-gray-700">Prasyarat (Pelajaran yang Harus Selesai Dahulu)</label>
-                            <select name="prerequisite_id" id="prerequisite_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <select name="prerequisite_id" id="prerequisite_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red focus:ring-opacity-50">
                                 <option value="">-- Tidak Ada Prasyarat --</option>
                                 @foreach ($course->lessons as $lessonOption)
                                     {{-- Pastikan pelajaran tidak bisa menjadi prasyarat untuk dirinya sendiri --}}
@@ -58,7 +58,7 @@
 
                         <div class="mb-4">
                             <label for="order" class="block text-sm font-medium text-gray-700">Urutan (Opsional)</label>
-                            <input type="number" name="order" id="order" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" value="{{ old('order', $lesson->order) }}">
+                            <input type="number" name="order" id="order" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red focus:ring-opacity-50" value="{{ old('order', $lesson->order) }}">
                             @error('order')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -66,13 +66,13 @@
 
                         <div class="mb-6">
                             <label class="inline-flex items-center">
-                                <input type="checkbox" name="is_optional" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" @checked(old('is_optional', $lesson->is_optional ?? false))>
+                                <input type="checkbox" name="is_optional" value="1" class="rounded border-gray-300 text-bass-red shadow-sm focus:ring-bass-red" @checked(old('is_optional', $lesson->is_optional ?? false))>
                                 <span class="ml-2 text-sm text-gray-700">Pelajaran opsional (tidak wajib untuk membuka pelajaran yang menjadikannya prasyarat)</span>
                             </label>
                         </div>
 
                         <div class="flex items-center justify-end mt-6">
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-bass-red border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#B91818] focus:bg-[#B91818] active:bg-[#8C1515] focus:outline-none focus:ring-2 focus:ring-bass-red focus:ring-offset-2 transition ease-in-out duration-150">
                                 {{ __('Perbarui Pelajaran') }}
                             </button>
                         </div>

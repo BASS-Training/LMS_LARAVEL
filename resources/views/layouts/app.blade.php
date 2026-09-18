@@ -151,7 +151,7 @@
                                 :aria-expanded="userOpen"
                                 class="flex items-center gap-2 min-h-[44px] px-3 py-1.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bass-red">
                             {{-- Avatar initials --}}
-                            <span class="w-8 h-8 rounded-full bg-gradient-to-br from-bass-red to-red-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0" aria-hidden="true">
+                            <span class="w-8 h-8 rounded-full bg-navy flex items-center justify-center text-white text-xs font-bold flex-shrink-0" aria-hidden="true">
                                 {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                             </span>
                             <span class="hidden lg:block max-w-[120px] truncate">{{ Auth::user()->name }}</span>
@@ -302,7 +302,7 @@
             @auth
             <div class="border-t border-gray-200 py-3 px-4 space-y-2">
                 <div class="flex items-center gap-3">
-                    <span class="w-9 h-9 rounded-full bg-gradient-to-br from-bass-red to-red-700 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                    <span class="w-9 h-9 rounded-full bg-navy flex items-center justify-center text-white text-sm font-bold flex-shrink-0" aria-hidden="true">
                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                     </span>
                     <div class="min-w-0">
@@ -327,7 +327,7 @@
             @else
             <div class="border-t border-gray-200 py-3 px-4 flex gap-2">
                 <a href="{{ route('login') }}"    class="flex-1 text-center min-h-[44px] flex items-center justify-center text-sm font-medium text-gray-700 border border-gray-300 rounded-lg">Masuk</a>
-                <a href="{{ route('register') }}" class="flex-1 text-center min-h-[44px] flex items-center justify-center text-sm font-medium text-white bg-bass-red rounded-lg">Daftar</a>
+                <a href="{{ route('register') }}" class="flex-1 text-center min-h-[44px] flex items-center justify-center text-sm font-medium text-white bg-bass-red hover:bg-[#B91818] rounded-lg transition-colors">Daftar</a>
             </div>
             @endauth
         </div>

@@ -26,25 +26,25 @@
         @apply inline-flex items-center px-2 py-1 border-b-2 border-transparent
                text-[1.0625rem] font-semibold leading-snug text-gray-800
                transition-colors duration-150 no-underline
-               hover:text-red-900 hover:border-red-300
+               hover:text-bass-red hover:border-red-200
                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bass-red;
     }
 
     .nav-link-custom.active {
-        @apply text-red-900 border-red-800;
+        @apply text-bass-red border-bass-red;
     }
 
     .dropdown-trigger-custom {
         @apply inline-flex items-center gap-1 px-3 py-2 rounded-md
                text-base font-semibold text-gray-800 bg-white border border-transparent
                transition-colors duration-150
-               hover:text-red-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bass-red;
+               hover:text-bass-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bass-red;
     }
 
     .dropdown-item-custom {
         @apply block px-4 py-2 text-sm text-gray-700 no-underline
                transition-colors duration-100
-               hover:bg-red-50 hover:text-red-900
+               hover:bg-red-50 hover:text-bass-red
                focus-visible:outline-none focus-visible:bg-red-50;
     }
 
@@ -52,12 +52,12 @@
         @apply block min-h-[44px] flex items-center pl-3 pr-4 py-2.5
                border-l-4 border-transparent text-[0.9375rem] font-semibold text-gray-800
                transition-colors duration-150 no-underline
-               hover:text-red-900 hover:bg-red-50 hover:border-red-300
+               hover:text-bass-red hover:bg-red-50 hover:border-red-200
                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-bass-red;
     }
 
     .responsive-nav-link-custom.active {
-        @apply text-red-900 bg-red-50 border-red-800;
+        @apply text-bass-red bg-red-50 border-bass-red;
     }
 
     /* ── KPI / Stat Cards ── */
@@ -87,7 +87,7 @@
     }
 
     .btn-primary {
-        @apply btn bg-bass-red text-white hover:bg-red-700 focus-visible:ring-bass-red;
+        @apply btn bg-bass-red text-white hover:bg-[#B91818] focus-visible:ring-bass-red;
     }
 
     .btn-secondary {

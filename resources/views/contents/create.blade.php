@@ -3,7 +3,7 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
             <div class="space-y-2">
                 <a href="javascript:void(0)" onclick="window.history.back()"
-                   class="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium transition-colors duration-200 group">
+                   class="inline-flex items-center text-bass-red hover:text-[#B91818] font-medium transition-colors duration-200 group">
                     <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform duration-200"
                          fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
@@ -14,7 +14,7 @@
                     ✨ Buat Konten Baru
                 </h1>
                 <div class="flex items-center space-x-2 text-sm text-gray-600">
-                    <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full font-medium">
+                    <span class="px-3 py-1 bg-red-50 text-bass-red rounded-full font-medium">
                         {{ $lesson->title }}
                     </span>
                     <span class="text-gray-400">•</span>
@@ -29,8 +29,8 @@
             <div class="mb-8">
                 <div class="flex items-center justify-center space-x-4">
                     <div class="flex items-center">
-                        <div class="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-medium">1</div>
-                        <span class="ml-2 text-sm font-medium text-indigo-600">Pilih Tipe</span>
+                        <div class="w-8 h-8 bg-navy text-white rounded-full flex items-center justify-center text-sm font-medium">1</div>
+                        <span class="ml-2 text-sm font-medium text-bass-red">Pilih Tipe</span>
                     </div>
                     <div class="w-16 h-1 bg-gray-200 rounded"></div>
                     <div class="flex items-center">
@@ -46,9 +46,9 @@
             </div>
 
             <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-8 py-6">
+                <div class="bg-navy px-8 py-6">
                     <h2 class="text-2xl font-bold text-white">Informasi Konten</h2>
-                    <p class="text-indigo-100 mt-1">Isi detail konten pembelajaran yang akan dibuat</p>
+                    <p class="text-gray-200 mt-1">Isi detail konten pembelajaran yang akan dibuat</p>
                 </div>
 
                 <form id="contentForm" method="POST" action="{{ route('lessons.contents.store', $lesson) }}" enctype="multipart/form-data" class="p-8">
@@ -62,7 +62,7 @@
                             <input type="text"
                                    name="title"
                                    id="title"
-                                   class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-300 text-lg placeholder-gray-400"
+                                   class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-bass-red focus:ring-4 focus:ring-bass-red focus:ring-opacity-50 transition-all duration-300 text-lg placeholder-gray-400"
                                    placeholder="Masukkan judul konten yang menarik..."
                                    value="{{ old('title') }}"
                                    required autofocus>
@@ -83,7 +83,7 @@
                             <textarea name="description"
                                       id="description"
                                       rows="3"
-                                      class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-300 placeholder-gray-400"
+                                      class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-bass-red focus:ring-4 focus:ring-bass-red focus:ring-opacity-50 transition-all duration-300 placeholder-gray-400"
                                       placeholder="Berikan deskripsi singkat tentang konten ini...">{{ old('description') }}</textarea>
                         </div>
 
@@ -94,7 +94,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <label class="content-type-card cursor-pointer">
                                     <input type="radio" name="type" value="text" class="sr-only" onchange="toggleContentTypeFields()" {{ old('type') == 'text' ? 'checked' : '' }}>
-                                    <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-indigo-300 transition-all duration-300 hover:shadow-lg group">
+                                    <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-bass-red hover:border-opacity-50 transition-all duration-300 hover:shadow-lg group">
                                         <div class="text-center">
                                             <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
                                                 📝
@@ -107,7 +107,7 @@
 
                                 <label class="content-type-card cursor-pointer">
                                     <input type="radio" name="type" value="video" class="sr-only" onchange="toggleContentTypeFields()" {{ old('type') == 'video' ? 'checked' : '' }}>
-                                    <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-indigo-300 transition-all duration-300 hover:shadow-lg group">
+                                    <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-bass-red hover:border-opacity-50 transition-all duration-300 hover:shadow-lg group">
                                         <div class="text-center">
                                             <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
                                                 🎥
@@ -120,7 +120,7 @@
 
                                 <label class="content-type-card cursor-pointer">
                                     <input type="radio" name="type" value="document" class="sr-only" onchange="toggleContentTypeFields()" {{ old('type') == 'document' ? 'checked' : '' }}>
-                                    <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-indigo-300 transition-all duration-300 hover:shadow-lg group">
+                                    <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-bass-red hover:border-opacity-50 transition-all duration-300 hover:shadow-lg group">
                                         <div class="text-center">
                                             <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
                                                 📄
@@ -133,9 +133,9 @@
 
                                 <label class="content-type-card cursor-pointer">
                                     <input type="radio" name="type" value="image" class="sr-only" onchange="toggleContentTypeFields()" {{ old('type') == 'image' ? 'checked' : '' }}>
-                                    <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-indigo-300 transition-all duration-300 hover:shadow-lg group">
+                                    <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-bass-red hover:border-opacity-50 transition-all duration-300 hover:shadow-lg group">
                                         <div class="text-center">
-                                            <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
+                                            <div class="w-12 h-12 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
                                                 🖼️
                                             </div>
                                             <h3 class="font-semibold text-gray-900">Gambar</h3>
@@ -146,7 +146,7 @@
 
                                 <label class="content-type-card cursor-pointer">
                                     <input type="radio" name="type" value="quiz" class="sr-only" onchange="toggleContentTypeFields()" {{ old('type') == 'quiz' ? 'checked' : '' }}>
-                                    <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-indigo-300 transition-all duration-300 hover:shadow-lg group">
+                                    <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-bass-red hover:border-opacity-50 transition-all duration-300 hover:shadow-lg group">
                                         <div class="text-center">
                                             <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
                                                 🧠
@@ -159,7 +159,7 @@
 
                                 <label class="content-type-card cursor-pointer">
                                     <input type="radio" name="type" value="essay" class="sr-only" onchange="toggleContentTypeFields()" {{ old('type') == 'essay' ? 'checked' : '' }}>
-                                    <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-indigo-300 transition-all duration-300 hover:shadow-lg group">
+                                    <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-bass-red hover:border-opacity-50 transition-all duration-300 hover:shadow-lg group">
                                         <div class="text-center">
                                             <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
                                                 ✍️
@@ -178,7 +178,7 @@
 
                     <div class="mt-8 space-y-6">
                         <div id="body_field" class="content-field hidden">
-                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+                            <div class="bg-gray-50 rounded-xl p-6 border border-blue-100">
                                 <label for="body_text" class="block text-sm font-semibold text-gray-700 mb-3">
                                     <span id="body_label">📝 Isi Konten</span>
                                 </label>
@@ -193,7 +193,7 @@
                         </div>
 
                         <div id="essay_questions_field" class="content-field hidden">
-                            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100" x-data="essayQuestionsManager()">
+                            <div class="bg-green-50 rounded-xl p-6 border border-green-100" x-data="essayQuestionsManager()">
                                 <div class="flex items-start mb-6">
                                     <div class="flex-shrink-0">
                                         <div class="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
@@ -233,7 +233,7 @@
                                                         x-model="question.text"
                                                         :name="'questions[' + index + '][text]'"
                                                         rows="4"
-                                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red text-sm"
                                                         placeholder="Tulis pertanyaan essay..."
                                                         required
                                                     ></textarea>
@@ -249,7 +249,7 @@
                                                         :name="'questions[' + index + '][max_score]'"
                                                         min="1" 
                                                         max="1000"
-                                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red text-sm"
                                                         required
                                                     />
                                                 </div>
@@ -299,7 +299,7 @@
                         </div>
 
                         <div id="video_field" class="content-field hidden">
-                            <div class="bg-gradient-to-r from-red-50 to-pink-50 rounded-xl p-6 border border-red-100">
+                            <div class="bg-red-50 rounded-xl p-6 border border-red-100">
                                 <label for="body_video" class="block text-sm font-semibold text-gray-700 mb-3">
                                     🎥 URL Video YouTube/Vimeo
                                 </label>
@@ -314,7 +314,7 @@
                         </div>
 
                         <div id="file_upload_field" class="content-field hidden">
-                            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+                            <div class="bg-green-50 rounded-xl p-6 border border-green-100">
                                 <label for="file_upload" class="block text-sm font-semibold text-gray-700 mb-3">
                                     📁 Unggah File
                                 </label>
@@ -328,7 +328,7 @@
                                            class="hidden"
                                            onchange="handleFileSelect(this)">
                                     <label for="file_upload" class="cursor-pointer">
-                                        <span class="text-indigo-600 font-medium hover:text-indigo-500">Klik untuk memilih file</span>
+                                        <span class="text-bass-red font-medium hover:text-[#B91818]">Klik untuk memilih file</span>
                                         <span class="text-gray-500"> atau drag & drop</span>
                                     </label>
                                     <p class="text-sm text-gray-500 mt-2">Maksimal 10MB (PDF, DOCX, PPTX, JPG, PNG)</p>
@@ -367,11 +367,11 @@
                                 <!-- Pengumpulan Tugas Dokumen (untuk tipe document) -->
                                 <div class="mt-6" x-show="document.querySelector('input[name=\"type\"]:checked')?.value === 'document'"
                                      x-data="{ collect: {{ old('collect_submission') ? 'true' : 'false' }} }">
-                                    <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4">
+                                    <div class="bg-red-50 border border-red-200 rounded-xl p-4">
                                         <label class="flex items-start gap-3 cursor-pointer">
                                             <input type="hidden" name="collect_submission" value="0">
                                             <input type="checkbox" name="collect_submission" value="1" x-model="collect"
-                                                   class="mt-1 h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                                   class="mt-1 h-5 w-5 rounded border-gray-300 text-bass-red focus:ring-bass-red">
                                             <span>
                                                 <span class="block font-semibold text-gray-900">📥 Aktifkan Pengumpulan Tugas</span>
                                                 <span class="block text-xs text-gray-500 mt-0.5">Peserta dapat mengunggah dokumen, mengumpulkannya, lalu dinilai. Jika belum lulus, peserta dapat mengunggah percobaan berikutnya.</span>
@@ -379,11 +379,11 @@
                                         </label>
 
                                         <div x-show="collect" x-cloak class="mt-4 space-y-4 pl-8">
-                                            <label class="flex items-start gap-3 cursor-pointer bg-white rounded-lg border border-indigo-100 p-3">
+                                            <label class="flex items-start gap-3 cursor-pointer bg-white rounded-lg border border-red-200 p-3">
                                                 <input type="hidden" name="require_submission_pass" value="0">
                                                 <input type="checkbox" name="require_submission_pass" value="1"
                                                        {{ old('require_submission_pass') ? 'checked' : '' }}
-                                                       class="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                                       class="mt-1 h-4 w-4 rounded border-gray-300 text-bass-red focus:ring-bass-red">
                                                 <span>
                                                     <span class="block text-sm font-semibold text-gray-800">🔒 Wajib LULUS untuk lanjut</span>
                                                     <span class="block text-xs text-gray-500 mt-0.5">Peserta tidak dapat membuka konten berikutnya sampai pengumpulannya dinilai Lulus oleh instruktur.</span>
@@ -392,7 +392,7 @@
                                             <div>
                                                 <label for="submission_instructions" class="block text-sm font-semibold text-gray-700 mb-1">Instruksi Tugas (opsional)</label>
                                                 <textarea name="submission_instructions" id="submission_instructions" rows="3"
-                                                          class="block w-full rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                          class="block w-full rounded-lg border-gray-300 text-sm focus:border-bass-red focus:ring-bass-red"
                                                           placeholder="Contoh: Unggah makalah Anda dalam format PDF, maksimal 10 halaman.">{{ old('submission_instructions') }}</textarea>
                                             </div>
                                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -400,13 +400,13 @@
                                                     <label for="submission_max_size_mb" class="block text-sm font-semibold text-gray-700 mb-1">Batas Ukuran File (MB)</label>
                                                     <input type="number" name="submission_max_size_mb" id="submission_max_size_mb" min="1" max="100"
                                                            value="{{ old('submission_max_size_mb') }}" placeholder="20"
-                                                           class="block w-full rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                           class="block w-full rounded-lg border-gray-300 text-sm focus:border-bass-red focus:ring-bass-red">
                                                 </div>
                                                 <div>
                                                     <label for="submission_allowed_types" class="block text-sm font-semibold text-gray-700 mb-1">Tipe File Diizinkan</label>
                                                     <input type="text" name="submission_allowed_types" id="submission_allowed_types"
                                                            value="{{ old('submission_allowed_types') }}" placeholder="pdf,doc,docx,ppt,pptx,xls,xlsx"
-                                                           class="block w-full rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                           class="block w-full rounded-lg border-gray-300 text-sm focus:border-bass-red focus:ring-bass-red">
                                                     <p class="text-xs text-gray-500 mt-1">Pisah dengan koma. Kosongkan untuk default.</p>
                                                 </div>
                                             </div>
@@ -427,7 +427,7 @@
                         </div>
 
                         <div id="quiz_form_fields" class="content-field hidden">
-                            <div class="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-6 border border-orange-100">
+                            <div class="bg-orange-50 rounded-xl p-6 border border-orange-100">
                                 <h3 class="text-lg font-semibold text-gray-900 mb-4">🧠 Pengaturan Kuis</h3>
 
                                 <!-- Quiz Creation Method Toggle -->
@@ -467,7 +467,7 @@
                                             name="time_limit"
                                             id="time_limit"
                                             oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                                            class="w-full max-w-xs px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-300"
+                                            class="w-full max-w-xs px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-bass-red focus:ring-4 focus:ring-bass-red focus:ring-opacity-50 transition-all duration-300"
                                             placeholder="Contoh: 60"
                                             value="{{ old('time_limit') }}">
                                         <p class="text-sm text-gray-500 mt-2">Biarkan kosong atau isi 0 jika tidak ada batas waktu.</p>
@@ -479,7 +479,7 @@
                                 <!-- Import Method Fields -->
                                 <div id="import_quiz_fields" class="hidden">
                                     <!-- Download Template Section -->
-                                    <div class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-4 mb-4 text-white">
+                                    <div class="bg-green-600 rounded-xl p-4 mb-4 text-white">
                                         <div class="flex items-center justify-between">
                                             <div class="flex items-center space-x-3">
                                                 <div class="bg-white/20 p-3 rounded-lg">
@@ -548,7 +548,7 @@
 
                         <button type="button"
                                 onclick="submitCreateForm()"
-                                class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl hover:from-indigo-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                                class="inline-flex items-center px-8 py-4 bg-bass-red text-white font-semibold rounded-xl hover:bg-[#B91818] transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>
@@ -562,7 +562,7 @@
 
     <style>
         .content-type-card input:checked + div {
-            @apply border-indigo-500 bg-indigo-50 shadow-lg;
+            @apply border-bass-red bg-red-50 shadow-lg;
         }
 
         .content-field {
@@ -581,11 +581,11 @@
         }
 
         .group:hover label {
-            @apply text-indigo-600;
+            @apply text-bass-red;
         }
 
         .step-active {
-            @apply bg-indigo-600 text-white;
+            @apply bg-navy text-white;
         }
 
         .step-completed {

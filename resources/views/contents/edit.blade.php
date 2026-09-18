@@ -3,7 +3,7 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
             <div class="space-y-2">
                 <a href="javascript:void(0)" onclick="window.history.back()"
-                   class="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium transition-colors duration-200 group">
+                   class="inline-flex items-center text-bass-red hover:text-[#B91818] font-medium transition-colors duration-200 group">
                     <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform duration-200"
                          fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
@@ -14,7 +14,7 @@
                     {{ $content->exists ? '✏️ Edit Konten' : '✨ Buat Konten Baru' }}
                 </h1>
                 <div class="flex items-center space-x-2 text-sm text-gray-600">
-                    <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full font-medium">
+                    <span class="px-3 py-1 bg-red-50 text-bass-red rounded-full font-medium">
                         {{ $lesson->title }}
                     </span>
                     <span class="text-gray-400">•</span>
@@ -81,18 +81,18 @@
                  })"
                  x-init="initForm()">
 
-                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-8 py-6">
+                <div class="bg-navy px-8 py-6">
                     <div class="flex items-center justify-between">
                         <div>
                             <h2 class="text-2xl font-bold text-white">
                                 {{ $content->exists ? 'Edit Konten' : 'Buat Konten Baru' }}
                             </h2>
-                            <p class="text-indigo-100 mt-1">
+                            <p class="text-gray-200 mt-1">
                                 {{ $content->exists ? 'Perbarui informasi konten pembelajaran' : 'Isi detail konten pembelajaran yang akan dibuat' }}
                             </p>
                         </div>
                         @if($content->exists)
-                            <div class="text-indigo-100 text-sm">
+                            <div class="text-gray-200 text-sm">
                                 <div class="flex items-center">
                                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
@@ -113,7 +113,7 @@
                     <div class="space-y-6 mb-8">
                         <div class="border-b border-gray-200 pb-4">
                             <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-                                <div class="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mr-3 text-sm font-bold">1</div>
+                                <div class="w-8 h-8 bg-red-50 text-bass-red rounded-full flex items-center justify-center mr-3 text-sm font-bold">1</div>
                                 Informasi Dasar
                             </h3>
                         </div>
@@ -128,7 +128,7 @@
                                    x-model="content.title"
                                    {{-- ✅ TAMBAHKAN :class untuk error --}}
                                    :class="{ 'form-input-error': errors.title }"
-                                   class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-300 text-lg"
+                                   class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-bass-red focus:ring-4 focus:ring-bass-red focus:ring-opacity-50 transition-all duration-300 text-lg"
                                    placeholder="Masukkan judul konten yang menarik...">
                             {{-- ✅ TAMBAHKAN pesan error --}}
                             <p x-show="errors.title" x-text="errors.title" class="text-sm text-red-600 mt-1"></p>
@@ -142,7 +142,7 @@
                                       id="description"
                                       x-model="content.description"
                                       rows="3"
-                                      class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-300"
+                                      class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-bass-red focus:ring-4 focus:ring-bass-red focus:ring-opacity-50 transition-all duration-300"
                                       placeholder="Berikan deskripsi singkat tentang konten ini..."></textarea>
                         </div>
 
@@ -154,7 +154,7 @@
                                 <label class="cursor-pointer">
                                     <input type="radio" name="type" value="text" x-model="content.type" class="sr-only">
                                     <div class="p-4 border-2 rounded-xl text-center transition-all duration-300 hover:shadow-md"
-                                         :class="content.type === 'text' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300'">
+                                         :class="content.type === 'text' ? 'border-bass-red bg-red-50' : 'border-gray-200 hover:border-bass-red hover:border-opacity-50'">
                                         <div class="text-2xl mb-2">📝</div>
                                         <div class="text-xs font-medium">Teks</div>
                                     </div>
@@ -163,7 +163,7 @@
                                 <label class="cursor-pointer">
                                     <input type="radio" name="type" value="video" x-model="content.type" class="sr-only">
                                     <div class="p-4 border-2 rounded-xl text-center transition-all duration-300 hover:shadow-md"
-                                         :class="content.type === 'video' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300'">
+                                         :class="content.type === 'video' ? 'border-bass-red bg-red-50' : 'border-gray-200 hover:border-bass-red hover:border-opacity-50'">
                                         <div class="text-2xl mb-2">🎥</div>
                                         <div class="text-xs font-medium">Video</div>
                                     </div>
@@ -172,7 +172,7 @@
                                 <label class="cursor-pointer">
                                     <input type="radio" name="type" value="document" x-model="content.type" class="sr-only">
                                     <div class="p-4 border-2 rounded-xl text-center transition-all duration-300 hover:shadow-md"
-                                         :class="content.type === 'document' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300'">
+                                         :class="content.type === 'document' ? 'border-bass-red bg-red-50' : 'border-gray-200 hover:border-bass-red hover:border-opacity-50'">
                                         <div class="text-2xl mb-2">📄</div>
                                         <div class="text-xs font-medium">Dokumen</div>
                                     </div>
@@ -181,7 +181,7 @@
                                 <label class="cursor-pointer">
                                     <input type="radio" name="type" value="image" x-model="content.type" class="sr-only">
                                     <div class="p-4 border-2 rounded-xl text-center transition-all duration-300 hover:shadow-md"
-                                         :class="content.type === 'image' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300'">
+                                         :class="content.type === 'image' ? 'border-bass-red bg-red-50' : 'border-gray-200 hover:border-bass-red hover:border-opacity-50'">
                                         <div class="text-2xl mb-2">🖼️</div>
                                         <div class="text-xs font-medium">Gambar</div>
                                     </div>
@@ -190,7 +190,7 @@
                                 <label class="cursor-pointer">
                                     <input type="radio" name="type" value="quiz" x-model="content.type" class="sr-only">
                                     <div class="p-4 border-2 rounded-xl text-center transition-all duration-300 hover:shadow-md"
-                                         :class="content.type === 'quiz' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300'">
+                                         :class="content.type === 'quiz' ? 'border-bass-red bg-red-50' : 'border-gray-200 hover:border-bass-red hover:border-opacity-50'">
                                         <div class="text-2xl mb-2">🧠</div>
                                         <div class="text-xs font-medium">Kuis</div>
                                     </div>
@@ -199,7 +199,7 @@
                                 <label class="cursor-pointer">
                                     <input type="radio" name="type" value="essay" x-model="content.type" class="sr-only">
                                     <div class="p-4 border-2 rounded-xl text-center transition-all duration-300 hover:shadow-md"
-                                         :class="content.type === 'essay' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300'">
+                                         :class="content.type === 'essay' ? 'border-bass-red bg-red-50' : 'border-gray-200 hover:border-bass-red hover:border-opacity-50'">
                                         <div class="text-2xl mb-2">✍️</div>
                                         <div class="text-xs font-medium">Esai</div>
                                     </div>
@@ -208,7 +208,7 @@
                                 <label class="cursor-pointer">
                                     <input type="radio" name="type" value="zoom" x-model="content.type" class="sr-only">
                                     <div class="p-4 border-2 rounded-xl text-center transition-all duration-300 hover:shadow-md"
-                                         :class="content.type === 'zoom' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300'">
+                                         :class="content.type === 'zoom' ? 'border-bass-red bg-red-50' : 'border-gray-200 hover:border-bass-red hover:border-opacity-50'">
                                         <div class="text-2xl mb-2">💻</div>
                                         <div class="text-xs font-medium">Zoom</div>
                                     </div>
@@ -217,7 +217,7 @@
                                 <label class="cursor-pointer">
                                     <input type="radio" name="type" value="case_study" x-model="content.type" class="sr-only">
                                     <div class="p-4 border-2 rounded-xl text-center transition-all duration-300 hover:shadow-md"
-                                         :class="content.type === 'case_study' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300'">
+                                         :class="content.type === 'case_study' ? 'border-bass-red bg-red-50' : 'border-gray-200 hover:border-bass-red hover:border-opacity-50'">
                                         <div class="text-2xl mb-2">📋</div>
                                         <div class="text-xs font-medium">Studi Kasus</div>
                                     </div>
@@ -226,7 +226,7 @@
                                 <label class="cursor-pointer">
                                     <input type="radio" name="type" value="feedback" x-model="content.type" class="sr-only">
                                     <div class="p-4 border-2 rounded-xl text-center transition-all duration-300 hover:shadow-md"
-                                         :class="content.type === 'feedback' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300'">
+                                         :class="content.type === 'feedback' ? 'border-bass-red bg-red-50' : 'border-gray-200 hover:border-bass-red hover:border-opacity-50'">
                                         <div class="text-2xl mb-2">💬</div>
                                         <div class="text-xs font-medium">Feedback</div>
                                     </div>
@@ -236,7 +236,7 @@
                             <div class="mt-6">
                                 <label class="inline-flex items-center">
                                     <input type="checkbox" name="is_optional" value="1"
-                                           class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                           class="rounded border-gray-300 text-bass-red shadow-sm focus:ring-bass-red"
                                            @checked(old('is_optional', $content->is_optional ?? false))>
                                     <span class="ml-2 text-sm text-gray-700">Boleh dilewati (opsional)</span>
                                 </label>
@@ -245,10 +245,10 @@
 
                             <div x-show="content.type === 'essay'" x-transition class="mb-6">
                                 <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                    <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+                                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
                                         <div class="mb-4">
-                                            <h4 class="text-sm font-medium text-indigo-900 mb-1">Model Penilaian Essay</h4>
-                                            <p class="text-xs text-indigo-700">Pilih cara memberikan nilai dan feedback</p>
+                                            <h4 class="text-sm font-medium text-gray-900 mb-1">Model Penilaian Essay</h4>
+                                            <p class="text-xs text-gray-600">Pilih cara memberikan nilai dan feedback</p>
                                         </div>
                                         
                                         <div class="space-y-3">
@@ -258,7 +258,7 @@
                                                     value="individual" 
                                                     {{ old('grading_mode', $content->grading_mode ?? 'individual') === 'individual' ? 'checked' : '' }}
                                                     x-model="content.grading_mode"
-                                                    class="form-radio h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 mt-0.5">
+                                                    class="form-radio h-4 w-4 text-bass-red focus:ring-bass-red border-gray-300 mt-0.5">
                                                 <div class="ml-3">
                                                     <span class="text-sm font-medium text-gray-900">Per Soal Individual</span>
                                                     <p class="text-xs text-gray-600">Berikan nilai dan feedback untuk setiap pertanyaan secara terpisah</p>
@@ -271,7 +271,7 @@
                                                     value="overall" 
                                                     {{ old('grading_mode', $content->grading_mode ?? 'individual') === 'overall' ? 'checked' : '' }}
                                                     x-model="content.grading_mode"
-                                                    class="form-radio h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 mt-0.5">
+                                                    class="form-radio h-4 w-4 text-bass-red focus:ring-bass-red border-gray-300 mt-0.5">
                                                 <div class="ml-3">
                                                     <span class="text-sm font-medium text-gray-900">Keseluruhan Essay</span>
                                                     <p class="text-xs text-gray-600">Berikan satu nilai dan feedback untuk seluruh essay</p>
@@ -292,7 +292,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="mt-4 bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+                                    <div class="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
                                         <div>
                                             <h4 class="text-sm font-medium text-blue-900 mb-1">Mode Essay</h4>
                                             <p class="text-xs text-blue-700">Pilih mode essay berdasarkan kebutuhan pembelajaran</p>
@@ -313,36 +313,36 @@
                                         @endphp
 
                                         <div class="space-y-2">
-                                            <label class="flex items-start p-3 border border-gray-200 rounded-lg hover:border-indigo-300 transition-colors cursor-pointer">
+                                            <label class="flex items-start p-3 border border-gray-200 rounded-lg hover:border-bass-red hover:border-opacity-50 transition-colors cursor-pointer">
                                                 <input type="radio" 
                                                     name="review_mode" 
                                                     value="scoring" 
                                                     {{ old('review_mode', $currentReviewMode) == 'scoring' ? 'checked' : '' }}
-                                                    class="form-radio h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 mt-0.5">
+                                                    class="form-radio h-4 w-4 text-bass-red focus:ring-bass-red border-gray-300 mt-0.5">
                                                 <div class="ml-3">
                                                     <span class="text-sm font-medium text-gray-900">🏆 Dengan Penilaian</span>
                                                     <p class="text-xs text-gray-500 mt-1">Instruktur memberikan nilai dan feedback. Peserta menunggu hasil penilaian.</p>
                                                 </div>
                                             </label>
                                             
-                                            <label class="flex items-start p-3 border border-gray-200 rounded-lg hover:border-indigo-300 transition-colors cursor-pointer">
+                                            <label class="flex items-start p-3 border border-gray-200 rounded-lg hover:border-bass-red hover:border-opacity-50 transition-colors cursor-pointer">
                                                 <input type="radio" 
                                                     name="review_mode" 
                                                     value="feedback_only" 
                                                     {{ old('review_mode', $currentReviewMode) == 'feedback_only' ? 'checked' : '' }}
-                                                    class="form-radio h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 mt-0.5">
+                                                    class="form-radio h-4 w-4 text-bass-red focus:ring-bass-red border-gray-300 mt-0.5">
                                                 <div class="ml-3">
                                                     <span class="text-sm font-medium text-gray-900">📝 Tanpa Penilaian</span>
                                                     <p class="text-xs text-gray-500 mt-1">Instruktur bisa memberikan feedback tanpa nilai. Peserta menunggu tinjauan.</p>
                                                 </div>
                                             </label>
                                             
-                                            <label class="flex items-start p-3 border border-gray-200 rounded-lg hover:border-indigo-300 transition-colors cursor-pointer">
+                                            <label class="flex items-start p-3 border border-gray-200 rounded-lg hover:border-bass-red hover:border-opacity-50 transition-colors cursor-pointer">
                                                 <input type="radio" 
                                                     name="review_mode" 
                                                     value="no_review" 
                                                     {{ old('review_mode', $currentReviewMode) == 'no_review' ? 'checked' : '' }}
-                                                    class="form-radio h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 mt-0.5">
+                                                    class="form-radio h-4 w-4 text-bass-red focus:ring-bass-red border-gray-300 mt-0.5">
                                                 <div class="ml-3">
                                                     <span class="text-sm font-medium text-gray-900">✅ Latihan Mandiri</span>
                                                     <p class="text-xs text-gray-500 mt-1">Essay untuk latihan. Langsung selesai setelah dikumpulkan, tanpa review instruktur.</p>
@@ -374,15 +374,15 @@
                     <div class="space-y-6 mb-8">
                         <div class="border-b border-gray-200 pb-4">
                             <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-                                <div class="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mr-3 text-sm font-bold">2</div>
-                                Konten <span x-text="getTypeLabel(content.type)" class="ml-2 px-2 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm"></span>
+                                <div class="w-8 h-8 bg-red-50 text-bass-red rounded-full flex items-center justify-center mr-3 text-sm font-bold">2</div>
+                                Konten <span x-text="getTypeLabel(content.type)" class="ml-2 px-2 py-1 bg-red-50 text-bass-red rounded-full text-sm"></span>
                             </h3>
                         </div>
 
                         {{-- ✅ FIX: Untuk TEXT type only - jangan render untuk essay type --}}
                         @if(!$content->exists || $content->type !== 'essay')
                         <div x-show="isType('text')" x-cloak class="animate-fadeIn">
-                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+                            <div class="bg-gray-50 rounded-xl p-6 border border-blue-100">
                                 <label for="body_editor" class="block text-sm font-semibold text-gray-700 mb-3">
                                     📝 Isi Konten
                                 </label>
@@ -403,7 +403,7 @@
                         <div x-show="isType('essay')" x-cloak class="animate-fadeIn" x-data="essayQuestionsManager()">
                             <div class="space-y-6">
                                 {{-- Info Box --}}
-                                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+                                <div class="bg-green-50 rounded-xl p-6 border border-green-100">
                                     <div class="flex items-start">
                                         <div class="flex-shrink-0">
                                             <div class="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
@@ -432,7 +432,7 @@
                                                 <div class="view-mode-existing">
                                                     <div class="flex justify-between items-start mb-2">
                                                         <div class="flex-1">
-                                                            <span class="inline-flex items-center px-2 py-1 bg-indigo-100 text-indigo-800 text-xs font-medium rounded-full mb-2">
+                                                            <span class="inline-flex items-center px-2 py-1 bg-red-50 text-bass-red text-xs font-medium rounded-full mb-2">
                                                                 Soal {{ $index + 1 }}
                                                             </span>
                                                             <div class="text-sm text-gray-700 leading-relaxed mt-2">
@@ -447,7 +447,7 @@
                                                         </div>
                                                         <div class="flex items-center gap-2 ml-4">
                                                             <button type="button"
-                                                                    class="edit-existing-question-btn text-indigo-600 hover:text-indigo-800 p-2 rounded-lg hover:bg-indigo-50 transition-colors"
+                                                                    class="edit-existing-question-btn text-bass-red hover:text-[#B91818] p-2 rounded-lg hover:bg-red-50 transition-colors"
                                                                     data-question-id="{{ $question->id }}"
                                                                     title="Edit pertanyaan">
                                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -476,7 +476,7 @@
                                                                 Edit Soal {{ $index + 1 }}:
                                                             </label>
                                                             <textarea
-                                                                class="question-text-input block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                                class="question-text-input block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red sm:text-sm"
                                                                 rows="4"
                                                                 required>{{ $question->question }}</textarea>
                                                         </div>
@@ -488,7 +488,7 @@
                                                                 </label>
                                                                 <input
                                                                     type="number"
-                                                                    class="max-score-input block w-32 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                                    class="max-score-input block w-32 rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red sm:text-sm"
                                                                     min="1"
                                                                     value="{{ $question->max_score }}"
                                                                     required>
@@ -499,7 +499,7 @@
 
                                                         <div class="flex items-center gap-2">
                                                             <button type="button"
-                                                                    class="save-edit-existing-btn inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md transition-colors"
+                                                                    class="save-edit-existing-btn inline-flex items-center px-4 py-2 bg-bass-red hover:bg-[#B91818] text-white font-medium rounded-md transition-colors"
                                                                     data-question-id="{{ $question->id }}">
                                                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -723,7 +723,7 @@
                                                 <textarea
                                                     id="new-question-text"
                                                     rows="4"
-                                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red text-sm"
                                                     placeholder="Tulis pertanyaan essay yang akan dijawab oleh peserta..."
                                                     required></textarea>
                                             </div>
@@ -739,7 +739,7 @@
                                                         min="1"
                                                         max="1000"
                                                         value="100"
-                                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red text-sm"
                                                         required />
                                                 </div>
                                             @else
@@ -802,7 +802,7 @@
                                                                 x-model="question.text"
                                                                 :name="'questions[' + index + '][text]'"
                                                                 rows="4"
-                                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red text-sm"
                                                                 placeholder="Tulis pertanyaan essay yang akan dijawab oleh peserta..."
                                                                 required
                                                             ></textarea>
@@ -818,7 +818,7 @@
                                                                 :name="'questions[' + index + '][max_score]'"
                                                                 min="1"
                                                                 max="1000"
-                                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red text-sm"
                                                                 :required="$root.content.scoring_enabled"
                                                             />
                                                         </div>
@@ -879,7 +879,7 @@
                         {{-- ✅ FIX: Untuk VIDEO type - skip render kalau existing essay --}}
                         @if(!$content->exists || $content->type !== 'essay')
                         <div x-show="isType('video')" x-cloak class="animate-fadeIn">
-                            <div class="bg-gradient-to-r from-red-50 to-pink-50 rounded-xl p-6 border border-red-100">
+                            <div class="bg-red-50 rounded-xl p-6 border border-red-100">
                                 <label for="video_url" class="block text-sm font-semibold text-gray-700 mb-3">
                                     🎥 URL Video YouTube/Vimeo
                                 </label>
@@ -906,7 +906,7 @@
                         @endif
 
                         <div x-show="isType('document') || isType('image')" x-cloak class="animate-fadeIn">
-                            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+                            <div class="bg-green-50 rounded-xl p-6 border border-green-100">
                                 <label class="block text-sm font-semibold text-gray-700 mb-3">
                                     📁 <span x-text="isType('image') ? 'Unggah Gambar' : 'Unggah Dokumen'"></span>
                                 </label>
@@ -926,7 +926,7 @@
                                                    x-model="selectedAccessType"
                                                    class="sr-only">
                                             <div class="p-4 border-2 rounded-xl text-center transition-all duration-300 hover:shadow-md"
-                                                 :class="selectedAccessType === 'both' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300'">
+                                                 :class="selectedAccessType === 'both' ? 'border-bass-red bg-red-50' : 'border-gray-200 hover:border-bass-red hover:border-opacity-50'">
                                                 <div class="text-2xl mb-2">👁️💾</div>
                                                 <div class="text-xs font-medium">Preview & Download</div>
                                                 <div class="text-[10px] text-gray-500 mt-1">Keduanya</div>
@@ -954,7 +954,7 @@
                                                    x-model="selectedAccessType"
                                                    class="sr-only">
                                             <div class="p-4 border-2 rounded-xl text-center transition-all duration-300 hover:shadow-md"
-                                                 :class="selectedAccessType === 'preview_only' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:border-purple-300'">
+                                                 :class="selectedAccessType === 'preview_only' ? 'border-gray-500 bg-gray-50' : 'border-gray-200 hover:border-gray-400'">
                                                 <div class="text-2xl mb-2">👁️</div>
                                                 <div class="text-xs font-medium">Preview Saja</div>
                                                 <div class="text-[10px] text-gray-500 mt-1">Tanpa download</div>
@@ -969,11 +969,11 @@
                                 {{-- Pengumpulan Tugas Dokumen --}}
                                 <div x-show="isType('document')"
                                      x-data="{ collect: {{ old('collect_submission', $content->collect_submission ?? false) ? 'true' : 'false' }} }"
-                                     class="mb-6 bg-indigo-50 border border-indigo-100 rounded-xl p-4">
+                                     class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
                                     <label class="flex items-start gap-3 cursor-pointer">
                                         <input type="hidden" name="collect_submission" value="0">
                                         <input type="checkbox" name="collect_submission" value="1" x-model="collect"
-                                               class="mt-1 h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                               class="mt-1 h-5 w-5 rounded border-gray-300 text-bass-red focus:ring-bass-red">
                                         <span>
                                             <span class="block font-semibold text-gray-900">📥 Aktifkan Pengumpulan Tugas</span>
                                             <span class="block text-xs text-gray-500 mt-0.5">Peserta dapat mengunggah dokumen, mengumpulkannya, lalu dinilai. Jika belum lulus, peserta dapat mengunggah percobaan berikutnya.</span>
@@ -981,11 +981,11 @@
                                     </label>
 
                                     <div x-show="collect" x-cloak class="mt-4 space-y-4 pl-8">
-                                        <label class="flex items-start gap-3 cursor-pointer bg-white rounded-lg border border-indigo-100 p-3">
+                                        <label class="flex items-start gap-3 cursor-pointer bg-white rounded-lg border border-red-200 p-3">
                                             <input type="hidden" name="require_submission_pass" value="0">
                                             <input type="checkbox" name="require_submission_pass" value="1"
                                                    {{ old('require_submission_pass', $content->require_submission_pass ?? false) ? 'checked' : '' }}
-                                                   class="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                                   class="mt-1 h-4 w-4 rounded border-gray-300 text-bass-red focus:ring-bass-red">
                                             <span>
                                                 <span class="block text-sm font-semibold text-gray-800">🔒 Wajib LULUS untuk lanjut</span>
                                                 <span class="block text-xs text-gray-500 mt-0.5">Peserta tidak dapat membuka konten berikutnya sampai pengumpulannya dinilai Lulus oleh instruktur.</span>
@@ -994,7 +994,7 @@
                                         <div>
                                             <label for="submission_instructions" class="block text-sm font-semibold text-gray-700 mb-1">Instruksi Tugas (opsional)</label>
                                             <textarea name="submission_instructions" id="submission_instructions" rows="3"
-                                                      class="block w-full rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                      class="block w-full rounded-lg border-gray-300 text-sm focus:border-bass-red focus:ring-bass-red"
                                                       placeholder="Contoh: Unggah makalah Anda dalam format PDF, maksimal 10 halaman.">{{ old('submission_instructions', $content->submission_instructions) }}</textarea>
                                         </div>
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1002,13 +1002,13 @@
                                                 <label for="submission_max_size_mb" class="block text-sm font-semibold text-gray-700 mb-1">Batas Ukuran File (MB)</label>
                                                 <input type="number" name="submission_max_size_mb" id="submission_max_size_mb" min="1" max="100"
                                                        value="{{ old('submission_max_size_mb', $content->submission_max_size_mb) }}" placeholder="20"
-                                                       class="block w-full rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                       class="block w-full rounded-lg border-gray-300 text-sm focus:border-bass-red focus:ring-bass-red">
                                             </div>
                                             <div>
                                                 <label for="submission_allowed_types" class="block text-sm font-semibold text-gray-700 mb-1">Tipe File Diizinkan</label>
                                                 <input type="text" name="submission_allowed_types" id="submission_allowed_types"
                                                        value="{{ old('submission_allowed_types', $content->submission_allowed_types) }}" placeholder="pdf,doc,docx,ppt,pptx,xls,xlsx"
-                                                       class="block w-full rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                       class="block w-full rounded-lg border-gray-300 text-sm focus:border-bass-red focus:ring-bass-red">
                                                 <p class="text-xs text-gray-500 mt-1">Pisah dengan koma. Kosongkan untuk default.</p>
                                             </div>
                                         </div>
@@ -1035,18 +1035,18 @@
                                     </div>
                                 </div>
 
-                                <div x-show="uploadedFileName" class="mb-4 p-4 bg-white rounded-lg border border-indigo-200">
+                                <div x-show="uploadedFileName" class="mb-4 p-4 bg-white rounded-lg border border-red-200">
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center">
-                                            <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center mr-3">
+                                            <div class="w-10 h-10 bg-red-50 text-bass-red rounded-lg flex items-center justify-center mr-3">
                                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
                                             </div>
                                             <div>
                                                 <p class="font-medium text-gray-900">File dipilih:</p>
-                                                <span class="text-indigo-600 text-sm" x-text="uploadedFileName"></span>
+                                                <span class="text-bass-red text-sm" x-text="uploadedFileName"></span>
                                             </div>
                                         </div>
-                                        <span class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs">Baru</span>
+                                        <span class="px-2 py-1 bg-red-50 text-bass-red rounded-full text-xs">Baru</span>
                                     </div>
                                     {{-- Preview untuk gambar --}}
                                     <div x-show="isType('image') && uploadedImagePreviewUrl" class="mt-4">
@@ -1100,7 +1100,7 @@
                                                         </div>
                                                         <div class="min-w-0">
                                                             <p class="text-sm font-medium text-gray-900 truncate">{{ $doc->original_name ?? basename($doc->file_path) }}</p>
-                                                            <a href="{{ Storage::url($doc->file_path) }}" target="_blank" class="text-xs text-indigo-600 hover:underline">Buka</a>
+                                                            <a href="{{ Storage::url($doc->file_path) }}" target="_blank" class="text-xs text-bass-red hover:underline">Buka</a>
                                                         </div>
                                                     </div>
                                                     <div class="opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
@@ -1150,7 +1150,7 @@
                         </div>
 
                         <div x-show="isType('quiz')" x-cloak class="animate-fadeIn">
-                            <div class="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-6 border border-orange-100">
+                            <div class="bg-orange-50 rounded-xl p-6 border border-orange-100">
                                 <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                                     🧠 Pengaturan Kuis
                                     <span class="ml-2 px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-sm">
@@ -1197,7 +1197,7 @@
                                             x-model.number="content.quiz.time_limit"
                                             {{-- 2. Tambahkan event listener untuk hanya mengizinkan angka --}}
                                             @input="$event.target.value = $event.target.value.replace(/[^0-9]/g, '')"
-                                            class="w-full max-w-xs px-4 py-2 border border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-300"
+                                            class="w-full max-w-xs px-4 py-2 border border-gray-300 rounded-lg focus:border-bass-red focus:ring-4 focus:ring-bass-red focus:ring-opacity-50 transition-all duration-300"
                                             placeholder="Contoh: 60">
                                         <p class="text-sm text-gray-500 mt-1">Biarkan kosong atau isi 0 jika tidak ada batas waktu.</p>
                                     </div>
@@ -1208,7 +1208,7 @@
                                 <!-- Import Method Fields -->
                                 <div id="import_quiz_fields_edit" class="hidden">
                                     <!-- Download Template Section -->
-                                    <div class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-4 mb-4 text-white">
+                                    <div class="bg-green-600 rounded-xl p-4 mb-4 text-white">
                                         <div class="flex items-center justify-between">
                                             <div class="flex items-center space-x-3">
                                                 <div class="bg-white/20 p-3 rounded-lg">
@@ -1267,7 +1267,7 @@
                     </div>
 
                     <div x-show="isType('zoom')" x-cloak class="animate-fadeIn">
-                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100 space-y-4">
+                        <div class="bg-gray-50 rounded-xl p-6 border border-blue-100 space-y-4">
                             <!-- Existing Zoom Fields -->
                             <div>
                                 <label for="zoom_link" class="block text-sm font-semibold text-gray-700 mb-2">🔗 Link Rapat Zoom</label>
@@ -1385,7 +1385,7 @@
                     </div>
 
                     <!-- ✅ ATTENDANCE SETTINGS SECTION (MOVED OUTSIDE ZOOM - FOR ALL CONTENT TYPES) -->
-                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100 mt-6">
+                    <div class="bg-green-50 rounded-xl p-6 border border-green-100 mt-6">
                         <div class="border-t border-green-200 pt-4 mt-0">
                                 <div class="flex items-center mb-4">
                                     <input type="checkbox"
@@ -1496,7 +1496,7 @@
                                 @click="submitForm()"
                                 {{-- ✅ TAMBAHKAN :class untuk animasi goyang --}}
                                 :class="{ 'shake': formHasErrors }"
-                                class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl hover:from-indigo-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                                class="inline-flex items-center px-8 py-4 bg-bass-red text-white font-semibold rounded-xl hover:bg-[#B91818] transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>

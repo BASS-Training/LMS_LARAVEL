@@ -115,7 +115,7 @@
                     </dl>
 
                     <button type="submit" @disabled(empty($options))
-                            class="w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-red-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            class="w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-[#B91818] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                         Lanjutkan Pembayaran
                     </button>
 

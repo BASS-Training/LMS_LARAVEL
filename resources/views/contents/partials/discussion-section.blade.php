@@ -2,7 +2,7 @@
 <div class="mt-8 pt-8 border-t" x-data="{ newTopic: false, activeReply: null }">
     <div class="flex justify-between items-center mb-4">
         <h3 class="text-2xl font-bold text-gray-800">Forum Diskusi</h3>
-        <button @click="newTopic = !newTopic" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">Mulai Topik Baru</button>
+        <button @click="newTopic = !newTopic" class="inline-flex items-center px-4 py-2 bg-bass-red border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#B91818]">Mulai Topik Baru</button>
     </div>
 
     <div x-show="newTopic" x-collapse class="mb-6">
@@ -14,7 +14,7 @@
             </div>
             <div class="mb-3">
                 <label for="body" class="block text-sm font-medium text-gray-700">Isi Pertanyaan</label>
-                <textarea name="body" rows="4" class="w-full mt-1 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required></textarea>
+                <textarea name="body" rows="4" class="w-full mt-1 border-gray-300 focus:border-bass-red focus:ring-bass-red rounded-md shadow-sm" required></textarea>
             </div>
             <div class="text-right">
                 <x-secondary-button @click="newTopic = false">Batal</x-secondary-button>
@@ -41,7 +41,7 @@
                     </div>
                     <button 
                         @click="activeReply === {{ $discussion->id }} ? activeReply = null : activeReply = {{ $discussion->id }}" 
-                        class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md shadow hover:bg-indigo-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1">
+                        class="px-4 py-2 text-sm font-medium text-white bg-bass-red rounded-md shadow hover:bg-[#B91818] transition duration-200 focus:outline-none focus:ring-2 focus:ring-bass-red focus:ring-offset-1">
                         Balas ({{ $discussion->replies->count() }})
                     </button>
                 </div>
@@ -70,7 +70,7 @@
                     </div>
                     <form action="{{ route('discussions.replies.store', $discussion) }}" method="POST" class="mt-4">
                         @csrf
-                        <textarea name="body" rows="2" class="w-full text-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" placeholder="Tulis balasan..."></textarea>
+                        <textarea name="body" rows="2" class="w-full text-sm border-gray-300 focus:border-bass-red focus:ring-bass-red rounded-md shadow-sm" placeholder="Tulis balasan..."></textarea>
                         <div class="text-right mt-2">
                             <x-primary-button type="submit" class="text-xs">Kirim Balasan</x-primary-button>
                         </div>

@@ -72,7 +72,7 @@
                         @endif
 
                         @if ($managed)
-                            <span class="absolute top-2 left-2 px-2 py-1 rounded-md bg-gray-900 text-white text-xs font-semibold shadow">
+                            <span class="absolute top-2 left-2 px-2 py-1 rounded-md bg-navy text-white text-xs font-semibold shadow">
                                 Dikelola
                             </span>
                         @elseif ($owned)
@@ -98,7 +98,7 @@
 
                         <div class="mt-auto pt-3 flex items-center justify-between">
                             <span class="text-xs text-gray-500">{{ $course->lessons_count }} pelajaran</span>
-                            <span class="font-bold {{ $course->isFree() ? 'text-emerald-600' : 'text-gray-900' }}">
+                            <span class="font-bold {{ $course->isFree() ? 'text-emerald-600' : 'text-navy' }}">
                                 {{ $course->price_label }}
                             </span>
                         </div>

@@ -13,7 +13,7 @@
             <p class="text-sm font-medium text-gray-900">Belum ada pesanan</p>
             <p class="mt-1 text-sm text-gray-500">Pembelian kursus Anda akan tercatat di sini.</p>
             <a href="{{ route('shop.index') }}"
-               class="mt-5 inline-flex items-center justify-center min-h-[44px] px-6 rounded-lg bg-bass-red text-white text-sm font-semibold hover:bg-red-800 transition-colors">
+               class="mt-5 inline-flex items-center justify-center min-h-[44px] px-6 rounded-lg bg-bass-red text-white text-sm font-semibold hover:bg-[#B91818] transition-colors">
                 Jelajahi Katalog
             </a>
         </div>

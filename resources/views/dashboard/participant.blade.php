@@ -1,19 +1,19 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="font-semibold text-xl text-navy leading-tight">
                 {{ __('Dashboard Peserta') }}
             </h2>
             <div class="flex items-center space-x-4">
-                <!-- ✅ PERBAIKAN: Komponen Notifikasi Fungsional -->
-                <a href="{{ route('announcements.index') }}" class="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <!-- Komponen Notifikasi Fungsional -->
+                <a href="{{ route('announcements.index') }}" class="relative p-2 text-gray-600 hover:text-bass-red hover:bg-red-50 rounded-full">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M15 17h5l-1.5-1.5A2 2 0 0118 14v-3a6 6 0 10-12 0v3a2 2 0 01-.5 1.5L4 17h5m6 0v1a3 3 0 11-6 0v-1" />
                     </svg>
-                    {{-- ✅ PERBAIKAN: Panggil sebagai properti, bukan metode --}}
+                    {{-- Panggil sebagai properti, bukan metode --}}
                     @if(Auth::user()->unread_announcements_count > 0)
-                        <span class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
+                        <span class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-bass-red rounded-full">
                             {{ Auth::user()->unread_announcements_count }}
                         </span>
                     @endif
@@ -29,12 +29,12 @@
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Welcome Section -->
-            <div class="bg-gradient-to-r from-green-600 to-teal-600 overflow-hidden shadow-sm sm:rounded-lg mb-6">
+            <div class="bg-bass-red overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 text-white">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h3 class="text-2xl font-bold mb-2">Selamat datang, {{ auth()->user()->name }}! 🎓</h3>
-                            <p class="text-green-100">Lanjutkan perjalanan pembelajaran Anda dan raih tujuan yang telah ditetapkan.</p>
+                            <h3 class="text-2xl font-bold mb-2">Selamat datang, {{ auth()->user()->name }}!</h3>
+                            <p class="text-white/80">Lanjutkan perjalanan pembelajaran Anda dan raih tujuan yang telah ditetapkan.</p>
                         </div>
                         @if($stats['courses']['overall_progress'] > 0)
                         <div class="hidden md:block">
@@ -42,7 +42,7 @@
                                 <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-2">
                                     <span class="text-2xl font-bold">{{ $stats['courses']['overall_progress'] }}%</span>
                                 </div>
-                                <p class="text-xs text-green-100">Progress Total</p>
+                                <p class="text-xs text-white/80">Progress Total</p>
                             </div>
                         </div>
                         @endif
@@ -51,7 +51,7 @@
             </div>
 
             @if (session('certificate_created'))
-        <div class="mb-8 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl shadow-lg overflow-hidden" 
+        <div class="mb-8 bg-green-50 border border-green-200 rounded-2xl shadow-lg overflow-hidden"
             x-data="{ show: true }" 
             x-show="show" 
             x-transition:enter="transition ease-out duration-300"
@@ -64,7 +64,7 @@
             <div class="p-6">
                 <div class="flex items-start">
                     <div class="flex-shrink-0">
-                        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <div class="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center shadow-lg">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
                             </svg>
@@ -75,7 +75,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <h3 class="text-lg font-bold text-green-900">
-                                    🎉 Sertifikat Berhasil Dibuat!
+                                    Sertifikat Berhasil Dibuat!
                                 </h3>
                                 <p class="text-green-800 mt-1">
                                     {{ session('success') }}
@@ -94,7 +94,7 @@
                         
                         <div class="mt-4 flex flex-wrap gap-3">
                             <a href="{{ route('certificates.index') }}" 
-                            class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 shadow-sm hover:shadow">
+                            class="inline-flex items-center px-4 py-2 bg-bass-red hover:bg-[#B91818] text-white text-sm font-medium rounded-lg transition-colors duration-200 shadow-sm hover:shadow">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path>
                                 </svg>
@@ -103,7 +103,7 @@
                             
                             @if(session('certificate_id'))
                                 <a href="{{ route('certificates.download', session('certificate_id')) }}" 
-                                class="inline-flex items-center px-4 py-2 bg-white border border-green-300 hover:bg-green-50 text-green-700 text-sm font-medium rounded-lg transition-colors duration-200 shadow-sm hover:shadow">
+                                class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-navy text-sm font-medium rounded-lg transition-colors duration-200 shadow-sm hover:shadow">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m-8 5h16l-5-6H9l-5 6z"></path>
                                     </svg>
@@ -116,13 +116,13 @@
             </div>
             
             {{-- Decorative bottom border --}}
-            <div class="h-2 bg-gradient-to-r from-green-400 to-emerald-500"></div>
+            <div class="h-2 bg-green-500"></div>
         </div>
     @endif
 
     {{-- Standard Success/Error Messages --}}
     @if (session('success') && !session('certificate_created'))
-        <div class="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl shadow-sm" role="alert">
+        <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl shadow-sm" role="alert">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
                     <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -137,7 +137,7 @@
     @endif
 
     @if (session('error'))
-        <div class="mb-6 p-4 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-xl shadow-sm" role="alert">
+        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl shadow-sm" role="alert">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
                     <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -152,30 +152,30 @@
     @endif
 
     @if (session('info'))
-        <div class="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl shadow-sm" role="alert">
+        <div class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-sm" role="alert">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
                 <div class="ml-3">
-                    <p class="text-sm font-medium text-blue-800">{{ session('info') }}</p>
+                    <p class="text-sm font-medium text-navy">{{ session('info') }}</p>
                 </div>
             </div>
         </div>
     @endif
 
     @if (session('warning'))
-        <div class="mb-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl shadow-sm" role="alert">
+        <div class="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl shadow-sm" role="alert">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
-                    <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.664-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                     </svg>
                 </div>
                 <div class="ml-3">
-                    <p class="text-sm font-medium text-yellow-800">{{ session('warning') }}</p>
+                    <p class="text-sm font-medium text-amber-800">{{ session('warning') }}</p>
                 </div>
             </div>
         </div>
@@ -183,10 +183,10 @@
             <!-- Announcement Section -->
             @if($announcements && $announcements->count() > 0)
             <div class="mb-6">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-blue-500">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-bass-red">
                     <div class="px-6 py-4 border-b border-gray-200">
                         <div class="flex items-center">
-                            <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-bass-red mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
                             </svg>
                             <h3 class="text-lg font-medium text-gray-900">Pengumuman Terbaru</h3>
@@ -195,10 +195,13 @@
                     <div class="p-6">
                         <div class="space-y-4">
                             @foreach($announcements->take(2) as $announcement)
-                            <div class="p-4 rounded-lg border border-{{ $announcement->level_color }}-200 bg-{{ $announcement->level_color }}-50">
+                            @php
+                                $levelColor = $announcement->level === 'info' ? 'gray' : $announcement->level_color;
+                            @endphp
+                            <div class="p-4 rounded-lg border border-{{ $levelColor }}-200 bg-{{ $levelColor }}-50">
                                 <div class="flex">
                                     <div class="flex-shrink-0">
-                                        <svg class="w-5 h-5 text-{{ $announcement->level_color }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-5 h-5 text-{{ $levelColor }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                             @if($announcement->level === 'info')
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                             @elseif($announcement->level === 'success')
@@ -211,23 +214,23 @@
                                         </svg>
                                     </div>
                                     <div class="ml-3 flex-1">
-                                        <h4 class="text-sm font-medium text-{{ $announcement->level_color }}-800">{{ $announcement->title }}</h4>
+                                        <h4 class="text-sm font-medium text-{{ $levelColor }}-800">{{ $announcement->title }}</h4>
                                         <div id="dashboard-announcement-preview-{{ $announcement->id }}" data-expanded="0" class="dashboard-announcement-preview mt-1 rounded-md bg-white/50 px-2 py-1 transition-all duration-300">
-                                            <p class="text-sm text-{{ $announcement->level_color }}-700 whitespace-pre-line break-words">
+                                            <p class="text-sm text-{{ $levelColor }}-700 whitespace-pre-line break-words">
                                                 {{ strip_tags($announcement->content) }}
                                             </p>
                                         </div>
                                         <div class="mt-2 flex items-center justify-between">
-                                            <p class="text-xs text-{{ $announcement->level_color }}-600">{{ $announcement->created_at->diffForHumans() }}</p>
+                                            <p class="text-xs text-{{ $levelColor }}-600">{{ $announcement->created_at->diffForHumans() }}</p>
                                             <div class="flex items-center gap-2">
                                                 <button
                                                     type="button"
                                                     onclick="toggleDashboardAnnouncementPreview({{ $announcement->id }})"
-                                                    class="text-xs font-semibold px-2 py-1 rounded border border-{{ $announcement->level_color }}-300 text-{{ $announcement->level_color }}-700 hover:bg-{{ $announcement->level_color }}-100"
+                                                    class="text-xs font-semibold px-2 py-1 rounded border border-{{ $levelColor }}-300 text-{{ $levelColor }}-700 hover:bg-{{ $levelColor }}-100"
                                                 >
                                                     <span id="dashboard-announcement-toggle-label-{{ $announcement->id }}">Expand</span>
                                                 </button>
-                                                <a href="{{ route('announcements.show', $announcement) }}" class="text-xs font-semibold text-{{ $announcement->level_color }}-700 hover:text-{{ $announcement->level_color }}-900">
+                                                <a href="{{ route('announcements.show', $announcement) }}" class="text-xs font-semibold text-{{ $levelColor }}-700 hover:text-{{ $levelColor }}-900">
                                                     Baca Detail
                                                 </a>
                                             </div>
@@ -245,12 +248,12 @@
             <!-- Statistics Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <!-- Enrolled Courses -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-green-500 dashboard-card hover-lift">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-gray-200 dashboard-card hover-lift">
                     <div class="p-6">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
-                                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                                     </svg>
                                 </div>
@@ -267,7 +270,7 @@
                                     {{ $stats['courses']['completed'] }} Selesai
                                 </span>
                                 <span class="flex items-center ml-3">
-                                    <span class="w-2 h-2 bg-blue-400 rounded-full mr-1"></span>
+                                    <span class="w-2 h-2 bg-navy rounded-full mr-1"></span>
                                     {{ $stats['courses']['in_progress'] }} Berlangsung
                                 </span>
                             </div>
@@ -276,12 +279,12 @@
                 </div>
 
                 <!-- Overall Progress -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-blue-500 dashboard-card hover-lift">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-gray-200 dashboard-card hover-lift">
                     <div class="p-6">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
-                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                                     </svg>
                                 </div>
@@ -293,19 +296,19 @@
                         </div>
                         <div class="mt-4">
                             <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-gradient-to-r from-blue-500 to-teal-500 h-2 rounded-full transition-all duration-500" style="width: {{ $stats['courses']['overall_progress'] }}%"></div>
+                                <div class="bg-bass-red h-2 rounded-full transition-all duration-500" style="width: {{ $stats['courses']['overall_progress'] }}%"></div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Content Completed -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-orange-500 dashboard-card hover-lift">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-gray-200 dashboard-card hover-lift">
                     <div class="p-6">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
-                                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                 </div>
@@ -324,14 +327,14 @@
                 </div>
 
                 <a href="https://www.canva.com/design/DAG5HIUQIaU/VAbTGdpZDQvnnIVmqBGgjA/edit?utm_content=DAG5HIUQIaU&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton" target="_blank" class="block">
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-purple-500 dashboard-card hover-lift cursor-pointer">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-gray-200 dashboard-card hover-lift cursor-pointer">
                         <div class="p-6">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
                                     <div class="flex-shrink-0">
-                                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                                        <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
                                             <!-- ICON USER GUIDE (Book) -->
-                                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-6 h-6 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                             </svg>
@@ -344,7 +347,7 @@
                                 </div>
                                 <div class="flex-shrink-0">
                                     <!-- ICON ARROW -->
-                                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                     </svg>
                                 </div>
@@ -381,7 +384,7 @@
                                             <h4 class="text-lg font-medium text-gray-900 truncate">{{ $course['title'] }}</h4>
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ml-2 flex-shrink-0
                                                 {{ $course['status'] === 'completed' ? 'bg-green-100 text-green-800' :
-                                                   ($course['status'] === 'in_progress' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800') }}">
+                                                   ($course['status'] === 'in_progress' ? 'bg-gray-100 text-navy' : 'bg-gray-100 text-gray-800') }}">
                                                 {{ $course['status'] === 'completed' ? 'Selesai' :
                                                    ($course['status'] === 'in_progress' ? 'Berlangsung' : 'Belum Dimulai') }}
                                             </span>
@@ -399,17 +402,17 @@
                                                 <span>{{ $course['completed_lessons'] }}/{{ $course['total_lessons'] }} pelajaran • {{ $course['completed_contents'] }}/{{ $course['total_contents'] }} konten</span>
                                             </div>
                                             <div class="w-full bg-gray-200 rounded-full h-2">
-                                                <div class="bg-gradient-to-r from-green-500 to-teal-500 h-2 rounded-full transition-all duration-500" style="width: {{ $course['progress'] }}%"></div>
+                                                <div class="bg-bass-red h-2 rounded-full transition-all duration-500" style="width: {{ $course['progress'] }}%"></div>
                                             </div>
                                         </div>
                                         <div class="flex justify-between items-center mt-4">
                                             <div class="flex items-center gap-4">
                                                 <a href="{{ route('courses.show', $course['id']) }}" 
-                                                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium text-sm rounded-lg transition-colors duration-200">
+                                                class="px-4 py-2 bg-bass-red hover:bg-[#B91818] text-white font-medium text-sm rounded-lg transition-colors duration-200">
                                                     {{ $course['status'] === 'not_started' ? 'Mulai Belajar' : 'Lanjutkan Belajar' }}
                                                 </a>
                                                 <a href="{{ route('courses.my-scores', $course['id']) }}" 
-                                                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg transition-colors duration-200">
+                                                class="px-4 py-2 bg-navy hover:bg-[#243A52] text-white font-medium text-sm rounded-lg transition-colors duration-200">
                                                     Nilai & Hasil
                                                 </a>
                                             </div>
@@ -451,28 +454,32 @@
                                                     {{-- Sudah punya sertifikat - tombol download + view --}}
                                                     <div class="flex gap-1">
                                                         <a href="{{ route('certificates.download', $certificate) }}" 
-                                                        class="px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700 text-xs font-semibold transition-colors duration-200"
+                                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-bass-red text-white rounded-md hover:bg-[#B91818] text-xs font-semibold transition-colors duration-200"
                                                         title="Download certificate">
-                                                            📥 Unduh
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                                            Unduh
                                                         </a>
                                                         <a href="{{ route('certificates.verify', $certificate->certificate_code) }}" target="_blank"
-                                                        class="px-3 py-1.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-xs font-semibold transition-colors duration-200"
+                                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-navy text-white rounded-md hover:bg-[#243A52] text-xs font-semibold transition-colors duration-200"
                                                         title="View certificate">
-                                                            👁️ Lihat
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                                            Lihat
                                                         </a>
                                                     </div>
                                                 @elseif($certificateButtonType === 'generate')
                                                     {{-- Eligible tapi belum generate --}}
                                                     <a href="{{ route('my-certificates.generate', $courseModel) }}"
-                                                    class="px-3 py-1.5 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 text-xs font-semibold transition-colors duration-200"
+                                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-bass-red text-white rounded-md hover:bg-[#B91818] text-xs font-semibold transition-colors duration-200"
                                                     title="Generate your certificate">
-                                                        🎓 Cetak Sertifikat
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422A12.083 12.083 0 0118.5 17.5c-2 1.5-4.167 2.25-6.5 2.25S7.5 19 5.5 17.5a12.083 12.083 0 01.34-6.922L12 14z"/></svg>
+                                                        Cetak Sertifikat
                                                     </a>
                                                 @elseif($certificateButtonType === 'waiting')
                                                     {{-- Progress 100% tapi belum eligible --}}
-                                                    <span class="px-3 py-1.5 bg-gray-400 text-white rounded-md text-xs font-semibold cursor-not-allowed" 
+                                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-400 text-white rounded-md text-xs font-semibold cursor-not-allowed"
                                                         title="Menunggu penilaian dari instruktur">
-                                                        ⏳ Menunggu Penilaian
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                        Menunggu Penilaian
                                                     </span>
                                                 @endif
                                             @endif
@@ -597,7 +604,7 @@
                                     @php
                                         $avpnStatusClass = match($avpnStatus) {
                                             'approved' => 'bg-green-50 border-green-200 text-green-700',
-                                            'pending' => 'bg-yellow-50 border-yellow-200 text-yellow-700',
+                                            'pending' => 'bg-amber-50 border-amber-200 text-amber-700',
                                             'rejected' => 'bg-red-50 border-red-200 text-red-700',
                                             default => 'bg-gray-50 border-gray-200 text-gray-700'
                                         };
@@ -618,7 +625,7 @@
                                     @php($avpnGoogleFormUrl = config('services.avpn.google_form_url'))
                                     <form action="{{ route('profile.avpn.request') }}" method="POST" class="mb-3 js-avpn-verify-form" data-google-form-url="{{ $avpnGoogleFormUrl ?? '' }}">
                                         @csrf
-                                        <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors">
+                                        <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 bg-bass-red hover:bg-[#B91818] text-white text-sm font-medium rounded-lg transition-colors">
                                             Ajukan Verifikasi AVPN
                                         </button>
                                         <p class="mt-2 text-xs text-gray-500">
@@ -631,7 +638,7 @@
                                 <form action="{{ route('enroll') }}" method="POST" class="w-full">
                                     @csrf
                                     <label class="block text-sm font-medium text-gray-700 mb-1">
-                                        <svg class="w-4 h-4 inline mr-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-4 h-4 inline mr-1 text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z">
                                             </path>
@@ -639,7 +646,7 @@
                                         Token Pendaftaran
                                     </label>
 
-                                    <div class="flex w-full overflow-hidden rounded-xl border border-gray-300 focus-within:ring-2 focus-within:ring-green-500 focus-within:border-green-500">
+                                    <div class="flex w-full overflow-hidden rounded-xl border border-gray-300 focus-within:ring-2 focus-within:ring-bass-red focus-within:border-bass-red">
                                         <input
                                             type="text"
                                             name="token"
@@ -648,7 +655,7 @@
                                             required
                                             class="flex-1 h-11 px-3 placeholder-gray-400 focus:outline-none" />
                                         <button type="submit"
-                                            class="h-11 px-4 bg-green-600 hover:bg-green-700 text-white font-medium transition-colors duration-200 flex items-center justify-center">
+                                            class="h-11 px-4 bg-bass-red hover:bg-[#B91818] text-white font-medium transition-colors duration-200 flex items-center justify-center">
                                             <span class="sr-only">Gabung</span>
                                             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                                 <path d="M13.172 12l-4.95-4.95 1.414-1.414L16 12l-6.364 6.364-1.414-1.414z"/>
@@ -678,14 +685,14 @@
                         <div class="p-6">
                             <div class="space-y-3">
                                 @forelse($stats['recent_activities']['next_contents'] as $content)
-                                <div class="p-3 bg-blue-50 rounded-lg hover-lift">
-                                    <h4 class="text-sm font-medium text-blue-900">{{ $content->title }}</h4>
-                                    <p class="text-xs text-blue-600">{{ $content->lesson->title }} • {{ $content->lesson->course->title }}</p>
+                                <div class="p-3 bg-gray-50 rounded-lg hover-lift">
+                                    <h4 class="text-sm font-medium text-navy">{{ $content->title }}</h4>
+                                    <p class="text-xs text-gray-600">{{ $content->lesson->title }} • {{ $content->lesson->course->title }}</p>
                                     <div class="flex items-center justify-between mt-2">
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-navy">
                                             {{ ucfirst($content->type) }}
                                         </span>
-                                        <a href="{{ route('courses.show', $content->lesson->course->id) }}" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                                        <a href="{{ route('courses.show', $content->lesson->course->id) }}" class="text-xs text-bass-red hover:text-[#B91818] font-medium">
                                             Mulai →
                                         </a>
                                     </div>
@@ -709,25 +716,25 @@
                         </div>
                         <div class="p-6 space-y-3">
                             @if($stats['courses']['total'] > 0)
-                            <div class="flex items-center w-full px-4 py-3 text-left text-sm font-medium bg-gradient-to-r from-green-50 to-teal-50 rounded-lg border border-green-200">
-                                <svg class="w-5 h-5 mr-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="flex items-center w-full px-4 py-3 text-left text-sm font-medium bg-gray-50 rounded-lg border border-gray-200">
+                                <svg class="w-5 h-5 mr-3 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                                 </svg>
                                 <div class="flex-1">
-                                    <p class="text-green-800 font-medium">Progress Keseluruhan</p>
-                                    <p class="text-xs text-green-600">{{ $stats['courses']['overall_progress'] }}% dari semua kursus</p>
+                                    <p class="text-navy font-medium">Progress Keseluruhan</p>
+                                    <p class="text-xs text-gray-600">{{ $stats['courses']['overall_progress'] }}% dari semua kursus</p>
                                 </div>
                             </div>
                             @endif
 
                             @if($stats['essays']['submissions'] > $stats['essays']['graded'])
-                            <div class="flex items-center w-full px-4 py-3 text-left text-sm font-medium bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border border-orange-200">
-                                <svg class="w-5 h-5 mr-3 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="flex items-center w-full px-4 py-3 text-left text-sm font-medium bg-amber-50 rounded-lg border border-amber-200">
+                                <svg class="w-5 h-5 mr-3 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                                 <div class="flex-1">
-                                    <p class="text-orange-800 font-medium">Esai Menunggu Penilaian</p>
-                                    <p class="text-xs text-orange-600">{{ $stats['essays']['submissions'] - $stats['essays']['graded'] }} esai belum dinilai</p>
+                                    <p class="text-amber-800 font-medium">Esai Menunggu Penilaian</p>
+                                    <p class="text-xs text-amber-700">{{ $stats['essays']['submissions'] - $stats['essays']['graded'] }} esai belum dinilai</p>
                                 </div>
                             </div>
                             @endif
@@ -746,7 +753,7 @@
         <div class="absolute inset-0 bg-black/50"></div>
         <div class="relative min-h-screen flex items-center justify-center p-4">
             <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-blue-50">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
                     <h3 class="text-lg font-semibold text-gray-900">Verifikasi AVPN</h3>
                 </div>
                 <div class="px-6 py-5">
@@ -759,7 +766,7 @@
                     <button type="button" id="avpnModalCancelBtn" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-100 transition-colors">
                         Batal
                     </button>
-                    <button type="button" id="avpnModalContinueBtn" class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors">
+                    <button type="button" id="avpnModalContinueBtn" class="px-4 py-2 rounded-lg bg-bass-red text-white text-sm font-medium hover:bg-[#B91818] transition-colors">
                         Lanjutkan
                     </button>
                 </div>
@@ -801,7 +808,7 @@
         }
 
         .notification-bell:hover {
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(20, 184, 166, 0.1));
+            background: rgba(218, 30, 30, 0.08);
         }
 
         .notification-badge {
@@ -824,13 +831,13 @@
         }
 
         .notification-item:hover {
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.05), rgba(20, 184, 166, 0.05));
+            background: rgba(218, 30, 30, 0.05);
             transform: translateX(2px);
         }
 
         .notification-item.unread {
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.05), rgba(20, 184, 166, 0.05));
-            border-left: 3px solid #22c55e;
+            background: rgba(218, 30, 30, 0.05);
+            border-left: 3px solid #DA1E1E;
         }
 
         .notification-toast {
@@ -1002,9 +1009,9 @@
             const toast = document.createElement('div');
 
             const typeStyles = {
-                info: 'bg-blue-600 text-white',
+                info: 'bg-navy text-white',
                 success: 'bg-green-600 text-white',
-                warning: 'bg-yellow-600 text-white',
+                warning: 'bg-amber-600 text-white',
                 error: 'bg-red-600 text-white'
             };
 
@@ -1123,7 +1130,7 @@
             }
             // Welcome notification
             setTimeout(() => {
-                showToast('🎓 Dashboard peserta berhasil dimuat! Progress terbaru telah disinkronkan.', 'success');
+                showToast('Dashboard peserta berhasil dimuat! Progress terbaru telah disinkronkan.', 'success');
             }, 1000);
 
             // Animate progress bars on load

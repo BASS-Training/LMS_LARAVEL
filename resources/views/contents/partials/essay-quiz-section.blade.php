@@ -124,7 +124,7 @@
                                 <textarea 
                                     name="answer_{{ $question->id }}" 
                                     rows="6" 
-                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-bass-red focus:border-bass-red"
                                     placeholder="Tulis jawaban Anda di sini..."
                                     required>{{ old("answer_{$question->id}") }}</textarea>
                                 @error("answer_{$question->id}")
@@ -145,7 +145,7 @@
                                 {{ $questions->count() }} pertanyaan
                             </p>
                         @endif
-                        <button type="submit" class="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors">
+                        <button type="submit" class="inline-flex items-center px-6 py-3 bg-bass-red hover:bg-[#B91818] text-white font-medium rounded-lg transition-colors">
                             {{ __('Kirim Semua Jawaban') }}
                         </button>
                     </div>
@@ -189,7 +189,7 @@
                             id="question"
                             name="question"
                             rows="4"
-                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red sm:text-sm"
                             placeholder="Masukkan pertanyaan essay..."
                             required
                         ></textarea>
@@ -207,7 +207,7 @@
                                 name="max_score"
                                 min="1"
                                 value="100"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red sm:text-sm"
                                 required
                             >
                         </div>
@@ -215,7 +215,7 @@
                         <input type="hidden" name="max_score" value="0">
                     @endif
                     
-                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md transition-colors">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-bass-red hover:bg-[#B91818] text-white font-medium rounded-md transition-colors">
                         Tambah Pertanyaan
                     </button>
                 </form>

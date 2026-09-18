@@ -26,13 +26,13 @@
 
     {{-- Aksi instruktur: lihat ringkasan hasil --}}
     @if($fbCanManage)
-        <div class="flex items-center justify-between bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3">
-            <div class="text-sm text-indigo-800">
+        <div class="flex items-center justify-between bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+            <div class="text-sm text-gray-700">
                 <span class="font-semibold">Mode pengelola.</span>
                 Anda bisa melihat ringkasan tanggapan peserta.
             </div>
             <a href="{{ route('feedback.results', $content) }}"
-               class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg">
+               class="inline-flex items-center px-4 py-2 bg-bass-red hover:bg-[#B91818] text-white text-sm font-semibold rounded-lg">
                 📊 Lihat Hasil
             </a>
         </div>
@@ -138,7 +138,7 @@
 
             <div class="flex justify-end">
                 <button type="submit"
-                        class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg">
+                        class="inline-flex items-center px-8 py-3 bg-navy hover:bg-[#B91818] text-white font-semibold rounded-xl shadow-lg">
                     {{ $fbAlreadySubmitted ? 'Perbarui Tanggapan' : 'Kirim Tanggapan' }}
                 </button>
             </div>

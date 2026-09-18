@@ -2,7 +2,7 @@
     <div class="p-6 text-gray-900 dark:text-gray-100">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-xl font-semibold">Sertifikat Saya</h3>
-            <a href="{{ route('certificates.index') }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-200 flex items-center">
+            <a href="{{ route('certificates.index') }}" class="text-sm font-medium text-bass-red hover:text-[#B91818] flex items-center">
                 Lihat Daftar Sertifikat
                 <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
@@ -69,7 +69,7 @@
                                 </a>
                                 <a href="{{ route('certificates.verify', $certificate->certificate_code) }}"
                                    target="_blank"
-                                   class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:border-indigo-700 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150"
+                                   class="inline-flex items-center px-4 py-2 bg-navy border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-navy/90 focus:outline-none focus:border-navy focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150"
                                    title="Lihat Sertifikat">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>

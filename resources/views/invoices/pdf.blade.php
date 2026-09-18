@@ -9,7 +9,7 @@
         .wrap { padding: 36px 40px; }
         .row { width: 100%; }
         .row:after { content: ""; display: table; clear: both; }
-        .col-left { float: left; width: 55%; }
+        .col-left { float: left; width: 50%; }
         .col-right { float: right; width: 45%; text-align: right; }
         .brand { font-size: 20px; font-weight: bold; color: #dc0000; }
         .muted { color: #6b7280; }
@@ -19,7 +19,7 @@
         .pill-wait { background: #fef3c7; color: #92400e; }
         .pill-other { background: #f3f4f6; color: #374151; }
         .sep { border: none; border-top: 2px solid #dc0000; margin: 20px 0; }
-        .box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px 16px; }
+        .box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px 15px; }
         .label { font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: #9ca3af; margin-bottom: 3px; }
         table.items { width: 100%; border-collapse: collapse; margin-top: 22px; }
         table.items th { background: #111827; color: #fff; text-align: left; padding: 10px 12px; font-size: 11px; }

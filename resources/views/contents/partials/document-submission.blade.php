@@ -36,12 +36,12 @@
 
 <div class="max-w-4xl mx-auto px-6 lg:px-8 pb-6">
     <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div class="bg-gradient-to-r from-indigo-500 to-blue-600 p-6 text-white">
+        <div class="bg-navy p-6 text-white">
             <h3 class="text-xl font-bold flex items-center">
                 <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
                 Pengumpulan Tugas
             </h3>
-            <p class="text-indigo-100 mt-1">Unggah dokumen tugas Anda, lalu kumpulkan untuk dinilai.</p>
+            <p class="text-gray-200 mt-1">Unggah dokumen tugas Anda, lalu kumpulkan untuk dinilai.</p>
         </div>
 
         @if($isManager)
@@ -53,7 +53,7 @@
                     <p class="text-lg font-semibold text-gray-900 mt-1">{{ $totalSubs }} peserta telah mengumpulkan</p>
                 </div>
                 <a href="{{ route('document-submissions.index', $content) }}"
-                   class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 shadow">
+                   class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-bass-red text-white text-sm font-semibold hover:bg-[#B91818] shadow">
                     📥 Lihat & Nilai Pengumpulan
                 </a>
             </div>
@@ -80,7 +80,7 @@
 
             {{-- Info: konten terkunci sampai lulus (bila diaktifkan admin & belum lulus) --}}
             @if($content->require_submission_pass && !$isPassed)
-                <div class="flex items-center gap-2 rounded-xl bg-indigo-50 border border-indigo-100 px-4 py-2.5 text-sm text-indigo-800">
+                <div class="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-2.5 text-sm text-gray-700">
                     <span>🔒</span>
                     <span>Konten berikutnya terkunci sampai tugas Anda dinilai <strong>Lulus</strong>.</span>
                 </div>
@@ -119,7 +119,7 @@
             @if($isDraft && $hasFile)
                 <div class="flex items-center justify-between gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
                     <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-10 h-10 flex-shrink-0 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                        <div class="w-10 h-10 flex-shrink-0 rounded-lg bg-red-50 text-bass-red flex items-center justify-center">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                         </div>
                         <div class="min-w-0">
@@ -128,7 +128,7 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2 flex-shrink-0">
-                        <a href="{{ route('document-submissions.download', [$content, $latest]) }}" class="text-sm text-indigo-600 hover:underline">Unduh</a>
+                        <a href="{{ route('document-submissions.download', [$content, $latest]) }}" class="text-sm text-bass-red hover:underline">Unduh</a>
                         <form method="POST" action="{{ route('document-submissions.remove-file', $content) }}" onsubmit="return confirm('Hapus file ini?')">
                             @csrf @method('DELETE')
                             <button type="submit" class="text-sm text-red-600 hover:underline">Hapus</button>
@@ -152,10 +152,10 @@
                             @endif
                         </span>
                         <input type="file" name="file" required accept="{{ $acceptAttr }}"
-                               class="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer">
+                               class="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-bass-red file:text-white hover:file:bg-[#B91818] cursor-pointer">
                     </label>
                     <p class="text-xs text-gray-500">Tipe: {{ strtoupper(str_replace(',', ', ', $allowedTypes)) }} • Maks {{ $maxMb }} MB</p>
-                    <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700">
+                    <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-bass-red text-white text-sm font-semibold hover:bg-[#B91818]">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
                         {{ $hasFile && $isDraft ? 'Ganti File' : 'Unggah' }}
                     </button>
@@ -201,7 +201,7 @@
                                     <div class="flex items-center gap-3 flex-shrink-0">
                                         <span class="text-[11px] px-2 py-0.5 rounded-full {{ $badge[1] }}">{{ $badge[0] }}@if($sub->score !== null && $content->isScoringEnabled()) · {{ $sub->score }}@endif</span>
                                         @if($sub->file_path)
-                                            <a href="{{ route('document-submissions.download', [$content, $sub]) }}" class="text-xs text-indigo-600 hover:underline">Unduh</a>
+                                            <a href="{{ route('document-submissions.download', [$content, $sub]) }}" class="text-xs text-bass-red hover:underline">Unduh</a>
                                         @endif
                                     </div>
                                 </div>

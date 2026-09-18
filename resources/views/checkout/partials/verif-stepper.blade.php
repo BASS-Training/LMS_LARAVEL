@@ -13,7 +13,7 @@
 
             <div class="relative z-10 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold
                 @if ($active > $i) bg-emerald-500 text-white
-                @elseif ($active === $i) bg-amber-500 text-white ring-4 ring-amber-100
+                @elseif ($active === $i) bg-bass-red text-white ring-4 ring-red-100
                 @else bg-gray-200 text-gray-500 @endif">
                 @if ($active > $i)
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>

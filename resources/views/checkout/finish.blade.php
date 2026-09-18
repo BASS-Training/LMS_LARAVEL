@@ -32,7 +32,7 @@
                 @endif
 
                 <a href="{{ route('courses.show', $order->course) }}"
-                   class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors">
+                   class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-[#B91818] transition-colors">
                     Mulai Belajar
                 </a>
             </div>
@@ -75,7 +75,7 @@
 
                 @if ($order->isPayable())
                     <a href="{{ $order->snap_redirect_url }}"
-                       class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-red-800 transition-colors">
+                       class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-[#B91818] transition-colors">
                         Lanjutkan Pembayaran
                     </a>
                 @endif
@@ -124,7 +124,7 @@
                 @endif
 
                 <a href="{{ route('shop.show', $order->course) }}"
-                   class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-red-800 transition-colors">
+                   class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-[#B91818] transition-colors">
                     Pesan Ulang
                 </a>
             </div>

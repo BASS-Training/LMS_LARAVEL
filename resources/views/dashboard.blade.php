@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+        <h2 class="font-semibold text-xl text-navy leading-tight">
             {{ __('Dashboard') }}
         </h2>
     </x-slot>
@@ -11,12 +11,12 @@
             <!-- [BARU] Bagian Pengumuman -->
             @if(isset($announcements) && $announcements->isNotEmpty())
                 <div class="mb-8">
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Pengumuman Terbaru</h3>
+                    <h3 class="text-lg font-semibold text-navy mb-4">Pengumuman Terbaru</h3>
                     <div class="space-y-4">
                         @foreach($announcements as $announcement)
                             @php
                                 $levelClasses = [
-                                    'info' => 'bg-blue-50 border-blue-200 text-blue-800',
+                                    'info' => 'bg-gray-50 border-gray-200 text-navy',
                                     'success' => 'bg-green-50 border-green-200 text-green-800',
                                     'warning' => 'bg-yellow-50 border-yellow-200 text-yellow-800',
                                     'danger' => 'bg-red-50 border-red-200 text-red-800',
@@ -49,8 +49,8 @@
             @elseif (isset($stats) && $user->can('attempt quizzes'))
                 @include('dashboard.participant', ['stats' => $stats])
             @else
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900 dark:text-gray-100">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 text-navy">
                         {{ __("You're logged in!") }}
                     </div>
                 </div>

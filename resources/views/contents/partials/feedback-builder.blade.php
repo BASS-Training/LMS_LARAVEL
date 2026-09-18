@@ -27,7 +27,7 @@
         initial: @js($feedbackInit),
         anonymous: @js((bool) ($content->is_anonymous ?? false)),
      })"
-     class="bg-gradient-to-r from-sky-50 to-indigo-50 rounded-xl p-6 border border-sky-100 space-y-5">
+     class="bg-gray-50 rounded-xl p-6 border border-sky-100 space-y-5">
 
     <div class="flex items-start justify-between flex-wrap gap-3">
         <div>

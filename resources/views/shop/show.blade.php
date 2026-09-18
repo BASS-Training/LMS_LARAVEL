@@ -92,7 +92,7 @@
                             <div x-show="open" x-collapse style="display:none" class="pb-2">
                                 @foreach ($lesson->contents as $content)
                                     <div class="flex items-center gap-3 pl-16 pr-6 py-2 text-sm">
-                                        <svg class="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                                         </svg>
                                         <span class="text-gray-600 truncate">{{ $content->title }}</span>
@@ -155,14 +155,14 @@
                             </dl>
                         </div>
                     @else
-                        <p class="text-3xl font-bold {{ $course->isFree() ? 'text-emerald-600' : 'text-gray-900' }}">
+                        <p class="text-3xl font-bold {{ $course->isFree() ? 'text-emerald-600' : 'text-navy' }}">
                             {{ $course->price_label }}
                         </p>
                     @endif
 
                     @if (! Auth::check())
                         <a href="{{ route('login') }}"
-                           class="w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-red-800 transition-colors">
+                           class="w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-[#B91818] transition-colors">
                             Masuk untuk {{ $course->isFree() ? 'mendaftar' : 'membeli' }}
                         </a>
                         <p class="text-center text-xs text-gray-500">
@@ -180,7 +180,7 @@
 
                     @elseif ($isManager)
                         <a href="{{ route('courses.show', $course) }}"
-                           class="w-full inline-flex items-center justify-center gap-2 min-h-[48px] rounded-lg bg-gray-900 text-white font-semibold hover:bg-gray-800 transition-colors">
+                           class="w-full inline-flex items-center justify-center gap-2 min-h-[48px] rounded-lg bg-navy text-white font-semibold hover:bg-[#243A52] transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                             Kelola Kursus
                         </a>
@@ -192,7 +192,7 @@
                         <form method="POST" action="{{ route('shop.enroll-free', $course) }}">
                             @csrf
                             <button type="submit"
-                                    class="w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-red-800 transition-colors">
+                                    class="w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-[#B91818] transition-colors">
                                 Daftar Gratis
                             </button>
                         </form>
@@ -200,7 +200,7 @@
 
                     @else
                         <a href="{{ route('checkout.choose', $course) }}"
-                           class="w-full inline-flex items-center justify-center gap-2 min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-red-800 transition-colors">
+                           class="w-full inline-flex items-center justify-center gap-2 min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-[#B91818] transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                             Beli Sekarang
                         </a>
