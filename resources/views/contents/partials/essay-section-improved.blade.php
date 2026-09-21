@@ -426,10 +426,10 @@
 
                     /* Highlight active question in sidebar */
                     .question-nav-btn.active {
-                        border-color: #6366f1 !important;
-                        background: #eef2ff !important;
+                        border-color: #DA1E1E !important;
+                        background: #fef2f2 !important;
                         transform: scale(1.1);
-                        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+                        box-shadow: 0 4px 12px rgba(218, 30, 30, 0.2);
                     }
 
                     .question-nav-btn.answered {
@@ -440,7 +440,7 @@
 
                     /* Dark mode adjustments for navigation buttons */
                     .dark .question-nav-btn.active {
-                        background: rgba(99, 102, 241, 0.3) !important;
+                        background: rgba(218, 30, 30, 0.25) !important;
                     }
 
                     .dark .question-nav-btn.answered {
@@ -449,7 +449,7 @@
 
                     /* Textarea focus effect */
                     .essay-answer:focus {
-                        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+                        box-shadow: 0 0 0 3px rgba(218, 30, 30, 0.1);
                     }
                 </style>
 

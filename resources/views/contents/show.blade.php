@@ -128,8 +128,8 @@
             style="box-shadow:
                 0 10px 15px -3px rgba(0, 0, 0, 0.1),
                 0 4px 6px -4px rgba(0, 0, 0, 0.1),
-                8px 0 30px -5px rgba(99, 102, 241, 0.15),
-                12px 0 40px -10px rgba(139, 92, 246, 0.1);">
+                8px 0 30px -5px rgba(218, 30, 30, 0.12),
+                12px 0 40px -10px rgba(23, 36, 58, 0.08);">
 
             <!-- Sidebar Header -->
             <div class="bg-navy p-6 text-white">
@@ -206,7 +206,7 @@
                                 </div>
                             </div>
                             @if($lesson->is_optional ?? false)
-                                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-500 text-white uppercase tracking-wide shadow-sm">OPS</span>
+                                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-bass-red text-white uppercase tracking-wide shadow-sm">OPS</span>
                             @endif
                         </div>
 
@@ -246,15 +246,29 @@
 
                                             <div class="flex items-center space-x-2.5">
                                                 <!-- Icon -->
-                                                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-base
+                                                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0
                                                             {{ $isCurrent ? 'bg-white/20' : ($isCompleted ? 'bg-green-200/50' : 'bg-gray-100') }}">
                                                     @switch($c->type)
-                                                        @case('video') 🎥 @break
-                                                        @case('document') 📄 @break
-                                                        @case('image') 🖼️ @break
-                                                        @case('quiz') 🧠 @break
-                                                        @case('essay') ✍️ @break
-                                                        @default 📝
+                                                        @case('video')
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                                            @break
+                                                        @case('image')
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                                            @break
+                                                        @case('quiz')
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.538-.994 1.09V14m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                            @break
+                                                        @case('zoom')
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                                            @break
+                                                        @case('case_study')
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                                                            @break
+                                                        @case('feedback')
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                                                            @break
+                                                        @default
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                                     @endswitch
                                                 </div>
 
@@ -268,7 +282,7 @@
                                                             {{ ucfirst($c->type) }}
                                                         </span>
                                                         @if($c->is_optional ?? false)
-                                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-500 text-white uppercase">OPS</span>
+                                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-bass-red text-white uppercase">OPS</span>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -311,7 +325,7 @@
                                                             Terkunci
                                                         </span>
                                                         @if($c->is_optional ?? false)
-                                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-400 text-white uppercase">OPS</span>
+                                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-bass-red/80 text-white uppercase">OPS</span>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -600,9 +614,9 @@
                                         $isPreviewable = in_array($fileExtension, $previewableExtensions);
                                     @endphp
 
-                                    <div class="bg-gray-50 rounded-2xl p-8 border border-blue-100">
+                                    <div class="bg-gray-50 rounded-2xl p-8 border border-red-100">
                                         <div class="flex items-center justify-center mb-6">
-                                            <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center">
+                                            <div class="w-20 h-20 bg-red-50 text-bass-red rounded-2xl flex items-center justify-center">
                                                 <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
                                                 </svg>
@@ -617,13 +631,13 @@
                                                 $badgeText = '';
                                                 if ($accessType === 'both') {
                                                     $badgeClass .= 'bg-red-50 text-bass-red';
-                                                    $badgeText = '👁️💾 Preview & Download';
+                                                    $badgeText = 'Preview & Download';
                                                 } elseif ($accessType === 'download_only') {
                                                     $badgeClass .= 'bg-green-100 text-green-700';
-                                                    $badgeText = '💾 Download Saja';
+                                                    $badgeText = 'Download Saja';
                                                 } else {
                                                     $badgeClass .= 'bg-red-50 text-bass-red';
-                                                    $badgeText = '👁️ Preview Saja';
+                                                    $badgeText = 'Preview Saja';
                                                 }
                                             @endphp
                                             <span class="{{ $badgeClass }}">{{ $badgeText }}</span>
@@ -801,7 +815,7 @@
                                                             <h3 class="text-lg font-semibold text-gray-800 mb-2">Preview tidak tersedia</h3>
                                                             <p class="text-sm text-gray-600 mb-4">Browser memblokir tampilan tersemat. Anda masih dapat membuka di tab baru atau mengunduhnya.</p>
                                                             <div class="flex flex-col sm:flex-row gap-3">
-                                                                <a href="{{ $fileUrl }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+                                                                <a href="{{ $fileUrl }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-bass-red hover:bg-[#B91818] text-white rounded-lg">
                                                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                                                     </svg>
@@ -1197,9 +1211,9 @@
                                         $zoomDetails = json_decode($content->body, true);
                                         $schedulingStatus = $content->getSchedulingStatus();
                                     @endphp
-                                    <div class="bg-gray-50 rounded-2xl p-8 border border-blue-100">
+                                    <div class="bg-gray-50 rounded-2xl p-8 border border-red-100">
                                         <div class="text-center mb-6">
-                                            <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                            <div class="w-20 h-20 bg-red-50 text-bass-red rounded-2xl flex items-center justify-center mx-auto mb-4">
                                                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                                 </svg>
@@ -1258,7 +1272,7 @@
                                             <div class="flex items-center py-3">
                                                 <span class="font-semibold w-32 text-gray-600">Link Rapat</span>
                                                 @if($schedulingStatus['can_join'])
-                                                    <a href="{{ $zoomDetails['link'] ?? '#' }}" target="_blank" class="text-blue-600 hover:underline break-all">
+                                                    <a href="{{ $zoomDetails['link'] ?? '#' }}" target="_blank" class="text-bass-red hover:underline break-all">
                                                         {{ $zoomDetails['link'] ?? 'Tidak tersedia' }}
                                                     </a>
                                                 @else
@@ -1280,7 +1294,7 @@
                                         <div class="text-center">
                                             @if($schedulingStatus['can_join'])
                                                 <a href="{{ $zoomDetails['link'] ?? '#' }}" target="_blank" 
-                                                class="inline-flex items-center px-8 py-4 bg-navy text-white font-bold rounded-xl hover:bg-[#B91818] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+                                                class="inline-flex items-center px-8 py-4 bg-bass-red text-white font-bold rounded-xl hover:bg-[#B91818] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
                                                     <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                                                     </svg>
@@ -1343,7 +1357,7 @@
              x-transition:leave="transition ease-in duration-150"
              x-transition:leave-start="opacity-100 translate-y-0"
              x-transition:leave-end="opacity-0 translate-y-full"
-             class="fixed bottom-0 left-0 right-0 bg-white/98 backdrop-blur-md border-t border-gray-200 shadow-2xl z-[9999] transition-all duration-300 ease-in-out">
+             class="fixed bottom-0 left-0 right-0 bg-white/[0.98] backdrop-blur-md border-t border-gray-200 shadow-2xl z-[9999] transition-all duration-300 ease-in-out">
             @php
                 // Perbaikan: Mendapatkan konten dalam urutan yang benar
                 $allContents = $orderedContents; // Gunakan data yang sudah diurutkan dari controller
@@ -1416,7 +1430,7 @@
                             @if ($canGoNext || ((($content->is_optional ?? false)) && $nextContent))
                                 <form action="{{ route('contents.complete_and_continue', $content->id) }}" method="POST" class="w-full">
                                     @csrf
-                                    <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-3 bg-navy hover:hover:bg-[#B91818] hover:bg-[#B91818] text-white font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg group">
+                                    <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-3 bg-bass-red hover:bg-[#B91818] text-white font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg group">
                                     <span class="text-sm mr-2">Selanjutnya</span>
                                     <svg class="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -1508,7 +1522,7 @@
                             @if ($canGoNext || ((($content->is_optional ?? false)) && $nextContent))
                                 <form action="{{ route('contents.complete_and_continue', $content->id) }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="inline-flex items-center px-6 py-3 bg-navy hover:hover:bg-[#B91818] hover:bg-[#B91818] text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105">
+                                     <button type="submit" class="inline-flex items-center px-6 py-3 bg-bass-red hover:bg-[#B91818] text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105">
                                     <span class="mr-2">Selanjutnya</span>
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -1643,7 +1657,7 @@
                                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                                 </svg>
-                                Konten Selesai ✨
+                                Konten Selesai
                             </div>
                         </div>
                     </div>
@@ -1703,12 +1717,12 @@
         }
 
         .prose a {
-            color: #3b82f6;
+            color: #DA1E1E;
             text-decoration: underline;
         }
 
         .prose a:hover {
-            color: #1d4ed8;
+            color: #B91818;
         }
 
         .prose img {

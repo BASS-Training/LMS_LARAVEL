@@ -11,7 +11,7 @@
                     Kembali
                 </a>
                 <h1 class="text-3xl font-bold text-gray-900">
-                    ✨ Buat Konten Baru
+                    Buat Konten Baru
                 </h1>
                 <div class="flex items-center space-x-2 text-sm text-gray-600">
                     <span class="px-3 py-1 bg-red-50 text-bass-red rounded-full font-medium">
@@ -57,7 +57,7 @@
                     <div class="space-y-6">
                         <div class="group">
                             <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">
-                                📝 Judul Konten
+                                Judul Konten
                             </label>
                             <input type="text"
                                    name="title"
@@ -78,7 +78,7 @@
 
                         <div class="group">
                             <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">
-                                📄 Deskripsi (Opsional)
+                                Deskripsi (Opsional)
                             </label>
                             <textarea name="description"
                                       id="description"
@@ -89,15 +89,17 @@
 
                         <div class="group">
                             <label class="block text-sm font-semibold text-gray-700 mb-4">
-                                🎯 Pilih Tipe Konten
+                                Pilih Tipe Konten
                             </label>
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <label class="content-type-card cursor-pointer">
                                     <input type="radio" name="type" value="text" class="sr-only" onchange="toggleContentTypeFields()" {{ old('type') == 'text' ? 'checked' : '' }}>
                                     <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-bass-red hover:border-opacity-50 transition-all duration-300 hover:shadow-lg group">
                                         <div class="text-center">
-                                            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
-                                                📝
+                                             <div class="w-12 h-12 bg-red-50 text-bass-red rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
+                                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                 </svg>
                                             </div>
                                             <h3 class="font-semibold text-gray-900">Teks</h3>
                                             <p class="text-sm text-gray-500 mt-1">Konten berbasis teks dengan editor</p>
@@ -109,8 +111,10 @@
                                     <input type="radio" name="type" value="video" class="sr-only" onchange="toggleContentTypeFields()" {{ old('type') == 'video' ? 'checked' : '' }}>
                                     <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-bass-red hover:border-opacity-50 transition-all duration-300 hover:shadow-lg group">
                                         <div class="text-center">
-                                            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
-                                                🎥
+                                             <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
+                                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                                 </svg>
                                             </div>
                                             <h3 class="font-semibold text-gray-900">Video</h3>
                                             <p class="text-sm text-gray-500 mt-1">Video dari YouTube/Vimeo</p>
@@ -122,8 +126,11 @@
                                     <input type="radio" name="type" value="document" class="sr-only" onchange="toggleContentTypeFields()" {{ old('type') == 'document' ? 'checked' : '' }}>
                                     <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-bass-red hover:border-opacity-50 transition-all duration-300 hover:shadow-lg group">
                                         <div class="text-center">
-                                            <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
-                                                📄
+                                             <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
+                                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-6 4h6"/>
+                                                 </svg>
                                             </div>
                                             <h3 class="font-semibold text-gray-900">Dokumen</h3>
                                             <p class="text-sm text-gray-500 mt-1">PDF, DOCX, PPTX</p>
@@ -135,8 +142,10 @@
                                     <input type="radio" name="type" value="image" class="sr-only" onchange="toggleContentTypeFields()" {{ old('type') == 'image' ? 'checked' : '' }}>
                                     <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-bass-red hover:border-opacity-50 transition-all duration-300 hover:shadow-lg group">
                                         <div class="text-center">
-                                            <div class="w-12 h-12 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
-                                                🖼️
+                                             <div class="w-12 h-12 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
+                                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                                 </svg>
                                             </div>
                                             <h3 class="font-semibold text-gray-900">Gambar</h3>
                                             <p class="text-sm text-gray-500 mt-1">JPG, PNG, GIF</p>
@@ -148,8 +157,10 @@
                                     <input type="radio" name="type" value="quiz" class="sr-only" onchange="toggleContentTypeFields()" {{ old('type') == 'quiz' ? 'checked' : '' }}>
                                     <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-bass-red hover:border-opacity-50 transition-all duration-300 hover:shadow-lg group">
                                         <div class="text-center">
-                                            <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
-                                                🧠
+                                             <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
+                                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.538-.994 1.09V14m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                 </svg>
                                             </div>
                                             <h3 class="font-semibold text-gray-900">Kuis</h3>
                                             <p class="text-sm text-gray-500 mt-1">Pertanyaan interaktif</p>
@@ -161,8 +172,10 @@
                                     <input type="radio" name="type" value="essay" class="sr-only" onchange="toggleContentTypeFields()" {{ old('type') == 'essay' ? 'checked' : '' }}>
                                     <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-bass-red hover:border-opacity-50 transition-all duration-300 hover:shadow-lg group">
                                         <div class="text-center">
-                                            <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
-                                                ✍️
+                                             <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
+                                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                 </svg>
                                             </div>
                                             <h3 class="font-semibold text-gray-900">Esai</h3>
                                             <p class="text-sm text-gray-500 mt-1">Tugas menulis</p>
@@ -178,9 +191,9 @@
 
                     <div class="mt-8 space-y-6">
                         <div id="body_field" class="content-field hidden">
-                            <div class="bg-gray-50 rounded-xl p-6 border border-blue-100">
+                            <div class="bg-gray-50 rounded-xl p-6 border border-red-100">
                                 <label for="body_text" class="block text-sm font-semibold text-gray-700 mb-3">
-                                    <span id="body_label">📝 Isi Konten</span>
+                                    <span id="body_label">Isi Konten</span>
                                 </label>
                                 <x-forms.summernote-editor id="body_text" name="body_text" value="{{ old('body_text') }}" />
                                 <p class="text-sm text-gray-500 mt-2 flex items-center">
@@ -196,8 +209,10 @@
                             <div class="bg-green-50 rounded-xl p-6 border border-green-100" x-data="essayQuestionsManager()">
                                 <div class="flex items-start mb-6">
                                     <div class="flex-shrink-0">
-                                        <div class="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
-                                            ✍️
+                                         <div class="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
+                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                             </svg>
                                         </div>
                                     </div>
                                     <div class="ml-4">
@@ -300,8 +315,8 @@
 
                         <div id="video_field" class="content-field hidden">
                             <div class="bg-red-50 rounded-xl p-6 border border-red-100">
-                                <label for="body_video" class="block text-sm font-semibold text-gray-700 mb-3">
-                                    🎥 URL Video YouTube/Vimeo
+                                 <label for="body_video" class="block text-sm font-semibold text-gray-700 mb-3">
+                                     URL Video YouTube/Vimeo
                                 </label>
                                 <input type="url"
                                        name="body_video"
@@ -315,8 +330,8 @@
 
                         <div id="file_upload_field" class="content-field hidden">
                             <div class="bg-green-50 rounded-xl p-6 border border-green-100">
-                                <label for="file_upload" class="block text-sm font-semibold text-gray-700 mb-3">
-                                    📁 Unggah File
+                                 <label for="file_upload" class="block text-sm font-semibold text-gray-700 mb-3">
+                                     Unggah File
                                 </label>
                                 <div id="file_dropzone" class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-green-400 transition-colors duration-300">
                                     <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -373,7 +388,7 @@
                                             <input type="checkbox" name="collect_submission" value="1" x-model="collect"
                                                    class="mt-1 h-5 w-5 rounded border-gray-300 text-bass-red focus:ring-bass-red">
                                             <span>
-                                                <span class="block font-semibold text-gray-900">📥 Aktifkan Pengumpulan Tugas</span>
+                                                 <span class="block font-semibold text-gray-900">Aktifkan Pengumpulan Tugas</span>
                                                 <span class="block text-xs text-gray-500 mt-0.5">Peserta dapat mengunggah dokumen, mengumpulkannya, lalu dinilai. Jika belum lulus, peserta dapat mengunggah percobaan berikutnya.</span>
                                             </span>
                                         </label>
@@ -385,7 +400,7 @@
                                                        {{ old('require_submission_pass') ? 'checked' : '' }}
                                                        class="mt-1 h-4 w-4 rounded border-gray-300 text-bass-red focus:ring-bass-red">
                                                 <span>
-                                                    <span class="block text-sm font-semibold text-gray-800">🔒 Wajib LULUS untuk lanjut</span>
+                                                     <span class="block text-sm font-semibold text-gray-800">Wajib LULUS untuk lanjut</span>
                                                     <span class="block text-xs text-gray-500 mt-0.5">Peserta tidak dapat membuka konten berikutnya sampai pengumpulannya dinilai Lulus oleh instruktur.</span>
                                                 </span>
                                             </label>
@@ -416,8 +431,8 @@
 
                                 <!-- Multiple Images Uploader (untuk tipe image) -->
                                 <div class="mt-6">
-                                    <label for="images" class="block text-sm font-semibold text-gray-700 mb-2">
-                                        🖼️ Unggah Beberapa Gambar (opsional)
+                                     <label for="images" class="block text-sm font-semibold text-gray-700 mb-2">
+                                         Unggah Beberapa Gambar (opsional)
                                     </label>
                                     <input type="file" name="images[]" id="images" accept="image/*" multiple class="block w-full text-sm text-gray-600">
                                     <p class="text-xs text-gray-500 mt-1">Anda dapat memilih lebih dari satu gambar. Setiap gambar maksimal 10MB.</p>
@@ -428,26 +443,30 @@
 
                         <div id="quiz_form_fields" class="content-field hidden">
                             <div class="bg-orange-50 rounded-xl p-6 border border-orange-100">
-                                <h3 class="text-lg font-semibold text-gray-900 mb-4">🧠 Pengaturan Kuis</h3>
+                                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Pengaturan Kuis</h3>
 
                                 <!-- Quiz Creation Method Toggle -->
                                 <div class="mb-6">
-                                    <label class="block text-sm font-semibold text-gray-700 mb-3">
-                                        📋 Cara Membuat Kuis
+                                     <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                         Cara Membuat Kuis
                                     </label>
                                     <div class="grid grid-cols-2 gap-4">
                                         <label class="cursor-pointer">
                                             <input type="radio" name="quiz_method" value="manual" class="sr-only" onchange="toggleQuizMethod()" checked>
-                                            <div class="p-4 border-2 border-gray-200 rounded-xl hover:border-orange-300 transition-all duration-300 text-center quiz-method-card">
-                                                <div class="text-3xl mb-2">✍️</div>
+                                             <div class="p-4 border-2 border-gray-200 rounded-xl hover:border-orange-300 transition-all duration-300 text-center quiz-method-card">
+                                                 <svg class="w-8 h-8 mx-auto mb-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                 </svg>
                                                 <h4 class="font-semibold text-gray-900">Manual</h4>
                                                 <p class="text-xs text-gray-500 mt-1">Buat nanti di edit</p>
                                             </div>
                                         </label>
                                         <label class="cursor-pointer">
                                             <input type="radio" name="quiz_method" value="import" class="sr-only" onchange="toggleQuizMethod()">
-                                            <div class="p-4 border-2 border-gray-200 rounded-xl hover:border-orange-300 transition-all duration-300 text-center quiz-method-card">
-                                                <div class="text-3xl mb-2">📊</div>
+                                             <div class="p-4 border-2 border-gray-200 rounded-xl hover:border-orange-300 transition-all duration-300 text-center quiz-method-card">
+                                                 <svg class="w-8 h-8 mx-auto mb-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z"/>
+                                                 </svg>
                                                 <h4 class="font-semibold text-gray-900">Import Excel</h4>
                                                 <p class="text-xs text-gray-500 mt-1">Upload file Excel</p>
                                             </div>
@@ -458,8 +477,8 @@
                                 <!-- Manual Method Fields -->
                                 <div id="manual_quiz_fields">
                                     <div class="mb-4">
-                                        <label for="time_limit" class="block text-sm font-semibold text-gray-700 mb-2">
-                                            ⏱️ Durasi Pengerjaan (Menit)
+                                         <label for="time_limit" class="block text-sm font-semibold text-gray-700 mb-2">
+                                             Durasi Pengerjaan (Menit)
                                         </label>
                                         <input
                                             type="text"
@@ -482,17 +501,21 @@
                                     <div class="bg-green-600 rounded-xl p-4 mb-4 text-white">
                                         <div class="flex items-center justify-between">
                                             <div class="flex items-center space-x-3">
-                                                <div class="bg-white/20 p-3 rounded-lg">
-                                                    <i class="fas fa-download text-xl"></i>
+                                                 <div class="bg-white/20 p-3 rounded-lg">
+                                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z"/>
+                                                     </svg>
                                                 </div>
                                                 <div>
                                                     <h4 class="font-bold">Template Excel</h4>
                                                     <p class="text-xs text-green-100">Download template terlebih dahulu</p>
                                                 </div>
                                             </div>
-                                            <a href="{{ route('quizzes.download-template') }}" target="_blank"
-                                               class="bg-white text-green-600 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-50 transition-all duration-200 flex items-center space-x-2">
-                                                <i class="fas fa-file-excel"></i>
+                                             <a href="{{ route('quizzes.download-template') }}" target="_blank"
+                                                class="bg-white text-green-600 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-50 transition-all duration-200 flex items-center space-x-2">
+                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                                 </svg>
                                                 <span>Download</span>
                                             </a>
                                         </div>
@@ -500,13 +523,15 @@
 
                                     <!-- File Upload Section -->
                                     <div class="mb-4">
-                                        <label for="quiz_excel_file" class="block text-sm font-semibold text-gray-700 mb-2">
-                                            <i class="fas fa-file-upload mr-2 text-orange-600"></i>Upload File Excel
+                                             <label for="quiz_excel_file" class="block text-sm font-semibold text-gray-700 mb-2">
+                                             Upload File Excel
                                         </label>
                                         <div class="flex items-center justify-center w-full">
-                                            <label for="quiz_excel_file" class="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition-all duration-200">
-                                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
+                                             <label for="quiz_excel_file" class="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition-all duration-200">
+                                                 <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                                     <svg class="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                                     </svg>
                                                     <p class="mb-1 text-sm text-gray-500"><span class="font-semibold">Klik untuk upload</span> atau drag and drop</p>
                                                     <p class="text-xs text-gray-500">File Excel (XLSX, XLS) maksimal 2MB</p>
                                                     <p class="text-xs text-gray-400 mt-2" id="quiz_file_name"></p>
@@ -514,18 +539,17 @@
                                                 <input id="quiz_excel_file" name="quiz_excel_file" type="file" class="hidden" accept=".xlsx,.xls" onchange="updateQuizFileName(this)" />
                                             </label>
                                         </div>
-                                        <p class="text-xs text-gray-500 mt-2">
-                                            <i class="fas fa-info-circle text-blue-500"></i>
-                                            File Excel harus sesuai dengan format template yang telah didownload
+                                         <p class="text-xs text-gray-500 mt-2">
+                                             File Excel harus sesuai dengan format template yang telah didownload
                                         </p>
                                     </div>
 
                                     <!-- Instructions -->
-                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                        <h5 class="font-semibold text-blue-900 mb-2 flex items-center">
-                                            <i class="fas fa-lightbulb mr-2"></i>Panduan Cepat
+                                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                         <h5 class="font-semibold text-navy mb-2 flex items-center">
+                                             Panduan Cepat
                                         </h5>
-                                        <ul class="text-sm text-blue-800 space-y-1">
+                                        <ul class="text-sm text-gray-700 space-y-1">
                                             <li>• Download template Excel terlebih dahulu</li>
                                             <li>• Isi data quiz sesuai format yang ada</li>
                                             <li>• Satu quiz bisa memiliki banyak pertanyaan</li>
@@ -688,7 +712,7 @@
 
             if (type === 'text') {
                 document.getElementById('body_field').classList.remove('hidden');
-                document.getElementById('body_label').textContent = '📝 Isi Konten';
+                 document.getElementById('body_label').textContent = 'Isi Konten';
                 document.getElementById('body_hint').textContent = 'Gunakan editor untuk memformat teks dengan rich content';
                 
                 // Initialize summernote for text with File Manager

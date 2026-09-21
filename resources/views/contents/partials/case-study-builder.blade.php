@@ -18,7 +18,7 @@
 
     <div class="flex items-start justify-between flex-wrap gap-3">
         <div>
-            <h3 class="text-lg font-bold text-gray-900">📋 Penyusun Template Studi Kasus</h3>
+            <h3 class="text-lg font-bold text-gray-900">Penyusun Template Studi Kasus</h3>
             <p class="text-sm text-gray-600">Susun Bab, Subbab, dan Tabel. Peserta akan mengisi sesuai template ini.</p>
         </div>
         <button type="button" @click="addSection(1)"
@@ -78,7 +78,11 @@
                     <div class="flex items-center gap-1">
                         <button type="button" @click="moveSection(sIdx, -1)" title="Naik" class="p-1.5 text-gray-500 hover:bg-gray-100 rounded">▲</button>
                         <button type="button" @click="moveSection(sIdx, 1)" title="Turun" class="p-1.5 text-gray-500 hover:bg-gray-100 rounded">▼</button>
-                        <button type="button" @click="removeSection(sIdx)" title="Hapus" class="p-1.5 text-red-500 hover:bg-red-50 rounded">🗑</button>
+                        <button type="button" @click="removeSection(sIdx)" title="Hapus" class="p-1.5 text-red-500 hover:bg-red-50 rounded">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
@@ -96,11 +100,15 @@
                         <div class="border border-gray-200 rounded-lg p-3 bg-gray-50/50">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-xs font-semibold text-gray-500"
-                                      x-text="block.kind === 'text' ? '📝 Blok Teks (diisi peserta)' : '🔲 Blok Tabel'"></span>
+                                      x-text="block.kind === 'text' ? 'Blok Teks (diisi peserta)' : 'Blok Tabel'"></span>
                                 <div class="flex items-center gap-1">
                                     <button type="button" @click="moveBlock(section, bIdx, -1)" class="p-1 text-gray-400 hover:bg-gray-100 rounded text-xs">▲</button>
                                     <button type="button" @click="moveBlock(section, bIdx, 1)" class="p-1 text-gray-400 hover:bg-gray-100 rounded text-xs">▼</button>
-                                    <button type="button" @click="removeBlock(section, bIdx)" class="p-1 text-red-500 hover:bg-red-50 rounded text-xs">🗑</button>
+                                    <button type="button" @click="removeBlock(section, bIdx)" class="p-1 text-red-500 hover:bg-red-50 rounded text-xs" title="Hapus blok">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                    </button>
                                 </div>
                             </div>
 
@@ -170,7 +178,7 @@
                                                                 :style="`background:${cell.bg||'#ffffff'};text-align:${cell.align||'left'}`"
                                                                 :class="isSelected(block.table, r, c) ? 'outline outline-2 outline-amber-500' : ''">
                                                                 <span class="absolute top-0 left-0 text-[9px] px-1 rounded-br"
-                                                                      :class="cell.role === 'input' ? 'bg-blue-100 text-blue-700' : 'bg-gray-200 text-gray-600'"
+                                                                       :class="cell.role === 'input' ? 'bg-red-50 text-bass-red' : 'bg-gray-200 text-gray-600'"
                                                                       x-text="cell.role === 'input' ? 'INPUT' : 'LABEL'"></span>
                                                                 <span class="block pt-3" :class="cell.bold ? 'font-bold' : ''"
                                                                       x-text="cell.role === 'input' ? (cell.text ? '['+cell.text+']' : '(diisi peserta)') : (cell.text || '—')"
@@ -189,7 +197,7 @@
 
                     {{-- Tombol tambah block / subbab --}}
                     <div class="flex flex-wrap items-center gap-2 pt-1">
-                        <button type="button" @click="addTextBlock(section)" class="px-3 py-1.5 text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg font-medium">+ Blok Teks</button>
+                        <button type="button" @click="addTextBlock(section)" class="px-3 py-1.5 text-xs bg-red-50 hover:bg-red-100 text-bass-red rounded-lg font-medium">+ Blok Teks</button>
                         <button type="button" @click="addTableBlock(section)" class="px-3 py-1.5 text-xs bg-green-100 hover:bg-green-200 text-green-700 rounded-lg font-medium">+ Blok Tabel</button>
                         <template x-if="section.level === 1">
                             <button type="button" @click="addSubsection(sIdx)" class="px-3 py-1.5 text-xs bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-lg font-medium">+ Subbab</button>

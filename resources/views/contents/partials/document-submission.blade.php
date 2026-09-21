@@ -54,7 +54,10 @@
                 </div>
                 <a href="{{ route('document-submissions.index', $content) }}"
                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-bass-red text-white text-sm font-semibold hover:bg-[#B91818] shadow">
-                    📥 Lihat & Nilai Pengumpulan
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-3-3v6m7 5H5a2 2 0 01-2-2V6a2 2 0 012-2h4l2 2h8a2 2 0 012 2v10a2 2 0 01-2 2z"/>
+                    </svg>
+                    Lihat & Nilai Pengumpulan
                 </a>
             </div>
         @else
@@ -72,8 +75,8 @@
 
             {{-- Instruksi tugas --}}
             @if($content->submission_instructions)
-                <div class="rounded-xl bg-blue-50 border border-blue-100 p-4">
-                    <p class="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1">Instruksi</p>
+                <div class="rounded-xl bg-red-50 border border-red-100 p-4">
+                    <p class="text-xs font-semibold text-bass-red uppercase tracking-wide mb-1">Instruksi</p>
                     <p class="text-sm text-gray-700 whitespace-pre-line">{{ $content->submission_instructions }}</p>
                 </div>
             @endif
@@ -81,7 +84,9 @@
             {{-- Info: konten terkunci sampai lulus (bila diaktifkan admin & belum lulus) --}}
             @if($content->require_submission_pass && !$isPassed)
                 <div class="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-2.5 text-sm text-gray-700">
-                    <span>🔒</span>
+                    <svg class="w-4 h-4 flex-shrink-0 text-bass-red" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                    </svg>
                     <span>Konten berikutnya terkunci sampai tugas Anda dinilai <strong>Lulus</strong>.</span>
                 </div>
             @endif
@@ -89,7 +94,9 @@
             {{-- Status banner --}}
             @if($isWaiting)
                 <div class="flex items-start gap-3 rounded-xl bg-amber-50 border border-amber-200 p-4">
-                    <span class="text-2xl">⏳</span>
+                    <svg class="w-6 h-6 flex-shrink-0 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
                     <div>
                         <p class="font-semibold text-amber-800">Menunggu penilaian</p>
                         <p class="text-sm text-amber-700">Tugas Anda (percobaan ke-{{ $latest->attempt }}) sudah dikumpulkan dan sedang menunggu penilaian instruktur.</p>
@@ -97,7 +104,9 @@
                 </div>
             @elseif($isPassed)
                 <div class="flex items-start gap-3 rounded-xl bg-green-50 border border-green-200 p-4">
-                    <span class="text-2xl">✅</span>
+                    <svg class="w-6 h-6 flex-shrink-0 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
                     <div>
                         <p class="font-semibold text-green-800">Lulus @if($latest->score !== null && $content->isScoringEnabled())<span class="font-normal">— Nilai: {{ $latest->score }}</span>@endif</p>
                         <p class="text-sm text-green-700">Selamat! Tugas Anda telah dinilai lulus.</p>
@@ -106,7 +115,9 @@
                 </div>
             @elseif($isFailed)
                 <div class="flex items-start gap-3 rounded-xl bg-red-50 border border-red-200 p-4">
-                    <span class="text-2xl">🔁</span>
+                    <svg class="w-6 h-6 flex-shrink-0 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
                     <div>
                         <p class="font-semibold text-red-800">Belum lulus @if($latest->score !== null && $content->isScoringEnabled())<span class="font-normal">— Nilai: {{ $latest->score }}</span>@endif</p>
                         <p class="text-sm text-red-700">Percobaan ke-{{ $latest->attempt }} belum lulus. Silakan perbaiki dan unggah percobaan berikutnya.</p>
@@ -171,7 +182,7 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                         Kumpulkan Tugas
                     </button>
-                    <p class="text-center text-xs text-gray-500 mt-2">🔒 Setelah dikumpulkan, tugas terkunci hingga dinilai instruktur.</p>
+                    <p class="text-center text-xs text-gray-500 mt-2">Setelah dikumpulkan, tugas terkunci hingga dinilai instruktur.</p>
                 </form>
             @endif
 

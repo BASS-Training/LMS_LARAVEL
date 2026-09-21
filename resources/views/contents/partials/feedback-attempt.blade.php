@@ -32,8 +32,11 @@
                 Anda bisa melihat ringkasan tanggapan peserta.
             </div>
             <a href="{{ route('feedback.results', $content) }}"
-               class="inline-flex items-center px-4 py-2 bg-bass-red hover:bg-[#B91818] text-white text-sm font-semibold rounded-lg">
-                📊 Lihat Hasil
+               class="inline-flex items-center gap-2 px-4 py-2 bg-bass-red hover:bg-[#B91818] text-white text-sm font-semibold rounded-lg">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h10l4 4v12a2 2 0 01-2 2z"/>
+                </svg>
+                Lihat Hasil
             </a>
         </div>
     @endif
@@ -51,7 +54,10 @@
         @endif
 
         @if($content->is_anonymous)
-            <p class="text-xs text-gray-500 flex items-center gap-1">🔒 Tanggapan bersifat anonim — instruktur hanya melihat hasil agregat.</p>
+            <p class="text-xs text-gray-500 flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+                Tanggapan bersifat anonim - instruktur hanya melihat hasil agregat.
+            </p>
         @endif
 
         <form action="{{ route('feedback.store', $content) }}" method="POST" class="space-y-5">
@@ -64,7 +70,7 @@
                 @endphp
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
                     <div class="flex items-start gap-2 mb-3">
-                        <span class="text-sm font-bold text-sky-600">{{ $idx + 1 }}.</span>
+                        <span class="text-sm font-bold text-bass-red">{{ $idx + 1 }}.</span>
                         <div>
                             <p class="font-semibold text-gray-900">
                                 {{ $q->question }}
@@ -105,7 +111,7 @@
                                 <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
                                     <input type="radio" name="answers[{{ $q->id }}]" value="{{ $opt['id'] }}"
                                            @checked($cur === $opt['id'])
-                                           class="text-sky-600 focus:ring-sky-500">
+                                            class="text-bass-red focus:ring-bass-red">
                                     <span>{{ $opt['label'] }}</span>
                                 </label>
                             @endforeach
@@ -119,7 +125,7 @@
                                 <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
                                     <input type="checkbox" name="answers[{{ $q->id }}][]" value="{{ $opt['id'] }}"
                                            @checked(in_array($opt['id'], $curArr))
-                                           class="rounded text-sky-600 focus:ring-sky-500">
+                                            class="rounded text-bass-red focus:ring-bass-red">
                                     <span>{{ $opt['label'] }}</span>
                                 </label>
                             @endforeach
@@ -129,7 +135,7 @@
                     @else
                         <div class="pl-6">
                             <textarea name="answers[{{ $q->id }}]" rows="3"
-                                      class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                                      class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-bass-red focus:ring-2 focus:ring-red-100"
                                       placeholder="Tulis jawaban Anda...">{{ $ans->text_value ?? '' }}</textarea>
                         </div>
                     @endif
@@ -138,7 +144,7 @@
 
             <div class="flex justify-end">
                 <button type="submit"
-                        class="inline-flex items-center px-8 py-3 bg-navy hover:bg-[#B91818] text-white font-semibold rounded-xl shadow-lg">
+                        class="inline-flex items-center px-8 py-3 bg-bass-red hover:bg-[#B91818] text-white font-semibold rounded-xl shadow-lg">
                     {{ $fbAlreadySubmitted ? 'Perbarui Tanggapan' : 'Kirim Tanggapan' }}
                 </button>
             </div>
