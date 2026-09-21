@@ -3,7 +3,7 @@
         <div class="flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-start space-x-4">
                 <!-- User Avatar -->
-                <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                <div class="w-12 h-12 bg-navy rounded-xl flex items-center justify-center shadow-lg">
                     <span class="font-bold text-white text-lg">
                         {{ strtoupper(substr($user->name, 0, 1)) }}
                     </span>
@@ -12,10 +12,10 @@
                     <h2 class="font-bold text-2xl text-gray-900 leading-tight">
                         {{ $user->name }}
                     </h2>
-                    <div class="flex items-center space-x-3 mt-1">
-                        <p class="text-sm text-gray-600">{{ $user->email }}</p>
+                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
+                        <p class="text-sm text-gray-600 break-all">{{ $user->email }}</p>
                         <span class="w-1 h-1 bg-gray-400 rounded-full"></span>
-                        <p class="text-sm text-indigo-600 font-medium">{{ $course->title }}</p>
+                        <p class="text-sm text-bass-red font-medium">{{ $course->title }}</p>
                     </div>
                     <div class="flex items-center mt-2 space-x-2">
                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,7 +35,7 @@
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             @if (session('success'))
                 <div class="mb-8 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl shadow-sm" role="alert">
                     <div class="flex items-center">
@@ -63,15 +63,15 @@
                     $noScoringCount = $submissions->count() - $scoringEnabledSubmissions->count();
                 @endphp
                 
-                <div class="mb-8 grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
+                <div class="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                    <div class="bg-red-50 rounded-2xl p-6 border border-red-200">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-medium text-blue-600">Total Esai</p>
-                                <p class="text-3xl font-bold text-blue-900">{{ $submissions->count() }}</p>
+                                <p class="text-sm font-medium text-bass-red">Total Esai</p>
+                                <p class="text-3xl font-bold text-navy">{{ $submissions->count() }}</p>
                             </div>
-                            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
                             </div>
@@ -92,14 +92,14 @@
                         </div>
                     </div>
                     
-                    <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl p-6 border border-orange-200">
+                    <div class="bg-amber-50 rounded-2xl p-6 border border-amber-200">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-medium text-orange-600">Perlu Dinilai</p>
-                                <p class="text-3xl font-bold text-orange-900">{{ $needsGradingCount }}</p>
+                                <p class="text-sm font-medium text-amber-700">Perlu Dinilai</p>
+                                <p class="text-3xl font-bold text-amber-900">{{ $needsGradingCount }}</p>
                             </div>
-                            <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                             </div>
@@ -132,14 +132,14 @@
                     <div class="bg-white overflow-hidden shadow-lg rounded-2xl border border-gray-200 hover:shadow-xl transition-shadow duration-300">
                         <!-- Essay Header -->
                         <div class="bg-gradient-to-r from-gray-50 to-white p-6 border-b border-gray-200">
-                            <div class="flex flex-wrap justify-between items-start gap-4">
+                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
                                 <div class="flex items-start space-x-4">
-                                    <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
-                                        <span class="font-bold text-indigo-600 text-sm">{{ $index + 1 }}</span>
+                                    <div class="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <span class="font-bold text-bass-red text-sm">{{ $index + 1 }}</span>
                                     </div>
                                     <div>
                                         <h3 class="text-xl font-bold text-gray-900 mb-1">{{ $submission->content->title }}</h3>
-                                        <div class="flex items-center space-x-3 text-sm text-gray-500">
+                                        <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500">
                                             <span class="flex items-center">
                                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -150,9 +150,9 @@
                                     </div>
                                 </div>
                                 
-                                <div class="flex items-center space-x-3">
+                                <div class="flex flex-wrap items-center gap-3">
                                     @if(!$scoringEnabled)
-                                        <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold flex items-center">
+                                        <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold flex items-center">
                                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                             </svg>
@@ -166,12 +166,12 @@
                                                 </svg>
                                                 Sudah Dinilai
                                             </span>
-                                            <div class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">
+                                            <div class="px-3 py-1 bg-red-50 text-bass-red rounded-full text-xs font-bold">
                                                 Nilai: {{ $submission->score }}
                                             </div>
                                         </div>
                                     @else
-                                        <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold flex items-center">
+                                        <span class="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-semibold flex items-center">
                                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                             </svg>
@@ -256,14 +256,14 @@
                                         </div>
                                     @else
                                         <!-- Grading Form -->
-                                        <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-6 border border-orange-200">
+                                        <div class="bg-amber-50 rounded-xl p-4 sm:p-6 border border-amber-200">
                                             <div class="flex items-center mb-6">
-                                                <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
-                                                    <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center mr-3">
+                                                    <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
                                                     </svg>
                                                 </div>
-                                                <h4 class="font-bold text-orange-900">Form Penilaian</h4>
+                                                <h4 class="font-bold text-amber-900">Form Penilaian</h4>
                                             </div>
                                             
                                             <form action="{{ route('gradebook.storeEssayGrade', $submission) }}" method="POST" class="space-y-6">
@@ -278,7 +278,7 @@
                                                             name="feedback" 
                                                             id="feedback_{{ $submission->id }}"
                                                             rows="4" 
-                                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none transition-all duration-200" 
+                                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bass-red focus:border-bass-red resize-none transition-all duration-200"
                                                             placeholder="Berikan feedback konstruktif: poin kuat, area yang perlu diperbaiki, saran pengembangan..."></textarea>
                                                         <p class="text-xs text-gray-500 mt-1">Opsional - berikan masukan untuk membantu peserta berkembang</p>
                                                     </div>
@@ -293,7 +293,7 @@
                                                                 type="number" 
                                                                 name="score" 
                                                                 id="score_{{ $submission->id }}"
-                                                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-center text-lg font-semibold transition-all duration-200" 
+                                                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bass-red focus:border-bass-red text-center text-lg font-semibold transition-all duration-200"
                                                                 placeholder="75" 
                                                                 min="0" 
                                                                 max="100" 
@@ -301,7 +301,7 @@
                                                             <p class="text-xs text-gray-500 mt-1">Masukkan nilai dari 0 hingga 100</p>
                                                         </div>
                                                         
-                                                        <x-primary-button type="submit" class="w-full justify-center py-3 bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 font-semibold">
+                                                        <x-primary-button type="submit" class="w-full justify-center py-3 bg-bass-red hover:bg-[#B91818] focus:ring-bass-red font-semibold">
                                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                             </svg>
@@ -317,9 +317,9 @@
                             @else
                                 <div class="border-t border-gray-200 pt-6">
                                     @if($submission->status === 'reviewed')
-                                        <div class="bg-blue-50 rounded-xl p-6 border border-blue-200">
-                                            <h4 class="font-bold text-blue-900 mb-2">Feedback Telah Diberikan</h4>
-                                            <div class="bg-white p-4 rounded-lg">
+                                        <div class="bg-red-50 rounded-xl p-6 border border-red-200">
+                                            <h4 class="font-bold text-navy mb-2">Feedback Telah Diberikan</h4>
+                                            <div class="bg-white p-4 rounded-lg border border-red-100">
                                                 <p class="text-gray-700">{{ $submission->answers->first()->feedback ?? 'Tidak ada feedback.' }}</p>
                                             </div>
                                         </div>

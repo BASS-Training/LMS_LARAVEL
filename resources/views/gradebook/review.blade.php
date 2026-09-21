@@ -10,13 +10,13 @@
 
     <div class="py-12">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
                 <div class="p-6 text-gray-900">
                     <div class="flex justify-between items-center mb-6 pb-4 border-b">
                         <div>
                             <h3 class="text-2xl font-bold">Skor Akhir: {{ number_format($attempt->score) }}</h3>
                         </div>
-                        <a href="javascript:void(0)" onclick="window.history.back()" class="text-sm text-indigo-600 hover:text-indigo-900">&larr; Kembali</a>
+                        <a href="javascript:void(0)" onclick="window.history.back()" class="text-sm text-bass-red hover:text-[#B91818]">&larr; Kembali</a>
                     </div>
 
                     @foreach ($attempt->quiz->questions as $question)
@@ -45,7 +45,7 @@
                                             $styleClass = 'bg-red-50 border-red-500 text-red-800';
                                         } elseif (!$isUserAnswer && $isCorrect) {
                                             // Bukan jawaban user, tapi ini kunci jawabannya
-                                            $styleClass = 'bg-blue-50 border-blue-500 text-blue-800';
+                                            $styleClass = 'bg-red-50 border-navy text-navy';
                                         } else {
                                             // Opsi lain yang tidak dipilih
                                             $styleClass = 'bg-gray-50 border-gray-200';

@@ -24,7 +24,7 @@
                 </div>
             @endif
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
                 <div class="p-6 text-gray-900">
                     @if ($submissions->isEmpty())
                         <div class="text-center py-10">

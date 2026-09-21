@@ -19,7 +19,7 @@
 
             <div class="space-y-6">
                 {{-- Loop untuk setiap peserta. Karena halaman ini untuk satu user, kita langsung gunakan variabel $user --}}
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="bg-white overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
                     <div class="p-6">
                         <h3 class="text-xl font-bold text-gray-900">{{ $user->name }}</h3>
                         <p class="text-sm text-gray-600 mb-4">{{ $user->email }}</p>
@@ -34,7 +34,7 @@
                                         <div class="flex justify-between items-center p-3 border rounded-md bg-gray-50">
                                             <span>{{ $quiz->title }}</span>
                                             @if ($attempt)
-                                                <a href="{{ route('gradebook.review', $attempt) }}" class="font-semibold text-indigo-600 hover:underline">
+                                                <a href="{{ route('gradebook.review', $attempt) }}" class="font-semibold text-bass-red hover:underline">
                                                     Skor: {{ number_format($attempt->score) }}
                                                 </a>
                                             @else
@@ -66,7 +66,7 @@
                 </div>
             </div>
              <div class="mt-6">
-                <a href="javascript:void(0)" onclick="window.history.back()" class="text-sm text-indigo-600 hover:text-indigo-900">&larr; Kembali</a>
+                <a href="javascript:void(0)" onclick="window.history.back()" class="text-sm text-bass-red hover:text-[#B91818]">&larr; Kembali</a>
             </div>
         </div>
     </div>
