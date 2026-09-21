@@ -3,18 +3,18 @@
         <div class="flex flex-wrap justify-between items-center gap-4">
             <div>
                 <div class="flex items-center space-x-3 mb-2">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <div class="w-12 h-12 bg-navy rounded-xl flex items-center justify-center shadow-lg">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                         </svg>
                     </div>
                     <div>
                         <h2 class="font-bold text-2xl text-gray-900 leading-tight">Data Peserta</h2>
-                        <p class="text-blue-600 font-medium text-sm">Kelola dan lihat informasi peserta</p>
+                        <p class="text-navy font-medium text-sm">Kelola dan lihat informasi peserta</p>
                     </div>
                 </div>
             </div>
-            <a href="{{ route('admin.participants.analytics') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl font-medium text-sm hover:from-purple-600 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all duration-200">
+            <a href="{{ route('admin.participants.analytics') }}" class="inline-flex items-center px-4 py-2 bg-navy text-white rounded-xl font-medium text-sm hover:bg-navy/90 shadow-sm transition-all duration-200">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                 </svg>
@@ -32,7 +32,7 @@
                         <!-- Search -->
                         <div class="md:col-span-2">
                             <label for="search" class="block text-sm font-semibold text-gray-700 mb-2">
-                                <svg class="w-4 h-4 inline mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 inline mr-1 text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                 </svg>
                                 Cari Peserta
@@ -43,12 +43,12 @@
                         <!-- Gender Filter -->
                         <div>
                             <label for="gender" class="block text-sm font-semibold text-gray-700 mb-2">
-                                <svg class="w-4 h-4 inline mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 inline mr-1 text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
                                 </svg>
                                 Gender
                             </label>
-                            <select name="gender" id="gender" class="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl">
+                            <select name="gender" id="gender" class="w-full border-gray-300 focus:border-bass-red focus:ring-bass-red rounded-xl">
                                 <option value="">Semua</option>
                                 <option value="male" @selected(request('gender') == 'male')>Laki-laki</option>
                                 <option value="female" @selected(request('gender') == 'female')>Perempuan</option>
@@ -58,12 +58,12 @@
                         <!-- Institution Filter -->
                         <div>
                             <label for="institution" class="block text-sm font-semibold text-gray-700 mb-2">
-                                <svg class="w-4 h-4 inline mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 inline mr-1 text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                                 </svg>
                                 Institusi
                             </label>
-                            <select name="institution" id="institution" class="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl">
+                            <select name="institution" id="institution" class="w-full border-gray-300 focus:border-bass-red focus:ring-bass-red rounded-xl">
                                 <option value="">Semua</option>
                                 @foreach($institutions as $inst)
                                     <option value="{{ $inst }}" @selected(request('institution') == $inst)>{{ $inst }}</option>
@@ -73,7 +73,7 @@
 
                         <div>
                             <label for="registration_program" class="block text-sm font-semibold text-gray-700 mb-2">Program</label>
-                            <select name="registration_program" id="registration_program" class="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl">
+                            <select name="registration_program" id="registration_program" class="w-full border-gray-300 focus:border-bass-red focus:ring-bass-red rounded-xl">
                                 <option value="">Semua</option>
                                 <option value="regular" @selected(request('registration_program') == 'regular')>Reguler BASS</option>
                                 <option value="avpn_ai" @selected(request('registration_program') == 'avpn_ai')>Literasi AI (AVPN)</option>
@@ -82,7 +82,7 @@
 
                         <div>
                             <label for="avpn_status" class="block text-sm font-semibold text-gray-700 mb-2">Status AVPN</label>
-                            <select name="avpn_status" id="avpn_status" class="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl">
+                            <select name="avpn_status" id="avpn_status" class="w-full border-gray-300 focus:border-bass-red focus:ring-bass-red rounded-xl">
                                 <option value="">Semua</option>
                                 <option value="pending" @selected(request('avpn_status') == 'pending')>Pending</option>
                                 <option value="approved" @selected(request('avpn_status') == 'approved')>Approved</option>
@@ -96,7 +96,7 @@
                         <a href="{{ route('admin.participants.index') }}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl font-medium text-sm hover:bg-gray-200 transition-colors">
                             Reset
                         </a>
-                        <button type="submit" class="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl font-medium text-sm hover:from-blue-600 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200">
+                        <button type="submit" class="px-6 py-2 bg-bass-red text-white rounded-xl font-medium text-sm hover:bg-[#B91818] shadow-sm transition-all duration-200">
                             Terapkan Filter
                         </button>
                     </div>
@@ -107,8 +107,8 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
                     <div class="flex items-center">
-                        <div class="flex-shrink-0 bg-blue-100 rounded-lg p-3">
-                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex-shrink-0 bg-navy/10 rounded-lg p-3">
+                            <svg class="w-6 h-6 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                             </svg>
                         </div>
@@ -135,7 +135,7 @@
                                     type="text"
                                     name="reason"
                                     placeholder="Alasan reject batch (opsional)"
-                                    class="w-full sm:w-64 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-sm"
+                                    class="w-full sm:w-64 border-gray-300 focus:border-bass-red focus:ring-bass-red rounded-xl text-sm"
                                 >
                                 <button
                                     type="submit"
@@ -170,7 +170,7 @@
                         <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
                             <tr>
                                 <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                    <input type="checkbox" id="select-all-pending" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <input type="checkbox" id="select-all-pending" class="rounded border-gray-300 text-bass-red focus:ring-bass-red">
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Peserta</th>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Gender</th>
@@ -193,7 +193,7 @@
                                                 name="participant_ids[]"
                                                 value="{{ $participant->id }}"
                                                 form="avpnBatchForm"
-                                                class="batch-pending-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                                class="batch-pending-checkbox rounded border-gray-300 text-bass-red focus:ring-bass-red"
                                             >
                                         @else
                                             <input
@@ -207,7 +207,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-10 w-10">
-                                                <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-white font-semibold">
+                                                <div class="h-10 w-10 rounded-full bg-navy flex items-center justify-center text-white font-semibold">
                                                     {{ strtoupper(substr($participant->name, 0, 2)) }}
                                                 </div>
                                             </div>
@@ -240,7 +240,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         @if($participant->registration_program === 'avpn_ai')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">Literasi AI (AVPN)</span>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-navy/10 text-navy">Literasi AI (AVPN)</span>
                                         @else
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Reguler BASS</span>
                                         @endif
@@ -262,56 +262,59 @@
                                         {{ $participant->created_at->format('d M Y') }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                        <a href="{{ route('admin.participants.show', $participant) }}" class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
-                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                            </svg>
-                                            Detail
-                                        </a>
-                                        @if($participant->avpn_verification_status === 'pending')
-                                            <div class="mt-2 flex items-center justify-center gap-2">
-                                                <form method="POST" action="{{ route('admin.participants.avpn.approve', $participant) }}">
+                                        <div x-data="{ open: false }" class="relative inline-block">
+                                            <button @click="open = !open" @click.outside="open = false" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-navy bg-navy/5 rounded-lg hover:bg-navy/10 transition-colors bg-blue-200 ">                                 
+                                                More
+                                            </button>
+                                            <div x-show="open" x-transition class="absolute right-0 mt-1 w-52 bg-white rounded-xl border border-gray-200 shadow-lg z-50 py-1">
+                                                <a href="{{ route('admin.participants.show', $participant) }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                                    Lihat Detail
+                                                </a>
+                                                @if($participant->avpn_verification_status === 'pending')
+                                                    <div class="border-t border-gray-100 my-1"></div>
+                                                    <form method="POST" action="{{ route('admin.participants.avpn.approve', $participant) }}">
+                                                        @csrf
+                                                        <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-green-700 hover:bg-green-50">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                            Approve AVPN
+                                                        </button>
+                                                    </form>
+                                                    <form method="POST" action="{{ route('admin.participants.avpn.reject', $participant) }}">
+                                                        @csrf
+                                                        <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-700 hover:bg-red-50">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"/></svg>
+                                                            Reject AVPN
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                                <div class="border-t border-gray-100 my-1"></div>
+                                                <form method="POST" action="{{ route('admin.participants.access.force', $participant) }}">
                                                     @csrf
-                                                    <button type="submit" class="inline-flex items-center px-2.5 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200">
-                                                        Approve
+                                                    <input type="hidden" name="access_mode" value="avpn_allowed">
+                                                    <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-navy hover:bg-navy/5">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                        Aktifkan AVPN
                                                     </button>
                                                 </form>
-                                                <form method="POST" action="{{ route('admin.participants.avpn.reject', $participant) }}">
+                                                <form method="POST" action="{{ route('admin.participants.access.force', $participant) }}">
                                                     @csrf
-                                                    <button type="submit" class="inline-flex items-center px-2.5 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200">
-                                                        Reject
+                                                    <input type="hidden" name="access_mode" value="avpn_blocked">
+                                                    <input type="hidden" name="reason" value="Akses AVPN dihentikan secara paksa oleh admin.">
+                                                    <button type="submit" onclick="return confirm('Yakin ingin menghentikan akses AVPN peserta ini?')" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-700 hover:bg-red-50">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"/></svg>
+                                                        Stop AVPN
+                                                    </button>
+                                                </form>
+                                                <form method="POST" action="{{ route('admin.participants.access.force', $participant) }}">
+                                                    @csrf
+                                                    <input type="hidden" name="access_mode" value="regular_only">
+                                                    <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+                                                        Set Reguler
                                                     </button>
                                                 </form>
                                             </div>
-                                        @endif
-                                        <div class="mt-2 flex items-center justify-center gap-2">
-                                            <form method="POST" action="{{ route('admin.participants.access.force', $participant) }}">
-                                                @csrf
-                                                <input type="hidden" name="access_mode" value="avpn_allowed">
-                                                <button type="submit" class="inline-flex items-center px-2.5 py-1 text-xs bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200">
-                                                    Paksa Aktifkan AVPN
-                                                </button>
-                                            </form>
-                                            <form method="POST" action="{{ route('admin.participants.access.force', $participant) }}">
-                                                @csrf
-                                                <input type="hidden" name="access_mode" value="avpn_blocked">
-                                                <input type="hidden" name="reason" value="Akses AVPN dihentikan secara paksa oleh admin.">
-                                                <button
-                                                    type="submit"
-                                                    onclick="return confirm('Yakin ingin menghentikan akses AVPN peserta ini?')"
-                                                    class="inline-flex items-center px-2.5 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200"
-                                                >
-                                                    Stop AVPN
-                                                </button>
-                                            </form>
-                                            <form method="POST" action="{{ route('admin.participants.access.force', $participant) }}">
-                                                @csrf
-                                                <input type="hidden" name="access_mode" value="regular_only">
-                                                <button type="submit" class="inline-flex items-center px-2.5 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">
-                                                    Paksa Set Reguler
-                                                </button>
-                                            </form>
                                         </div>
                                     </td>
                                 </tr>

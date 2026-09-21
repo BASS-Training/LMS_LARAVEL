@@ -7,7 +7,7 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
                 <div class="p-6 bg-white border-b border-gray-200">
                     
                     @if ($errors->any())
@@ -76,7 +76,7 @@
                                             <h3 class="text-sm font-semibold text-gray-700">{{ $group }}</h3>
                                             <div class="text-xs text-gray-600">
                                                 <label class="inline-flex items-center cursor-pointer">
-                                                    <input type="checkbox" class="group-toggle rounded border-gray-300 text-indigo-600" data-group="group_{{ \Illuminate\Support\Str::slug($group,'_') }}">
+                                                    <input type="checkbox" class="group-toggle rounded border-gray-300 text-bass-red" data-group="group_{{ \Illuminate\Support\Str::slug($group,'_') }}">
                                                     <span class="ml-2">Pilih Semua</span>
                                                 </label>
                                             </div>
@@ -85,7 +85,7 @@
                                             @foreach ($perms as $permission)
                                                 <div class="flex items-center permission-item" data-name="{{ strtolower($permission->name) }}">
                                                     <input type="checkbox" name="permissions[]" id="permission_{{ $permission->id }}" value="{{ $permission->name }}"
-                                                        class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                                        class="rounded border-gray-300 text-bass-red shadow-sm focus:ring-bass-red"
                                                         @if($role->hasPermissionTo($permission->name)) checked @endif>
                                                     <label for="permission_{{ $permission->id }}" class="ml-2 text-sm text-gray-600">{{ $permission->name }}</label>
                                                 </div>

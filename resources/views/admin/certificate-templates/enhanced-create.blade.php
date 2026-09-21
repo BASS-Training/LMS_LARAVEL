@@ -1,7 +1,7 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Create Certificate Template') }} - Enhanced Editor
+            {{ __('Buat Template Sertifikat') }} - Editor Lanjutan
         </h2>
     </x-slot>
 
@@ -10,9 +10,9 @@
             <div x-data="enhancedCertificateEditor()" x-init="init()">
                 <form id="template-form" @submit.prevent="submitForm" method="POST" action="{{ route('admin.certificate-templates.store') }}" enctype="multipart/form-data">
                     @csrf
-                    
+
                     <!-- Top Toolbar -->
-                    <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg mb-6 p-4">
+                    <div class="bg-white shadow-sm rounded-2xl border border-gray-200 mb-6 p-4">
                         <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
                             <div class="flex items-center space-x-4">
                                 <div>
@@ -20,7 +20,7 @@
                                     <x-text-input id="name" type="text" name="name" :value="old('name')" required class="mt-1 w-64" />
                                     <x-input-error :messages="$errors->get('name')" class="mt-1" />
                                 </div>
-                                
+
                                 <!-- Zoom Controls -->
                                 <div class="flex items-center space-x-2">
                                     <button type="button" @click="zoomOut" class="p-2 bg-gray-100 hover:bg-gray-200 rounded">
@@ -40,31 +40,31 @@
 
                             <div class="flex items-center space-x-4">
                                 <!-- Grid Toggle -->
-                                <button type="button" @click="showGrid = !showGrid" class="p-2 rounded" :class="showGrid ? 'bg-blue-100 text-blue-600' : 'bg-gray-100'">
+                                <button type="button" @click="showGrid = !showGrid" class="p-2 rounded" :class="showGrid ? 'bg-bass-red/10 text-bass-red' : 'bg-gray-100'">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                                     </svg>
                                 </button>
 
                                 <!-- Snap to Grid Toggle -->
-                                <button type="button" @click="snapToGrid = !snapToGrid" class="p-2 rounded" :class="snapToGrid ? 'bg-blue-100 text-blue-600' : 'bg-gray-100'">
+                                <button type="button" @click="snapToGrid = !snapToGrid" class="p-2 rounded" :class="snapToGrid ? 'bg-bass-red/10 text-bass-red' : 'bg-gray-100'">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                                     </svg>
                                 </button>
-                                
+
                                 <div class="border-l border-gray-200 pl-4 flex space-x-2">
-                                    <a href="{{ route('admin.certificate-templates.index') }}" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md">Cancel</a>
-                                    <button type="submit" class="px-4 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-md">Save Template</button>
+                                    <a href="{{ route('admin.certificate-templates.index') }}" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md">Batal</a>
+                                    <button type="submit" class="px-4 py-2 text-sm text-white bg-bass-red hover:bg-[#B91818] rounded-md">Simpan Template</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Properties Panel (moved above canvas) -->
-                    <div x-show="selectedElement" class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-4 mb-6">
-                        <h3 class="font-semibold text-gray-900 mb-3">Element Properties</h3>
-                        
+                    <div x-show="selectedElement" class="bg-white shadow-sm rounded-2xl border border-gray-200 p-4 mb-6">
+                        <h3 class="font-semibold text-gray-900 mb-3">Properti Elemen</h3>
+
                         <div x-show="selectedElement" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                             <!-- Position -->
                             <div>
@@ -134,26 +134,26 @@
                             <div>
                                 <label class="text-xs font-medium text-gray-600 mb-1 block">Text Alignment</label>
                                 <div class="grid grid-cols-3 gap-1">
-                                    <button type="button" 
-                                            @click="selectedElement.textAlign = 'left'" 
+                                    <button type="button"
+                                            @click="selectedElement.textAlign = 'left'"
                                             class="flex items-center justify-center p-1 border rounded text-xs transition-all duration-200"
-                                            :class="selectedElement.textAlign === 'left' || !selectedElement.textAlign ? 'bg-blue-100 border-blue-300 text-blue-700' : 'border-gray-300 hover:border-gray-400'">
+                                             :class="selectedElement.textAlign === 'left' || !selectedElement.textAlign ? 'bg-bass-red/10 border-bass-red/20 text-[#B91818]' : 'border-gray-300 hover:border-gray-400'">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16"></path>
                                         </svg>
                                     </button>
-                                    <button type="button" 
-                                            @click="selectedElement.textAlign = 'center'" 
+                                    <button type="button"
+                                            @click="selectedElement.textAlign = 'center'"
                                             class="flex items-center justify-center p-1 border rounded text-xs transition-all duration-200"
-                                            :class="selectedElement.textAlign === 'center' ? 'bg-blue-100 border-blue-300 text-blue-700' : 'border-gray-300 hover:border-gray-400'">
+                                             :class="selectedElement.textAlign === 'center' ? 'bg-bass-red/10 border-bass-red/20 text-[#B91818]' : 'border-gray-300 hover:border-gray-400'">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M8 12h8M6 18h12"></path>
                                         </svg>
                                     </button>
-                                    <button type="button" 
-                                            @click="selectedElement.textAlign = 'right'" 
+                                    <button type="button"
+                                            @click="selectedElement.textAlign = 'right'"
                                             class="flex items-center justify-center p-1 border rounded text-xs transition-all duration-200"
-                                            :class="selectedElement.textAlign === 'right' ? 'bg-blue-100 border-blue-300 text-blue-700' : 'border-gray-300 hover:border-gray-400'">
+                                             :class="selectedElement.textAlign === 'right' ? 'bg-bass-red/10 border-bass-red/20 text-[#B91818]' : 'border-gray-300 hover:border-gray-400'">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M12 12h8M4 18h16"></path>
                                         </svg>
@@ -163,19 +163,19 @@
 
                             <!-- Layer Controls -->
                             <div>
-                                <label class="text-xs font-medium text-gray-600 mb-1 block">Layer</label>
+                                <label class="text-xs font-medium text-gray-600 mb-1 block">Lapisan</label>
                                 <div class="grid grid-cols-2 gap-1">
-                                    <button type="button" @click="bringToFront" class="p-1 text-xs bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded">Front</button>
-                                    <button type="button" @click="sendToBack" class="p-1 text-xs bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded">Back</button>
+                                    <button type="button" @click="bringToFront" class="p-1 text-xs bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded">Depan</button>
+                                    <button type="button" @click="sendToBack" class="p-1 text-xs bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded">Belakang</button>
                                 </div>
                             </div>
 
                             <!-- Actions -->
                             <div>
-                                <label class="text-xs font-medium text-gray-600 mb-1 block">Actions</label>
+                                <label class="text-xs font-medium text-gray-600 mb-1 block">Aksi</label>
                                 <div class="grid grid-cols-2 gap-1">
-                                    <button type="button" @click="duplicateElement" class="p-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700">Copy</button>
-                                    <button type="button" @click="removeElement" class="p-1 text-xs bg-red-600 text-white rounded hover:bg-red-700">Delete</button>
+                                    <button type="button" @click="duplicateElement" class="p-1 text-xs bg-bass-red text-white rounded hover:bg-[#B91818]">Salin</button>
+                                    <button type="button" @click="removeElement" class="p-1 text-xs bg-red-600 text-white rounded hover:bg-red-700">Hapus</button>
                                 </div>
                             </div>
                         </div>
@@ -185,19 +185,19 @@
                         <!-- Left Sidebar -->
                         <div class="w-80 space-y-6">
                             <!-- Page Navigation -->
-                            <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-4">
+                            <div class="bg-white shadow-sm rounded-2xl border border-gray-200 p-4">
                                 <div class="flex items-center justify-between mb-3">
-                                    <h3 class="font-semibold text-gray-900">Pages</h3>
-                                    <button type="button" @click="addPage" class="text-xs px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700">+ Add</button>
+                                    <h3 class="font-semibold text-gray-900">Halaman</h3>
+                                    <button type="button" @click="addPage" class="text-xs px-3 py-1 bg-bass-red text-white rounded-md hover:bg-[#B91818]">+ Tambah</button>
                                 </div>
                                 <div class="space-y-2">
                                     <template x-for="(page, index) in pages" :key="index">
-                                        <div class="flex items-center justify-between p-2 rounded border" :class="activePageIndex === index ? 'border-blue-500 bg-blue-50' : 'border-gray-200'">
+                                        <div class="flex items-center justify-between p-2 rounded border" :class="activePageIndex === index ? 'border-bass-red bg-bass-red/5' : 'border-gray-200'">
                                             <button type="button" @click="setActivePage(index)" class="flex items-center space-x-2 flex-1">
                                                 <div class="w-8 h-6 bg-gray-200 rounded border flex items-center justify-center">
                                                     <span x-text="index + 1" class="text-xs"></span>
                                                 </div>
-                                                <span x-text="'Page ' + (index + 1)" class="text-sm"></span>
+                                                <span x-text="'Halaman ' + (index + 1)" class="text-sm"></span>
                                             </button>
                                             <button type="button" x-show="pages.length > 1" @click="removePage(index)" class="text-red-600 hover:text-red-800">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -210,29 +210,29 @@
                             </div>
 
                             <!-- Elements Toolbox -->
-                            <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-4">
-                                <h3 class="font-semibold text-gray-900 mb-3">Elements</h3>
-                                
+                            <div class="bg-white shadow-sm rounded-2xl border border-gray-200 p-4">
+                                <h3 class="font-semibold text-gray-900 mb-3">Elemen</h3>
+
                                 <!-- Text Elements -->
                                 <div class="mb-4">
-                                    <h4 class="text-sm font-medium text-gray-700 mb-2">Dynamic Text</h4>
+                                    <h4 class="text-sm font-medium text-gray-700 mb-2">Teks Dinamis</h4>
                                     <div class="grid grid-cols-1 gap-2">
-                                        <button type="button" @click="addElement('@{{name}}')" class="text-left p-2 text-sm bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded">👤 Participant Name</button>
-                                        <button type="button" @click="addElement('@{{course}}')" class="text-left p-2 text-sm bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded">📚 Course Name</button>
-                                        <button type="button" @click="addElement('@{{date}}')" class="text-left p-2 text-sm bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded">📅 Completion Date</button>
-                                        <button type="button" @click="addElement('@{{training_date_range}}')" class="text-left p-2 text-sm bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded">🗓️ Training Date Range</button>
-                                        <button type="button" @click="addElement('@{{score}}')" class="text-left p-2 text-sm bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded">⭐ Final Score</button>
-                                        <button type="button" @click="addElement('@{{certificate_code}}')" class="text-left p-2 text-sm bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded">🔖 Certificate Code</button>
-                                        <button type="button" @click="addElement('@{{course_summary}}')" class="text-left p-2 text-sm bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded">📝 Course Summary</button>
+                                        <button type="button" @click="addElement('@{{name}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">👤 Nama Peserta</button>
+                                        <button type="button" @click="addElement('@{{course}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">📚 Nama Kursus</button>
+                                        <button type="button" @click="addElement('@{{date}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">📅 Tanggal Selesai</button>
+                                        <button type="button" @click="addElement('@{{training_date_range}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">🗓️ Rentang Tanggal Pelatihan</button>
+                                        <button type="button" @click="addElement('@{{score}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">⭐ Nilai Akhir</button>
+                                        <button type="button" @click="addElement('@{{certificate_code}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">🔖 Kode Sertifikat</button>
+                                        <button type="button" @click="addElement('@{{course_summary}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">📝 Rangkuman Materi</button>
                                     </div>
                                 </div>
 
                                 <!-- Static Text -->
                                 <div class="mb-4">
-                                    <h4 class="text-sm font-medium text-gray-700 mb-2">Static Text</h4>
+                                    <h4 class="text-sm font-medium text-gray-700 mb-2">Teks Statis</h4>
                                     <div class="flex">
-                                        <input type="text" x-model="customText" placeholder="Enter custom text..." class="flex-1 text-sm border border-gray-300 rounded-l px-2 py-1">
-                                        <button type="button" @click="addCustomText" class="px-3 py-1 bg-green-600 text-white text-sm rounded-r">Add</button>
+                                        <input type="text" x-model="customText" placeholder="Masukkan teks kustom..." class="flex-1 text-sm border border-gray-300 rounded-l px-2 py-1">
+                                        <button type="button" @click="addCustomText" class="px-3 py-1 bg-green-600 text-white text-sm rounded-r">Tambah</button>
                                     </div>
                                 </div>
                             </div>
@@ -241,21 +241,21 @@
                         <!-- Main Canvas Area -->
                         <div class="flex-1">
                             <div class="bg-white rounded-lg shadow-sm p-6" :style="{ minHeight: 'calc(100vh - 200px)' }">
-                                
+
                                 <!-- Canvas Container -->
                                 <div class="relative overflow-auto border border-gray-300 rounded-lg landscape-canvas" :style="{ height: '70vh', minWidth: '100%' }">
-                                    <div class="relative mx-auto bg-gray-100 canvas-wrapper" 
-                                         :style="{ 
+                                    <div class="relative mx-auto bg-gray-100 canvas-wrapper"
+                                         :style="{
                                              transform: `scale(${zoom})`,
                                              transformOrigin: 'top center'
                                          }">
-                                        <div x-ref="canvasContainer" 
-                                             class="relative bg-white" 
+                                        <div x-ref="canvasContainer"
+                                             class="relative bg-white"
                                              style="width: 1123px; height: 794px;"
                                          @click="deselectElement">
-                                        
+
                                         <!-- Grid overlay -->
-                                        <div x-show="showGrid" 
+                                        <div x-show="showGrid"
                                              class="absolute inset-0 pointer-events-none"
                                              :style="{
                                                  backgroundImage: `
@@ -264,53 +264,53 @@
                                                  `,
                                                  backgroundSize: '20px 20px'
                                              }"></div>
-                                        
+
                                         <!-- Background Image -->
                                         <template x-if="pages[activePageIndex] && pages[activePageIndex].backgroundUrl">
-                                            <img :src="pages[activePageIndex].backgroundUrl" 
+                                            <img :src="pages[activePageIndex].backgroundUrl"
                                                  class="absolute inset-0 w-full h-full object-cover pointer-events-none">
                                         </template>
 
                                         <!-- Background Upload Area -->
-                                        <div x-show="!pages[activePageIndex]?.backgroundUrl" 
+                                        <div x-show="!pages[activePageIndex]?.backgroundUrl"
                                              class="absolute inset-0 flex items-center justify-center">
-                                            <label :for="'background_image_' + activePageIndex" 
+                                            <label :for="'background_image_' + activePageIndex"
                                                    class="cursor-pointer bg-white p-8 rounded-lg shadow-lg border-2 border-dashed border-gray-300 hover:border-gray-400 text-center">
                                                 <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                                                 </svg>
-                                                <h4 class="text-lg font-semibold text-gray-700 mb-2">Upload Background</h4>
-                                                <p class="text-gray-500">Click to select background image for Page <span x-text="activePageIndex + 1"></span></p>
-                                                <p class="text-sm text-gray-400 mt-2">Recommended: 1123×794px (A4 Landscape)</p>
+                                                <h4 class="text-lg font-semibold text-gray-700 mb-2">Unggah Latar Belakang</h4>
+                                                <p class="text-gray-500">Klik untuk memilih gambar latar belakang untuk Halaman <span x-text="activePageIndex + 1"></span></p>
+                                                <p class="text-sm text-gray-400 mt-2">Disarankan: 1123×794px (A4 Landscape)</p>
                                             </label>
                                         </div>
 
                                         <!-- Elements -->
                                         <template x-for="(element, elementIndex) in (pages[activePageIndex]?.elements || [])" :key="element.id">
                                             <div class="resizable-draggable absolute cursor-move select-none element-container"
-                                                 :data-page-index="activePageIndex" 
+                                                 :data-page-index="activePageIndex"
                                                  :data-element-index="elementIndex"
                                                  @click.stop="selectElement(elementIndex)"
-                                                 :class="{ 
+                                                 :class="{
                                                      'element-selected': selectedElement === element,
                                                      'element-hover': selectedElement !== element,
                                                      'text-align-left': element.textAlign === 'left' || !element.textAlign,
                                                      'text-align-center': element.textAlign === 'center',
                                                      'text-align-right': element.textAlign === 'right'
                                                  }"
-                                                 :style="{ 
-                                                     left: element.x + 'px', 
-                                                     top: element.y + 'px', 
-                                                     width: element.width + 'px', 
+                                                 :style="{
+                                                     left: element.x + 'px',
+                                                     top: element.y + 'px',
+                                                     width: element.width + 'px',
                                                      height: element.height + 'px',
                                                      zIndex: element.zIndex || 10
                                                  }">
-                                                
+
                                                 <!-- Text Content -->
-                                                <div x-text="element.content" 
+                                                <div x-text="element.content"
                                                      class="w-full h-full overflow-hidden p-2 element-text"
-                                                     :style="{ 
-                                                         fontSize: element.fontSize + 'px', 
+                                                     :style="{
+                                                         fontSize: element.fontSize + 'px',
                                                          color: element.color,
                                                          fontFamily: element.fontFamily || 'Arial',
                                                          fontWeight: element.isBold ? 'bold' : 'normal',
@@ -330,7 +330,7 @@
                                                         <div class="resize-handle resize-handle-ne"></div>
                                                         <div class="resize-handle resize-handle-sw"></div>
                                                         <div class="resize-handle resize-handle-se"></div>
-                                                        
+
                                                         <!-- Edge handles -->
                                                         <div class="resize-handle resize-handle-n"></div>
                                                         <div class="resize-handle resize-handle-s"></div>
@@ -347,8 +347,8 @@
                                 <!-- Status Bar -->
                                 <div class="mt-4 flex justify-between items-center text-sm text-gray-600">
                                     <div class="flex items-center space-x-4">
-                                        <span>Page <span x-text="activePageIndex + 1"></span> of <span x-text="pages.length"></span></span>
-                                        <span x-show="selectedElement">Selected: <span x-text="selectedElement.content"></span></span>
+                                        <span>Halaman <span x-text="activePageIndex + 1"></span> dari <span x-text="pages.length"></span></span>
+                                        <span x-show="selectedElement">Dipilih: <span x-text="selectedElement.content"></span></span>
                                     </div>
                                     <div class="flex items-center space-x-2">
                                         <span x-text="Math.round(zoom * 100) + '% zoom'"></span>
@@ -387,31 +387,31 @@
 
             init() {
                 this.addPage();
-                
+
                 // Setup watchers for reactivity
-                this.$watch('pages', () => { 
+                this.$watch('pages', () => {
                     this.$nextTick(() => {
                         setTimeout(() => this.reinitInteract(), 100);
-                    }); 
+                    });
                 }, { deep: true });
-                
-                this.$watch('selectedElement', () => { 
+
+                this.$watch('selectedElement', () => {
                     this.$nextTick(() => {
                         setTimeout(() => this.reinitInteract(), 50);
-                    }); 
+                    });
                 });
-                
+
                 this.$watch('activePageIndex', () => {
                     this.$nextTick(() => {
                         setTimeout(() => this.reinitInteract(), 50);
                     });
                 });
-                
+
                 // Initial setup
                 this.$nextTick(() => {
                     setTimeout(() => this.reinitInteract(), 200);
                 });
-                
+
                 // Keyboard shortcuts
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'Delete' && this.selectedElement) {
@@ -429,21 +429,21 @@
 
             // Page Management
             addPage() {
-                this.pages.push({ 
-                    backgroundUrl: null, 
+                this.pages.push({
+                    backgroundUrl: null,
                     background_image_path: null,
-                    elements: [] 
+                    elements: []
                 });
                 this.activePageIndex = this.pages.length - 1;
             },
 
             removePage(index) {
-                if (this.pages.length <= 1) { 
-                    alert('You must have at least one page.'); 
-                    return; 
+                if (this.pages.length <= 1) {
+                    alert('Anda harus memiliki setidaknya satu halaman.');
+                    return;
                 }
-                if (!confirm('Are you sure you want to delete this page?')) return;
-                
+                if (!confirm('Apakah Anda yakin ingin menghapus halaman ini?')) return;
+
                 this.pages.splice(index, 1);
                 this.activePageIndex = Math.max(0, Math.min(this.activePageIndex, this.pages.length - 1));
                 this.selectedElement = null;
@@ -470,7 +470,7 @@
             // Element Management
             addElement(content) {
                 if (!this.pages[this.activePageIndex]?.backgroundUrl) {
-                    alert('Please upload a background image for the active page first.');
+                    alert('Silakan unggah gambar latar belakang untuk halaman aktif terlebih dahulu.');
                     return;
                 }
 
@@ -513,7 +513,7 @@
 
             removeElement() {
                 if (!this.selectedElement) return;
-                
+
                 const elements = this.pages[this.activePageIndex].elements;
                 this.pages[this.activePageIndex].elements = elements.filter(el => el.id !== this.selectedElement.id);
                 this.selectedElement = null;
@@ -521,14 +521,14 @@
 
             duplicateElement() {
                 if (!this.selectedElement) return;
-                
+
                 const newElement = {
                     ...JSON.parse(JSON.stringify(this.selectedElement)),
                     id: this.nextElementId++,
                     x: this.selectedElement.x + 20,
                     y: this.selectedElement.y + 20
                 };
-                
+
                 this.pages[this.activePageIndex].elements.push(newElement);
                 this.selectedElement = newElement;
             },
@@ -563,7 +563,7 @@
             // InteractJS Integration
             reinitInteract() {
                 interact('.resizable-draggable').unset();
-                
+
                 interact('.resizable-draggable')
                     .draggable({
                         allowFrom: '.element-container',
@@ -579,12 +579,12 @@
                                 const target = event.target;
                                 let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
                                 let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-                                
+
                                 if (this.snapToGrid) {
                                     x = this.snapToGridFn(x);
                                     y = this.snapToGridFn(y);
                                 }
-                                
+
                                 target.style.transform = `translate(${x}px, ${y}px)`;
                                 target.setAttribute('data-x', x);
                                 target.setAttribute('data-y', y);
@@ -594,16 +594,16 @@
                                 const pageIndex = parseInt(target.getAttribute('data-page-index'));
                                 const elementIndex = parseInt(target.getAttribute('data-element-index'));
                                 const element = this.pages[pageIndex].elements[elementIndex];
-                                
+
                                 if (element) {
                                     element.x += parseFloat(target.getAttribute('data-x')) || 0;
                                     element.y += parseFloat(target.getAttribute('data-y')) || 0;
-                                    
+
                                     // Ensure position stays within canvas bounds
                                     element.x = Math.max(0, Math.min(element.x, 1123 - element.width));
                                     element.y = Math.max(0, Math.min(element.y, 794 - element.height));
                                 }
-                                
+
                                 target.style.transform = '';
                                 target.removeAttribute('data-x');
                                 target.removeAttribute('data-y');
@@ -625,17 +625,17 @@
                                 const pageIndex = parseInt(target.getAttribute('data-page-index'));
                                 const elementIndex = parseInt(target.getAttribute('data-element-index'));
                                 const element = this.pages[pageIndex].elements[elementIndex];
-                                
+
                                 if (element) {
                                     let width = event.rect.width;
                                     let height = event.rect.height;
                                     let x = element.x + event.deltaRect.left;
                                     let y = element.y + event.deltaRect.top;
-                                    
+
                                     // Apply minimum sizes
                                     width = Math.max(20, width);
                                     height = Math.max(20, height);
-                                    
+
                                     // Apply snap to grid if enabled
                                     if (this.snapToGrid) {
                                         width = this.snapToGridFn(width);
@@ -643,11 +643,11 @@
                                         x = this.snapToGridFn(x);
                                         y = this.snapToGridFn(y);
                                     }
-                                    
+
                                     // Keep within canvas bounds
                                     x = Math.max(0, Math.min(x, 1123 - width));
                                     y = Math.max(0, Math.min(y, 794 - height));
-                                    
+
                                     // Update element properties
                                     element.width = width;
                                     element.height = height;
@@ -671,7 +671,7 @@
                 for (let i = 0; i < this.pages.length; i++) {
                     const input = document.getElementById(`background_image_${i}`);
                     if (!input.files[0] && !this.pages[i].backgroundUrl) {
-                        alert(`Please upload a background image for Page ${i + 1}.`);
+                        alert(`Silakan unggah gambar latar belakang untuk Halaman ${i + 1}.`);
                         this.setActivePage(i);
                         return;
                     }
@@ -681,7 +681,7 @@
         }
     }
     </script>
-    
+
     <style>
     /* Element Container Styling */
     .element-container {
@@ -689,28 +689,28 @@
         border: 1px solid transparent;
         border-radius: 2px;
     }
-    
+
     .element-hover:hover {
         border-color: #94a3b8;
         background-color: rgba(148, 163, 184, 0.05);
     }
-    
+
     .element-selected {
-        border-color: #3b82f6 !important;
-        background-color: rgba(59, 130, 246, 0.05) !important;
-        box-shadow: 0 0 0 1px #3b82f6;
+        border-color: #B91818 !important;
+        background-color: rgba(185, 24, 24, 0.05) !important;
+        box-shadow: 0 0 0 1px #B91818;
     }
-    
+
     .element-text {
         pointer-events: none;
         word-break: break-word;
     }
-    
+
     /* Make sure the element container is draggable but text is not */
     .element-container {
         pointer-events: auto;
     }
-    
+
     .element-container .element-text {
         pointer-events: none;
         user-select: none;
@@ -729,7 +729,7 @@
 
     .resize-handle {
         position: absolute;
-        background: #3b82f6;
+        background: #B91818;
         border: 2px solid white;
         border-radius: 3px;
         pointer-events: auto;
@@ -737,9 +737,9 @@
         box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         transition: all 0.1s ease;
     }
-    
+
     .resize-handle:hover {
-        background: #2563eb;
+        background: #9A1414;
         transform: scale(1.1);
     }
 
@@ -834,16 +834,16 @@
         width: 8px;
         height: 8px;
     }
-    
+
     .overflow-auto::-webkit-scrollbar-track {
         background: #f1f1f1;
     }
-    
+
     .overflow-auto::-webkit-scrollbar-thumb {
         background: #c1c1c1;
         border-radius: 4px;
     }
-    
+
     .overflow-auto::-webkit-scrollbar-thumb:hover {
         background: #a8a8a8;
     }
@@ -853,7 +853,7 @@
         min-width: 100%;
         background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     }
-    
+
     /* Canvas wrapper styling */
     .canvas-wrapper {
         padding: 40px;

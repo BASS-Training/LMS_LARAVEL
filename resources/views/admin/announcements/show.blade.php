@@ -7,7 +7,7 @@
             </h2>
             <div class="flex space-x-3">
                 <a href="{{ route('admin.announcements.edit', $announcement) }}"
-                   class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 transition">
+                   class="inline-flex items-center px-4 py-2 bg-bass-red border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#B91818] transition">
                     Edit Pengumuman
                 </a>
                 <a href="{{ route('admin.announcements.index') }}"
@@ -21,7 +21,7 @@
     <div class="py-6">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <!-- Announcement Card -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-{{ $announcement->level_color }}-500">
+            <div class="bg-white overflow-hidden rounded-2xl border border-gray-200 shadow-sm border-l-4 border-{{ $announcement->level_color }}-500">
                 <div class="p-8">
                     <!-- Header -->
                     <div class="flex items-start justify-between mb-6">
@@ -128,20 +128,20 @@
 
                     <!-- Statistics -->
                     @if(isset($announcement->reads) && $announcement->reads->isNotEmpty())
-                    <div class="border-t pt-6 mt-6">
+                    <div class="border-t border-gray-200 pt-6 mt-6">
                         <h3 class="text-sm font-medium text-gray-900 mb-3">Statistik Pembacaan</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div class="bg-blue-50 p-4 rounded-lg">
-                                <div class="text-2xl font-bold text-blue-600">{{ $announcement->reads->count() }}</div>
-                                <div class="text-sm text-blue-600">Total Pembaca</div>
+                            <div class="bg-navy/5 border border-navy/10 p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-navy">{{ $announcement->reads->count() }}</div>
+                                <div class="text-sm text-navy">Total Pembaca</div>
                             </div>
-                            <div class="bg-green-50 p-4 rounded-lg">
+                            <div class="bg-green-50 border border-green-100 p-4 rounded-lg">
                                 <div class="text-2xl font-bold text-green-600">{{ $announcement->reads->where('read_at', '>=', now()->subDay())->count() }}</div>
                                 <div class="text-sm text-green-600">Dibaca Hari Ini</div>
                             </div>
-                            <div class="bg-purple-50 p-4 rounded-lg">
-                                <div class="text-2xl font-bold text-purple-600">{{ $announcement->reads->where('read_at', '>=', now()->subWeek())->count() }}</div>
-                                <div class="text-sm text-purple-600">Minggu Ini</div>
+                            <div class="bg-gray-50 border border-gray-200 p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-gray-600">{{ $announcement->reads->where('read_at', '>=', now()->subWeek())->count() }}</div>
+                                <div class="text-sm text-gray-600">Minggu Ini</div>
                             </div>
                         </div>
                     </div>
@@ -152,7 +152,7 @@
                         <div class="flex justify-between items-center">
                             <div class="flex space-x-3">
                                 <a href="{{ route('admin.announcements.edit', $announcement) }}"
-                                   class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 transition">
+                                   class="inline-flex items-center px-4 py-2 bg-bass-red border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#B91818] transition">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>

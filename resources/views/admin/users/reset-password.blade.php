@@ -7,7 +7,7 @@
 
     <div class="py-12">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
                 <div class="p-6 text-gray-900">
                     
                     {{-- User Info Card --}}
@@ -141,9 +141,9 @@
                     strengthText.textContent = 'Sedang';
                     strengthText.className = 'text-xs text-yellow-500 mt-1';
                 } else if (strength < 80) {
-                    strengthBar.className = 'h-2 rounded-full transition-all duration-300 bg-blue-500';
+                    strengthBar.className = 'h-2 rounded-full transition-all duration-300 bg-navy';
                     strengthText.textContent = 'Kuat';
-                    strengthText.className = 'text-xs text-blue-500 mt-1';
+                    strengthText.className = 'text-xs text-navy mt-1';
                 } else {
                     strengthBar.className = 'h-2 rounded-full transition-all duration-300 bg-green-500';
                     strengthText.textContent = 'Sangat Kuat';

@@ -4,14 +4,14 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
-    <div class="bg-white rounded-lg shadow-md p-6">
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
         <h1 class="text-2xl font-bold text-gray-800 mb-6">Automatic Grading Completion</h1>
         
         <!-- Course Selection Form -->
         <form method="GET" action="{{ route('admin.auto-grade.index') }}" class="mb-6">
             <div class="mb-4">
                 <label for="course_id" class="block text-sm font-medium text-gray-700 mb-2">Select Course</label>
-                <select id="course_id" name="course_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                <select id="course_id" name="course_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red/50 focus:ring-opacity-50">
                     <option value="">-- Select a Course --</option>
                     @foreach($courses as $course)
                         <option value="{{ $course->id }}" {{ (isset($selectedCourse) && $selectedCourse && $selectedCourse->id == $course->id) ? 'selected' : '' }}>
@@ -21,7 +21,7 @@
                 </select>
             </div>
             
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            <button type="submit" class="bg-bass-red hover:bg-[#B91818] text-white font-bold py-2 px-4 rounded-lg transition-colors">
                 Show Participants
             </button>
         </form>
@@ -47,9 +47,9 @@
                 @if($participants->count() > 0)
                     <!-- Summary Statistics -->
                     <div class="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div class="bg-blue-50 p-3 rounded-lg">
-                            <div class="text-sm text-blue-800">Total Participants</div>
-                            <div class="text-2xl font-bold text-blue-600">{{ $participants->count() }}</div>
+                        <div class="bg-navy/5 border border-navy/10 p-3 rounded-lg">
+                            <div class="text-sm text-navy">Total Participants</div>
+                            <div class="text-2xl font-bold text-navy">{{ $participants->count() }}</div>
                         </div>
                         <div class="bg-yellow-50 p-3 rounded-lg">
                             <div class="text-sm text-yellow-800">With Pending Grades</div>
@@ -59,9 +59,9 @@
                             <div class="text-sm text-green-800">Fully Graded</div>
                             <div class="text-2xl font-bold text-green-600">{{ $participants->filter(function($p) { return $p['pending_submissions']->count() == 0; })->count() }}</div>
                         </div>
-                        <div class="bg-purple-50 p-3 rounded-lg">
-                            <div class="text-sm text-purple-800">Avg. Progress</div>
-                            <div class="text-2xl font-bold text-purple-600">
+                        <div class="bg-gray-50 border border-gray-200 p-3 rounded-lg">
+                            <div class="text-sm text-gray-600">Avg. Progress</div>
+                            <div class="text-2xl font-bold text-gray-600">
                                 {{ $participants->count() > 0 ? round($participants->avg('progress_percentage')) : 0 }}%
                             </div>
                         </div>
@@ -72,8 +72,8 @@
             @if($participants->count() > 0)
                 <!-- Search and Filter -->
                 <div class="mb-4 flex flex-wrap gap-2">
-                    <input type="text" id="searchInput" placeholder="Search participants..." class="flex-1 min-w-[200px] rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                    <select id="filterSelect" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    <input type="text" id="searchInput" placeholder="Search participants..." class="flex-1 min-w-[200px] rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red/50 focus:ring-opacity-50">
+                    <select id="filterSelect" class="rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red/50 focus:ring-opacity-50">
                         <option value="all">All Participants</option>
                         <option value="pending">With Pending Grades</option>
                         <option value="completed">Fully Graded</option>
@@ -96,8 +96,8 @@
                             <!-- Participant Header -->
                             <div class="participant-header p-4 cursor-pointer flex justify-between items-center hover:bg-gray-100 transition-colors">
                                 <div class="flex items-center space-x-4 pointer-events-none">
-                                    <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                                        <span class="text-indigo-800 font-bold">{{ substr($participant->name, 0, 1) }}</span>
+                                    <div class="w-10 h-10 rounded-full bg-navy/10 flex items-center justify-center">
+                                        <span class="text-navy font-bold">{{ substr($participant->name, 0, 1) }}</span>
                                     </div>
                                     <div>
                                         <h3 class="font-semibold">{{ $participant->name }}</h3>
@@ -113,7 +113,7 @@
                                             <span>{{ $participantData['progress_percentage'] }}%</span>
                                         </div>
                                         <div class="w-full bg-gray-200 rounded-full h-2">
-                                            <div class="bg-blue-600 h-2 rounded-full" style="width: {{ $participantData['progress_percentage'] }}%"></div>
+                                            <div class="bg-bass-red h-2 rounded-full" style="width: {{ $participantData['progress_percentage'] }}%"></div>
                                         </div>
                                     </div>
                                     
@@ -137,7 +137,7 @@
                                                 @csrf
                                                 <input type="hidden" name="course_id" value="{{ $selectedCourse->id }}">
                                                 <input type="hidden" name="user_id" value="{{ $participant->id }}">
-                                                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-1 px-3 rounded"
+                                                <button type="submit" class="bg-bass-red hover:bg-[#B91818] text-white text-xs font-bold py-1 px-3 rounded-lg transition-colors"
                                                         onclick="event.stopPropagation(); return confirm('Are you sure you want to automatically complete grading for {{ $participant->name }}?')">
                                                     Complete
                                                 </button>
