@@ -55,7 +55,7 @@
                 <div @click="question.open = !question.open" class="flex justify-between items-center p-4 cursor-pointer">
                     <h5 class="font-bold text-md" x-text="question.question_text || `Pertanyaan #${qIndex + 1}`"></h5>
                     <div class="flex items-center">
-                        <button type="button" @click.stop="removeQuestion(qIndex)" class="text-red-600 hover:text-red-800 mr-4">&times; Hapus</button>
+                        <button type="button" @click.stop="removeQuestion(qIndex)" class="text-red-600 hover:text-red-800 mr-4 font-bold">&times; Hapus</button>
                         <svg class="w-5 h-5 transition-transform" :class="{'rotate-180': question.open}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </div>
                 </div>
@@ -98,7 +98,7 @@
                                 </div>
                             </template>
                         </div>
-                        <button type="button" @click="addOption(qIndex)" class="mt-2 text-sm text-blue-600 hover:underline">+ Tambah Opsi</button>
+                        <button type="button" @click="addOption(qIndex)" class="mt-2 mx-2 text-sm font-bold text-blue-600 hover:underline">+ Tambah Opsi</button>
                     </div>
 
                     {{-- ✅ PERBAIKAN: Radio Button untuk Benar/Salah --}}
