@@ -9,11 +9,11 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden rounded-2xl border border-gray-200 shadow-sm" style="min-height: calc(100vh - 200px);">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <div class="flex justify-end mb-4 space-x-2">
+                    <div class="flex justify-end mb-4 gap-2">
                         <div class="relative group">
 
-                            <a href="{{ route('admin.certificate-templates.create-enhanced') }}" class="inline-flex items-center px-4 py-2 bg-bass-red text-white rounded-xl font-medium text-sm hover:bg-bass-red-hover shadow-sm transition-all duration-200">
-                                <div class="font-medium">{{__('Buat Template Baru')}}</div>
+                            <a href="{{ route('admin.certificate-templates.create-enhanced') }}" class="inline-flex items-center h-9 px-4 shrink-0 whitespace-nowrap bg-bass-red text-white rounded-lg text-sm font-medium hover:bg-bass-red-hover transition-all duration-200">
+                                {{__('Buat Template Baru')}}
                             </a>
                             <!-- <button type="button" class="inline-flex items-center px-4 py-2 bg-bass-red text-white rounded-xl font-medium text-sm hover:bg-bass-red-hover shadow-sm transition-all duration-200">
                                 {{ __('Buat Template Baru') }}
@@ -82,11 +82,11 @@
                                             {{ $template->created_at->format('d M Y') }}
                                         </td>
                                         <td class="px-6 py-4 text-right">
-                                            <div class="flex items-center justify-end gap-2">
+                                            <div class="flex items-center justify-end gap-1">
                                                 <div class="relative group">
-                                                    <button class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white bg-navy rounded-lg hover:bg-navy-200 transition-colors shadow-sm">
+                                                    <button class="inline-flex items-center gap-1 h-7 px-2.5 shrink-0 whitespace-nowrap border border-transparent text-xs font-medium text-warning bg-warning-soft rounded-lg hover:bg-warning/20 transition-colors">
                                                         Edit
-                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                                         </svg>
                                                     </button>
@@ -120,11 +120,11 @@
                                                         </form>
                                                     </div>
                                                 </div>
-                                                <form action="{{ route('admin.certificate-templates.destroy', $template) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus template ini?');">
+                                                <form action="{{ route('admin.certificate-templates.destroy', $template) }}" method="POST" class="contents" onsubmit="return confirm('Yakin ingin menghapus template ini?');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-error bg-error-soft rounded-lg hover:bg-error-soft transition-colors">
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+                                                    <button type="submit" class="inline-flex items-center gap-1 h-7 px-2.5 shrink-0 whitespace-nowrap border border-transparent text-xs font-medium text-error bg-error-soft rounded-lg hover:bg-error/20 transition-colors">
+                                                        <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
                                                         Hapus
                                                     </button>
                                                 </form>
