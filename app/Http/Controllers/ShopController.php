@@ -53,7 +53,7 @@ class ShopController extends Controller
 
         $courses = $query->withCount('lessons')
             ->latest()
-            ->paginate(12)
+            ->paginate(8)
             ->withQueryString();
 
         return view('shop.index', [
