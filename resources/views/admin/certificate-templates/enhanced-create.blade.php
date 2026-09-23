@@ -217,13 +217,13 @@
                                 <div class="mb-4">
                                     <h4 class="text-sm font-medium text-gray-700 mb-2">Teks Dinamis</h4>
                                     <div class="grid grid-cols-1 gap-2">
-                                        <button type="button" @click="addElement('@{{name}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">👤 Nama Peserta</button>
-                                        <button type="button" @click="addElement('@{{course}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">📚 Nama Kursus</button>
-                                        <button type="button" @click="addElement('@{{date}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">📅 Tanggal Selesai</button>
-                                        <button type="button" @click="addElement('@{{training_date_range}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">🗓️ Rentang Tanggal Pelatihan</button>
-                                        <button type="button" @click="addElement('@{{score}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">⭐ Nilai Akhir</button>
-                                        <button type="button" @click="addElement('@{{certificate_code}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">🔖 Kode Sertifikat</button>
-                                        <button type="button" @click="addElement('@{{course_summary}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">📝 Rangkuman Materi</button>
+                                        <button type="button" @click="addElement('@{{name}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">Nama Peserta</button>
+                                        <button type="button" @click="addElement('@{{course}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">Nama Kursus</button>
+                                        <button type="button" @click="addElement('@{{date}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">Tanggal Selesai</button>
+                                        <button type="button" @click="addElement('@{{training_date_range}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">Rentang Tanggal Pelatihan</button>
+                                        <button type="button" @click="addElement('@{{score}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">Nilai Akhir</button>
+                                        <button type="button" @click="addElement('@{{certificate_code}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">Kode Sertifikat</button>
+                                        <button type="button" @click="addElement('@{{course_summary}}')" class="text-left p-2 text-sm bg-bass-red/5 hover:bg-bass-red/10 border border-bass-red/20 rounded">Rangkuman Materi</button>
                                     </div>
                                 </div>
 

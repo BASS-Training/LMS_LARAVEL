@@ -96,7 +96,7 @@
                         <a href="{{ route('admin.participants.index') }}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl font-medium text-sm hover:bg-gray-200 transition-colors">
                             Reset
                         </a>
-                        <button type="submit" class="px-6 py-2 bg-bass-red text-white rounded-xl font-medium text-sm hover:bg-[#B91818] shadow-sm transition-all duration-200">
+                        <button type="submit" class="px-6 py-2 bg-bass-red text-white rounded-xl font-medium text-sm hover:bg-bass-red-hover shadow-sm transition-all duration-200">
                             Terapkan Filter
                         </button>
                     </div>
@@ -140,14 +140,14 @@
                                 <button
                                     type="submit"
                                     formaction="{{ route('admin.participants.avpn.batch-approve') }}"
-                                    class="px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition-colors"
+                                    class="px-4 py-2 bg-success text-white rounded-xl text-sm font-medium hover:bg-success/90 transition-colors"
                                 >
                                     Batch Approve AVPN
                                 </button>
                                 <button
                                     type="submit"
                                     formaction="{{ route('admin.participants.avpn.batch-reject') }}"
-                                    class="px-4 py-2 bg-red-600 text-white rounded-xl text-sm font-medium hover:bg-red-700 transition-colors"
+                                    class="px-4 py-2 bg-error text-white rounded-xl text-sm font-medium hover:bg-error-dark transition-colors"
                                 >
                                     Batch Reject AVPN
                                 </button>
@@ -157,7 +157,7 @@
                                 <button
                                     type="submit"
                                     onclick="return confirm('Sinkronisasi ini akan menandai user lama yang punya riwayat kelas AVPN menjadi user AVPN approved. Lanjutkan?')"
-                                    class="px-4 py-2 bg-orange-600 text-white rounded-xl text-sm font-medium hover:bg-orange-700 transition-colors"
+                                    class="px-4 py-2 bg-navy text-white rounded-xl text-sm font-medium hover:bg-navy-light transition-colors"
                                 >
                                     Sinkronisasi User Lama AVPN
                                 </button>
@@ -167,7 +167,7 @@
                 </div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+                        <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
                                     <input type="checkbox" id="select-all-pending" class="rounded border-gray-300 text-bass-red focus:ring-bass-red">
@@ -219,7 +219,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if($participant->gender)
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $participant->gender == 'male' ? 'bg-blue-100 text-blue-800' : 'bg-pink-100 text-pink-800' }}">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $participant->gender == 'male' ? 'bg-gray-100 text-gray-700' : 'bg-gray-200 text-gray-700' }}">
                                                 {{ $participant->gender == 'male' ? 'Laki-laki' : 'Perempuan' }}
                                             </span>
                                         @else
@@ -248,9 +248,9 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         @php
                                             $statusClass = match($participant->avpn_verification_status) {
-                                                'approved' => 'bg-green-100 text-green-800',
-                                                'pending' => 'bg-yellow-100 text-yellow-800',
-                                                'rejected' => 'bg-red-100 text-red-800',
+                                                'approved' => 'bg-success-soft text-success',
+                                                'pending' => 'bg-warning-soft text-warning',
+                                                'rejected' => 'bg-error-soft text-error',
                                                 default => 'bg-gray-100 text-gray-700'
                                             };
                                         @endphp
@@ -263,7 +263,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                         <div x-data="{ open: false }" class="relative inline-block">
-                                            <button @click="open = !open" @click.outside="open = false" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-navy bg-navy/5 rounded-lg hover:bg-navy/10 transition-colors bg-blue-200 ">                                 
+                                            <button @click="open = !open" @click.outside="open = false" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-navy bg-navy/5 rounded-lg hover:bg-navy/10 transition-colors">
                                                 More
                                             </button>
                                             <div x-show="open" x-transition class="absolute right-0 mt-1 w-52 bg-white rounded-xl border border-gray-200 shadow-lg z-50 py-1">
@@ -275,14 +275,14 @@
                                                     <div class="border-t border-gray-100 my-1"></div>
                                                     <form method="POST" action="{{ route('admin.participants.avpn.approve', $participant) }}">
                                                         @csrf
-                                                        <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-green-700 hover:bg-green-50">
+                                                        <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-success hover:bg-success-soft">
                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                                             Approve AVPN
                                                         </button>
                                                     </form>
                                                     <form method="POST" action="{{ route('admin.participants.avpn.reject', $participant) }}">
                                                         @csrf
-                                                        <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-700 hover:bg-red-50">
+                                                        <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-error hover:bg-error-soft">
                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"/></svg>
                                                             Reject AVPN
                                                         </button>
@@ -301,7 +301,7 @@
                                                     @csrf
                                                     <input type="hidden" name="access_mode" value="avpn_blocked">
                                                     <input type="hidden" name="reason" value="Akses AVPN dihentikan secara paksa oleh admin.">
-                                                    <button type="submit" onclick="return confirm('Yakin ingin menghentikan akses AVPN peserta ini?')" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-700 hover:bg-red-50">
+                                                    <button type="submit" onclick="return confirm('Yakin ingin menghentikan akses AVPN peserta ini?')" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-error hover:bg-error-soft">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"/></svg>
                                                         Stop AVPN
                                                     </button>

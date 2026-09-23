@@ -55,7 +55,7 @@
                 <div @click="question.open = !question.open" class="flex justify-between items-center p-4 cursor-pointer">
                     <h5 class="font-bold text-md" x-text="question.question_text || `Pertanyaan #${qIndex + 1}`"></h5>
                     <div class="flex items-center">
-                        <button type="button" @click.stop="removeQuestion(qIndex)" class="text-red-600 hover:text-red-800 mr-4 font-bold">&times; Hapus</button>
+                        <button type="button" @click.stop="removeQuestion(qIndex)" class="text-error hover:opacity-80 mr-4 font-bold">&times; Hapus</button>
                         <svg class="w-5 h-5 transition-transform" :class="{'rotate-180': question.open}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </div>
                 </div>
@@ -89,19 +89,19 @@
                                     <input type="hidden" :name="`quiz[questions][${qIndex}][options][${oIndex}][id]`" x-model="option.id">
                                     <input type="text" :name="`quiz[questions][${qIndex}][options][${oIndex}][option_text]`" x-model="option.option_text" class="flex-grow rounded-md" placeholder="Teks opsi" required>
                                     
-                                    {{-- ✅ PERBAIKAN: Checkbox untuk Pilihan Ganda --}}
+                                    {{-- Checkbox untuk Pilihan Ganda --}}
                                     <input type="hidden" :name="`quiz[questions][${qIndex}][options][${oIndex}][is_correct]`" value="false">
                                     <input type="checkbox" :name="`quiz[questions][${qIndex}][options][${oIndex}][is_correct]`" value="true" x-model="option.is_correct" class="rounded">
                                     
                                     <label class="text-sm">Benar</label>
-                                    <button type="button" @click="removeOption(qIndex, oIndex)" class="text-red-500 hover:text-red-700">&times;</button>
+                                    <button type="button" @click="removeOption(qIndex, oIndex)" class="text-error hover:opacity-80">&times;</button>
                                 </div>
                             </template>
                         </div>
-                        <button type="button" @click="addOption(qIndex)" class="mt-2 mx-2 text-sm font-bold text-blue-600 hover:underline">+ Tambah Opsi</button>
+                        <button type="button" @click="addOption(qIndex)" class="mt-2 mx-2 text-sm font-bold text-bass-red hover:text-bass-red-hover hover:underline">+ Tambah Opsi</button>
                     </div>
 
-                    {{-- ✅ PERBAIKAN: Radio Button untuk Benar/Salah --}}
+                    {{-- Radio Button untuk Benar/Salah --}}
                     <div x-show="question.type === 'true_false'" class="mt-4 border-t pt-4">
                         <h5 class="text-md font-semibold text-gray-700 mb-2">Jawaban Benar:</h5>
                         <div class="flex space-x-4">
@@ -121,6 +121,6 @@
     </div>
 
     <div class="mt-6">
-        <button type="button" @click="addQuestion()" class="w-full px-4 py-2 bg-green-100 text-green-800 rounded-md hover:bg-green-200 border border-dashed">Tambah Pertanyaan</button>
+        <button type="button" @click="addQuestion()" class="w-full px-4 py-2 bg-bass-red-soft text-bass-red rounded-md hover:opacity-80 border border-bass-red border-dashed">Tambah Pertanyaan</button>
     </div>
 </div>

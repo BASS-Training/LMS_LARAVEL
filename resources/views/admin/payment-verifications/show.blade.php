@@ -84,7 +84,7 @@
                       onsubmit="return confirm('Setujui pembayaran ini dan buka akses kursus untuk peserta?');">
                     @csrf
                     <button type="submit"
-                            class="w-full inline-flex items-center justify-center gap-2 min-h-[48px] rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors">
+                            class="w-full inline-flex items-center justify-center gap-2 min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                         Setujui &amp; Buka Akses
                     </button>

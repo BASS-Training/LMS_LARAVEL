@@ -32,7 +32,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="bg-bass-red hover:bg-[#B91818] text-white font-bold py-2 px-4 rounded-lg transition-colors">
+            <button type="submit" class="bg-bass-red hover:bg-bass-red-hover text-white font-bold py-2 px-4 rounded-lg transition-colors">
                 Tampilkan Peserta
             </button>
         </form>
@@ -47,10 +47,10 @@
                             @csrf
                             <input type="hidden" name="course_id" value="{{ $selectedCourse->id }}">
                             <label class="inline-flex items-center text-sm">
-                                <input type="checkbox" name="generate_certificate" value="1" class="mr-2">
+                                <input type="checkbox" name="generate_certificate" value="1" class="mr-2 rounded border-gray-300 text-bass-red focus:ring-bass-red">
                                 Generate sertifikat untuk peserta yang eligible
                             </label>
-                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors" onclick="return confirm('Yakin ingin menandai SELESAI semua konten untuk SEMUA peserta di kursus ini?')">
+                            <button type="submit" class="bg-error hover:bg-error-dark text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors" onclick="return confirm('Yakin ingin menandai SELESAI semua konten untuk SEMUA peserta di kursus ini?')">
                                 Force Complete Semua Peserta
                             </button>
                         </form>
@@ -67,16 +67,16 @@
                         </div>
                         <div class="flex flex-wrap gap-2">
                             <label class="inline-flex items-center text-sm text-navy">
-                                <input type="checkbox" id="bulkGenerateCert" class="mr-2">
+                                <input type="checkbox" id="bulkGenerateCert" class="mr-2 rounded border-gray-300 text-bass-red focus:ring-bass-red">
                                 Generate sertifikat otomatis
                             </label>
-                            <button onclick="bulkForceComplete()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors">
+                            <button onclick="bulkForceComplete()" class="bg-error hover:bg-error-dark text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors">
                                 Force Complete Terpilih
                             </button>
-                            <button onclick="bulkGenerateCertificates()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors">
+                            <button onclick="bulkGenerateCertificates()" class="bg-navy hover:bg-navy-light text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors">
                                 Generate Sertifikat Terpilih
                             </button>
-                            <button onclick="clearSelection()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors">
+                            <button onclick="clearSelection()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold py-2 px-4 rounded-lg text-sm transition-colors">
                                 Batal
                             </button>
                         </div>
@@ -85,7 +85,7 @@
 
                 <div class="mb-3 flex justify-between items-center">
                     <label class="inline-flex items-center">
-                        <input type="checkbox" id="selectAll" class="mr-2">
+                        <input type="checkbox" id="selectAll" class="mr-2 rounded border-gray-300 text-bass-red focus:ring-bass-red">
                         <span class="text-sm font-medium text-gray-700">Pilih Semua</span>
                     </label>
                     <span class="text-sm text-gray-600">
@@ -104,13 +104,13 @@
                         @endphp
                         <div class="border rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                             <div class="flex items-center gap-3 flex-1">
-                                <input type="checkbox" class="participant-checkbox" value="{{ $u->id }}" data-name="{{ $u->name }}">
+                                <input type="checkbox" class="participant-checkbox rounded border-gray-300 text-bass-red focus:ring-bass-red" value="{{ $u->id }}" data-name="{{ $u->name }}">
                                 <div class="flex-1">
                                     <div class="font-semibold text-gray-800">{{ $u->name }}</div>
                                     <div class="text-gray-500 text-sm">{{ $u->email }}</div>
                                     <div class="text-sm mt-1">
                                         Progres:
-                                        <span class="font-medium {{ $progress['progress_percentage'] >= 100 ? 'text-green-600' : 'text-orange-600' }}">
+                                        <span class="font-medium {{ $progress['progress_percentage'] >= 100 ? 'text-success' : 'text-warning' }}">
                                             {{ $progress['progress_percentage'] ?? 0 }}%
                                         </span>
                                         ({{ $progress['completed_count'] ?? 0 }}/{{ $progress['total_count'] ?? 0 }})
@@ -122,10 +122,10 @@
                                 <input type="hidden" name="course_id" value="{{ $selectedCourse->id }}">
                                 <input type="hidden" name="user_id" value="{{ $u->id }}">
                                 <label class="inline-flex items-center text-sm">
-                                    <input type="checkbox" name="generate_certificate" value="1" class="mr-2">
+                                    <input type="checkbox" name="generate_certificate" value="1" class="mr-2 rounded border-gray-300 text-bass-red focus:ring-bass-red">
                                     Generate sertifikat (jika memenuhi syarat)
                                 </label>
-                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg text-sm whitespace-nowrap transition-colors" onclick="return confirm('Yakin ingin menandai SELESAI semua konten untuk {{ $u->name }}?')">
+                                <button type="submit" class="bg-error hover:bg-error-dark text-white font-bold py-2 px-4 rounded-lg text-sm whitespace-nowrap transition-colors" onclick="return confirm('Yakin ingin menandai SELESAI semua konten untuk {{ $u->name }}?')">
                                     Force Complete
                                 </button>
                             </form>

@@ -1,22 +1,18 @@
 <x-app-layout>
     <x-slot name="header">
         <!-- Compact Quiz Header -->
-        <div class="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-700 text-white -mx-6 -mt-6 mb-6 overflow-hidden">
-            <div class="absolute inset-0 opacity-10">
-                <div class="absolute top-0 left-0 w-full h-full bg-pattern"></div>
-            </div>
-
+        <div class="relative bg-navy text-white -mx-6 -mt-6 mb-6 overflow-hidden">
             <div class="relative px-6 py-6">
                 <div class="max-w-7xl mx-auto">
                     <div class="flex items-center justify-between">
                         <!-- Quiz Info -->
                         <div class="flex items-center space-x-4">
                             <div class="bg-white/20 backdrop-blur-sm p-3 rounded-xl border border-white/30 shadow-lg">
-                                <i class="fas fa-brain text-2xl text-yellow-300"></i>
+                                <svg class="h-7 w-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 3h6v4H9V3z" /></svg>
                             </div>
                             <div>
                                 <h1 class="text-2xl font-bold text-white">{{ $quiz->title }}</h1>
-                                <p class="text-blue-100 text-sm">
+                                <p class="text-white/80 text-sm">
                                     @if ($quiz->lesson && $quiz->lesson->course)
                                         {{ $quiz->lesson->course->title }}
                                     @else
@@ -31,13 +27,13 @@
                             <div class="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20">
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-white">{{ $quiz->questions->count() }}</div>
-                                    <div class="text-xs text-blue-200">Soal</div>
+                                    <div class="text-xs text-white/70">Soal</div>
                                 </div>
                             </div>
                             <div class="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20">
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-white">{{ $quiz->passing_percentage }}%</div>
-                                    <div class="text-xs text-blue-200">Nilai Lulus</div>
+                                    <div class="text-xs text-white/70">Nilai Lulus</div>
                                 </div>
                             </div>
                         </div>
@@ -49,10 +45,10 @@
 
     <!-- Floating Timer (Pojok Kanan Atas) -->
     @if ($quiz->time_limit)
-        <div id="floating-timer" class="fixed top-20 right-6 z-50 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl shadow-2xl p-4 border-2 border-white/20 backdrop-blur-lg transform hover:scale-105 transition-all duration-300">
+        <div id="floating-timer" class="fixed top-20 right-6 z-50 bg-navy rounded-2xl shadow-2xl p-4 border-2 border-white/20 transform hover:scale-105 transition-all duration-300">
             <div class="text-center">
                 <div class="flex items-center justify-center space-x-2 mb-2">
-                    <i class="fas fa-stopwatch text-yellow-300 text-sm"></i>
+                    <svg class="h-4 w-4 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m4-9l-1.5 1.5M9 2h6m-3 3a8 8 0 110 16 8 8 0 010-16z" /></svg>
                     <span class="text-xs font-semibold text-white">Sisa Waktu</span>
                 </div>
 
@@ -60,15 +56,9 @@
                 <div class="relative w-20 h-20 mx-auto mb-2">
                     <svg class="w-20 h-20 transform -rotate-90" viewBox="0 0 100 100">
                         <circle cx="50" cy="50" r="42" stroke="rgba(255,255,255,0.2)" stroke-width="6" fill="none"/>
-                        <circle id="timer-circle" cx="50" cy="50" r="42" stroke="url(#gradient)" stroke-width="6" fill="none"
+                        <circle id="timer-circle" cx="50" cy="50" r="42" stroke="#D97706" stroke-width="6" fill="none"
                                 stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="0"
                                 class="transition-all duration-1000"/>
-                        <defs>
-                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#fbbf24"/>
-                                <stop offset="100%" style="stop-color:#f59e0b"/>
-                            </linearGradient>
-                        </defs>
                     </svg>
 
                     <div class="absolute inset-0 flex items-center justify-center">
@@ -77,8 +67,7 @@
                 </div>
 
                 <!-- Timer Status -->
-                <div id="timer-status" class="text-xs font-medium text-blue-100">
-                    <i class="fas fa-play text-green-400 mr-1"></i>
+                <div id="timer-status" class="text-xs font-medium text-white/80">
                     In Progress
                 </div>
             </div>
@@ -97,29 +86,29 @@
                         <!-- Progress Card -->
                         <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-200">
                             <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                                <i class="fas fa-tasks text-indigo-600 mr-2"></i>
+                                 <svg class="h-5 w-5 text-navy mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 11l3 3L22 4M2 12l5 5M2 5l5 5" /></svg>
                                 Progress Quiz
                             </h3>
 
                             <div class="mb-4">
                                 <div class="flex items-center justify-between mb-2">
                                     <span id="progress-text" class="text-sm font-semibold text-gray-700">0 / {{ $quiz->questions->count() }}</span>
-                                    <span id="progress-percentage" class="text-sm font-bold text-indigo-600">0%</span>
+                                    <span id="progress-percentage" class="text-sm font-bold text-bass-red">0%</span>
                                 </div>
                                 <div class="w-full bg-gray-200 rounded-full h-3">
-                                    <div id="progress-bar" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                    <div id="progress-bar" class="bg-bass-red h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
                                 </div>
                             </div>
 
                             <!-- Auto Save Indicator -->
-                            <div id="save-indicator" class="flex items-center space-x-2 text-green-500 text-sm opacity-0 transition-opacity duration-300 mb-4">
-                                <i class="fas fa-check-circle"></i>
+                            <div id="save-indicator" class="flex items-center space-x-2 text-success text-sm opacity-0 transition-opacity duration-300 mb-4">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                                 <span class="font-medium">Auto-saved</span>
                             </div>
 
                             <!-- Current Question Info -->
-                            <div class="mt-4 p-3 bg-indigo-50 rounded-lg border border-indigo-200">
-                                <div class="text-sm text-indigo-700">
+                            <div class="mt-4 p-3 bg-bass-red-soft rounded-lg border border-bass-red">
+                                <div class="text-sm text-bass-red">
                                     <span class="font-semibold">Soal Aktif:</span>
                                     <span id="current-question-display" class="ml-2 text-lg font-bold">1</span>
                                     <span class="text-gray-600">/ {{ $quiz->questions->count() }}</span>
@@ -130,7 +119,7 @@
                         <!-- Question Navigation -->
                         <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
                             <h4 class="text-base font-bold text-gray-900 mb-4 flex items-center">
-                                <i class="fas fa-list-ol text-indigo-600 mr-2"></i>
+                                 <svg class="h-5 w-5 text-navy mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01" /></svg>
                                 Navigasi Soal
                             </h4>
 
@@ -138,7 +127,7 @@
                             <div class="grid grid-cols-5 gap-2">
                                 @for($i = 1; $i <= $quiz->questions->count(); $i++)
                                     <button onclick="goToQuestion({{ $i - 1 }})"
-                                            class="question-nav-btn w-full aspect-square rounded-lg border-2 border-gray-300 bg-white text-sm font-bold transition-all duration-200 hover:border-indigo-400 hover:bg-indigo-50 hover:scale-105"
+                                            class="question-nav-btn w-full aspect-square rounded-lg border-2 border-gray-300 bg-white text-sm font-bold transition-all duration-200 hover:border-bass-red hover:bg-bass-red-soft hover:scale-105"
                                             data-question="{{ $i - 1 }}"
                                             title="Soal {{ $i }}">
                                         {{ $i }}
@@ -153,11 +142,11 @@
                                     <span class="text-gray-600">Belum dijawab</span>
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                    <div class="w-6 h-6 rounded border-2 border-green-400 bg-green-100"></div>
+                                    <div class="w-6 h-6 rounded border-2 border-success bg-success-soft"></div>
                                     <span class="text-gray-600">Sudah dijawab</span>
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                    <div class="w-6 h-6 rounded border-2 border-indigo-500 bg-indigo-100"></div>
+                                    <div class="w-6 h-6 rounded border-2 border-bass-red bg-bass-red-soft"></div>
                                     <span class="text-gray-600">Sedang dilihat</span>
                                 </div>
                             </div>
@@ -170,7 +159,7 @@
                                     onclick="showSubmitConfirmation(event)"
                                     disabled
                                     class="w-full btn-submit bg-gray-400 text-white px-6 py-4 rounded-xl text-lg font-bold shadow-lg transform transition-all duration-300 cursor-not-allowed opacity-70">
-                                <i class="fas fa-paper-plane mr-2"></i>
+                                <svg class="inline h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
                                 Kirim Jawaban
                             </button>
                         </div>
@@ -191,10 +180,10 @@
 
                                     <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
                                         <!-- Question Header -->
-                                        <div class="bg-gradient-to-r from-indigo-50 via-purple-50 to-blue-50 px-8 py-5 border-b border-gray-200">
+                                        <div class="bg-gray-50 px-8 py-5 border-b border-gray-200">
                                             <div class="flex items-center justify-between">
                                                 <div class="flex items-center space-x-4">
-                                                    <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg shadow-lg">
+                                                    <div class="bg-bass-red text-white w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg shadow-lg">
                                                         {{ $index + 1 }}
                                                     </div>
                                                     <div>
@@ -204,13 +193,13 @@
                                                         <div class="flex items-center space-x-3 mt-1">
                                                             <span class="text-sm text-gray-600">
                                                                 @if($question->type === 'multiple_choice')
-                                                                    <i class="fas fa-list-ul mr-1"></i>Pilihan Ganda
+                                                                    Pilihan Ganda
                                                                 @else
-                                                                    <i class="fas fa-check-double mr-1"></i>Benar/Salah
+                                                                    Benar/Salah
                                                                 @endif
                                                             </span>
-                                                            <span class="text-sm text-indigo-600 font-medium">
-                                                                <i class="fas fa-star mr-1"></i>{{ $question->marks }} poin
+                                                            <span class="text-sm text-bass-red font-medium">
+                                                                 {{ $question->marks }} poin
                                                             </span>
                                                         </div>
                                                     </div>
@@ -245,31 +234,31 @@
                                                                    class="sr-only peer"
                                                                    onchange="updateProgress(); autoSave(); updateQuestionStatus({{ $index }});">
 
-                                                            <div class="bg-white border-2 border-gray-200 rounded-xl p-6 transition-all duration-300 hover:border-indigo-300 hover:shadow-lg hover:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:bg-indigo-50 peer-checked:shadow-lg">
+                                                            <div class="bg-white border-2 border-gray-200 rounded-xl p-6 transition-all duration-300 hover:border-bass-red hover:shadow-lg hover:bg-bass-red-soft peer-checked:border-bass-red peer-checked:bg-bass-red-soft peer-checked:shadow-lg">
                                                                 <div class="flex items-center space-x-4">
                                                                     <!-- Custom Radio -->
                                                                     <div class="relative">
-                                                                        <div class="w-6 h-6 rounded-full border-2 border-gray-300 bg-white transition-all duration-200 peer-checked:border-indigo-500 group-hover:border-indigo-400"></div>
+                                                                         <div class="w-6 h-6 rounded-full border-2 border-gray-300 bg-white transition-all duration-200 peer-checked:border-bass-red group-hover:border-bass-red"></div>
                                                                         <div class="absolute inset-0 flex items-center justify-center">
-                                                                            <div class="w-3 h-3 rounded-full bg-indigo-500 scale-0 transition-transform duration-200 peer-checked:scale-100"></div>
+                                                                             <div class="w-3 h-3 rounded-full bg-bass-red scale-0 transition-transform duration-200 peer-checked:scale-100"></div>
                                                                         </div>
                                                                     </div>
 
                                                                     <!-- Option Letter -->
-                                                                    <div class="bg-gray-100 text-gray-700 w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg transition-all duration-200 peer-checked:bg-indigo-100 peer-checked:text-indigo-700">
+                                                                     <div class="bg-gray-100 text-gray-700 w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg transition-all duration-200 peer-checked:bg-bass-red peer-checked:text-white">
                                                                         {{ chr(65 + $optionIndex) }}
                                                                     </div>
 
                                                                     <!-- Option Text -->
                                                                     <div class="flex-1">
-                                                                        <span class="text-lg font-medium text-gray-800 transition-colors duration-200 peer-checked:text-indigo-800">
+                                                                         <span class="text-lg font-medium text-gray-800 transition-colors duration-200 peer-checked:text-navy">
                                                                             {{ $option->option_text }}
                                                                         </span>
                                                                     </div>
 
                                                                     <!-- Selection Indicator -->
                                                                     <div class="opacity-0 transition-opacity duration-200 peer-checked:opacity-100">
-                                                                        <i class="fas fa-check-circle text-indigo-500 text-xl"></i>
+                                                                         <svg class="h-6 w-6 text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -289,19 +278,19 @@
                                                                class="sr-only peer"
                                                                onchange="updateProgress(); autoSave(); updateQuestionStatus({{ $index }});">
 
-                                                        <div class="bg-white border-2 border-green-200 rounded-xl p-8 transition-all duration-300 hover:border-green-400 hover:shadow-lg hover:bg-green-50 peer-checked:border-green-500 peer-checked:bg-green-50 peer-checked:shadow-lg relative h-full">
+                                                        <div class="bg-white border-2 border-success-soft rounded-xl p-8 transition-all duration-300 hover:border-success hover:shadow-lg hover:bg-success-soft peer-checked:border-success peer-checked:bg-success-soft peer-checked:shadow-lg relative h-full">
                                                             <div class="absolute top-4 right-4 opacity-0 peer-checked:opacity-100 transition-all duration-300 transform scale-0 peer-checked:scale-100">
-                                                                <div class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
-                                                                    <i class="fas fa-check text-sm"></i>
+                                                                <div class="bg-success text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
+                                                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                                                                 </div>
                                                             </div>
 
                                                             <div class="text-center">
-                                                                <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 transition-all duration-200 peer-checked:bg-green-200">
-                                                                    <i class="fas fa-check text-green-600 text-2xl"></i>
+                                                                <div class="bg-success-soft w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 transition-all duration-200">
+                                                                     <svg class="h-8 w-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                                                                 </div>
-                                                                <h4 class="text-xl font-bold text-green-800 mb-2">BENAR</h4>
-                                                                <p class="text-green-700 font-medium">True</p>
+                                                                <h4 class="text-xl font-bold text-success mb-2">BENAR</h4>
+                                                                <p class="text-success font-medium">True</p>
                                                             </div>
                                                         </div>
                                                     </label>
@@ -314,19 +303,19 @@
                                                                class="sr-only peer"
                                                                onchange="updateProgress(); autoSave(); updateQuestionStatus({{ $index }});">
 
-                                                        <div class="bg-white border-2 border-red-200 rounded-xl p-8 transition-all duration-300 hover:border-red-400 hover:shadow-lg hover:bg-red-50 peer-checked:border-red-500 peer-checked:bg-red-50 peer-checked:shadow-lg relative h-full">
+                                                        <div class="bg-white border-2 border-error-soft rounded-xl p-8 transition-all duration-300 hover:border-error hover:shadow-lg hover:bg-error-soft peer-checked:border-error peer-checked:bg-error-soft peer-checked:shadow-lg relative h-full">
                                                             <div class="absolute top-4 right-4 opacity-0 peer-checked:opacity-100 transition-all duration-300 transform scale-0 peer-checked:scale-100">
-                                                                <div class="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
-                                                                    <i class="fas fa-check text-sm"></i>
+                                                                <div class="bg-error text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
+                                                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                                                                 </div>
                                                             </div>
 
                                                             <div class="text-center">
-                                                                <div class="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 transition-all duration-200 peer-checked:bg-red-200">
-                                                                    <i class="fas fa-times text-red-600 text-2xl"></i>
+                                                                <div class="bg-error-soft w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 transition-all duration-200">
+                                                                     <svg class="h-8 w-8 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                                                                 </div>
-                                                                <h4 class="text-xl font-bold text-red-800 mb-2">SALAH</h4>
-                                                                <p class="text-red-700 font-medium">False</p>
+                                                                <h4 class="text-xl font-bold text-error mb-2">SALAH</h4>
+                                                                <p class="text-error font-medium">False</p>
                                                             </div>
                                                         </div>
                                                     </label>
@@ -342,20 +331,20 @@
                                                         onclick="previousQuestion()"
                                                         class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition-all duration-200 {{ $index === 0 ? 'invisible' : '' }}"
                                                         id="prev-btn-{{ $index }}">
-                                                    <i class="fas fa-chevron-left mr-2"></i>
+                                                    <svg class="inline h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
                                                     Sebelumnya
                                                 </button>
 
                                                 <div class="text-sm text-gray-600 font-medium">
-                                                    Soal <span class="text-indigo-600 font-bold">{{ $index + 1 }}</span> dari {{ $quiz->questions->count() }}
+                                                    Soal <span class="text-bass-red font-bold">{{ $index + 1 }}</span> dari {{ $quiz->questions->count() }}
                                                 </div>
 
                                                 <button type="button"
                                                         onclick="nextQuestion()"
-                                                        class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-all duration-200 {{ $index === $quiz->questions->count() - 1 ? 'hidden' : '' }}"
+                                                        class="px-6 py-3 bg-bass-red hover:bg-bass-red-hover text-white font-semibold rounded-lg transition-all duration-200 {{ $index === $quiz->questions->count() - 1 ? 'hidden' : '' }}"
                                                         id="next-btn-{{ $index }}">
                                                     Selanjutnya
-                                                    <i class="fas fa-chevron-right ml-2"></i>
+                                                    <svg class="inline h-4 w-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
                                                 </button>
 
                                                 <button type="button"
@@ -363,7 +352,7 @@
                                                         disabled
                                                         class="inline-submit-btn px-6 py-3 bg-gray-400 text-white font-semibold rounded-lg transition-all duration-200 cursor-not-allowed opacity-70 {{ $index !== $quiz->questions->count() - 1 ? 'hidden' : '' }}"
                                                         id="submit-btn-{{ $index }}">
-                                                    <i class="fas fa-paper-plane mr-2"></i>
+                                                    <svg class="inline h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
                                                     Kirim Jawaban
                                                 </button>
                                             </div>
@@ -383,8 +372,8 @@
     <div id="submit-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 transform transition-all duration-300 shadow-2xl">
             <div class="text-center">
-                <div class="bg-gradient-to-br from-yellow-100 to-orange-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i class="fas fa-exclamation-triangle text-yellow-600 text-3xl"></i>
+                <div class="bg-warning-soft w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                     <svg class="h-10 w-10 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M5.07 19h13.86a2 2 0 001.74-3L13.74 4a2 2 0 00-3.48 0L3.33 16a2 2 0 001.74 3z" /></svg>
                 </div>
 
                 <h3 class="text-2xl font-bold text-gray-900 mb-3">Konfirmasi Pengiriman</h3>
@@ -397,11 +386,11 @@
                     <div class="grid grid-cols-2 gap-4 text-sm">
                         <div>
                             <span class="text-gray-500">Soal Dijawab:</span>
-                            <br><span id="modal-answered-count" class="font-bold text-indigo-600">0 / {{ $quiz->questions->count() }}</span>
+                            <br><span id="modal-answered-count" class="font-bold text-bass-red">0 / {{ $quiz->questions->count() }}</span>
                         </div>
                         <div>
                             <span class="text-gray-500">Sisa Waktu:</span>
-                            <br><span id="modal-time-left" class="font-bold text-green-600">--:--</span>
+                            <br><span id="modal-time-left" class="font-bold text-warning">--:--</span>
                         </div>
                     </div>
                 </div>
@@ -410,12 +399,12 @@
                     <button type="button"
                             onclick="hideSubmitConfirmation()"
                             class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-6 rounded-xl font-semibold transition-colors duration-200">
-                        <i class="fas fa-times mr-2"></i>Batalkan
+                         Batalkan
                     </button>
                     <button type="button"
                             onclick="submitQuiz(event)"
-                            class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3 px-6 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105">
-                        <i class="fas fa-check mr-2"></i>Ya, Kirim
+                            class="flex-1 bg-bass-red hover:bg-bass-red-hover text-white py-3 px-6 rounded-xl font-semibold transition-colors duration-200">
+                         Ya, Kirim
                     </button>
                 </div>
             </div>
@@ -424,13 +413,6 @@
 
     <!-- Custom Styles -->
     <style>
-        .bg-pattern {
-            background-image:
-                radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 2px, transparent 2px),
-                radial-gradient(circle at 75% 75%, rgba(255,255,255,0.1) 2px, transparent 2px);
-            background-size: 50px 50px;
-        }
-
         .question-slide {
             transition: all 0.3s ease-in-out;
         }
@@ -460,10 +442,10 @@
         }
 
         .option-item:hover .peer:not(:checked) ~ div {
-            border-color: #818cf8 !important;
-            background-color: #eef2ff !important;
+            border-color: #DA1E1E !important;
+            background-color: #FCEAEA !important;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15) !important;
+            box-shadow: 0 4px 12px rgba(218, 30, 30, 0.15) !important;
         }
 
         .option-item .peer:checked ~ div {
@@ -472,59 +454,24 @@
         }
 
         .option-item .peer:checked ~ div .bg-gray-100 {
-            background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+            background: #DA1E1E !important;
             color: white !important;
             transform: scale(1.1);
         }
 
-        .btn-submit {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-submit::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .btn-submit:hover::before {
-            left: 100%;
-        }
-
-        .option-item .peer:checked ~ .bg-white.border-green-200 {
-            background: #dcfce7 !important;
-            border-color: #16a34a !important;
-            border-width: 3px !important;
-            transform: scale(1.02);
-            box-shadow: 0 8px 25px rgba(22, 163, 74, 0.3) !important;
-        }
-
-        .option-item .peer:checked ~ .bg-white.border-red-200 {
-            background: #fecaca !important;
-            border-color: #dc2626 !important;
-            border-width: 3px !important;
-            transform: scale(1.02);
-            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.3) !important;
-        }
-
         /* Highlight active question in sidebar */
         .question-nav-btn.active {
-            border-color: #6366f1 !important;
-            background: #eef2ff !important;
+            border-color: #DA1E1E !important;
+            background: #FCEAEA !important;
+            color: #DA1E1E;
             transform: scale(1.1);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 4px 12px rgba(218, 30, 30, 0.2);
         }
 
         .question-nav-btn.answered {
-            border-color: #10b981 !important;
-            background: #d1fae5 !important;
-            color: #047857;
+            border-color: #168A50 !important;
+            background: #EAF7F0 !important;
+            color: #168A50;
         }
 
         /* Floating timer responsive */
@@ -587,12 +534,12 @@
                 const timerEl = document.getElementById('time-left');
 
                 if (seconds <= 300) {
-                    statusEl.innerHTML = '<i class="fas fa-exclamation-triangle text-yellow-400 mr-1 animate-pulse"></i>Hampir Habis!';
-                    timerEl.style.color = '#fbbf24';
+                    statusEl.textContent = 'Hampir Habis!';
+                    timerEl.style.color = '#D97706';
                 } else if (seconds <= 600) {
-                    statusEl.innerHTML = '<i class="fas fa-clock text-orange-400 mr-1"></i>Perhatikan Waktu';
+                    statusEl.textContent = 'Perhatikan Waktu';
                 } else {
-                    statusEl.innerHTML = '<i class="fas fa-play text-green-400 mr-1"></i>In Progress';
+                    statusEl.textContent = 'In Progress';
                 }
             }
 
@@ -708,7 +655,7 @@
             if (sidebarBtn) {
                 sidebarBtn.disabled = !allAnswered;
                 if (allAnswered) {
-                    sidebarBtn.className = 'w-full btn-submit bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-4 rounded-xl text-lg font-bold shadow-lg transform transition-all duration-300 hover:scale-105 cursor-pointer';
+                    sidebarBtn.className = 'w-full btn-submit bg-bass-red hover:bg-bass-red-hover text-white px-6 py-4 rounded-xl text-lg font-bold shadow-lg transition-colors duration-200 cursor-pointer';
                 } else {
                     sidebarBtn.className = 'w-full btn-submit bg-gray-400 text-white px-6 py-4 rounded-xl text-lg font-bold shadow-lg transform transition-all duration-300 cursor-not-allowed opacity-70';
                 }
@@ -717,11 +664,11 @@
             document.querySelectorAll('.inline-submit-btn').forEach(btn => {
                 btn.disabled = !allAnswered;
                 if (allAnswered) {
-                    btn.classList.add('bg-green-600', 'hover:bg-green-700', 'cursor-pointer');
+                    btn.classList.add('bg-bass-red', 'hover:bg-bass-red-hover', 'cursor-pointer');
                     btn.classList.remove('bg-gray-400', 'cursor-not-allowed', 'opacity-70');
                 } else {
                     btn.classList.add('bg-gray-400', 'cursor-not-allowed', 'opacity-70');
-                    btn.classList.remove('bg-green-600', 'hover:bg-green-700', 'cursor-pointer');
+                    btn.classList.remove('bg-bass-red', 'hover:bg-bass-red-hover', 'cursor-pointer');
                 }
             });
         }
@@ -753,9 +700,9 @@
             });
 
             if (isAnswered) {
-                statusIndicator.className = 'status-indicator w-4 h-4 rounded-full bg-green-500 transition-all duration-300';
+                statusIndicator.className = 'status-indicator w-4 h-4 rounded-full bg-success transition-all duration-300';
                 statusText.textContent = 'Sudah dijawab';
-                statusText.className = 'status-text text-sm text-green-600 font-medium';
+                statusText.className = 'status-text text-sm text-success font-medium';
             } else {
                 statusIndicator.className = 'status-indicator w-4 h-4 rounded-full border-2 border-gray-300 transition-all duration-300';
                 statusText.textContent = 'Belum dijawab';
@@ -908,7 +855,7 @@
 
             const submitBtn = event?.currentTarget || event?.target;
             if (submitBtn && submitBtn.tagName === 'BUTTON') {
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Kirim Jawaban';
+                submitBtn.textContent = 'Mengirim Jawaban...';
                 submitBtn.disabled = true;
             }
 

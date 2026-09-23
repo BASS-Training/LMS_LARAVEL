@@ -2,6 +2,13 @@
     $unreadCount = $announcements->filter(function($announcement) {
         return !($announcement->is_read_by_user ?? true);
     })->count();
+
+    $levelStyles = [
+        'info' => ['surface' => 'bg-info-soft', 'text' => 'text-info'],
+        'success' => ['surface' => 'bg-success-soft', 'text' => 'text-success'],
+        'warning' => ['surface' => 'bg-warning-soft', 'text' => 'text-warning'],
+        'danger' => ['surface' => 'bg-error-soft', 'text' => 'text-error'],
+    ];
 @endphp
 
 <!-- Notification Component -->
@@ -9,7 +16,7 @@
     <!-- Notification Bell Icon -->
     <button
         type="button"
-        class="notification-bell relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-all duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        class="notification-bell relative p-2 text-gray-600 hover:text-bass-red hover:bg-bass-red-soft rounded-full transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bass-red"
         onclick="toggleNotifications()"
         id="notificationButton"
         aria-label="Notifications"
@@ -22,14 +29,14 @@
         <!-- Notification Badge -->
         @if($unreadCount > 0)
         <span
-            class="notification-badge absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full animate-pulse"
+            class="notification-badge absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-bass-red rounded-full animate-pulse"
             id="notificationBadge"
         >
             <span id="notificationCount">{{ $unreadCount > 99 ? '99+' : $unreadCount }}</span>
         </span>
 
         <!-- Pulse Animation for New Notifications -->
-        <span class="notification-pulse absolute top-0 right-0 block w-3 h-3 bg-red-400 rounded-full animate-ping" id="notificationPulse"></span>
+        <span class="notification-pulse absolute top-0 right-0 block w-3 h-3 bg-bass-red rounded-full animate-ping" id="notificationPulse"></span>
         @endif
     </button>
 
@@ -40,7 +47,7 @@
         style="display: none;"
     >
         <!-- Header -->
-        <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
             <div class="flex items-center justify-between">
                 <h3 class="text-sm font-semibold text-gray-900">
                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,7 +58,7 @@
                 @if($unreadCount > 0)
                 <button
                     onclick="markAllAsRead()"
-                    class="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors focus:outline-none"
+                    class="text-xs text-bass-red hover:text-bass-red-hover font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-bass-red rounded"
                 >
                     Tandai Semua Dibaca
                 </button>
@@ -62,12 +69,13 @@
         <!-- Notifications List -->
         <div class="notification-list max-h-80 overflow-y-auto" id="notificationList">
             @forelse($announcements->take(5) as $announcement)
-            <div class="notification-item p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors {{ !($announcement->is_read_by_user ?? true) ? 'unread' : '' }}"
+            @php($levelStyle = $levelStyles[$announcement->level] ?? ['surface' => 'bg-info-soft', 'text' => 'text-info'])
+            <div class="notification-item p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors {{ !($announcement->is_read_by_user ?? true) ? 'unread bg-bass-red-soft border-l-[3px] border-l-bass-red' : '' }}"
                  onclick="markAsRead({{ $announcement->id }}, '{{ route('admin.announcements.show', $announcement) }}')"
                  data-announcement-id="{{ $announcement->id }}">
                 <div class="flex items-start space-x-3">
                     <div class="flex-shrink-0">
-                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-{{ $announcement->level_color }}-100 text-{{ $announcement->level_color }}-800">
+                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full {{ $levelStyle['surface'] }} {{ $levelStyle['text'] }}">
                             @if($announcement->level === 'info')
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -91,13 +99,13 @@
                         <div class="flex items-center justify-between">
                             <p class="text-sm font-medium text-gray-900 truncate">{{ $announcement->title }}</p>
                             @if(!($announcement->is_read_by_user ?? true))
-                            <div class="w-2 h-2 bg-blue-600 rounded-full ml-2 flex-shrink-0"></div>
+                            <div class="w-2 h-2 bg-bass-red rounded-full ml-2 flex-shrink-0"></div>
                             @endif
                         </div>
                         <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ Str::limit($announcement->content, 80) }}</p>
                         <div class="flex items-center justify-between mt-2">
                             <p class="text-xs text-gray-400">{{ $announcement->created_at->diffForHumans() }}</p>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-{{ $announcement->level_color }}-100 text-{{ $announcement->level_color }}-800">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $levelStyle['surface'] }} {{ $levelStyle['text'] }}">
                                 {{ ucfirst($announcement->level) }}
                             </span>
                         </div>
@@ -118,8 +126,8 @@
         <!-- Footer -->
         @if($announcements->count() > 0)
         <div class="border-t border-gray-200 bg-gray-50 px-4 py-3">
-            <a href="{{ route('notifications.index') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors focus:outline-none">
-                Lihat Semua Pengumuman →
+            <a href="{{ route('notifications.index') }}" class="text-sm text-bass-red hover:text-bass-red-hover font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-bass-red rounded">
+                Lihat Semua Pengumuman
             </a>
         </div>
         @endif
@@ -135,10 +143,6 @@
 .notification-bell {
     position: relative;
     overflow: visible;
-}
-
-.notification-bell:hover {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(59, 130, 246, 0.1));
 }
 
 .notification-badge {
@@ -163,24 +167,7 @@
 }
 
 .notification-item:hover {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(59, 130, 246, 0.05));
     transform: translateX(2px);
-}
-
-.notification-item.unread {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(59, 130, 246, 0.05));
-    border-left: 3px solid #6366f1;
-}
-
-.notification-item.unread::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: linear-gradient(180deg, #6366f1, #3b82f6);
-    animation: pulse 2s infinite;
 }
 
 .line-clamp-2 {
@@ -389,10 +376,10 @@ function showToast(message, type = 'info', duration = 5000) {
     const toast = document.createElement('div');
 
     const typeStyles = {
-        info: 'bg-blue-600 text-white',
-        success: 'bg-green-600 text-white',
-        warning: 'bg-yellow-600 text-white',
-        error: 'bg-red-600 text-white'
+        info: 'bg-info text-white',
+        success: 'bg-success text-white',
+        warning: 'bg-warning text-white',
+        error: 'bg-error text-white'
     };
 
     const icons = {
@@ -447,19 +434,19 @@ function showExportToast(notif) {
     const courseTitle = notif.course_title || 'Kursus';
 
     const toast = document.createElement('div');
-    toast.className = 'notification-toast max-w-sm w-full bg-white border border-green-200 shadow-xl rounded-xl pointer-events-auto overflow-hidden';
+    toast.className = 'notification-toast max-w-sm w-full bg-white border border-success shadow-xl rounded-xl pointer-events-auto overflow-hidden';
     toast.innerHTML = `
         <div class="p-4">
             <div class="flex items-start gap-3">
-                <div class="flex-shrink-0 w-9 h-9 bg-green-100 rounded-full flex items-center justify-center">
-                    <svg class="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex-shrink-0 w-9 h-9 bg-success-soft rounded-full flex items-center justify-center">
+                    <svg class="h-5 w-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-semibold text-gray-900">Export Selesai!</p>
                     <p class="text-xs text-gray-500 mt-0.5 truncate">${courseTitle} · ${filterLabel}</p>
-                    <a href="${notif.download_url}" class="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors">
+                    <a href="${notif.download_url}" class="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 bg-success text-white text-xs font-medium rounded-lg hover:brightness-90 transition">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                         </svg>

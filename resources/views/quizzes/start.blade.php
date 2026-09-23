@@ -70,16 +70,16 @@
                             @endif
 
                             <!-- Quiz Rules -->
-                            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                            <div class="bg-warning-soft border border-warning rounded-xl p-4">
                                 <div class="flex items-start">
-                                    <div class="w-8 h-8 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                                    <div class="w-8 h-8 bg-white text-warning rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"/>
                                         </svg>
                                     </div>
                                     <div>
-                                        <h4 class="font-semibold text-amber-800 mb-2">Perhatian Penting</h4>
-                                        <ul class="text-sm text-amber-700 space-y-1">
+                                        <h4 class="font-semibold text-warning mb-2">Perhatian Penting</h4>
+                                        <ul class="text-sm text-gray-700 space-y-1">
                                             <li>• Pastikan koneksi internet Anda stabil</li>
                                             <li>• Setelah memulai, kuis tidak dapat dihentikan atau diulang</li>
                                             <li>• Jawab semua pertanyaan sebelum waktu habis</li>
@@ -126,7 +126,7 @@
                         <!-- Pass Marks -->
                         <div class="bg-white rounded-xl shadow-lg p-4 border border-gray-100 hover:shadow-xl transition-shadow">
                             <div class="flex items-center justify-between">
-                                <div class="w-10 h-10 bg-green-100 text-green-600 rounded-lg flex items-center justify-center">
+                                <div class="w-10 h-10 bg-success-soft text-success rounded-lg flex items-center justify-center">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
@@ -141,7 +141,7 @@
                         <!-- Time Limit -->
                         <div class="bg-white rounded-xl shadow-lg p-4 border border-gray-100 hover:shadow-xl transition-shadow">
                             <div class="flex items-center justify-between">
-                                <div class="w-10 h-10 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center">
+                                <div class="w-10 h-10 bg-warning-soft text-warning rounded-lg flex items-center justify-center">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
@@ -174,7 +174,7 @@
                         <form action="{{ route('quizzes.start_attempt', $quiz) }}" method="POST">
                             @csrf
                             <button type="submit"
-                                    class="w-full bg-bass-red hover:bg-[#B91818] text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-100 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2">
+                                    class="w-full bg-bass-red hover:bg-bass-red-hover text-white font-bold py-4 px-6 rounded-xl transition-colors duration-200 shadow-lg flex items-center justify-center space-x-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
@@ -205,7 +205,7 @@
                                             </svg>
                                         </div>
                                         <div>
-                                            <h3 class="text-xl font-bold">🏆 Leaderboard</h3>
+                                            <h3 class="text-xl font-bold">Leaderboard</h3>
                                             <p class="text-xs text-white/80">Top 10 Peserta Terbaik</p>
                                         </div>
                                     </div>
@@ -220,9 +220,9 @@
                                             @php
                                                 $isTop3 = $entry['rank'] <= 3;
                                                 $rankBg = match($entry['rank']) {
-                                                    1 => 'bg-[#F6C945]',
+                                                    1 => 'bg-bass-gold',
                                                     2 => 'bg-gray-300',
-                                                    3 => 'bg-orange-400',
+                                                    3 => 'bg-amber-600',
                                                     default => 'bg-gray-200'
                                                 };
                                                 $rankTextColor = $entry['rank'] <= 3 ? 'text-white' : 'text-gray-700';
@@ -254,11 +254,11 @@
 
                                                 <!-- Score -->
                                                 <div class="flex-shrink-0 text-right ml-3">
-                                                    <div class="font-bold text-lg {{ $entry['passed'] ? 'text-green-600' : 'text-red-600' }}">
+                                                    <div class="font-bold text-lg {{ $entry['passed'] ? 'text-success' : 'text-error' }}">
                                                         {{ number_format($entry['percentage'], 0) }}%
                                                     </div>
                                                     @if($entry['rank'] <= 3)
-                                                        <div class="text-xs font-medium {{ $entry['passed'] ? 'text-green-600' : 'text-red-600' }}">
+                                                        <div class="text-xs font-medium {{ $entry['passed'] ? 'text-success' : 'text-error' }}">
                                                             {{ $entry['passed'] ? '✓ Lulus' : '✗ Tidak Lulus' }}
                                                         </div>
                                                     @endif
@@ -278,8 +278,8 @@
                                     </div>
                                 @else
                                     <div class="text-center py-8">
-                                        <div class="w-20 h-20 mx-auto bg-yellow-100 rounded-full flex items-center justify-center mb-4">
-                                            <svg class="w-10 h-10 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div class="w-20 h-20 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                            <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                                             </svg>
                                         </div>
@@ -290,7 +290,7 @@
 
                                 <div class="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
                                     <p class="text-xs text-center text-gray-600 font-medium">
-                                        💪 Raih posisi teratas dan buktikan kemampuanmu!
+                                        Raih posisi teratas dan buktikan kemampuanmu!
                                     </p>
                                 </div>
                             </div>
@@ -339,12 +339,12 @@
         }
 
         .prose a {
-            color: #3b82f6;
+            color: #DA1E1E;
             text-decoration: underline;
         }
 
         .prose a:hover {
-            color: #1d4ed8;
+            color: #B91818;
         }
 
         .hover\:scale-102:hover {

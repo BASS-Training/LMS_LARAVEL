@@ -64,7 +64,7 @@
                                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                  loading="lazy">
                         @else
-                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                            <div class="w-full h-full flex items-center justify-center bg-gray-200">
                                 <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                                 </svg>
@@ -76,7 +76,7 @@
                                 Dikelola
                             </span>
                         @elseif ($owned)
-                            <span class="absolute top-2 left-2 px-2 py-1 rounded-md bg-emerald-600 text-white text-xs font-semibold shadow">
+                            <span class="absolute top-2 left-2 px-2 py-1 rounded-md bg-success text-white text-xs font-semibold shadow">
                                 Sudah dimiliki
                             </span>
                         @endif
@@ -98,7 +98,7 @@
 
                         <div class="mt-auto pt-3 flex items-center justify-between">
                             <span class="text-xs text-gray-500">{{ $course->lessons_count }} pelajaran</span>
-                            <span class="font-bold {{ $course->isFree() ? 'text-emerald-600' : 'text-navy' }}">
+                            <span class="font-bold {{ $course->isFree() ? 'text-success' : 'text-navy' }}">
                                 {{ $course->price_label }}
                             </span>
                         </div>

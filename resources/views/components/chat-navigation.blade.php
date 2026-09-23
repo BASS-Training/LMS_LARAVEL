@@ -66,7 +66,7 @@
 
 {{-- Enhanced Chat Header for Individual Chat Pages --}}
 @if(isset($chat))
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 px-6 py-4">
+    <div class="bg-white border-b-4 border-bass-red px-6 py-4">
         <div class="flex items-center justify-between">
             {{-- Chat Info --}}
             <div class="flex items-center space-x-4">
@@ -81,7 +81,7 @@
                 
                 {{-- Chat Avatar --}}
                 <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+                    <div class="w-12 h-12 rounded-full bg-navy flex items-center justify-center shadow-sm">
                         <span class="text-white font-semibold text-lg">
                             {{ strtoupper(substr($chat->getDisplayName(), 0, 1)) }}
                         </span>
@@ -106,7 +106,7 @@
                             
                             @if($chat->course_class_id)
                                 <span>•</span>
-                                <span class="text-blue-600 font-medium">{{ $chat->courseClass->course->title }}</span>
+                                <span class="text-bass-red font-medium">{{ $chat->courseClass->course->title }}</span>
                             @endif
                         </div>
                     </div>
@@ -117,7 +117,7 @@
             <div class="flex items-center space-x-2">
                 {{-- Online Status Indicator --}}
                 <div class="flex items-center space-x-2 text-sm text-gray-600">
-                    <div class="w-2 h-2 rounded-full bg-green-400"></div>
+                    <div class="w-2 h-2 rounded-full bg-success"></div>
                     <span>Online</span>
                 </div>
                 
@@ -159,7 +159,7 @@
                         
                         <hr class="my-1">
                         
-                        <a href="#" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                        <a href="#" class="block px-4 py-2 text-sm text-error hover:bg-error-soft">
                             <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                             </svg>

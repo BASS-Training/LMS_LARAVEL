@@ -17,13 +17,13 @@
                             <p class="text-gray-600 text-sm mt-1">Track all system activities including file management, attendance, courses, and more</p>
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="exportLogs()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition flex items-center gap-2">
+                            <button onclick="exportLogs()" class="bg-navy hover:bg-navy-light text-white px-4 py-2 rounded-lg transition flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
                                 Export CSV
                             </button>
-                            <button onclick="showClearModal()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition flex items-center gap-2">
+                            <button onclick="showClearModal()" class="bg-error hover:bg-error-dark text-white px-4 py-2 rounded-lg transition flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                 </svg>
@@ -108,7 +108,7 @@
 
                             <!-- Filter Buttons -->
                             <div class="flex items-end gap-2 lg:col-span-2">
-                                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition flex-1">
+                                <button type="submit" class="bg-bass-red hover:bg-bass-red-hover text-white px-6 py-2 rounded-lg transition flex-1">
                                     Apply Filters
                                 </button>
                                 <a href="{{ route('activity-logs.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition flex-1 text-center">
@@ -120,19 +120,19 @@
 
                     <!-- Statistics -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white">
+                        <div class="bg-navy rounded-lg p-4 text-white">
                             <div class="text-sm opacity-90">Total Logs</div>
                             <div class="text-3xl font-bold mt-1">{{ $logs->total() }}</div>
                         </div>
-                        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 text-white">
+                        <div class="bg-success rounded-lg p-4 text-white">
                             <div class="text-sm opacity-90">Success</div>
                             <div class="text-3xl font-bold mt-1">{{ $logs->where('status', 'success')->count() }}</div>
                         </div>
-                        <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-lg p-4 text-white">
+                        <div class="bg-error rounded-lg p-4 text-white">
                             <div class="text-sm opacity-90">Failed</div>
                             <div class="text-3xl font-bold mt-1">{{ $logs->where('status', 'failed')->count() }}</div>
                         </div>
-                        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-4 text-white">
+                        <div class="bg-bass-red rounded-lg p-4 text-white">
                             <div class="text-sm opacity-90">This Page</div>
                             <div class="text-3xl font-bold mt-1">{{ $logs->count() }}</div>
                         </div>
@@ -171,11 +171,11 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
-                                                    @if($log->action == 'upload') bg-blue-100 text-blue-800
+                                                    @if($log->action == 'upload') bg-info-soft text-navy
                                                     @elseif($log->action == 'delete') bg-red-100 text-red-800
-                                                    @elseif($log->action == 'copy_link') bg-purple-100 text-purple-800
-                                                    @elseif(str_contains($log->action, 'attendance')) bg-green-100 text-green-800
-                                                    @elseif(str_contains($log->action, 'course')) bg-indigo-100 text-indigo-800
+                                                    @elseif($log->action == 'copy_link') bg-bass-red-soft text-bass-red
+                                                    @elseif(str_contains($log->action, 'attendance')) bg-success-soft text-success
+                                                    @elseif(str_contains($log->action, 'course')) bg-info-soft text-navy
                                                     @elseif(str_contains($log->action, 'content')) bg-yellow-100 text-yellow-800
                                                     @else bg-gray-100 text-gray-800
                                                     @endif">
@@ -209,15 +209,15 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
-                                                    @if($log->status == 'success') bg-green-100 text-green-800
-                                                    @else bg-red-100 text-red-800
+                                                    @if($log->status == 'success') bg-success-soft text-success
+                                                    @else bg-error-soft text-error
                                                     @endif">
                                                     {{ ucfirst($log->status) }}
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm">
                                                 <button onclick="showLogDetails({{ $log->id }})"
-                                                    class="text-red-600 hover:text-red-900 font-medium">
+                                                    class="text-navy hover:text-bass-red font-medium">
                                                     Details
                                                 </button>
                                             </td>
@@ -287,7 +287,7 @@
                     </select>
                 </div>
                 <div class="flex gap-2">
-                    <button type="button" onclick="clearOldLogs()" class="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
+                    <button type="button" onclick="clearOldLogs()" class="flex-1 bg-error hover:bg-error-dark text-white px-4 py-2 rounded-lg transition">
                         Clear Logs
                     </button>
                     <button type="button" onclick="closeClearModal()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">

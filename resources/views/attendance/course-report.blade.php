@@ -32,15 +32,15 @@
                             <h4 class="text-lg font-semibold text-gray-800 mb-4">Overall Course Attendance</h4>
 
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white">
+                                <div class="bg-navy rounded-lg p-4 text-white">
                                     <div class="text-sm opacity-90">Total Participants</div>
                                     <div class="text-3xl font-bold mt-1">{{ $course->participants->count() }}</div>
                                 </div>
-                                <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-4 text-white">
+                                <div class="bg-bass-red rounded-lg p-4 text-white">
                                     <div class="text-sm opacity-90">Required Sessions</div>
                                     <div class="text-3xl font-bold mt-1">{{ $attendanceContents->count() }}</div>
                                 </div>
-                                <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 text-white">
+                                <div class="bg-success rounded-lg p-4 text-white">
                                     <div class="text-sm opacity-90">Avg. Attendance</div>
                                     <div class="text-3xl font-bold mt-1">
                                         @php
@@ -59,7 +59,7 @@
                                         {{ $avgRate }}%
                                     </div>
                                 </div>
-                                <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-lg p-4 text-white">
+                                <div class="bg-error rounded-lg p-4 text-white">
                                     <div class="text-sm opacity-90">Completion Risk</div>
                                     <div class="text-3xl font-bold mt-1">
                                         @php
@@ -101,7 +101,7 @@
                                             <div class="flex-1">
                                                 <div class="flex items-center gap-3">
                                                     <h5 class="text-lg font-semibold text-gray-800">{{ $content->title }}</h5>
-                                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-error-soft text-error">
                                                         Required
                                                     </span>
                                                 </div>
@@ -118,7 +118,7 @@
                                                 @endif
 
                                                 @if($content->min_attendance_minutes)
-                                                    <p class="text-sm text-blue-600 mt-1">
+                                                    <p class="text-sm text-navy mt-1">
                                                         <span class="font-medium">Minimum Duration:</span> {{ $content->min_attendance_minutes }} minutes
                                                     </p>
                                                 @endif
@@ -148,7 +148,7 @@
                                                         <span class="text-gray-600"> Late</span>
                                                     </div>
                                                     <div class="text-sm">
-                                                        <span class="text-blue-600 font-semibold">{{ $stats['excused'] }}</span>
+                                                        <span class="text-navy font-semibold">{{ $stats['excused'] }}</span>
                                                         <span class="text-gray-600"> Excused</span>
                                                     </div>
                                                 </div>
@@ -156,11 +156,11 @@
 
                                             <div class="flex flex-col gap-2 ml-4">
                                                 <a href="{{ route('attendance.index', $content->id) }}"
-                                                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition text-center whitespace-nowrap">
+                                                    class="bg-bass-red hover:bg-bass-red-hover text-white px-4 py-2 rounded-lg transition text-center whitespace-nowrap">
                                                     Manage Attendance
                                                 </a>
                                                 <a href="{{ route('attendance.export', $content->id) }}"
-                                                    class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition text-center whitespace-nowrap">
+                                                    class="bg-navy hover:bg-navy-light text-white px-4 py-2 rounded-lg transition text-center whitespace-nowrap">
                                                     Export CSV
                                                 </a>
                                             </div>
@@ -225,7 +225,7 @@
                                                         <td class="px-6 py-4">
                                                             <div class="flex flex-wrap gap-1">
                                                                 @foreach($missingSessions as $session)
-                                                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-error-soft text-error">
                                                                         {{ $session }}
                                                                     </span>
                                                                 @endforeach

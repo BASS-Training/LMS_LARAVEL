@@ -26,14 +26,14 @@
                     <!-- Quiz Status Badge -->
                     <div class="flex items-center space-x-3">
                         @if($quiz->status === 'published')
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-success-soft text-success">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
                                 Published
                             </span>
                         @else
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-warning-soft text-warning">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
@@ -49,8 +49,8 @@
         @if (session('success') || session('error'))
             <div class="max-w-6xl mx-auto px-6 py-4">
                 @if (session('success'))
-                    <div class="bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-xl shadow-sm flex items-center">
-                        <svg class="w-5 h-5 mr-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="bg-success-soft border border-success text-success px-6 py-4 rounded-xl shadow-sm flex items-center">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         <div>
@@ -61,8 +61,8 @@
                 @endif
                 
                 @if (session('error'))
-                    <div class="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-xl shadow-sm flex items-center">
-                        <svg class="w-5 h-5 mr-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="bg-error-soft border border-error text-error px-6 py-4 rounded-xl shadow-sm flex items-center">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         <div>
@@ -171,30 +171,30 @@
                             </div>
 
                             <!-- Pass Marks -->
-                            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                            <div class="flex items-center justify-between p-3 bg-success-soft rounded-lg">
                                 <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-green-100 text-green-600 rounded-lg flex items-center justify-center mr-3">
+                                    <div class="w-8 h-8 bg-white text-success rounded-lg flex items-center justify-center mr-3">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                         </svg>
                                     </div>
                                     <span class="text-sm font-medium text-gray-700">Nilai Lulus</span>
                                 </div>
-                                <span class="font-bold text-lg text-green-600">{{ $quiz->pass_marks }}</span>
+                                <span class="font-bold text-lg text-success">{{ $quiz->pass_marks }}</span>
                             </div>
 
                             <!-- Time Limit -->
                             @if($quiz->time_limit)
-                                <div class="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                                <div class="flex items-center justify-between p-3 bg-warning-soft rounded-lg">
                                     <div class="flex items-center">
-                                        <div class="w-8 h-8 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center mr-3">
+                                        <div class="w-8 h-8 bg-white text-warning rounded-lg flex items-center justify-center mr-3">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                             </svg>
                                         </div>
                                         <span class="text-sm font-medium text-gray-700">Batas Waktu</span>
                                     </div>
-                                    <span class="font-bold text-lg text-orange-600">{{ $quiz->time_limit }} menit</span>
+                                    <span class="font-bold text-lg text-warning">{{ $quiz->time_limit }} menit</span>
                                 </div>
                             @else
                                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -230,7 +230,7 @@
                                     <form action="{{ route('quizzes.start_attempt', $quiz) }}" method="POST">
                                         @csrf
                                         <button type="submit" 
-                                                class="w-full bg-bass-red hover:bg-[#B91818] text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2">
+                                                class="w-full bg-bass-red hover:bg-bass-red-hover text-white font-bold py-4 px-6 rounded-xl transition-colors duration-200 shadow-lg flex items-center justify-center space-x-2">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                             </svg>
@@ -239,13 +239,13 @@
                                     </form>
                                 @else
                                     <div class="text-center">
-                                        <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                                            <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div class="w-16 h-16 bg-warning-soft rounded-full flex items-center justify-center mx-auto mb-3">
+                                            <svg class="w-8 h-8 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                             </svg>
                                         </div>
                                         <h3 class="font-bold text-gray-900 text-lg mb-2">Kuis Belum Tersedia</h3>
-                                        <p class="text-red-600 text-sm">Kuis ini belum dipublikasikan dan tidak dapat dikerjakan.</p>
+                                        <p class="text-error text-sm">Kuis ini belum dipublikasikan dan tidak dapat dikerjakan.</p>
                                     </div>
                                 @endif
                             </div>
@@ -302,7 +302,7 @@
                                                         <div class="flex-1">
                                                             <p class="font-semibold text-gray-900 text-lg leading-relaxed">{{ $question->question_text }}</p>
                                                             <div class="flex items-center space-x-4 mt-2">
-                                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-navy">
                                                                     {{ ucfirst(str_replace('_', ' ', $question->type)) }}
                                                                 </span>
                                                                 <span class="text-sm text-gray-500">{{ $question->marks }} poin</span>
@@ -317,19 +317,19 @@
                                                         <h5 class="text-sm font-medium text-gray-700 mb-3">Pilihan Jawaban:</h5>
                                                         <div class="space-y-2">
                                                             @foreach ($question->options as $option)
-                                                                <div class="flex items-center p-3 {{ $option->is_correct ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200' }} rounded-lg">
-                                                                    <div class="w-6 h-6 rounded-full border-2 {{ $option->is_correct ? 'border-green-500 bg-green-500' : 'border-gray-300' }} flex items-center justify-center mr-3 flex-shrink-0">
+                                                                <div class="flex items-center p-3 {{ $option->is_correct ? 'bg-success-soft border border-success' : 'bg-gray-50 border border-gray-200' }} rounded-lg">
+                                                                    <div class="w-6 h-6 rounded-full border-2 {{ $option->is_correct ? 'border-success bg-success' : 'border-gray-300' }} flex items-center justify-center mr-3 flex-shrink-0">
                                                                         @if($option->is_correct)
                                                                             <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                                                                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                                                                             </svg>
                                                                         @endif
                                                                     </div>
-                                                                    <span class="{{ $option->is_correct ? 'text-green-800 font-semibold' : 'text-gray-700' }}">
+                                                                    <span class="{{ $option->is_correct ? 'text-success font-semibold' : 'text-gray-700' }}">
                                                                         {{ $option->option_text }}
                                                                     </span>
                                                                     @if($option->is_correct)
-                                                                        <span class="ml-2 text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">Jawaban Benar</span>
+                                                                        <span class="ml-2 text-xs text-success bg-white px-2 py-1 rounded-full">Jawaban Benar</span>
                                                                     @endif
                                                                 </div>
                                                             @endforeach
@@ -341,11 +341,11 @@
                                                         @php
                                                             $correctTFOption = $question->options->where('is_correct', true)->first();
                                                         @endphp
-                                                        <div class="inline-flex items-center px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
-                                                            <svg class="w-4 h-4 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                        <div class="inline-flex items-center px-4 py-2 bg-success-soft border border-success rounded-lg">
+                                                            <svg class="w-4 h-4 text-success mr-2" fill="currentColor" viewBox="0 0 20 20">
                                                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                                                             </svg>
-                                                            <span class="font-semibold text-green-800">
+                                                            <span class="font-semibold text-success">
                                                                 {{ $correctTFOption ? ($correctTFOption->option_text === 'True' ? 'True' : 'False') : 'Tidak ditentukan' }}
                                                             </span>
                                                         </div>

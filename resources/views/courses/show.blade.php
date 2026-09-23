@@ -18,7 +18,7 @@
                 </a>
 
                 @can('update', $course)
-                    <a href="{{ route('courses.edit', $course) }}" class="inline-flex items-center px-4 py-2 bg-bass-red text-white rounded-xl font-medium text-sm hover:bg-[#B91818] shadow-lg hover:shadow-xl transition-all duration-200">
+                    <a href="{{ route('courses.edit', $course) }}" class="inline-flex items-center px-4 py-2 bg-warning text-white rounded-xl font-medium text-sm hover:bg-amber-700 shadow-lg hover:shadow-xl transition-all duration-200">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                         </svg>
@@ -121,15 +121,15 @@
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             @if (session('success'))
-                <div class="mb-8 p-4 bg-green-50 border border-green-200 rounded-xl shadow-sm" role="alert">
+                <div class="mb-8 p-4 bg-success-soft border border-success/30 rounded-xl shadow-sm" role="alert">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+                            <p class="text-sm font-medium text-success">{{ session('success') }}</p>
                         </div>
                     </div>
                 </div>
@@ -318,7 +318,7 @@
                                                 <div class="flex items-center space-x-2">
                                                     <form :action="`/courses/{{$course->id}}/lessons/${lesson.id}/duplicate`" method="POST" onsubmit="return confirm('Yakin ingin duplikasi pelajaran ini?');">
                                                         @csrf
-                                                        <button type="submit" class="inline-flex items-center px-3 py-2 bg-green-100 text-green-700 text-sm font-medium rounded-lg hover:bg-green-200 transition-colors">
+                                                        <button type="submit" class="inline-flex items-center px-3 py-2 bg-info text-white text-sm font-medium rounded-lg hover:bg-navy/20 transition-colors">
                                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                                             </svg>
@@ -326,14 +326,14 @@
                                                         </button>
                                                     </form>
 
-                                                    <a :href="`/courses/{{$course->id}}/lessons/${lesson.id}/edit`" class="inline-flex items-center px-3 py-2 bg-navy/10 text-navy text-sm font-medium rounded-lg hover:bg-navy/20 transition-colors">
+                                                    <a :href="`/courses/{{$course->id}}/lessons/${lesson.id}/edit`" class="inline-flex items-center px-3 py-2 bg-warning/10 text-warning text-sm font-medium rounded-lg hover:bg-warning/20 transition-colors">
                                                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                         </svg>
                                                         Edit
                                                     </a>
 
-                                                    <a :href="`/lessons/${lesson.id}/contents/create`" class="inline-flex items-center px-3 py-2 bg-blue-50 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-100 transition-colors">
+                                                    <a :href="`/lessons/${lesson.id}/contents/create`" class="inline-flex items-center px-3 py-2 bg-info-soft text-navy text-sm font-medium rounded-lg hover:bg-navy/10 transition-colors">
                                                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                                         </svg>
@@ -396,16 +396,16 @@
                                                             <!-- Content Type Icon -->
                                                             <div class="w-10 h-10 rounded-lg flex items-center justify-center"
                                                                  :class="{
-                                                                    'bg-blue-100': content.type === 'text',
-                                                                    'bg-red-100': content.type === 'video',
-                                                                    'bg-green-100': content.type === 'quiz',
+                                                                    'bg-info-soft': content.type === 'text',
+                                                                    'bg-error-soft': content.type === 'video',
+                                                                    'bg-success-soft': content.type === 'quiz',
                                                                     'bg-gray-100': !['text', 'video', 'quiz'].includes(content.type)
                                                                  }">
                                                                 <svg class="w-5 h-5"
                                                                      :class="{
-                                                                        'text-blue-600': content.type === 'text',
-                                                                        'text-red-600': content.type === 'video',
-                                                                        'text-green-600': content.type === 'quiz',
+                                                                        'text-navy': content.type === 'text',
+                                                                        'text-error': content.type === 'video',
+                                                                        'text-success': content.type === 'quiz',
                                                                         'text-gray-600': !['text', 'video', 'quiz'].includes(content.type)
                                                                      }"
                                                                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -421,9 +421,9 @@
                                                                 <div class="flex items-center space-x-2 mt-1">
                                                                     <span class="px-2 py-1 text-xs font-medium rounded-full"
                                                                           :class="{
-                                                                            'bg-blue-100 text-blue-700': content.type === 'text',
-                                                                            'bg-red-100 text-red-700': content.type === 'video',
-                                                                            'bg-green-100 text-green-700': content.type === 'quiz',
+                                                                        'bg-info-soft text-navy': content.type === 'text',
+                                                                        'bg-error-soft text-error': content.type === 'video',
+                                                                        'bg-success-soft text-success': content.type === 'quiz',
                                                                             'bg-gray-100 text-gray-700': !['text', 'video', 'quiz'].includes(content.type)
                                                                           }"
                                                                           x-text="content.type.charAt(0).toUpperCase() + content.type.slice(1)"></span>
@@ -435,7 +435,7 @@
                                                         <div class="flex items-center space-x-2">
                                                             <form :action="`/lessons/${lesson.id}/contents/${content.id}/duplicate`" method="POST" onsubmit="return confirm('Yakin ingin duplikasi konten ini?');">
                                                                 @csrf
-                                                                <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-green-50 text-green-700 text-xs font-medium rounded-lg hover:bg-green-100 transition-colors">
+                                                                <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-info-soft text-navy text-xs font-medium rounded-lg hover:bg-navy/10 transition-colors">
                                                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                                                     </svg>
@@ -443,7 +443,7 @@
                                                                 </button>
                                                             </form>
 
-                                                            <a :href="`/lessons/${lesson.id}/contents/${content.id}/edit`" class="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-lg hover:bg-blue-100 transition-colors">
+                                                            <a :href="`/lessons/${lesson.id}/contents/${content.id}/edit`" class="inline-flex items-center px-3 py-1.5 bg-warning/10 text-warning text-xs font-medium rounded-lg hover:bg-warning/20 transition-colors">
                                                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                                 </svg>
@@ -540,11 +540,11 @@
                         <div class="mb-6 flex items-center justify-between">
                             <div class="flex items-center space-x-4">
                                 <div class="flex items-center space-x-2">
-                                    <div class="w-3 h-3 bg-green-400 rounded-full"></div>
+                                    <div class="w-3 h-3 bg-success rounded-full"></div>
                                     <span class="text-sm text-gray-600">Kelas Aktif: {{ $course->periods->where('status', 'active')->count() }}</span>
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                    <div class="w-3 h-3 bg-blue-400 rounded-full"></div>
+                                    <div class="w-3 h-3 bg-navy rounded-full"></div>
                                     <span class="text-sm text-gray-600">Mendatang: {{ $course->periods->where('status', 'upcoming')->count() }}</span>
                                 </div>
                                 <div class="flex items-center space-x-2">
@@ -566,7 +566,7 @@
 
                                 @if($course->hasActivePeriod())
                                     <a href="{{ route('chat.index') }}?course={{ $course->id }}"
-                                       class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 shadow-md transition-all duration-200">
+                                       class="inline-flex items-center px-4 py-2 bg-navy text-white text-sm font-medium rounded-lg hover:bg-navy-light shadow-md transition-all duration-200">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                                         </svg>
@@ -579,8 +579,8 @@
                         <!-- Period Cards with Search Filtering -->
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <template x-for="period in filteredPeriods" :key="period.id">
-                                                        <div class="bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300"
-                                     :class="period.status === 'active' ? 'ring-2 ring-green-300 border-green-200' : ''">
+                                <div class="bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 p-5"
+                                     :class="period.status === 'active' ? 'ring-2 ring-success/30 border-success/20' : ''">
                                     <div class="flex items-center justify-between mb-4">
                                         <div class="flex items-center space-x-3">
                                             @can('update', $course)
@@ -591,8 +591,8 @@
                                         </div>
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                                               :class="{
-                                                  'bg-green-100 text-green-800': period.status === 'active',
-                                                  'bg-blue-100 text-blue-800': period.status === 'upcoming',
+                                                  'bg-success-soft text-success': period.status === 'active',
+                                                  'bg-info-soft text-navy': period.status === 'upcoming',
                                                   'bg-gray-100 text-gray-800': period.status === 'completed',
                                                   'bg-red-100 text-red-800': period.status === 'cancelled'
                                               }"
@@ -612,8 +612,8 @@
                                         </div>
 
                                         <template x-if="period.status === 'active'">
-                                            <div class="flex items-center text-sm text-green-600">
-                                                <svg class="w-4 h-4 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <div class="flex items-center text-sm text-success">
+                                                <svg class="w-4 h-4 mr-3 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                 </svg>
                                                 <span class="font-medium" x-text="`${Math.max(0, Math.ceil((new Date(period.end_date) - new Date()) / (1000 * 60 * 60 * 24)))} hari tersisa`"></span>
@@ -629,7 +629,7 @@
                                         <div>
                                             <template x-if="period.status === 'active'">
                                                 <a :href="`{{ route('chat.index') }}?period=${period.id}`"
-                                                   class="inline-flex items-center text-sm font-medium text-green-600 hover:text-green-800 transition-colors">
+                                                   class="inline-flex items-center text-sm font-medium text-success hover:text-success-dark transition-colors">
                                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                                                     </svg>
@@ -637,7 +637,7 @@
                                                 </a>
                                             </template>
                                             <template x-if="period.status === 'upcoming'">
-                                                <span class="inline-flex items-center text-sm text-blue-600">
+                                                <span class="inline-flex items-center text-sm text-navy">
                                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                     </svg>
@@ -657,9 +657,9 @@
                                         @can('update', $course)
                                             <div class="flex items-center space-x-2">
                                                 <a :href="`{{ url('courses/' . $course->id . '/periods') }}/${period.id}/manage`"
-                                                   class="text-xs text-green-600 hover:text-green-800 font-medium">Kelola</a>
+                                                   class="text-xs text-navy hover:text-navy-light font-medium">Kelola</a>
                                                 <a :href="`{{ url('courses/' . $course->id . '/periods') }}/${period.id}/edit`"
-                                                   class="text-xs text-blue-600 hover:text-blue-800 font-medium">Edit</a>
+                                                   class="text-xs text-navy hover:text-navy-light font-medium">Edit</a>
                                                 <button @click="deletePeriod(period.id)" class="text-xs text-red-600 hover:text-red-800 font-medium">Hapus</button>
                                             </div>
                                         @endcan
@@ -680,14 +680,14 @@
                         </div>
 
                         @if($course->periods->where('status', 'active')->count() === 0)
-                            <div class="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-xl">
+                            <div class="mt-8 p-6 bg-warning-soft border border-warning/30 rounded-xl">
                                 <div class="flex items-center">
-                                    <svg class="w-6 h-6 text-yellow-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-6 h-6 text-warning mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L3.232 19.5c-.77.833.192 2.5 1.732 2.5z"></path>
                                     </svg>
                                     <div>
-                                        <h4 class="text-lg font-medium text-yellow-800">Tidak ada kelas aktif</h4>
-                                        <p class="text-sm text-yellow-700 mt-1">Chat tidak tersedia saat ini. Tambahkan kelas baru atau aktifkan kelas yang ada.</p>
+                                        <h4 class="text-lg font-medium text-gray-800">Tidak ada kelas aktif</h4>
+                                        <p class="text-sm text-gray-600 mt-1">Chat tidak tersedia saat ini. Tambahkan kelas baru atau aktifkan kelas yang ada.</p>
                                     </div>
                                 </div>
                             </div>
@@ -775,16 +775,16 @@
                             </div>
 
                             <!-- Available Instructors -->
-                            <div class="bg-green-50 rounded-2xl p-6 border border-green-200">
+                            <div class="bg-info-soft rounded-2xl p-6 border border-navy/20">
                                 <div class="flex items-center mb-6">
-                                    <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center mr-3">
-                                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="w-10 h-10 bg-navy rounded-xl flex items-center justify-center mr-3">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                         </svg>
                                     </div>
                                     <div>
-                                        <h4 class="text-lg font-bold text-green-900">Tambahkan Instruktur</h4>
-                                        <p class="text-sm text-green-700">{{ $availableInstructors->count() }} instruktur tersedia</p>
+                                        <h4 class="text-lg font-bold text-navy">Tambahkan Instruktur</h4>
+                                        <p class="text-sm text-navy/70">{{ $availableInstructors->count() }} instruktur tersedia</p>
                                     </div>
                                 </div>
 
@@ -792,10 +792,10 @@
                                     @csrf
                                     <div class="space-y-3 mb-6 max-h-80 overflow-y-auto">
                                         @forelse($availableInstructors as $instructor)
-                                            <div class="flex items-center p-3 bg-white rounded-xl border border-green-200 hover:bg-green-50 transition-colors">
-                                                <input type="checkbox" name="user_ids[]" value="{{ $instructor->id }}" id="avail-instructor-{{$instructor->id}}" class="mr-3 rounded border-green-300 text-green-600 focus:ring-green-500">
+                                            <div class="flex items-center p-3 bg-white rounded-xl border border-navy/20 hover:bg-navy/5 transition-colors">
+                                                <input type="checkbox" name="user_ids[]" value="{{ $instructor->id }}" id="avail-instructor-{{$instructor->id}}" class="mr-3 rounded border-gray-300 text-bass-red focus:ring-bass-red">
                                                 <div class="flex items-center space-x-3">
-                                                    <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+                                                    <div class="w-8 h-8 bg-navy rounded-full flex items-center justify-center">
                                                         <span class="text-white text-sm font-semibold">{{ strtoupper(substr($instructor->name, 0, 1)) }}</span>
                                                     </div>
                                                     <label for="avail-instructor-{{$instructor->id}}" class="font-medium text-gray-900 cursor-pointer">{{ $instructor->name }}</label>
@@ -803,18 +803,18 @@
                                             </div>
                                         @empty
                                             <div class="text-center py-8">
-                                                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                    <svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                     </svg>
                                                 </div>
-                                                <p class="text-green-600 font-medium">Semua instruktur sudah ditugaskan</p>
+                                                <p class="text-gray-600 font-medium">Semua instruktur sudah ditugaskan</p>
                                             </div>
                                         @endforelse
                                     </div>
                                     {{-- All pagination removed - now using Collection directly --}}
                                     @if($availableInstructors->count() > 0)
-                                        <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 shadow-lg hover:shadow-xl transition-all duration-200">
+                                        <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-3 bg-bass-red text-white font-semibold rounded-xl hover:bg-bass-red-hover shadow-lg hover:shadow-xl transition-all duration-200">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                             </svg>
@@ -1012,16 +1012,16 @@
 
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             <!-- Enrolled Participants -->
-                            <div class="bg-amber-50 rounded-2xl p-6 border border-amber-200">
+                            <div class="bg-warning-soft rounded-2xl p-6 border border-warning/20">
                                 <div class="flex items-center mb-6">
-                                    <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center mr-3">
-                                        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="w-10 h-10 bg-warning/10 rounded-xl flex items-center justify-center mr-3">
+                                        <svg class="w-5 h-5 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                         </svg>
                                     </div>
                                     <div>
-                                        <h4 class="text-lg font-bold text-amber-900">Peserta Terdaftar</h4>
-                                        <p class="text-sm text-amber-700" x-text="`${enrolledMeta.total} peserta aktif`"></p>
+                                        <h4 class="text-lg font-bold text-gray-900">Peserta Terdaftar</h4>
+                                        <p class="text-sm text-gray-600" x-text="`${enrolledMeta.total} peserta aktif`"></p>
                                     </div>
                                 </div>
 
@@ -1039,19 +1039,19 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                                     </svg>
                                                 </div>
-                                                <input type="text" x-model="searchTermUnenroll" @input="debouncedLoad('enrolled')" placeholder="Cari peserta terdaftar..." class="block w-full pl-10 pr-3 py-2 border border-amber-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-bass-red focus:border-bass-red">
+                                                <input type="text" x-model="searchTermUnenroll" @input="debouncedLoad('enrolled')" placeholder="Cari peserta terdaftar..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-bass-red focus:border-bass-red">
                                             </div>
                                         </div>
 
                                         <!-- Participants List -->
                                         <div class="space-y-3 mb-6 max-h-80 overflow-y-auto">
                                             <div x-show="enrolledLoading" class="text-center py-8">
-                                                <p class="text-amber-600 font-medium">Memuat peserta...</p>
+                                                <p class="text-gray-500 font-medium">Memuat peserta...</p>
                                             </div>
 
                                             <template x-for="participant in enrolledParticipantsData" :key="participant.id">
-                                                <div class="flex items-center p-3 bg-white rounded-xl border border-amber-200 hover:bg-amber-50 transition-colors">
-                                                    <input type="checkbox" :value="participant.id" x-model="selectedUnenrollUsers" class="mr-3 rounded border-amber-300 text-bass-red focus:ring-bass-red">
+                                                <div class="flex items-center p-3 bg-white rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors">
+                                                    <input type="checkbox" :value="participant.id" x-model="selectedUnenrollUsers" class="mr-3 rounded border-gray-300 text-bass-red focus:ring-bass-red">
                                                     <div class="flex items-center space-x-3">
                                                         <div class="w-8 h-8 bg-navy rounded-full flex items-center justify-center">
                                                             <span class="text-white text-sm font-semibold" x-text="participant.name.charAt(0).toUpperCase()"></span>
@@ -1066,22 +1066,22 @@
 
                                             <template x-if="!enrolledLoading && enrolledParticipantsData.length === 0">
                                                 <div class="text-center py-8">
-                                                    <p class="text-amber-600 font-medium">Belum ada peserta terdaftar atau tidak ada hasil pencarian</p>
+                                                    <p class="text-gray-500 font-medium">Belum ada peserta terdaftar atau tidak ada hasil pencarian</p>
                                                 </div>
                                             </template>
                                         </div>
 
-                                        <div class="flex items-center justify-between gap-3 mb-6 text-sm text-amber-700">
+                                        <div class="flex items-center justify-between gap-3 mb-6 text-sm text-gray-600">
                                             <span x-text="enrolledMeta.total > 0 ? `Menampilkan ${enrolledMeta.from}-${enrolledMeta.to} dari ${enrolledMeta.total}` : 'Tidak ada data'"></span>
                                             <div class="flex gap-2">
-                                            <button type="button" @click="loadParticipants('enrolled', enrolledMeta.current_page - 1)" :disabled="enrolledMeta.current_page <= 1 || enrolledLoading" class="px-3 py-1.5 bg-white border border-amber-300 rounded-lg disabled:opacity-50">Prev</button>
-                                            <button type="button" @click="loadParticipants('enrolled', enrolledMeta.current_page + 1)" :disabled="enrolledMeta.current_page >= enrolledMeta.last_page || enrolledLoading" class="px-3 py-1.5 bg-white border border-amber-300 rounded-lg disabled:opacity-50">Next</button>
+                                            <button type="button" @click="loadParticipants('enrolled', enrolledMeta.current_page - 1)" :disabled="enrolledMeta.current_page <= 1 || enrolledLoading" class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg disabled:opacity-50">Prev</button>
+                                            <button type="button" @click="loadParticipants('enrolled', enrolledMeta.current_page + 1)" :disabled="enrolledMeta.current_page >= enrolledMeta.last_page || enrolledLoading" class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg disabled:opacity-50">Next</button>
                                             </div>
                                         </div>
 
                                         <button type="submit" x-bind:disabled="selectedUnenrollUsers.length === 0"
                                                 :class="selectedUnenrollUsers.length === 0 ? 'opacity-50 cursor-not-allowed' : ''"
-                                                class="w-full inline-flex justify-center items-center px-4 py-3 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 shadow-lg hover:shadow-xl transition-all duration-200">
+                                                class="w-full inline-flex justify-center items-center px-4 py-3 bg-bass-red text-white font-semibold rounded-xl hover:bg-bass-red-hover shadow-lg hover:shadow-xl transition-all duration-200">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                             </svg>
@@ -1091,16 +1091,16 @@
                             </div>
 
                             <!-- Available Participants -->
-                            <div class="bg-green-50 rounded-2xl p-6 border border-green-200">
+                            <div class="bg-info-soft rounded-2xl p-6 border border-navy/20">
                                 <div class="flex items-center mb-6">
-                                    <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center mr-3">
-                                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="w-10 h-10 bg-navy rounded-xl flex items-center justify-center mr-3">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                                         </svg>
                                     </div>
                                     <div>
-                                        <h4 class="text-lg font-bold text-green-900">Daftarkan Peserta</h4>
-                                        <p class="text-sm text-green-700" x-text="`${availableMeta.total} calon peserta tersedia`"></p>
+                                        <h4 class="text-lg font-bold text-navy">Daftarkan Peserta</h4>
+                                        <p class="text-sm text-navy/70" x-text="`${availableMeta.total} calon peserta tersedia`"></p>
                                     </div>
                                 </div>
 
@@ -1118,21 +1118,21 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                                 </svg>
                                             </div>
-                                            <input type="text" x-model="searchTermEnroll" @input="debouncedLoad('available')" placeholder="Cari calon peserta..." class="block w-full pl-10 pr-3 py-2 border border-green-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-bass-red focus:border-bass-red">
+                                            <input type="text" x-model="searchTermEnroll" @input="debouncedLoad('available')" placeholder="Cari calon peserta..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-bass-red focus:border-bass-red">
                                         </div>
                                     </div>
 
                                     <!-- Available Users List -->
                                     <div class="space-y-3 mb-6 max-h-80 overflow-y-auto">
                                         <div x-show="availableLoading" class="text-center py-8">
-                                            <p class="text-green-600 font-medium">Memuat calon peserta...</p>
+                                            <p class="text-navy font-medium">Memuat calon peserta...</p>
                                         </div>
 
                                         <template x-for="user in unEnrolledParticipantsData" :key="user.id">
-                                            <div class="flex items-center p-3 bg-white rounded-xl border border-green-200 hover:bg-green-50 transition-colors">
-                                                <input type="checkbox" :value="user.id" x-model="selectedEnrollUsers" class="mr-3 rounded border-green-300 text-green-600 focus:ring-green-500">
+                                            <div class="flex items-center p-3 bg-white rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors">
+                                                <input type="checkbox" :value="user.id" x-model="selectedEnrollUsers" class="mr-3 rounded border-gray-300 text-bass-red focus:ring-bass-red">
                                                 <div class="flex items-center space-x-3">
-                                                    <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+                                                    <div class="w-8 h-8 bg-navy rounded-full flex items-center justify-center">
                                                         <span class="text-white text-sm font-semibold" x-text="user.name.charAt(0).toUpperCase()"></span>
                                                     </div>
                                                     <div>
@@ -1145,27 +1145,27 @@
 
                                         <template x-if="!availableLoading && unEnrolledParticipantsData.length === 0">
                                             <div class="text-center py-8">
-                                                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                    <svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                     </svg>
                                                 </div>
-                                                <p class="text-green-600 font-medium">Semua pengguna sudah terdaftar atau tidak ada hasil</p>
+                                                <p class="text-gray-600 font-medium">Semua pengguna sudah terdaftar atau tidak ada hasil</p>
                                             </div>
                                         </template>
                                     </div>
 
-                                    <div class="flex items-center justify-between gap-3 mb-6 text-sm text-green-700">
+                                    <div class="flex items-center justify-between gap-3 mb-6 text-sm text-gray-600">
                                         <span x-text="availableMeta.total > 0 ? `Menampilkan ${availableMeta.from}-${availableMeta.to} dari ${availableMeta.total}` : 'Tidak ada data'"></span>
                                         <div class="flex gap-2">
-                                            <button type="button" @click="loadParticipants('available', availableMeta.current_page - 1)" :disabled="availableMeta.current_page <= 1 || availableLoading" class="px-3 py-1.5 bg-white border border-green-300 rounded-lg disabled:opacity-50">Prev</button>
-                                            <button type="button" @click="loadParticipants('available', availableMeta.current_page + 1)" :disabled="availableMeta.current_page >= availableMeta.last_page || availableLoading" class="px-3 py-1.5 bg-white border border-green-300 rounded-lg disabled:opacity-50">Next</button>
+                                            <button type="button" @click="loadParticipants('available', availableMeta.current_page - 1)" :disabled="availableMeta.current_page <= 1 || availableLoading" class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg disabled:opacity-50">Prev</button>
+                                            <button type="button" @click="loadParticipants('available', availableMeta.current_page + 1)" :disabled="availableMeta.current_page >= availableMeta.last_page || availableLoading" class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg disabled:opacity-50">Next</button>
                                         </div>
                                     </div>
 
                                     <button type="submit" x-bind:disabled="selectedEnrollUsers.length === 0"
                                             :class="selectedEnrollUsers.length === 0 ? 'opacity-50 cursor-not-allowed' : ''"
-                                            class="w-full inline-flex justify-center items-center px-4 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 shadow-lg hover:shadow-xl transition-all duration-200">
+                                            class="w-full inline-flex justify-center items-center px-4 py-3 bg-bass-red text-white font-semibold rounded-xl hover:bg-bass-red-hover shadow-lg hover:shadow-xl transition-all duration-200">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                                         </svg>
@@ -1255,7 +1255,7 @@
                                                                         Diproses
                                                                     </span>
                                                                 @elseif($history->isDone())
-                                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 ring-1 ring-green-200">
+                                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-success-soft text-success ring-1 ring-success/20">
                                                                         Selesai
                                                                     </span>
                                                                 @else

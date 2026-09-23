@@ -12,7 +12,7 @@
                     <p class="text-white/80 text-lg">Kelola dan pantau semua kursus pembelajaran Anda</p>
                 </div>
                 @can('create', App\Models\Course::class)
-                    <a href="{{ route('courses.create') }}" class="inline-flex items-center px-6 py-3 bg-bass-red text-white border border-transparent rounded-xl font-semibold text-sm uppercase tracking-wider hover:bg-[#B91818] hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-200 transition-all duration-200 shadow-lg hover:shadow-xl">
+                    <a href="{{ route('courses.create') }}" class="inline-flex items-center px-6 py-3 bg-bass-red text-white border border-transparent rounded-xl font-semibold text-sm uppercase tracking-wider hover:bg-bass-red-hover hover:scale-105 focus:outline-none focus:ring-4 focus:ring-bass-red/20 transition-all duration-200 shadow-lg hover:shadow-xl">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
@@ -27,16 +27,16 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Success Alert -->
             @if (session('success'))
-                <div class="mb-8 bg-green-50 border-l-4 border-green-500 rounded-r-xl shadow-md" role="alert">
+                <div class="mb-8 bg-success-soft border-l-4 border-success rounded-r-xl shadow-md" role="alert">
                     <div class="flex items-center p-6">
                         <div class="flex-shrink-0">
-                            <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                            <svg class="w-6 h-6 text-success" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                             </svg>
                         </div>
                         <div class="ml-4">
-                            <h3 class="text-lg font-semibold text-green-800">Berhasil!</h3>
-                            <p class="text-green-700">{{ session('success') }}</p>
+                            <h3 class="text-lg font-semibold text-success">Berhasil!</h3>
+                            <p class="text-success">{{ session('success') }}</p>
                         </div>
                     </div>
                 </div>
@@ -44,16 +44,16 @@
 
             <!-- Error Alert -->
             @if (session('error'))
-                <div class="mb-8 bg-red-50 border-l-4 border-red-500 rounded-r-xl shadow-md" role="alert">
+                <div class="mb-8 bg-error-soft border-l-4 border-error rounded-r-xl shadow-md" role="alert">
                     <div class="flex items-center p-6">
                         <div class="flex-shrink-0">
-                            <svg class="w-6 h-6 text-red-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                            <svg class="w-6 h-6 text-error" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
                             </svg>
                         </div>
                         <div class="ml-4">
-                            <h3 class="text-lg font-semibold text-red-800">Error!</h3>
-                            <p class="text-red-700">{{ session('error') }}</p>
+                            <h3 class="text-lg font-semibold text-error">Terjadi Kesalahan</h3>
+                            <p class="text-error">{{ session('error') }}</p>
                         </div>
                     </div>
                 </div>
@@ -77,7 +77,7 @@
                                class="block w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-bass-red focus:border-bass-red transition">
                     </div>
                     <button type="submit"
-                            class="inline-flex items-center px-5 py-2.5 bg-bass-red text-white text-sm font-medium rounded-xl hover:bg-[#B91818] focus:ring-4 focus:ring-red-200 transition-all duration-200 shadow-md">
+                            class="inline-flex items-center px-5 py-2.5 bg-bass-red text-white text-sm font-medium rounded-xl hover:bg-bass-red-hover focus:ring-4 focus:ring-bass-red/20 transition-all duration-200 shadow-md">
                         Cari
                     </button>
                     @if ($search)
@@ -108,14 +108,14 @@
                             @if ($search)
                                 <h3 class="text-2xl font-bold text-gray-900 mb-4">Tidak Ada Hasil</h3>
                                 <p class="text-lg text-gray-500 mb-8 max-w-md mx-auto">Tidak ada kursus yang cocok dengan kata kunci "<strong>{{ $search }}</strong>".</p>
-                                <a href="{{ route('courses.index') }}" class="inline-flex items-center px-8 py-4 bg-bass-red text-white font-semibold rounded-2xl hover:bg-[#B91818] focus:ring-4 focus:ring-red-200 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105">
+                                <a href="{{ route('courses.index') }}" class="inline-flex items-center px-8 py-4 bg-bass-red text-white font-semibold rounded-2xl hover:bg-bass-red-hover focus:ring-4 focus:ring-bass-red/20 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105">
                                     Lihat Semua Kursus
                                 </a>
                             @else
                                 <h3 class="text-2xl font-bold text-gray-900 mb-4">Belum Ada Kursus</h3>
                                 <p class="text-lg text-gray-500 mb-8 max-w-md mx-auto">Mulai perjalanan pembelajaran dengan membuat kursus pertama Anda!</p>
                                 @can('create', App\Models\Course::class)
-                                    <a href="{{ route('courses.create') }}" class="inline-flex items-center px-8 py-4 bg-bass-red text-white font-semibold rounded-2xl hover:bg-[#B91818] focus:ring-4 focus:ring-red-200 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105">
+                                    <a href="{{ route('courses.create') }}" class="inline-flex items-center px-8 py-4 bg-bass-red text-white font-semibold rounded-2xl hover:bg-bass-red-hover focus:ring-4 focus:ring-bass-red/20 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105">
                                         <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                         </svg>
@@ -128,7 +128,7 @@
                         <!-- Courses Grid -->
                         <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-8">
                             @foreach ($courses as $course)
-                                <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl border border-gray-200 overflow-hidden transition-all duration-500 hover:scale-[1.02] hover:border-red-200">
+                                <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl border border-gray-200 overflow-hidden transition-all duration-500 hover:scale-[1.02] hover:border-bass-red/30">
                                     <!-- Course Image -->
                                     <div class="relative overflow-hidden">
                                         @if ($course->thumbnail)
@@ -150,7 +150,7 @@
                                         <div class="absolute top-4 right-4">
                                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg
                                                 {{ $course->status === 'published' 
-                                                    ? 'bg-green-100 text-green-800 border border-green-200' 
+                                                    ? 'bg-success-soft text-success border border-success/20'
                                                     : 'bg-gray-100 text-gray-700 border border-gray-200' }}">
                                                 @if($course->status === 'published')
                                                     <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
@@ -199,7 +199,7 @@
                                         <div class="flex flex-wrap gap-2">
                                             <!-- View Button -->
                                             <a href="{{ route('courses.show', $course) }}" 
-                                               class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:ring-4 focus:ring-green-200 transition-all duration-200 shadow-md hover:shadow-lg">
+                                                class="inline-flex items-center px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-700 focus:ring-4 focus:ring-bass-red/20 transition-all duration-200 shadow-md hover:shadow-lg">
                                                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
@@ -236,7 +236,7 @@
                                                 <form action="{{ route('courses.destroy', $course) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kursus ini? Tindakan ini tidak dapat dibatalkan.');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 focus:ring-4 focus:ring-red-200 transition-all duration-200 shadow-md hover:shadow-lg">
+                                                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-error text-white text-sm font-medium rounded-lg hover:bg-error-dark focus:ring-4 focus:ring-error/20 transition-all duration-200 shadow-md hover:shadow-lg">
                                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                         </svg>

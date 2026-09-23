@@ -15,7 +15,7 @@
                 <p class="text-sm text-gray-600 mt-1">{{ $course->title }}</p>
             </div>
             <div class="hidden md:flex items-center space-x-3">
-                <div class="flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $course->status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                <div class="flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $course->status === 'published' ? 'bg-success-soft text-success' : 'bg-warning-soft text-gray-800' }}">
                     @if ($course->status === 'published')
                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -417,7 +417,7 @@
                                         Aktifkan Manajemen Kelas
                                     </label>
                                     <div class="ml-2 flex items-center gap-1 text-xs"
-                                         :class="enablePeriods ? 'text-green-600' : 'text-gray-400'">
+                                         :class="enablePeriods ? 'text-success' : 'text-gray-400'">
                                         <svg x-show="enablePeriods" style="display:none" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                         </svg>
@@ -477,7 +477,7 @@
                                             <div class="bg-white border border-gray-200 rounded-lg p-4">
                                                 <div class="flex items-center justify-between mb-3">
                                                     <h5 class="text-sm font-medium text-gray-900 flex items-center">
-                                                        <span x-show="period.id" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-2">
+                                                        <span x-show="period.id" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-soft text-success mr-2">
                                                             Tersimpan
                                                         </span>
                                                         <span x-show="!period.id" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-navy mr-2">

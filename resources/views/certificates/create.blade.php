@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex items-center space-x-4">
             <div class="flex-shrink-0">
-                <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                <div class="w-12 h-12 bg-navy rounded-xl flex items-center justify-center">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
                     </svg>
@@ -22,23 +22,23 @@
     <div class="py-8">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Success Banner -->
-            <div class="mb-8 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-700 rounded-2xl p-6">
+            <div class="mb-8 bg-success-soft dark:bg-success-soft border border-success/30 dark:border-success/30 rounded-2xl p-6">
                 <div class="flex items-start space-x-4">
                     <div class="flex-shrink-0">
                         <div class="w-10 h-10 bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
                         </div>
                     </div>
                     <div class="flex-1">
-                        <h3 class="text-lg font-semibold text-green-800 dark:text-green-300 mb-2">
+                        <h3 class="text-lg font-semibold text-success mb-2">
                             Selamat! Anda Berhasil Menyelesaikan Kursus
                         </h3>
-                        <p class="text-green-700 dark:text-green-400 text-base mb-3">
+                        <p class="text-success text-base mb-3">
                             <strong>{{ $course->title }}</strong>
                         </p>
-                        <p class="text-green-600 dark:text-green-400 text-sm">
+                        <p class="text-success text-sm">
                             Anda telah memenuhi semua syarat untuk mendapatkan sertifikat. Lengkapi data di bawah ini untuk menerbitkan sertifikat resmi Anda.
                         </p>
                     </div>
@@ -56,7 +56,7 @@
                         <div class="space-y-6">
                             <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
                                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
-                                    <svg class="w-5 h-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 text-navy mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                     </svg>
                                     Informasi Pribadi
@@ -89,7 +89,7 @@
                                             <input type="radio" name="gender" value="male" class="sr-only" {{ old('gender') === 'male' ? 'checked' : '' }}>
                                             <div class="flex items-center">
                                                 <div class="w-5 h-5 border-2 border-gray-300 dark:border-gray-500 rounded-full flex items-center justify-center mr-3 radio-custom">
-                                                    <div class="w-2.5 h-2.5 bg-blue-600 rounded-full opacity-0 radio-dot transition duration-200"></div>
+                                                    <div class="w-2.5 h-2.5 bg-bass-red rounded-full opacity-0 radio-dot transition duration-200"></div>
                                                 </div>
                                                 <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7c0-1.3 1.3-2 2-2s2 .7 2 2-1.3 2-2 2-2-.7-2-2zM6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"></path>
@@ -101,7 +101,7 @@
                                             <input type="radio" name="gender" value="female" class="sr-only" {{ old('gender') === 'female' ? 'checked' : '' }}>
                                             <div class="flex items-center">
                                                 <div class="w-5 h-5 border-2 border-gray-300 dark:border-gray-500 rounded-full flex items-center justify-center mr-3 radio-custom">
-                                                    <div class="w-2.5 h-2.5 bg-blue-600 rounded-full opacity-0 radio-dot transition duration-200"></div>
+                                                    <div class="w-2.5 h-2.5 bg-bass-red rounded-full opacity-0 radio-dot transition duration-200"></div>
                                                 </div>
                                                 <svg class="w-5 h-5 text-pink-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7c0-1.3 1.3-2 2-2s2 .7 2 2-1.3 2-2 2-2-.7-2-2zM6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"></path>
@@ -133,7 +133,7 @@
                         <div class="space-y-6">
                             <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
                                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
-                                    <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 text-navy mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                                     </svg>
                                     Informasi Profesional
@@ -181,7 +181,7 @@
                                             <input type="radio" name="occupation" value="{{ $job }}" class="sr-only" {{ $occ === $job ? 'checked' : '' }}>
                                             <div class="flex items-center w-full">
                                                 <div class="w-4 h-4 border-2 border-gray-300 dark:border-gray-500 rounded-full flex items-center justify-center mr-3 radio-custom">
-                                                    <div class="w-2 h-2 bg-blue-600 rounded-full opacity-0 radio-dot transition duration-200"></div>
+                                                    <div class="w-2 h-2 bg-bass-red rounded-full opacity-0 radio-dot transition duration-200"></div>
                                                 </div>
                                                 <span class="text-sm text-gray-900 dark:text-white font-medium">{{ $job }}</span>
                                             </div>
@@ -198,7 +198,7 @@
                                 <p class="text-sm text-gray-600 dark:text-gray-400">
                                     Pastikan semua data sudah benar sebelum menerbitkan sertifikat
                                 </p>
-                                <button type="submit" class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 border border-transparent rounded-xl font-semibold text-white hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition duration-200 transform hover:scale-105">
+                                <button type="submit" class="inline-flex items-center px-8 py-3 bg-bass-red hover:bg-bass-red-hover focus:outline-none focus:ring-2 focus:ring-bass-red focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition duration-200 transform hover:scale-105">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                     </svg>
@@ -215,7 +215,7 @@
     <style>
         /* Custom Radio Button Styling */
         input[type="radio"]:checked + .radio-custom {
-            border-color: #3B82F6;
+            border-color: #B91C1C;
         }
         
         input[type="radio"]:checked + .radio-custom .radio-dot {
@@ -223,8 +223,8 @@
         }
         
         input[type="radio"]:checked ~ .occupation-option {
-            border-color: #3B82F6;
-            background-color: #EFF6FF;
+            border-color: #B91C1C;
+            background-color: #FEE2E2;
         }
         
         .dark input[type="radio"]:checked ~ .occupation-option {

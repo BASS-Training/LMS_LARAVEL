@@ -7,7 +7,7 @@
         <div class="bg-white border-b-4 border-bass-red rounded-lg shadow-xl p-8 mb-8">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold mb-2 text-gray-900">🏆 Leaderboard</h1>
+                    <h1 class="text-3xl font-bold mb-2 text-gray-900">Leaderboard</h1>
                     <h2 class="text-xl text-gray-700">{{ $quiz->title }}</h2>
                     <p class="text-sm text-gray-600 mt-2">{{ $quiz->description }}</p>
                 </div>
@@ -49,20 +49,20 @@
 
                     {{-- 1st Place --}}
                     @if(isset($leaderboard[0]))
-                        <div class="bg-white border-4 border-[#F6C945] rounded-lg p-6 text-center shadow-xl">
-                            <div class="w-24 h-24 mx-auto bg-[#F6C945] rounded-full flex items-center justify-center mb-3 shadow-lg">
+                            <div class="bg-white border-4 border-bass-gold rounded-lg p-6 text-center shadow-xl">
+                            <div class="w-24 h-24 mx-auto bg-bass-gold rounded-full flex items-center justify-center mb-3 shadow-lg">
                                 <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
                                 </svg>
                             </div>
-                            <div class="w-20 h-20 mx-auto mb-3 bg-[#F6C945] rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-lg">
+                            <div class="w-20 h-20 mx-auto mb-3 bg-bass-gold rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-lg">
                                 {{ strtoupper(substr($leaderboard[0]['user']->name, 0, 1)) }}
                             </div>
                             <h3 class="font-bold text-xl text-gray-800 truncate">{{ $leaderboard[0]['user']->name }}</h3>
-                            <p class="text-3xl font-bold text-[#F6C945] mt-2">{{ $leaderboard[0]['percentage'] }}%</p>
+                            <p class="text-3xl font-bold text-bass-gold mt-2">{{ $leaderboard[0]['percentage'] }}%</p>
                             <p class="text-sm text-gray-700">{{ $leaderboard[0]['score'] }}/{{ $leaderboard[0]['total_marks'] }}</p>
                             @if($leaderboard[0]['duration'])
-                                <p class="text-xs text-gray-600 mt-1">⏱️ {{ $leaderboard[0]['duration'] }}</p>
+                                <p class="text-xs text-gray-600 mt-1">Durasi: {{ $leaderboard[0]['duration'] }}</p>
                             @endif
                         </div>
                     @endif
@@ -108,7 +108,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             @if($entry['rank'] == 1)
-                                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#F6C945] text-white font-bold shadow-md">
+                                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-bass-gold text-white font-bold shadow-md">
                                                     {{ $entry['rank'] }}
                                                 </span>
                                             @elseif($entry['rank'] == 2)
@@ -146,10 +146,10 @@
                                             <div class="w-24">
                                                 <div class="flex items-center">
                                                     <div class="w-full bg-gray-200 rounded-full h-2 mr-2">
-                                                        <div class="h-2 rounded-full {{ $entry['percentage'] >= 80 ? 'bg-green-500' : ($entry['percentage'] >= 60 ? 'bg-navy' : 'bg-yellow-500') }}"
+                                                        <div class="h-2 rounded-full {{ $entry['percentage'] >= 80 ? 'bg-success' : ($entry['percentage'] >= 60 ? 'bg-navy' : 'bg-warning') }}"
                                                              style="width: {{ $entry['percentage'] }}%"></div>
                                                     </div>
-                                                    <span class="text-sm font-semibold {{ $entry['percentage'] >= 80 ? 'text-green-600' : ($entry['percentage'] >= 60 ? 'text-navy' : 'text-yellow-600') }}">
+                                                    <span class="text-sm font-semibold {{ $entry['percentage'] >= 80 ? 'text-success' : ($entry['percentage'] >= 60 ? 'text-navy' : 'text-warning') }}">
                                                         {{ $entry['percentage'] }}%
                                                     </span>
                                                 </div>
@@ -158,12 +158,12 @@
                                     </td>
                                     <td class="px-6 py-4 text-center">
                                         @if($entry['passed'])
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                ✓ Lulus
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-soft text-success">
+                                                Lulus
                                             </span>
                                         @else
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                ✗ Tidak Lulus
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-error-soft text-error">
+                                                Tidak Lulus
                                             </span>
                                         @endif
                                     </td>
@@ -192,7 +192,7 @@
 
         {{-- Back Button --}}
         <div class="mt-8 text-center">
-            <a href="{{ url()->previous() }}" class="inline-flex items-center px-6 py-3 bg-navy hover:bg-[#243A52] text-white font-semibold rounded-lg shadow transition-colors">
+            <a href="{{ url()->previous() }}" class="inline-flex items-center px-6 py-3 bg-navy hover:bg-navy-light text-white font-semibold rounded-lg shadow transition-colors">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>

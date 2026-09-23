@@ -67,6 +67,7 @@ class CourseTest extends TestCase
             'description' => 'Updated description',
             'objectives' => 'Updated objectives',
             'status' => 'published',
+            'program_type' => 'regular',
         ];
 
         $response = $this->actingAs($user)->patch(route('courses.update', $course), $data);

@@ -43,7 +43,7 @@
                                 <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Gender</label>
                                 <p class="text-sm font-medium text-gray-900 mt-1">
                                     @if($user->gender)
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $user->gender == 'male' ? 'bg-blue-100 text-blue-800' : 'bg-pink-100 text-pink-800' }}">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $user->gender == 'male' ? 'bg-gray-100 text-gray-700' : 'bg-gray-200 text-gray-700' }}">
                                             {{ $user->gender == 'male' ? 'Laki-laki' : 'Perempuan' }}
                                         </span>
                                     @else
@@ -84,7 +84,7 @@
                 <!-- Right Column - Course Enrollment -->
                 <div class="lg:col-span-2">
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+                        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
                             <h3 class="text-lg font-bold text-gray-900">Kursus yang Diikuti</h3>
                             <p class="text-sm text-gray-600 mt-1">Total {{ $enrolledCourses->count() }} kursus</p>
                         </div>
@@ -118,7 +118,7 @@
                                             </div>
                                             <div>
                                                 <p class="text-xs text-gray-500 mb-1">Rata-rata</p>
-                                                <p class="text-lg font-bold {{ $progress['average_quiz_score'] >= 70 ? 'text-green-600' : 'text-orange-600' }}">
+                                                <p class="text-lg font-bold {{ $progress['average_quiz_score'] >= 70 ? 'text-success' : 'text-warning' }}">
                                                     {{ number_format($progress['average_quiz_score'], 1) }}%
                                                 </p>
                                             </div>
