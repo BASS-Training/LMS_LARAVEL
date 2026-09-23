@@ -5,7 +5,7 @@
                 {{ __('Manajemen Peran') }}
             </h2>
             {{-- PERBAIKAN: Arahkan ke route create yang benar --}}
-            <a href="{{ route('admin.roles.create') }}" class="px-4 py-2 bg-bass-red text-white rounded-lg hover:bg-bass-red-hover transition-colors">
+            <a href="{{ route('admin.roles.create') }}" class="inline-flex items-center h-9 px-4 shrink-0 whitespace-nowrap bg-bass-red hover:bg-bass-red-hover text-white text-sm font-medium rounded-lg border border-transparent transition-colors">
                 Buat Peran Baru
             </a>
         </div>
@@ -18,12 +18,12 @@
 
                     <div class="flex justify-between items-center mb-4">
                         <div class="text-lg font-semibold">{{ __('Daftar Role') }}</div>
-                        <div class="flex gap-2">
-                            <form action="{{ route('admin.tools.permissions.refresh') }}" method="POST" onsubmit="return confirm('Refresh permission cache sekarang?');">
+                        <div class="flex items-center gap-2">
+                            <form action="{{ route('admin.tools.permissions.refresh') }}" method="POST" class="contents" onsubmit="return confirm('Refresh permission cache sekarang?');">
                                 @csrf
-                                <button type="submit" class="px-3 py-2 bg-bass-red text-white rounded-lg hover:bg-bass-red-hover transition-colors text-sm">Refresh Permission Cache</button>
+                                <button type="submit" class="inline-flex items-center h-9 px-4 shrink-0 whitespace-nowrap bg-bass-red hover:bg-bass-red-hover text-white text-sm font-medium rounded-lg border border-transparent transition-colors">Refresh Permission Cache</button>
                             </form>
-                                <a href="{{ route('admin.tools.roles.export') }}" class="px-3 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition-colors text-sm">Export Role Matrix</a>
+                            <a href="{{ route('admin.tools.roles.export') }}" class="inline-flex items-center h-9 px-4 shrink-0 whitespace-nowrap bg-navy hover:bg-navy-light text-white text-sm font-medium rounded-lg border border-transparent transition-colors">Export Role Matrix</a>
                         </div>
                     </div>
 
@@ -55,16 +55,16 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <div class="flex space-x-2">
+                                            <div class="flex items-center gap-1">
                                                 {{-- PERBAIKAN: Arahkan ke route edit yang benar --}}
-                                                <a href="{{ route('admin.roles.edit', $role) }}" class="text-bass-red hover:text-bass-red-hover">Edit</a>
-                                                
+                                                <a href="{{ route('admin.roles.edit', $role) }}" class="inline-flex items-center gap-1 h-7 px-2.5 shrink-0 whitespace-nowrap border border-transparent text-xs font-medium text-navy bg-info-soft rounded-lg hover:bg-navy/10 transition-colors">Edit</a>
+
                                                 @if (!in_array($role->name, ['super-admin', 'instructor', 'participant', 'event-organizer']))
                                                     {{-- PERBAIKAN: Arahkan ke route destroy yang benar --}}
-                                                    <form action="{{ route('admin.roles.destroy', $role) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus peran ini?');">
+                                                    <form action="{{ route('admin.roles.destroy', $role) }}" method="POST" class="contents" onsubmit="return confirm('Apakah Anda yakin ingin menghapus peran ini?');">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="text-error hover:text-navy">Hapus</button>
+                                                        <button type="submit" class="inline-flex items-center gap-1 h-7 px-2.5 shrink-0 whitespace-nowrap border border-transparent text-xs font-medium text-error bg-error-soft rounded-lg hover:bg-error/20 transition-colors">Hapus</button>
                                                     </form>
                                                 @endif
                                             </div>
