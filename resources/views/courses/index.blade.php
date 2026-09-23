@@ -128,7 +128,7 @@
                         <!-- Courses Grid -->
                         <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-8">
                             @foreach ($courses as $course)
-                                <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl border border-gray-200 overflow-hidden transition-all duration-500 hover:scale-[1.02] hover:border-bass-red/30">
+                                <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl border border-gray-200 overflow-hidden transition-all duration-500 hover:scale-[1.02] hover:border-bass-red/30 flex flex-col">
                                     <!-- Course Image -->
                                     <div class="relative overflow-hidden">
                                         @if ($course->thumbnail)
@@ -168,7 +168,7 @@
                                     </div>
 
                                     <!-- Course Content -->
-                                    <div class="p-6">
+                                    <div class="p-6 flex flex-col flex-1">
                                         <div class="mb-4">
                                             <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-bass-red transition-colors duration-300 line-clamp-2">
                                                 {{ $course->title }}
@@ -196,10 +196,10 @@
                                         </div>
 
                                         <!-- Action Buttons -->
-                                        <div class="flex flex-wrap items-center gap-2">
+                                        <div class="mt-auto flex flex-wrap items-center gap-2 pt-1">
                                             <!-- View Button -->
                                             <a href="{{ route('courses.show', $course) }}"
-                                                class="inline-flex items-center gap-2 h-9 px-4 shrink-0 whitespace-nowrap bg-navy text-white text-sm font-medium rounded-lg border border-transparent hover:bg-navy-light focus:ring-4 focus:ring-bass-red/20 transition-all duration-200 shadow-md hover:shadow-lg">
+                                                class="inline-flex items-center gap-2 h-9 px-3 shrink-0 whitespace-nowrap bg-navy text-white text-sm font-medium rounded-lg border border-transparent hover:bg-navy-light focus:ring-4 focus:ring-bass-red/20 transition-all duration-200 shadow-md hover:shadow-lg">
                                                 <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
@@ -210,7 +210,7 @@
                                             <!-- Edit Button -->
                                             @can('update', $course)
                                                 <a href="{{ route('courses.edit', $course) }}"
-                                                    class="inline-flex items-center gap-2 h-9 px-4 shrink-0 whitespace-nowrap bg-warning text-white text-sm font-medium rounded-lg border border-transparent hover:bg-amber-600 focus:ring-4 focus:ring-warning/30 transition-all duration-200 shadow-md hover:shadow-lg">
+                                                    class="inline-flex items-center gap-2 h-9 px-3 shrink-0 whitespace-nowrap bg-warning text-white text-sm font-medium rounded-lg border border-transparent hover:bg-amber-600 focus:ring-4 focus:ring-warning/30 transition-all duration-200 shadow-md hover:shadow-lg">
                                                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                     </svg>
@@ -220,9 +220,9 @@
 
                                             <!-- Duplicate Button -->
                                             @can('duplicate', App\Models\Course::class)
-                                                <form action="{{ route('courses.duplicate', $course) }}" method="POST" class="m-0 flex shrink-0" onsubmit="return confirm('Anda yakin ingin menduplikasi kursus ini?');">
+                                                <form action="{{ route('courses.duplicate', $course) }}" method="POST" class="contents" onsubmit="return confirm('Anda yakin ingin menduplikasi kursus ini?');">
                                                     @csrf
-                                                    <button type="submit" class="inline-flex items-center gap-2 h-9 px-4 whitespace-nowrap bg-white text-gray-700 text-sm font-medium rounded-lg border border-gray-300 hover:bg-gray-50 focus:ring-4 focus:ring-gray-200 transition-all duration-200 shadow-md hover:shadow-lg">
+                                                    <button type="submit" class="inline-flex items-center gap-2 h-9 px-3 shrink-0 whitespace-nowrap bg-white text-gray-700 text-sm font-medium rounded-lg border border-gray-300 hover:bg-gray-50 focus:ring-4 focus:ring-gray-200 transition-all duration-200 shadow-md hover:shadow-lg">
                                                         <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                                         </svg>
@@ -233,10 +233,10 @@
 
                                             <!-- Delete Button -->
                                             @can('delete', $course)
-                                                <form action="{{ route('courses.destroy', $course) }}" method="POST" class="m-0 flex shrink-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kursus ini? Tindakan ini tidak dapat dibatalkan.');">
+                                                <form action="{{ route('courses.destroy', $course) }}" method="POST" class="contents" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kursus ini? Tindakan ini tidak dapat dibatalkan.');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="inline-flex items-center gap-2 h-9 px-4 whitespace-nowrap bg-bass-red text-white text-sm font-medium rounded-lg border border-transparent hover:bg-bass-red-hover focus:ring-4 focus:ring-bass-red/30 transition-all duration-200 shadow-md hover:shadow-lg">
+                                                    <button type="submit" class="inline-flex items-center gap-2 h-9 px-3 shrink-0 whitespace-nowrap bg-bass-red text-white text-sm font-medium rounded-lg border border-transparent hover:bg-bass-red-hover focus:ring-4 focus:ring-bass-red/30 transition-all duration-200 shadow-md hover:shadow-lg">
                                                         <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                         </svg>
