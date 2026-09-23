@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="bg-navy -mx-4 -my-2 px-4 py-8 sm:px-6 lg:px-8 rounded-2xl shadow-lg">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -232,13 +232,13 @@
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm font-medium text-gray-900">{{ number_format($stat['discussion_replies'] ?? 0) }}</div>
                                         @if(isset($stat['recent_discussions']) && $stat['recent_discussions'] > 0)
-                                            <div class="text-xs text-green-600">+{{ $stat['recent_discussions'] }} minggu ini</div>
+                                            <div class="text-xs text-success">+{{ $stat['recent_discussions'] }} minggu ini</div>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm font-medium text-gray-900">{{ number_format($stat['essay_graded'] ?? 0) }}</div>
                                         @if(isset($stat['recent_grading']) && $stat['recent_grading'] > 0)
-                                            <div class="text-xs text-green-600">+{{ $stat['recent_grading'] }} minggu ini</div>
+                                            <div class="text-xs text-success">+{{ $stat['recent_grading'] }} minggu ini</div>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
@@ -302,15 +302,15 @@
                 <h4 class="text-lg font-medium text-gray-900 mb-4">Keterangan Tingkat Aktivitas</h4>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="flex items-center">
-                        <div class="w-4 h-4 bg-green-500 rounded-full mr-2"></div>
+                        <div class="w-4 h-4 bg-success rounded-full mr-2"></div>
                         <span class="text-sm text-gray-700">Sangat Aktif (>20 aktivitas)</span>
                     </div>
                     <div class="flex items-center">
-                        <div class="w-4 h-4 bg-yellow-500 rounded-full mr-2"></div>
+                        <div class="w-4 h-4 bg-warning rounded-full mr-2"></div>
                         <span class="text-sm text-gray-700">Cukup Aktif (5-20 aktivitas)</span>
                     </div>
                     <div class="flex items-center">
-                        <div class="w-4 h-4 bg-red-500 rounded-full mr-2"></div>
+                        <div class="w-4 h-4 bg-error rounded-full mr-2"></div>
                         <span class="text-sm text-gray-700">Kurang Aktif (<5 aktivitas)</span>
                     </div>
                 </div>

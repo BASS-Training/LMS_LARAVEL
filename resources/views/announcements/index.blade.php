@@ -14,7 +14,7 @@
                     <p class="text-sm text-gray-600">Kelola dan pantau semua pengumuman terbaru</p>
                 </div>
             </div>
-            <a href="javascript:void(0)" onclick="window.history.back()" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-200 border border-gray-300 rounded-xl font-semibold text-sm text-gray-700 uppercase tracking-widest hover:from-gray-200 hover:to-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 shadow-sm hover:shadow-md">
+            <a href="javascript:void(0)" onclick="window.history.back()" class="inline-flex items-center px-6 py-3 bg-gray-100 border border-gray-300 rounded-xl font-semibold text-sm text-gray-700 uppercase tracking-widest hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-bass-red focus:ring-offset-2 transition-all duration-200 shadow-sm hover:shadow-md">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
@@ -111,7 +111,7 @@
                     <div class="space-y-4">
                         @forelse($announcements as $announcement)
                             <a href="{{ route('announcements.show', $announcement) }}" class="group block">
-                                <div class="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-2xl p-6 hover:shadow-lg hover:border-bass-red transition-all duration-300 transform hover:-translate-y-1">
+                                <div class="bg-gray-50 border border-gray-200 rounded-2xl p-6 hover:shadow-lg hover:border-bass-red transition-all duration-300 transform hover:-translate-y-1">
                                     <div class="flex items-start justify-between">
                                         <div class="flex-1 min-w-0">
                                             <div class="flex items-center space-x-3 mb-3">
@@ -193,7 +193,7 @@
                             </a>
                         @empty
                             <div class="text-center py-16">
-                                <div class="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                                <div class="w-32 h-32 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
                                     <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
                                     </svg>

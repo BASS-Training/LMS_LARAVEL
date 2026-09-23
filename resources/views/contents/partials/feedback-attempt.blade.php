@@ -26,13 +26,13 @@
 
     {{-- Aksi instruktur: lihat ringkasan hasil --}}
     @if($fbCanManage)
-        <div class="flex items-center justify-between bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+        <div class="flex items-center justify-between bg-navy/5 border border-navy/10 rounded-xl px-4 py-3">
             <div class="text-sm text-gray-700">
                 <span class="font-semibold">Mode pengelola.</span>
                 Anda bisa melihat ringkasan tanggapan peserta.
             </div>
             <a href="{{ route('feedback.results', $content) }}"
-               class="inline-flex items-center gap-2 px-4 py-2 bg-bass-red hover:bg-[#B91818] text-white text-sm font-semibold rounded-lg">
+               class="inline-flex items-center gap-2 px-4 py-2 bg-navy hover:bg-navy-light text-white text-sm font-semibold rounded-lg">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h10l4 4v12a2 2 0 01-2 2z"/>
                 </svg>
@@ -47,7 +47,7 @@
         </div>
     @else
         @if($fbAlreadySubmitted)
-            <div class="flex items-center gap-2 bg-green-50 border border-green-200 text-green-800 rounded-xl px-4 py-3 text-sm">
+            <div class="flex items-center gap-2 bg-success-soft border border-success/40 text-success rounded-xl px-4 py-3 text-sm">
                 <span class="text-lg">✓</span>
                 <span>Anda sudah mengirim tanggapan. Anda masih bisa mengubahnya selama form terbuka.</span>
             </div>
@@ -74,7 +74,7 @@
                         <div>
                             <p class="font-semibold text-gray-900">
                                 {{ $q->question }}
-                                @if($q->is_required)<span class="text-red-500">*</span>@endif
+                                @if($q->is_required)<span class="text-bass-red">*</span>@endif
                             </p>
                             @if($q->help_text)
                                 <p class="text-xs text-gray-500 mt-0.5">{{ $q->help_text }}</p>
@@ -91,7 +91,7 @@
                                 @for($i = 1; $i <= $max; $i++)
                                     <button type="button" @click="val = {{ $i }}"
                                             class="text-3xl leading-none transition-transform hover:scale-110 focus:outline-none"
-                                            :class="val >= {{ $i }} ? 'text-amber-400' : 'text-gray-300'">★</button>
+                                            :class="val >= {{ $i }} ? 'text-bass-gold' : 'text-gray-300'">★</button>
                                 @endfor
                                 <span class="ml-3 text-sm text-gray-500" x-text="val ? (val + ' / {{ $max }}') : 'Belum dipilih'"></span>
                             </div>
@@ -135,7 +135,7 @@
                     @else
                         <div class="pl-6">
                             <textarea name="answers[{{ $q->id }}]" rows="3"
-                                      class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-bass-red focus:ring-2 focus:ring-red-100"
+                                      class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-bass-red focus:ring-2 focus:ring-bass-red/50"
                                       placeholder="Tulis jawaban Anda...">{{ $ans->text_value ?? '' }}</textarea>
                         </div>
                     @endif
@@ -144,7 +144,7 @@
 
             <div class="flex justify-end">
                 <button type="submit"
-                        class="inline-flex items-center px-8 py-3 bg-bass-red hover:bg-[#B91818] text-white font-semibold rounded-xl shadow-lg">
+                        class="inline-flex items-center px-8 py-3 bg-bass-red hover:bg-bass-red-hover text-white font-semibold rounded-xl shadow-lg">
                     {{ $fbAlreadySubmitted ? 'Perbarui Tanggapan' : 'Kirim Tanggapan' }}
                 </button>
             </div>

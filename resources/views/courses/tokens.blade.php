@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
@@ -40,14 +40,14 @@
             @endif
 
             @if($errors->any())
-                <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                <div class="mb-6 bg-error-soft border-l-4 border-error p-4 rounded-lg">
                     <div class="flex">
-                        <svg class="w-5 h-5 text-red-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                        <svg class="w-5 h-5 text-error mr-3" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
                         </svg>
                         <div>
                             @foreach($errors->all() as $error)
-                                <p class="text-sm font-medium text-red-800">{{ $error }}</p>
+                                <p class="text-sm font-medium text-error">{{ $error }}</p>
                             @endforeach
                         </div>
                     </div>
@@ -125,7 +125,7 @@
                                     </svg>
                                     Kadaluarsa: <strong>{{ $course->token_expires_at->format('d M Y H:i') }}</strong>
                                     @if($course->token_expires_at->isPast())
-                                        <span class="text-red-600 font-semibold">(Sudah Kadaluarsa)</span>
+                                        <span class="text-error font-semibold">(Sudah Kadaluarsa)</span>
                                     @endif
                                 </p>
                             @endif
@@ -219,7 +219,7 @@
                                             @if($class->status === 'active') bg-success-soft text-success
                                             @elseif($class->status === 'upcoming') bg-info-soft text-navy
                                             @elseif($class->status === 'completed') bg-gray-100 text-gray-800
-                                            @else bg-red-100 text-red-800 @endif">
+                                            @else bg-error-soft text-error @endif">
                                             {{ ucfirst($class->status) }}
                                         </span>
                                     </div>

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Verifikasi Pembayaran')
 
@@ -19,7 +19,7 @@
         </div>
     @endif
     @if ($errors->has('verify'))
-        <div class="mb-5 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+        <div class="mb-5 rounded-lg bg-error-soft border border-error/40 px-4 py-3 text-sm text-error">
             {{ $errors->first('verify') }}
         </div>
     @endif
@@ -28,7 +28,7 @@
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
             <h2 class="font-semibold text-gray-900">Menunggu verifikasi</h2>
-            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-warning-soft text-warning">
                 {{ $orders->total() }} pesanan
             </span>
         </div>

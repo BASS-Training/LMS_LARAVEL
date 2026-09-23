@@ -5,10 +5,10 @@
                 {{ __('Buat Template Sertifikat Baru - Editor Lanjutan') }}
             </h2>
             <div class="flex space-x-2">
-                <button id="preview-btn" class="px-4 py-2 bg-bass-red text-white rounded-xl hover:bg-[#B91818] transition">
+                <button id="preview-btn" class="px-4 py-2 bg-bass-red text-white rounded-xl hover:bg-bass-red-hover transition">
                     <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Pratinjau
                 </button>
-                <button id="save-btn" class="px-4 py-2 bg-green-500 text-white rounded-xl hover:bg-green-600 transition">
+                <button id="save-btn" class="px-4 py-2 bg-success text-white rounded-xl hover:bg-success transition">
                     <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>Simpan Template
                 </button>
             </div>
@@ -56,19 +56,19 @@
                                         <div class="flex items-center">
                                             <svg class="w-5 h-5 text-bass-red mr-3 text-xl" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
                                             <div>
-                                                <div class="font-medium text-[#B91818]">Sertifikat Klasik</div>
+                                                <div class="font-medium text-bass-red">Sertifikat Klasik</div>
                                                 <div class="text-xs text-bass-red">Desain tradisional dengan border elegan</div>
                                             </div>
                                         </div>
                                     </button>
 
-                                    <button class="template-preset w-full text-left p-3 bg-green-50 hover:bg-green-100 rounded border-2 border-green-200 hover:border-green-400 transition"
+                                    <button class="template-preset w-full text-left p-3 bg-success-soft hover:bg-success-soft rounded border-2 border-success/40 hover:border-green-400 transition"
                                             data-template="modern">
                                         <div class="flex items-center">
-                                            <svg class="w-5 h-5 text-green-500 mr-3 text-xl" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0016.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.015 6.015 0 01-1.77.685m0 0c-1.357 0-2.652-.496-3.618-1.383"/></svg>
+                                            <svg class="w-5 h-5 text-success mr-3 text-xl" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0016.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.015 6.015 0 01-1.77.685m0 0c-1.357 0-2.652-.496-3.618-1.383"/></svg>
                                             <div>
-                                                <div class="font-medium text-green-700">Desain Modern</div>
-                                                <div class="text-xs text-green-600">Tata letak bersih dan kontemporer</div>
+                                                <div class="font-medium text-success">Desain Modern</div>
+                                                <div class="text-xs text-success">Tata letak bersih dan kontemporer</div>
                                             </div>
                                         </div>
                                     </button>
@@ -331,8 +331,8 @@
                         </div>
 
                         <div class="template-option border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-green-400 transition" data-template="modern">
-                            <div class="aspect-w-16 aspect-h-9 bg-green-50 rounded mb-3 flex items-center justify-center">
-                                <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0016.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.015 6.015 0 01-1.77.685m0 0c-1.357 0-2.652-.496-3.618-1.383"/></svg>
+                            <div class="aspect-w-16 aspect-h-9 bg-success-soft rounded mb-3 flex items-center justify-center">
+                                <svg class="w-10 h-10 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0016.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.015 6.015 0 01-1.77.685m0 0c-1.357 0-2.652-.496-3.618-1.383"/></svg>
                             </div>
                             <h4 class="font-semibold text-gray-800">Desain Modern</h4>
                             <p class="text-sm text-gray-600">Tata letak bersih dan kontemporer dengan elemen minimal</p>
@@ -359,7 +359,7 @@
                         <a href="{{ route('admin.certificate-templates.index') }}" class="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50">
                             Batal
                         </a>
-                        <button id="start-editing" class="px-6 py-2 bg-bass-red text-white rounded-xl hover:bg-[#B91818] transition" disabled>
+                        <button id="start-editing" class="px-6 py-2 bg-bass-red text-white rounded-xl hover:bg-bass-red-hover transition" disabled>
                             Mulai Mengedit
                         </button>
                     </div>

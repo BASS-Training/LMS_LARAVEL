@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="bg-navy -mx-4 -my-2 px-4 py-8 sm:px-6 lg:px-8 rounded-2xl shadow-lg">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -110,13 +110,13 @@
                     <div class="flex-1 min-w-64">
                         <input type="text" name="search" value="{{ request('search') }}" 
                                placeholder="Cari nama peserta..." 
-                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red">
                     </div>
                     
                     <!-- Filter by Course -->
                     <div class="flex-1 min-w-64">
                         <select name="course_id" 
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red">
                             <option value="">Semua Kursus</option>
                             @foreach($courses as $course)
                                 <option value="{{ $course->id }}" {{ request('course_id') == $course->id ? 'selected' : '' }}>
@@ -129,7 +129,7 @@
                     <!-- Submit Button -->
                     <div class="flex gap-2">
                         <button type="submit" 
-                                class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
+                                class="bg-bass-red hover:bg-bass-red-hover text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
                             Cari
                         </button>
                         <a href="{{ route('certificate-management.index') }}" 
@@ -185,7 +185,7 @@
                             Update Template
                         </button>
                         <button onclick="bulkAction('delete')"
-                                class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
+                                class="bg-neutral-900 hover:bg-black text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
                             <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             Hapus Terpilih
                         </button>
@@ -222,18 +222,18 @@
 
                 <!-- Bulk Update Progress Indicator -->
                 <div id="bulk-update-progress" style="display: none;" class="mt-4">
-                    <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                    <div class="bg-warning-soft border border-warning/40 rounded-md p-4">
                         <div class="flex items-center">
-                            <svg class="animate-spin h-5 w-5 text-yellow-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <svg class="animate-spin h-5 w-5 text-warning mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            <span class="text-yellow-800 font-medium" id="bulk-update-text">Memproses update template...</span>
+                            <span class="text-warning font-medium" id="bulk-update-text">Memproses update template...</span>
                         </div>
-                        <div class="mt-2 w-full bg-yellow-200 rounded-full h-2">
-                            <div id="bulk-update-bar" class="bg-yellow-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        <div class="mt-2 w-full bg-warning-soft rounded-full h-2">
+                            <div id="bulk-update-bar" class="bg-warning h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
                         </div>
-                        <p class="text-xs text-yellow-700 mt-2">
+                        <p class="text-xs text-warning mt-2">
                             Proses berjalan di background. Anda bisa menunggu di halaman ini.
                         </p>
                     </div>
@@ -254,7 +254,7 @@
                         @endif
                     </h3>
                     <div class="flex items-center">
-                        <input type="checkbox" id="select-all" class="rounded border-gray-300 text-red-600 shadow-sm focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
+                        <input type="checkbox" id="select-all" class="rounded border-gray-300 text-bass-red shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red/50 focus:ring-opacity-50">
                         <label for="select-all" class="ml-2 text-sm text-gray-600">
                             Pilih Semua
                             <span class="text-xs text-gray-400">(semua halaman)</span>
@@ -270,7 +270,7 @@
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
                                     <input type="checkbox" name="certificate_ids[]" value="{{ $certificate->id }}" 
-                                           class="certificate-checkbox rounded border-gray-300 text-red-600 shadow-sm focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
+                                           class="certificate-checkbox rounded border-gray-300 text-bass-red shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red/50 focus:ring-opacity-50">
                                     <div class="ml-4">
                                         <div class="flex items-center">
                                             <div class="text-sm font-medium text-gray-900">
@@ -327,8 +327,7 @@
                                     
                                     <button onclick="deleteCertificate({{ $certificate->id }})" 
                                             class="bg-error-soft hover:bg-error/20 text-error font-medium py-1 px-3 rounded text-sm transition duration-150 ease-in-out"
-                                            title="Hapus Sertifikat">
-                                        Hapus
+                                            title="Hapus Sertifikat">Hapus
                                     </button>
                                 </div>
                             </div>
@@ -391,7 +390,7 @@
                         Pilih Template Baru (Opsional)
                     </label>
                     <select name="certificate_template_id" id="certificate_template_id" 
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red">
                         <option value="">-- Gunakan template yang sama --</option>
                         @foreach($templates as $template)
                             <option value="{{ $template->id }}">{{ $template->name }}</option>
@@ -443,7 +442,7 @@
                     Pilih Template Baru (Opsional)
                 </label>
                 <select id="bulk_certificate_template_id"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red">
                     <option value="">-- Gunakan template yang sama --</option>
                     @foreach($templates as $template)
                         <option value="{{ $template->id }}">{{ $template->name }}</option>

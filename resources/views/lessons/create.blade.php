@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <div>
@@ -24,7 +24,7 @@
                             <label for="title" class="block text-sm font-medium text-gray-700">Judul Pelajaran</label>
                             <input type="text" name="title" id="title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red focus:ring-opacity-50" value="{{ old('title') }}" required autofocus>
                             @error('title')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <p class="text-error text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -32,7 +32,7 @@
                             <label for="description" class="block text-sm font-medium text-gray-700">Deskripsi Pelajaran (Opsional)</label>
                             <textarea name="description" id="description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red focus:ring-opacity-50">{{ old('description') }}</textarea>
                             @error('description')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <p class="text-error text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -48,7 +48,7 @@
                                 @endforeach
                             </select>
                             @error('prerequisite_id')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <p class="text-error text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -56,7 +56,7 @@
                             <label for="order" class="block text-sm font-medium text-gray-700">Urutan (Opsional, Default ke Akhir)</label>
                             <input type="number" name="order" id="order" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red focus:ring-opacity-50" value="{{ old('order') }}">
                             @error('order')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <p class="text-error text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -68,7 +68,7 @@
                         </div>
 
                         <div class="flex items-center justify-end mt-6">
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-bass-red border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#B91818] focus:bg-[#B91818] active:bg-[#8C1515] focus:outline-none focus:ring-2 focus:ring-bass-red focus:ring-offset-2 transition ease-in-out duration-150">
+                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-bass-red border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-bass-red-hover focus:bg-bass-red-hover active:bg-[#8C1515] focus:outline-none focus:ring-2 focus:ring-bass-red focus:ring-offset-2 transition ease-in-out duration-150">
                                 {{ __('Simpan Pelajaran') }}
                             </button>
                         </div>

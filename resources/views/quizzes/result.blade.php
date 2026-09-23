@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="quiz-result-header text-white py-8 -mx-6 -mt-6 mb-6">
             <div class="px-6">
@@ -317,7 +317,7 @@
                                     @foreach($leaderboard as $entry)
                                         @php
                                             $isCurrentUser = $entry['user']->id === Auth::id();
-                                            $medalColors = ['text-bass-gold', 'text-gray-400', 'text-amber-600'];
+                                            $medalColors = ['text-bass-gold', 'text-gray-400', 'text-warning'];
                                             $medalColor = $medalColors[$entry['rank'] - 1] ?? 'text-gray-400';
                                         @endphp
                                         <div class="flex items-center justify-between p-3 rounded-lg {{ $isCurrentUser ? 'bg-bass-red-soft border-2 border-bass-red' : 'bg-white' }}">

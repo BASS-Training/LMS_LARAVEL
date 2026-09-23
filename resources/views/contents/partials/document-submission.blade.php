@@ -53,7 +53,7 @@
                     <p class="text-lg font-semibold text-gray-900 mt-1">{{ $totalSubs }} peserta telah mengumpulkan</p>
                 </div>
                 <a href="{{ route('document-submissions.index', $content) }}"
-                   class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-bass-red text-white text-sm font-semibold hover:bg-[#B91818] shadow">
+                   class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-bass-red text-white text-sm font-semibold hover:bg-bass-red-hover shadow">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-3-3v6m7 5H5a2 2 0 01-2-2V6a2 2 0 012-2h4l2 2h8a2 2 0 012 2v10a2 2 0 01-2 2z"/>
                     </svg>
@@ -64,18 +64,18 @@
         <div class="p-6 lg:p-8 space-y-5">
             {{-- Flash --}}
             @if(session('success'))
-                <div class="rounded-xl bg-green-50 border border-green-200 text-green-800 px-4 py-3 text-sm">{{ session('success') }}</div>
+                <div class="rounded-xl bg-success-soft border border-success/40 text-success px-4 py-3 text-sm">{{ session('success') }}</div>
             @endif
             @if(session('error'))
-                <div class="rounded-xl bg-red-50 border border-red-200 text-red-800 px-4 py-3 text-sm">{{ session('error') }}</div>
+                <div class="rounded-xl bg-error-soft border border-error/40 text-error px-4 py-3 text-sm">{{ session('error') }}</div>
             @endif
             @error('file')
-                <div class="rounded-xl bg-red-50 border border-red-200 text-red-800 px-4 py-3 text-sm">{{ $message }}</div>
+                <div class="rounded-xl bg-error-soft border border-error/40 text-error px-4 py-3 text-sm">{{ $message }}</div>
             @enderror
 
             {{-- Instruksi tugas --}}
             @if($content->submission_instructions)
-                <div class="rounded-xl bg-red-50 border border-red-100 p-4">
+                <div class="rounded-xl bg-bass-red-soft border border-bass-red/20 p-4">
                     <p class="text-xs font-semibold text-bass-red uppercase tracking-wide mb-1">Instruksi</p>
                     <p class="text-sm text-gray-700 whitespace-pre-line">{{ $content->submission_instructions }}</p>
                 </div>
@@ -83,7 +83,7 @@
 
             {{-- Info: konten terkunci sampai lulus (bila diaktifkan admin & belum lulus) --}}
             @if($content->require_submission_pass && !$isPassed)
-                <div class="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-2.5 text-sm text-gray-700">
+                <div class="flex items-center gap-2 rounded-xl bg-bass-red-soft border border-bass-red/20 px-4 py-2.5 text-sm text-gray-700">
                     <svg class="w-4 h-4 flex-shrink-0 text-bass-red" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                         <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
                     </svg>
@@ -93,35 +93,35 @@
 
             {{-- Status banner --}}
             @if($isWaiting)
-                <div class="flex items-start gap-3 rounded-xl bg-amber-50 border border-amber-200 p-4">
-                    <svg class="w-6 h-6 flex-shrink-0 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <div class="flex items-start gap-3 rounded-xl bg-warning-soft border border-warning/40 p-4">
+                    <svg class="w-6 h-6 flex-shrink-0 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                     <div>
-                        <p class="font-semibold text-amber-800">Menunggu penilaian</p>
-                        <p class="text-sm text-amber-700">Tugas Anda (percobaan ke-{{ $latest->attempt }}) sudah dikumpulkan dan sedang menunggu penilaian instruktur.</p>
+                        <p class="font-semibold text-warning">Menunggu penilaian</p>
+                        <p class="text-sm text-gray-600">Tugas Anda (percobaan ke-{{ $latest->attempt }}) sudah dikumpulkan dan sedang menunggu penilaian instruktur.</p>
                     </div>
                 </div>
             @elseif($isPassed)
-                <div class="flex items-start gap-3 rounded-xl bg-green-50 border border-green-200 p-4">
-                    <svg class="w-6 h-6 flex-shrink-0 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <div class="flex items-start gap-3 rounded-xl bg-success-soft border border-success/40 p-4">
+                    <svg class="w-6 h-6 flex-shrink-0 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                     <div>
-                        <p class="font-semibold text-green-800">Lulus @if($latest->score !== null && $content->isScoringEnabled())<span class="font-normal">— Nilai: {{ $latest->score }}</span>@endif</p>
-                        <p class="text-sm text-green-700">Selamat! Tugas Anda telah dinilai lulus.</p>
-                        @if($latest->feedback)<p class="text-sm text-green-800 mt-2"><span class="font-semibold">Feedback:</span> {{ $latest->feedback }}</p>@endif
+                        <p class="font-semibold text-success">Lulus @if($latest->score !== null && $content->isScoringEnabled())<span class="font-normal">— Nilai: {{ $latest->score }}</span>@endif</p>
+                        <p class="text-sm text-gray-600">Selamat! Tugas Anda telah dinilai lulus.</p>
+                        @if($latest->feedback)<p class="text-sm text-gray-700 mt-2"><span class="font-semibold">Feedback:</span> {{ $latest->feedback }}</p>@endif
                     </div>
                 </div>
             @elseif($isFailed)
-                <div class="flex items-start gap-3 rounded-xl bg-red-50 border border-red-200 p-4">
-                    <svg class="w-6 h-6 flex-shrink-0 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <div class="flex items-start gap-3 rounded-xl bg-error-soft border border-error/40 p-4">
+                    <svg class="w-6 h-6 flex-shrink-0 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                     </svg>
                     <div>
-                        <p class="font-semibold text-red-800">Belum lulus @if($latest->score !== null && $content->isScoringEnabled())<span class="font-normal">— Nilai: {{ $latest->score }}</span>@endif</p>
-                        <p class="text-sm text-red-700">Percobaan ke-{{ $latest->attempt }} belum lulus. Silakan perbaiki dan unggah percobaan berikutnya.</p>
-                        @if($latest->feedback)<p class="text-sm text-red-800 mt-2"><span class="font-semibold">Catatan revisi:</span> {{ $latest->feedback }}</p>@endif
+                        <p class="font-semibold text-error">Belum lulus @if($latest->score !== null && $content->isScoringEnabled())<span class="font-normal">— Nilai: {{ $latest->score }}</span>@endif</p>
+                        <p class="text-sm text-gray-600">Percobaan ke-{{ $latest->attempt }} belum lulus. Silakan perbaiki dan unggah percobaan berikutnya.</p>
+                        @if($latest->feedback)<p class="text-sm text-gray-700 mt-2"><span class="font-semibold">Catatan revisi:</span> {{ $latest->feedback }}</p>@endif
                     </div>
                 </div>
             @endif
@@ -130,7 +130,7 @@
             @if($isDraft && $hasFile)
                 <div class="flex items-center justify-between gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
                     <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-10 h-10 flex-shrink-0 rounded-lg bg-red-50 text-bass-red flex items-center justify-center">
+                        <div class="w-10 h-10 flex-shrink-0 rounded-lg bg-bass-red-soft text-bass-red flex items-center justify-center">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                         </div>
                         <div class="min-w-0">
@@ -142,7 +142,7 @@
                         <a href="{{ route('document-submissions.download', [$content, $latest]) }}" class="text-sm text-bass-red hover:underline">Unduh</a>
                         <form method="POST" action="{{ route('document-submissions.remove-file', $content) }}" onsubmit="return confirm('Hapus file ini?')">
                             @csrf @method('DELETE')
-                            <button type="submit" class="text-sm text-red-600 hover:underline">Hapus</button>
+                            <button type="submit" class="text-sm text-neutral-900 font-medium hover:underline">Hapus</button>
                         </form>
                     </div>
                 </div>
@@ -163,10 +163,10 @@
                             @endif
                         </span>
                         <input type="file" name="file" required accept="{{ $acceptAttr }}"
-                               class="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-bass-red file:text-white hover:file:bg-[#B91818] cursor-pointer">
+                               class="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-bass-red file:text-white hover:file:bg-bass-red-hover cursor-pointer">
                     </label>
                     <p class="text-xs text-gray-500">Tipe: {{ strtoupper(str_replace(',', ', ', $allowedTypes)) }} • Maks {{ $maxMb }} MB</p>
-                    <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-bass-red text-white text-sm font-semibold hover:bg-[#B91818]">
+                    <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-bass-red text-white text-sm font-semibold hover:bg-bass-red-hover">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
                         {{ $hasFile && $isDraft ? 'Ganti File' : 'Unggah' }}
                     </button>
@@ -178,7 +178,7 @@
                 <form method="POST" action="{{ route('document-submissions.submit', $content) }}"
                       onsubmit="return confirm('Kumpulkan tugas ini? Setelah dikumpulkan tidak bisa diubah sampai dinilai.')">
                     @csrf
-                    <button type="submit" class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 shadow-lg">
+                    <button type="submit" class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-success text-white font-semibold hover:bg-success/90 shadow-lg">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                         Kumpulkan Tugas
                     </button>
@@ -198,9 +198,9 @@
                         @foreach($history->sortByDesc('attempt') as $sub)
                             @php
                                 $badge = match($sub->status) {
-                                    'passed' => ['Lulus', 'bg-green-100 text-green-700'],
-                                    'failed' => ['Belum lulus', 'bg-red-100 text-red-700'],
-                                    default  => ['Menunggu', 'bg-amber-100 text-amber-700'],
+                                    'passed' => ['Lulus', 'bg-success-soft text-success'],
+                                    'failed' => ['Belum lulus', 'bg-error-soft text-error'],
+                                    default  => ['Menunggu', 'bg-warning-soft text-warning'],
                                 };
                             @endphp
                             <div class="rounded-lg border border-gray-200 p-3">

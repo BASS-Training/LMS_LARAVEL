@@ -1,11 +1,11 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Manajemen Peran') }}
             </h2>
             {{-- PERBAIKAN: Arahkan ke route create yang benar --}}
-            <a href="{{ route('admin.roles.create') }}" class="px-4 py-2 bg-bass-red text-white rounded-lg hover:bg-[#B91818] transition-colors">
+            <a href="{{ route('admin.roles.create') }}" class="px-4 py-2 bg-bass-red text-white rounded-lg hover:bg-bass-red-hover transition-colors">
                 Buat Peran Baru
             </a>
         </div>
@@ -21,17 +21,17 @@
                         <div class="flex gap-2">
                             <form action="{{ route('admin.tools.permissions.refresh') }}" method="POST" onsubmit="return confirm('Refresh permission cache sekarang?');">
                                 @csrf
-                                <button type="submit" class="px-3 py-2 bg-bass-red text-white rounded-lg hover:bg-[#B91818] transition-colors text-sm">Refresh Permission Cache</button>
+                                <button type="submit" class="px-3 py-2 bg-bass-red text-white rounded-lg hover:bg-bass-red-hover transition-colors text-sm">Refresh Permission Cache</button>
                             </form>
                                 <a href="{{ route('admin.tools.roles.export') }}" class="px-3 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition-colors text-sm">Export Role Matrix</a>
                         </div>
                     </div>
 
                     @if (session('success'))
-                        <div class="mb-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">{{ session('success') }}</div>
+                        <div class="mb-4 p-4 text-sm text-success bg-success-soft rounded-lg" role="alert">{{ session('success') }}</div>
                     @endif
                      @if (session('error'))
-                        <div class="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">{{ session('error') }}</div>
+                        <div class="mb-4 p-4 text-sm text-error bg-error-soft rounded-lg" role="alert">{{ session('error') }}</div>
                     @endif
 
                     <div class="overflow-x-auto">
@@ -57,14 +57,14 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex space-x-2">
                                                 {{-- PERBAIKAN: Arahkan ke route edit yang benar --}}
-                                                <a href="{{ route('admin.roles.edit', $role) }}" class="text-bass-red hover:text-[#B91818]">Edit</a>
+                                                <a href="{{ route('admin.roles.edit', $role) }}" class="text-bass-red hover:text-bass-red-hover">Edit</a>
                                                 
                                                 @if (!in_array($role->name, ['super-admin', 'instructor', 'participant', 'event-organizer']))
                                                     {{-- PERBAIKAN: Arahkan ke route destroy yang benar --}}
                                                     <form action="{{ route('admin.roles.destroy', $role) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus peran ini?');">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
+                                                        <button type="submit" class="text-error hover:text-navy">Hapus</button>
                                                     </form>
                                                 @endif
                                             </div>

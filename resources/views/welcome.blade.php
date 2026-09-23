@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
@@ -34,7 +34,7 @@
                             </p>
 
                             <div class="mt-10 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                                <a href="{{ route('register') }}" class="w-full sm:w-auto rounded-lg px-8 py-3 text-lg font-semibold text-white bg-bass-red hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bass-red transition-transform hover:scale-105">
+                                <a href="{{ route('register') }}" class="w-full sm:w-auto rounded-lg px-8 py-3 text-lg font-semibold text-white bg-bass-red hover:bg-bass-red-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bass-red transition-transform hover:scale-105">
                                     Daftar Sekarang
                                 </a>
                                 <a href="{{ route('login') }}" class="w-full sm:w-auto rounded-lg px-8 py-3 text-lg font-semibold text-bass-red bg-white border border-gray-300 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bass-red transition-transform hover:scale-105">

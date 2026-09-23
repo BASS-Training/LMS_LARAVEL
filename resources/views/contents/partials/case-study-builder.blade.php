@@ -8,7 +8,7 @@
         allowDownload: @js((bool)($content->allow_answer_download ?? false)),
         reviewMode: @js($content->exists && $content->type === 'case_study' ? (!($content->requires_review ?? true) ? 'no_review' : (!($content->scoring_enabled ?? true) ? 'feedback_only' : 'scoring')) : 'scoring'),
      })"
-     class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-100 space-y-6">
+     class="bg-navy/5 rounded-xl p-6 border border-navy/10 space-y-6">
 
     {{-- hidden payloads --}}
     <input type="hidden" name="case_study_template" :value="templateJson()">
@@ -22,26 +22,26 @@
             <p class="text-sm text-gray-600">Susun Bab, Subbab, dan Tabel. Peserta akan mengisi sesuai template ini.</p>
         </div>
         <button type="button" @click="addSection(1)"
-                class="inline-flex items-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold rounded-lg shadow">
+                class="inline-flex items-center px-4 py-2 bg-bass-red hover:bg-bass-red-hover text-white text-sm font-semibold rounded-lg shadow">
             + Tambah Bab
         </button>
     </div>
 
     {{-- Pengaturan penilaian & download --}}
-    <div class="bg-white rounded-lg border border-amber-200 p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-white rounded-lg border border-gray-200 p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
             <h4 class="text-sm font-semibold text-gray-800 mb-2">Model Penilaian</h4>
             <div class="space-y-2 text-sm">
                 <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" value="scoring" x-model="reviewMode" class="text-amber-600 focus:ring-amber-500">
+                    <input type="radio" value="scoring" x-model="reviewMode" class="text-bass-red focus:ring-bass-red">
                     <span>Skor + Feedback (dinilai instruktur)</span>
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" value="feedback_only" x-model="reviewMode" class="text-amber-600 focus:ring-amber-500">
+                    <input type="radio" value="feedback_only" x-model="reviewMode" class="text-bass-red focus:ring-bass-red">
                     <span>Hanya Feedback (tanpa skor)</span>
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" value="no_review" x-model="reviewMode" class="text-amber-600 focus:ring-amber-500">
+                    <input type="radio" value="no_review" x-model="reviewMode" class="text-bass-red focus:ring-bass-red">
                     <span>Tanpa review (cukup dikumpulkan)</span>
                 </label>
             </div>
@@ -49,7 +49,7 @@
         <div>
             <h4 class="text-sm font-semibold text-gray-800 mb-2">Unduh Jawaban</h4>
             <label class="flex items-center gap-2 cursor-pointer text-sm">
-                <input type="checkbox" x-model="allowDownload" class="rounded text-amber-600 focus:ring-amber-500">
+                <input type="checkbox" x-model="allowDownload" class="rounded text-bass-red focus:ring-bass-red">
                 <span>Izinkan peserta mengunduh jawaban menjadi PDF</span>
             </label>
             <p class="text-xs text-gray-500 mt-1">Jika aktif, peserta yang sudah mengumpulkan dapat mengunduh hasilnya.</p>
@@ -59,26 +59,26 @@
     {{-- Daftar Section --}}
     <div class="space-y-4">
         <template x-if="template.sections.length === 0">
-            <div class="text-center text-sm text-gray-500 bg-white border border-dashed border-amber-300 rounded-lg py-8">
+            <div class="text-center text-sm text-gray-500 bg-white border border-dashed border-gray-300 rounded-lg py-8">
                 Belum ada bab. Klik "Tambah Bab" untuk mulai menyusun template.
             </div>
         </template>
 
         <template x-for="(section, sIdx) in template.sections" :key="section.id">
             <div class="bg-white rounded-lg border shadow-sm"
-                 :class="section.level === 1 ? 'border-amber-300' : 'border-gray-200 ml-6'">
+                 :class="section.level === 1 ? 'border-bass-red/40' : 'border-gray-200 ml-6'">
                 <div class="flex items-center gap-2 px-4 py-3 border-b"
-                     :class="section.level === 1 ? 'bg-amber-100/60' : 'bg-gray-50'">
+                     :class="section.level === 1 ? 'bg-bass-red-soft' : 'bg-gray-50'">
                     <span class="text-xs font-bold px-2 py-1 rounded"
-                          :class="section.level === 1 ? 'bg-amber-600 text-white' : 'bg-gray-400 text-white'"
+                          :class="section.level === 1 ? 'bg-bass-red text-white' : 'bg-gray-400 text-white'"
                           x-text="section.level === 1 ? 'BAB' : 'SUBBAB'"></span>
                     <input type="text" x-model="section.title"
-                           class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm font-semibold focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
+                           class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm font-semibold focus:border-bass-red focus:ring-2 focus:ring-bass-red/50"
                            :placeholder="section.level === 1 ? 'Judul Bab (mis. Company Profile)' : 'Judul Subbab (mis. Visi Perusahaan)'">
                     <div class="flex items-center gap-1">
                         <button type="button" @click="moveSection(sIdx, -1)" title="Naik" class="p-1.5 text-gray-500 hover:bg-gray-100 rounded">▲</button>
                         <button type="button" @click="moveSection(sIdx, 1)" title="Turun" class="p-1.5 text-gray-500 hover:bg-gray-100 rounded">▼</button>
-                        <button type="button" @click="removeSection(sIdx)" title="Hapus" class="p-1.5 text-red-500 hover:bg-red-50 rounded">
+                        <button type="button" @click="removeSection(sIdx)" title="Hapus" class="p-1.5 text-neutral-900 hover:bg-neutral-100 rounded">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                             </svg>
@@ -91,7 +91,7 @@
                     <div>
                         <label class="block text-xs font-medium text-gray-600 mb-1">Instruksi / petunjuk (opsional)</label>
                         <textarea x-model="section.instruction" rows="2"
-                                  class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
+                                  class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-bass-red focus:ring-2 focus:ring-bass-red/50"
                                   placeholder="Petunjuk pengisian untuk peserta..."></textarea>
                     </div>
 
@@ -104,7 +104,7 @@
                                 <div class="flex items-center gap-1">
                                     <button type="button" @click="moveBlock(section, bIdx, -1)" class="p-1 text-gray-400 hover:bg-gray-100 rounded text-xs">▲</button>
                                     <button type="button" @click="moveBlock(section, bIdx, 1)" class="p-1 text-gray-400 hover:bg-gray-100 rounded text-xs">▼</button>
-                                    <button type="button" @click="removeBlock(section, bIdx)" class="p-1 text-red-500 hover:bg-red-50 rounded text-xs" title="Hapus blok">
+                                    <button type="button" @click="removeBlock(section, bIdx)" class="p-1 text-neutral-900 hover:bg-neutral-100 rounded text-xs" title="Hapus blok">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                         </svg>
@@ -132,8 +132,8 @@
                                         <button type="button" @click="addCol(block.table)" class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded">+ Kolom</button>
                                         <button type="button" @click="removeCol(block.table)" class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded">− Kolom</button>
                                         <span class="mx-1 text-gray-300">|</span>
-                                        <button type="button" @click="mergeSelected(block.table)" class="px-2 py-1 bg-amber-200 hover:bg-amber-300 rounded">Gabung sel</button>
-                                        <button type="button" @click="unmergeSelected(block.table)" class="px-2 py-1 bg-amber-200 hover:bg-amber-300 rounded">Pisah</button>
+                                        <button type="button" @click="mergeSelected(block.table)" class="px-2 py-1 bg-navy/10 hover:bg-navy/20 text-navy rounded">Gabung sel</button>
+                                        <button type="button" @click="unmergeSelected(block.table)" class="px-2 py-1 bg-navy/10 hover:bg-navy/20 text-navy rounded">Pisah</button>
                                         <span class="text-gray-400" x-text="selectionInfo(block.table)"></span>
                                     </div>
 
@@ -176,9 +176,9 @@
                                                                 @click="toggleCell(block.table, r, c)"
                                                                 class="border border-gray-400 align-top p-1 cursor-pointer min-w-[90px] h-12 text-xs relative"
                                                                 :style="`background:${cell.bg||'#ffffff'};text-align:${cell.align||'left'}`"
-                                                                :class="isSelected(block.table, r, c) ? 'outline outline-2 outline-amber-500' : ''">
+                                                                :class="isSelected(block.table, r, c) ? 'outline outline-2 outline-bass-red' : ''">
                                                                 <span class="absolute top-0 left-0 text-[9px] px-1 rounded-br"
-                                                                       :class="cell.role === 'input' ? 'bg-red-50 text-bass-red' : 'bg-gray-200 text-gray-600'"
+                                                                       :class="cell.role === 'input' ? 'bg-bass-red-soft text-bass-red' : 'bg-gray-200 text-gray-600'"
                                                                       x-text="cell.role === 'input' ? 'INPUT' : 'LABEL'"></span>
                                                                 <span class="block pt-3" :class="cell.bold ? 'font-bold' : ''"
                                                                       x-text="cell.role === 'input' ? (cell.text ? '['+cell.text+']' : '(diisi peserta)') : (cell.text || '—')"
@@ -197,10 +197,10 @@
 
                     {{-- Tombol tambah block / subbab --}}
                     <div class="flex flex-wrap items-center gap-2 pt-1">
-                        <button type="button" @click="addTextBlock(section)" class="px-3 py-1.5 text-xs bg-red-50 hover:bg-red-100 text-bass-red rounded-lg font-medium">+ Blok Teks</button>
-                        <button type="button" @click="addTableBlock(section)" class="px-3 py-1.5 text-xs bg-green-100 hover:bg-green-200 text-green-700 rounded-lg font-medium">+ Blok Tabel</button>
+                        <button type="button" @click="addTextBlock(section)" class="px-3 py-1.5 text-xs bg-bass-red-soft hover:bg-bass-red hover:text-white text-bass-red rounded-lg font-medium">+ Blok Teks</button>
+                        <button type="button" @click="addTableBlock(section)" class="px-3 py-1.5 text-xs bg-navy/10 hover:bg-navy hover:text-white text-navy rounded-lg font-medium">+ Blok Tabel</button>
                         <template x-if="section.level === 1">
-                            <button type="button" @click="addSubsection(sIdx)" class="px-3 py-1.5 text-xs bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-lg font-medium">+ Subbab</button>
+                            <button type="button" @click="addSubsection(sIdx)" class="px-3 py-1.5 text-xs bg-warning-soft hover:bg-warning hover:text-white text-warning rounded-lg font-medium">+ Subbab</button>
                         </template>
                     </div>
                 </div>

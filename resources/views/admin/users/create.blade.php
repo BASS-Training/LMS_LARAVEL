@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('Tambah Pengguna Baru') }}
@@ -16,21 +16,21 @@
                         <div class="mb-4">
                             <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nama</label>
                             <input type="text" name="name" id="name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red/50 focus:ring-opacity-50 dark:bg-gray-900 dark:border-gray-600" value="{{ old('name') }}" required>
-                            @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                            @error('name') <span class="text-error text-sm">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Email -->
                         <div class="mb-4">
                             <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                             <input type="email" name="email" id="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red/50 focus:ring-opacity-50 dark:bg-gray-900 dark:border-gray-600" value="{{ old('email') }}" required>
-                             @error('email') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                             @error('email') <span class="text-error text-sm">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Password -->
                         <div class="mb-4">
                             <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
                             <input type="password" name="password" id="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red/50 focus:ring-opacity-50 dark:bg-gray-900 dark:border-gray-600" required>
-                             @error('password') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                             @error('password') <span class="text-error text-sm">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Confirm Password -->
@@ -51,7 +51,7 @@
                                     </div>
                                 @endforeach
                             </div>
-                             @error('roles') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                             @error('roles') <span class="text-error text-sm">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="flex items-center justify-end mt-6">

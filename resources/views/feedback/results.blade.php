@@ -3,14 +3,14 @@
         <div class="flex items-center justify-between">
             <div>
                 <a href="{{ route('contents.show', $content) }}"
-                   class="inline-flex items-center text-indigo-600 hover:text-indigo-800 text-sm font-medium mb-1">
+                   class="inline-flex items-center text-navy hover:text-navy-light text-sm font-medium mb-1">
                     ← Kembali ke konten
                 </a>
-                <h1 class="text-2xl font-bold text-gray-900">📊 Hasil Feedback</h1>
+                <h1 class="text-2xl font-bold text-gray-900">Hasil Feedback</h1>
                 <p class="text-sm text-gray-600">{{ $content->title }}</p>
             </div>
             <div class="text-right">
-                <div class="text-3xl font-bold text-indigo-600">{{ $submissionsCount }}</div>
+                <div class="text-3xl font-bold text-bass-red">{{ $submissionsCount }}</div>
                 <div class="text-xs text-gray-500">tanggapan</div>
             </div>
         </div>
@@ -20,7 +20,7 @@
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
 
             @if($content->is_anonymous)
-                <p class="text-xs text-gray-500 flex items-center gap-1">🔒 Form ini anonim — hanya hasil agregat yang ditampilkan.</p>
+                <p class="text-xs text-gray-500 flex items-center gap-1">Form ini anonim — hanya hasil agregat yang ditampilkan.</p>
             @endif
 
             @if($submissionsCount === 0)
@@ -40,11 +40,11 @@
                     {{-- RATING --}}
                     @if($entry['type'] === 'rating')
                         <div class="flex items-center gap-3 mb-4">
-                            <div class="text-3xl font-bold text-amber-500">{{ $entry['avg'] ?? '–' }}</div>
-                            <div class="text-amber-400 text-xl leading-none">
+                            <div class="text-3xl font-bold text-bass-gold">{{ $entry['avg'] ?? '–' }}</div>
+                            <div class="text-bass-gold text-xl leading-none">
                                 @php $avgRound = (int) round($entry['avg'] ?? 0); @endphp
                                 @for($i = 1; $i <= $entry['max']; $i++)
-                                    <span class="{{ $i <= $avgRound ? 'text-amber-400' : 'text-gray-300' }}">★</span>
+                                    <span class="{{ $i <= $avgRound ? 'text-bass-gold' : 'text-gray-300' }}">★</span>
                                 @endfor
                             </div>
                             <span class="text-sm text-gray-500">rata-rata dari {{ $entry['max'] }}</span>
@@ -55,7 +55,7 @@
                                 <div class="flex items-center gap-2 text-sm">
                                     <span class="w-10 text-gray-500">{{ $score }} ★</span>
                                     <div class="flex-1 bg-gray-100 rounded-full h-3 overflow-hidden">
-                                        <div class="h-3 bg-amber-400 rounded-full" style="width: {{ $pct }}%"></div>
+                                        <div class="h-3 bg-bass-gold rounded-full" style="width: {{ $pct }}%"></div>
                                     </div>
                                     <span class="w-16 text-right text-gray-500">{{ $cnt }} ({{ $pct }}%)</span>
                                 </div>
@@ -70,7 +70,7 @@
                                 <div class="flex items-center gap-2 text-sm">
                                     <span class="w-40 truncate text-gray-700" title="{{ $opt['label'] }}">{{ $opt['label'] }}</span>
                                     <div class="flex-1 bg-gray-100 rounded-full h-3 overflow-hidden">
-                                        <div class="h-3 bg-sky-500 rounded-full" style="width: {{ $pct }}%"></div>
+                                        <div class="h-3 bg-bass-red rounded-full" style="width: {{ $pct }}%"></div>
                                     </div>
                                     <span class="w-16 text-right text-gray-500">{{ $opt['count'] }} ({{ $pct }}%)</span>
                                 </div>

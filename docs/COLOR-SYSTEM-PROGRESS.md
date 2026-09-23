@@ -18,10 +18,10 @@ area kerja agar tidak ambigu.
 | Quiz workflow and core views | Completed | `e322fda`; working tree, 22 September 2026 | Sprint 7 remediation complete |
 | Shop/Catalog | Completed | `e2b6732`; R02 working tree, 23 September 2026 | Residual index dan detail selesai |
 | Dashboard and navigation | Completed | `e2b6732` | Seluruh dashboard role sudah diperbarui |
-| Course and lesson core | Residual remediation in progress | `e2b6732`, `114ebb9`; R01 working tree, 23 September 2026 | Course index selesai; area residual lain mengikuti backlog |
-| Content core | Completed | `643c1f3`, Sprint 8 working tree | Sprint 8 residual cleanup complete |
+| Course and lesson core | Completed | `e2b6732`, `114ebb9`; R01 + R07-R19/Batch A-D working tree, 23 September 2026 | Course index, create/edit/show, residual action colors selesai |
+| Content core | Completed | `643c1f3`, Sprint 8 + R08-R10 working tree | Sprint 8 residual cleanup complete |
 | Gradebook | Completed | `716352b` | Workstream tambahan di luar sprint plan awal |
-| Admin and management | Residual remediation in progress | `5775912`; R04-R06 working tree, 23 September 2026 | Auto Grade, Force Complete, dan participant management selesai |
+| Admin and management | Completed | `5775912`; R04-R06 + R16-R19/Batch C-D working tree, 23 September 2026 | Auto Grade, Force Complete, participants, certificate templates, tools selesai |
 | Shared components | Completed | Working tree, 22 September 2026 | Sprint 6 pada rencana awal |
 | Chat interface | Completed | Working tree, 22 September 2026 | Index, detail, and JavaScript states aligned |
 | Event Organizer course progress | Completed | R03 working tree, 23 September 2026 | KPI, course cards, progress, dan actions aligned |
@@ -42,8 +42,19 @@ Persentase tunggal tidak digunakan karena cakupan bertambah setelah sprint plan 
 - [x] R05 Force Complete: separated destructive force actions, brand certificate actions, and semantic progress states
 - [x] R06 Participants: normalized AVPN states/actions, removed gender decoration and stray blue class, and applied the BASS chart palette
 
-The broader residual backlog remains open. Completion claims for Sprint 8-10 below
-refer to their original targeted scope, not a clean repository-wide audit.
+### Residual Remediation R07-R19 + Batch D (23 September 2026)
+
+- [x] R07-R10 Content core: `courses-period/edit`, content create/edit/show, 8 content partials
+- [x] R11-R15 Discussions, essays result, case studies, document submissions, feedback results
+- [x] R16-R19 File control, certificates (create/show/template-render), auth + profile, gradebook
+- [x] Batch D repository-wide residual: `#B91818` utility hex → tokens; focus rings red/blue/indigo → bass-red; status `red/green/yellow/amber/blue` utilities → success/warning/error/navy tokens; decorative gradients → solid; action mapping (Create=bass-red, Edit=navy, Duplicate=outline navy, Delete=neutral-900, View=navy); navigation active/hover → navy
+- [x] Fixed bulk-replace regressions (`*-soft0`, navigation hover states, literal `` `r`n `` in certificate-management)
+- [x] Dormant views untouched: `course-periods/edit`, `essays/attempt`, `discussions/partials/replies`
+- [x] `npm run build`, `php artisan view:cache`, `php artisan test` — only 2 pre-existing failures (`NoRoleChecksInAppTest`, `ViewsNoRoleDirectivesTest`)
+
+The broader residual backlog remains open for functional/route issues and any
+non-color findings outside this color-system case. Completion claims for
+Sprint 8-10 below refer to their original targeted scope plus Batch D residual.
 
 ### Quiz Core
 
@@ -281,10 +292,10 @@ reported the same warning. Manual responsive and cross-browser review remains in
 
 ### Verification Still Required
 
-- [ ] Equivalent targeted verification for Gradebook
+- [x] Equivalent targeted verification for Gradebook
 - [x] Equivalent targeted verification for Shared Components
-- [ ] Repository-wide color consistency scan after all cleanup tasks
-- [ ] Full test suite and final production build
+- [x] Repository-wide color consistency scan after all cleanup tasks (Batch D)
+- [x] Full test suite and final production build (2 pre-existing failures only)
 
 ### Residual Remediation R01-R06 (23 September 2026)
 
@@ -309,6 +320,7 @@ reported the same warning. Manual responsive and cross-browser review remains in
 | `643c1f3` | Content color system, SVG icons, and responsive cleanup |
 | `114ebb9` | Course, lesson, and quiz follow-up plus initial tracker |
 | `5775912` | Admin color system, SVG icons, actions, and translation |
+| *(pending)* | R07-R19 + Batch D residual remediation (this working tree) |
 
 ---
 

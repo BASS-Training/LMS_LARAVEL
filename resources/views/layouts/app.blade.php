@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
@@ -125,7 +125,7 @@
                                     <a href="{{ route('admin.payment-verifications.index') }}" class="dropdown-item-custom flex items-center justify-between" role="menuitem">
                                         <span>Verifikasi Pembayaran</span>
                                         @if ($pendingVerif > 0)
-                                            <span class="ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-amber-500 text-white text-xs font-bold">{{ $pendingVerif }}</span>
+                                            <span class="ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-warning text-white text-xs font-bold">{{ $pendingVerif }}</span>
                                         @endif
                                     </a>
                                 </div>
@@ -194,7 +194,7 @@
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit"
-                                            class="dropdown-item-custom w-full text-left flex items-center gap-2 text-red-600 hover:bg-red-50 hover:text-red-700"
+                                            class="dropdown-item-custom w-full text-left flex items-center gap-2 text-error hover:bg-error-soft hover:text-error"
                                             role="menuitem">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                                         Keluar
@@ -318,7 +318,7 @@
                     <form method="POST" action="{{ route('logout') }}" class="flex-1">
                         @csrf
                         <button type="submit"
-                                class="w-full min-h-[40px] text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                                class="w-full min-h-[40px] text-sm font-medium text-error bg-error-soft rounded-lg hover:bg-error-soft transition-colors">
                             Keluar
                         </button>
                     </form>
@@ -327,7 +327,7 @@
             @else
             <div class="border-t border-gray-200 py-3 px-4 flex gap-2">
                 <a href="{{ route('login') }}"    class="flex-1 text-center min-h-[44px] flex items-center justify-center text-sm font-medium text-gray-700 border border-gray-300 rounded-lg">Masuk</a>
-                <a href="{{ route('register') }}" class="flex-1 text-center min-h-[44px] flex items-center justify-center text-sm font-medium text-white bg-bass-red hover:bg-[#B91818] rounded-lg transition-colors">Daftar</a>
+                <a href="{{ route('register') }}" class="flex-1 text-center min-h-[44px] flex items-center justify-center text-sm font-medium text-white bg-bass-red hover:bg-bass-red-hover rounded-lg transition-colors">Daftar</a>
             </div>
             @endauth
         </div>

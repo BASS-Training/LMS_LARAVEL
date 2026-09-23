@@ -19,7 +19,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             @if (session('success'))
-                <div class="mb-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
+                <div class="mb-4 p-4 text-sm text-success bg-success-soft rounded-lg" role="alert">
                     {{ session('success') }}
                 </div>
             @endif

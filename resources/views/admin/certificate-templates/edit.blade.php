@@ -73,7 +73,7 @@
                                         <input type="checkbox" x-model="selectedElement.isBold" class="rounded border-gray-300">
                                         <label class="ml-2 block text-sm">Tebal</label>
                                     </div>
-                                    <button type="button" @click="removeElement" class="w-full text-white bg-red-600 hover:bg-red-700 rounded-md py-2 text-sm font-semibold">
+                                    <button type="button" @click="removeElement" class="w-full text-white bg-bass-red hover:bg-bass-red-hover rounded-md py-2 text-sm font-semibold">
                                         Hapus Elemen
                                     </button>
                                 </div>
@@ -90,13 +90,13 @@
                                             Halaman <span x-text="index + 1"></span>
                                         </button>
                                         <template x-if="pages.length > 1">
-                                            <button @click.stop="removePage(index)" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 flex items-center justify-center">
+                                            <button @click.stop="removePage(index)" class="absolute -top-1 -right-1 w-5 h-5 bg-error text-white rounded-full text-xs hover:bg-bass-red flex items-center justify-center">
                                                 ×
                                             </button>
                                         </template>
                                     </div>
                                 </template>
-                                <button type="button" @click="addPage" class="px-4 py-2 text-sm font-medium text-bass-red hover:text-[#B91818] border border-bass-red/20 rounded ml-2">+ Tambah Halaman</button>
+                                <button type="button" @click="addPage" class="px-4 py-2 text-sm font-medium text-bass-red hover:text-bass-red-hover border border-bass-red/20 rounded ml-2">+ Tambah Halaman</button>
                             </div>
 
                             <div x-ref="canvas" class="relative w-full aspect-[1.414/1] bg-gray-200 dark:bg-gray-900 rounded-lg shadow-inner overflow-hidden" @click="deselectElement">

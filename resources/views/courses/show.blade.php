@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="flex flex-wrap justify-between items-center gap-6">
             <div class="flex items-center space-x-4">
@@ -18,7 +18,7 @@
                 </a>
 
                 @can('update', $course)
-                    <a href="{{ route('courses.edit', $course) }}" class="inline-flex items-center px-4 py-2 bg-warning text-white rounded-xl font-medium text-sm hover:bg-amber-700 shadow-lg hover:shadow-xl transition-all duration-200">
+                    <a href="{{ route('courses.edit', $course) }}" class="inline-flex items-center px-4 py-2 bg-navy text-white rounded-xl font-medium text-sm hover:bg-navy-light shadow-lg hover:shadow-xl transition-all duration-200">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                         </svg>
@@ -53,7 +53,7 @@
                         </div>
                         @endcanany
                         @can('view', $course)
-                            <a href="{{ route('courses.discussions.index', $course) }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-bass-red transition-colors">
+                            <a href="{{ route('courses.discussions.index', $course) }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-error-soft hover:text-bass-red transition-colors">
                                 <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                                 </svg>
@@ -61,7 +61,7 @@
                             </a>
                         @endcan
                         @can('grade quizzes')
-                            <a href="{{ route('courses.gradebook', $course) }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-bass-red transition-colors">
+                            <a href="{{ route('courses.gradebook', $course) }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-error-soft hover:text-bass-red transition-colors">
                                 <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
                                 </svg>
@@ -69,7 +69,7 @@
                             </a>
                         @endcan
                         @can('view progress reports')
-                            <a href="{{ route('courses.scores', $course) }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-bass-red transition-colors">
+                            <a href="{{ route('courses.scores', $course) }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-error-soft hover:text-bass-red transition-colors">
                                 <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
@@ -84,13 +84,13 @@
                         <div class="px-3 py-1.5">
                             <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Monitoring</p>
                         </div>
-                            <a href="{{ route('courses.progress', $course) }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-bass-red transition-colors">
+                            <a href="{{ route('courses.progress', $course) }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-error-soft hover:text-bass-red transition-colors">
                                 <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                                 </svg>
                                 Lihat Progres
                             </a>
-                            <a href="{{ route('attendance.course-report', $course) }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-bass-red transition-colors">
+                            <a href="{{ route('attendance.course-report', $course) }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-error-soft hover:text-bass-red transition-colors">
                                 <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
                                 </svg>
@@ -104,7 +104,7 @@
                         <div class="px-3 py-1.5">
                             <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Pengaturan</p>
                         </div>
-                            <a href="{{ route('courses.tokens', $course) }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-bass-red transition-colors">
+                            <a href="{{ route('courses.tokens', $course) }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-error-soft hover:text-bass-red transition-colors">
                                 <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
                                 </svg>
@@ -140,7 +140,7 @@
                 <div class="bg-gray-50 border-b border-gray-200">
                     <nav class="flex space-x-8 px-6" aria-label="Tabs">
                         <button @click="currentTab = 'lessons'"
-                                :class="{'border-bass-red text-bass-red bg-red-50': currentTab === 'lessons', 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50': currentTab !== 'lessons'}"
+                                :class="{'border-bass-red text-bass-red bg-error-soft': currentTab === 'lessons', 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50': currentTab !== 'lessons'}"
                                 class="whitespace-nowrap py-4 px-4 border-b-2 font-semibold text-sm rounded-t-lg transition-all duration-200">
                             <div class="flex items-center space-x-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -151,7 +151,7 @@
                         </button>
                         {{-- 🆕 NEW: Periods & Chat Tab --}}
                         <button @click="currentTab = 'periods'"
-                                :class="{'border-bass-red text-bass-red bg-red-50': currentTab === 'periods', 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50': currentTab !== 'periods'}"
+                                :class="{'border-bass-red text-bass-red bg-error-soft': currentTab === 'periods', 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50': currentTab !== 'periods'}"
                                 class="whitespace-nowrap py-4 px-4 border-b-2 font-semibold text-sm rounded-t-lg transition-all duration-200">
                             <div class="flex items-center space-x-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -163,7 +163,7 @@
 
                         @can('update', $course)
                             <button @click="currentTab = 'managers'"
-                                    :class="{'border-bass-red text-bass-red bg-red-50': currentTab === 'managers', 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50': currentTab !== 'managers'}"
+                                    :class="{'border-bass-red text-bass-red bg-error-soft': currentTab === 'managers', 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50': currentTab !== 'managers'}"
                                     class="whitespace-nowrap py-4 px-4 border-b-2 font-semibold text-sm rounded-t-lg transition-all duration-200">
                                 <div class="flex items-center space-x-2">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -173,7 +173,7 @@
                                 </div>
                             </button>
                             <button @click="currentTab = 'event_organizers'"
-                                    :class="{'border-bass-red text-bass-red bg-red-50': currentTab === 'event_organizers', 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50': currentTab !== 'event_organizers'}"
+                                    :class="{'border-bass-red text-bass-red bg-error-soft': currentTab === 'event_organizers', 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50': currentTab !== 'event_organizers'}"
                                     class="whitespace-nowrap py-4 px-4 border-b-2 font-semibold text-sm rounded-t-lg transition-all duration-200">
                                 <div class="flex items-center space-x-2">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -185,7 +185,7 @@
                         @endcan
                         @can('manageParticipants', $course)
                             <button @click="currentTab = 'participants'"
-                                    :class="{'border-bass-red text-bass-red bg-red-50': currentTab === 'participants', 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50': currentTab !== 'participants'}"
+                                    :class="{'border-bass-red text-bass-red bg-error-soft': currentTab === 'participants', 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50': currentTab !== 'participants'}"
                                     class="whitespace-nowrap py-4 px-4 border-b-2 font-semibold text-sm rounded-t-lg transition-all duration-200">
                                 <div class="flex items-center space-x-2">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -250,7 +250,7 @@
                                 <p class="text-gray-600 mt-1">Kelola urutan dan konten pelajaran</p>
                             </div>
                             @can('update', $course)
-                                <a href="{{ route('courses.lessons.create', $course) }}" class="inline-flex items-center px-6 py-3 bg-bass-red text-white rounded-xl font-semibold text-sm hover:bg-[#B91818] shadow-lg hover:shadow-xl transition-all duration-200">
+                                <a href="{{ route('courses.lessons.create', $course) }}" class="inline-flex items-center px-6 py-3 bg-bass-red text-white rounded-xl font-semibold text-sm hover:bg-bass-red-hover shadow-lg hover:shadow-xl transition-all duration-200">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                     </svg>
@@ -304,7 +304,7 @@
                                                             <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
                                                                 <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"></path>
                                                             </svg>
-                                                            <span class="text-xs text-amber-600 font-medium">Terkunci</span>
+                                                            <span class="text-xs text-warning font-medium">Terkunci</span>
                                                         </div>
                                                     </template>
                                                     <h4 class="text-xl font-bold text-gray-900" x-text="lesson.title"></h4>
@@ -342,7 +342,7 @@
 
                                                     <form :action="`/courses/{{$course->id}}/lessons/${lesson.id}`" method="POST" onsubmit="return confirm('Yakin ingin menghapus pelajaran ini?');">
                                                         @csrf @method('DELETE')
-                                                        <button type="submit" class="inline-flex items-center px-3 py-2 bg-red-100 text-red-700 text-sm font-medium rounded-lg hover:bg-red-200 transition-colors">
+                                                        <button type="submit" class="inline-flex items-center px-3 py-2 bg-neutral-900 text-white text-sm font-medium rounded-lg hover:bg-black transition-colors">
                                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                             </svg>
@@ -417,7 +417,7 @@
                                                             </div>
 
                                                             <div>
-                                                                <a :href="`/contents/${content.id}`" class="text-lg font-medium text-bass-red hover:text-[#B91818] hover:underline transition-colors" x-text="content.title"></a>
+                                                                <a :href="`/contents/${content.id}`" class="text-lg font-medium text-bass-red hover:text-bass-red-hover hover:underline transition-colors" x-text="content.title"></a>
                                                                 <div class="flex items-center space-x-2 mt-1">
                                                                     <span class="px-2 py-1 text-xs font-medium rounded-full"
                                                                           :class="{
@@ -443,7 +443,7 @@
                                                                 </button>
                                                             </form>
 
-                                                            <a :href="`/lessons/${lesson.id}/contents/${content.id}/edit`" class="inline-flex items-center px-3 py-1.5 bg-warning/10 text-warning text-xs font-medium rounded-lg hover:bg-warning/20 transition-colors">
+                                                            <a :href="`/lessons/${lesson.id}/contents/${content.id}/edit`" class="inline-flex items-center px-3 py-1.5 bg-navy/10 text-navy text-xs font-medium rounded-lg hover:bg-navy/20 transition-colors">
                                                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                                 </svg>
@@ -452,7 +452,7 @@
 
                                                             <form :action="`/lessons/${lesson.id}/contents/${content.id}`" method="POST" onsubmit="return confirm('Yakin ingin menghapus konten ini?');">
                                                                 @csrf @method('DELETE')
-                                                                <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-red-50 text-red-700 text-xs font-medium rounded-lg hover:bg-red-100 transition-colors">
+                                                                <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-neutral-900 text-white text-xs font-medium rounded-lg hover:bg-black transition-colors">
                                                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                                     </svg>
@@ -472,7 +472,7 @@
                                                     </div>
                                                     <p class="text-gray-500 text-sm">Belum ada konten untuk pelajaran ini.</p>
                                                     @can('update', $course)
-                                                        <a :href="`/lessons/${lesson.id}/contents/create`" class="inline-flex items-center mt-3 px-4 py-2 bg-red-50 text-bass-red text-sm font-medium rounded-lg hover:bg-red-100 transition-colors">
+                                                        <a :href="`/lessons/${lesson.id}/contents/create`" class="inline-flex items-center mt-3 px-4 py-2 bg-bass-red-soft text-bass-red text-sm font-medium rounded-lg hover:bg-bass-red hover:text-white transition-colors">
                                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                                             </svg>
@@ -525,7 +525,7 @@
                                     </label>
                                     
                                     <button @click="deleteSelected()" x-show="selectedPeriods.length > 0"
-                                            class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 shadow-md transition-all duration-200">
+class="inline-flex items-center px-4 py-2 bg-neutral-900 hover:bg-black text-white text-sm font-medium rounded-lg shadow-md transition-all duration-200">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                         </svg>
@@ -556,7 +556,7 @@
                             <div class="flex space-x-2">
                                 @can('update', $course)
                                     <a href="{{ route('course-periods.create', $course) }}"
-                                        class="inline-flex items-center px-4 py-2 bg-bass-red text-white text-sm font-medium rounded-lg hover:bg-[#B91818] shadow-md transition-all duration-200">
+                                        class="inline-flex items-center px-4 py-2 bg-bass-red text-white text-sm font-medium rounded-lg hover:bg-bass-red-hover shadow-md transition-all duration-200">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                         </svg>
@@ -594,7 +594,7 @@
                                                   'bg-success-soft text-success': period.status === 'active',
                                                   'bg-info-soft text-navy': period.status === 'upcoming',
                                                   'bg-gray-100 text-gray-800': period.status === 'completed',
-                                                  'bg-red-100 text-red-800': period.status === 'cancelled'
+                                                  'bg-error-soft text-error': period.status === 'cancelled'
                                               }"
                                               x-text="period.status === 'active' ? 'Aktif' : period.status === 'upcoming' ? 'Akan Datang' : period.status === 'completed' ? 'Selesai' : 'Dibatalkan'">
                                         </span>
@@ -660,7 +660,7 @@
                                                    class="text-xs text-navy hover:text-navy-light font-medium">Kelola</a>
                                                 <a :href="`{{ url('courses/' . $course->id . '/periods') }}/${period.id}/edit`"
                                                    class="text-xs text-navy hover:text-navy-light font-medium">Edit</a>
-                                                <button @click="deletePeriod(period.id)" class="text-xs text-red-600 hover:text-red-800 font-medium">Hapus</button>
+                                                <button @click="deletePeriod(period.id)" class="text-xs text-neutral-900 hover:underline font-medium">Hapus</button>
                                             </div>
                                         @endcan
                                     </div>
@@ -705,7 +705,7 @@
                             <p class="text-gray-600 text-lg mb-8 max-w-md mx-auto">Buat kelas kursus untuk mengaktifkan fitur chat dan mengelola timeline pembelajaran.</p>
                             @can('update', $course)
                                 <a href="{{ route('course-periods.create', ['course' => $course->id]) }}"
-                                    class="inline-flex items-center px-6 py-3 bg-bass-red text-white font-semibold rounded-xl hover:bg-[#B91818] shadow-lg hover:shadow-xl transition-all duration-200">
+                                    class="inline-flex items-center px-6 py-3 bg-bass-red text-white font-semibold rounded-xl hover:bg-bass-red-hover shadow-lg hover:shadow-xl transition-all duration-200">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                     </svg>
@@ -726,16 +726,16 @@
 
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             <!-- Current Instructors -->
-                            <div class="bg-red-50 rounded-2xl p-6 border border-red-200">
+                            <div class="bg-error-soft rounded-2xl p-6 border border-error/40">
                                 <div class="flex items-center mb-6">
-                                    <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center mr-3">
-                                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="w-10 h-10 bg-error-soft rounded-xl flex items-center justify-center mr-3">
+                                        <svg class="w-5 h-5 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                         </svg>
                                     </div>
                                     <div>
-                                        <h4 class="text-lg font-bold text-red-900">Instruktur Ditugaskan</h4>
-                                        <p class="text-sm text-red-700">{{ $course->instructors->count() }} instruktur aktif</p>
+                                        <h4 class="text-lg font-bold text-navy">Instruktur Ditugaskan</h4>
+                                        <p class="text-sm text-error">{{ $course->instructors->count() }} instruktur aktif</p>
                                     </div>
                                 </div>
 
@@ -743,10 +743,10 @@
                                     @csrf @method('DELETE')
                                     <div class="space-y-3 mb-6 max-h-80 overflow-y-auto">
                                         @forelse($course->instructors as $instructor)
-                                            <div class="flex items-center p-3 bg-white rounded-xl border border-red-200 hover:bg-red-50 transition-colors">
-                                                <input type="checkbox" name="user_ids[]" value="{{ $instructor->id }}" id="instructor-{{$instructor->id}}" class="mr-3 rounded border-red-300 text-red-600 focus:ring-red-500">
+                                            <div class="flex items-center p-3 bg-white rounded-xl border border-error/40 hover:bg-error-soft transition-colors">
+                                                <input type="checkbox" name="user_ids[]" value="{{ $instructor->id }}" id="instructor-{{$instructor->id}}" class="mr-3 rounded border-error/40 text-error focus:ring-bass-red">
                                                 <div class="flex items-center space-x-3">
-                                                    <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
+                                                    <div class="w-8 h-8 bg-bass-red rounded-full flex items-center justify-center">
                                                         <span class="text-white text-sm font-semibold">{{ strtoupper(substr($instructor->name, 0, 1)) }}</span>
                                                     </div>
                                                     <label for="instructor-{{$instructor->id}}" class="font-medium text-gray-900 cursor-pointer">{{ $instructor->name }}</label>
@@ -754,17 +754,17 @@
                                             </div>
                                         @empty
                                             <div class="text-center py-8">
-                                                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                    <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <div class="w-16 h-16 bg-error-soft rounded-full flex items-center justify-center mx-auto mb-4">
+                                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                                     </svg>
                                                 </div>
-                                                <p class="text-red-600 font-medium">Belum ada instruktur ditugaskan</p>
+                                                <p class="text-error font-medium">Belum ada instruktur ditugaskan</p>
                                             </div>
                                         @endforelse
                                     </div>
                                     @if($course->instructors->isNotEmpty())
-                                        <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-3 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 shadow-lg hover:shadow-xl transition-all duration-200">
+                                        <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-3 bg-neutral-900 hover:bg-black text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                             </svg>
@@ -873,7 +873,7 @@
                                         @endforelse
                                     </div>
                                     @if($course->eventOrganizers->isNotEmpty())
-                                        <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-3 bg-navy text-white font-semibold rounded-xl hover:bg-navy/90 shadow-lg hover:shadow-xl transition-all duration-200">
+                                        <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-3 bg-neutral-900 hover:bg-black text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                             </svg>
@@ -1195,7 +1195,7 @@
                                         </svg>
                                     </button>
                                     <button @click="$dispatch('open-export-modal')"
-                                            class="inline-flex items-center px-3 py-1.5 bg-bass-red text-white text-xs font-semibold rounded-lg hover:bg-[#B91818] transition-colors shadow-sm">
+                                            class="inline-flex items-center px-3 py-1.5 bg-bass-red text-white text-xs font-semibold rounded-lg hover:bg-bass-red-hover transition-colors shadow-sm">
                                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                         </svg>
@@ -1247,7 +1247,7 @@
                                                             </td>
                                                             <td class="px-5 py-3">
                                                                 @if($history->isProcessing())
-                                                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 ring-1 ring-amber-200">
+                                                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-warning-soft text-warning ring-1 ring-amber-200">
                                                                         <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
                                                                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
@@ -1259,7 +1259,7 @@
                                                                         Selesai
                                                                     </span>
                                                                 @else
-                                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700 ring-1 ring-red-200"
+                                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-error-soft text-error ring-1 ring-bass-red/30"
                                                                           title="{{ $history->error_message }}">
                                                                         Gagal
                                                                     </span>
@@ -1398,7 +1398,7 @@
                                 <option value="{{ $period->id }}">{{ $period->name }}</option>
                             @endforeach
                         </select>
-                        <p x-show="filter === 'class' && !classId" class="mt-1 text-xs text-amber-600">
+                        <p x-show="filter === 'class' && !classId" class="mt-1 text-xs text-warning">
                             Pilih kelas terlebih dahulu
                         </p>
                     </div>
@@ -1432,7 +1432,7 @@
                         </button>
                         <button type="submit"
                                 :disabled="filter === 'class' && !classId"
-                                :class="(filter === 'class' && !classId) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#B91818]'"
+                                :class="(filter === 'class' && !classId) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-bass-red-hover'"
                                 class="flex-1 inline-flex justify-center items-center gap-2 px-4 py-2.5 bg-bass-red text-white font-semibold text-sm rounded-xl transition-colors shadow">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>

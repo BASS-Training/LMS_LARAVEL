@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Reset Password User: ') . $user->name }}
@@ -26,7 +26,7 @@
                                 <label class="block text-sm font-medium text-gray-700">Role:</label>
                                 <div class="flex flex-wrap gap-1">
                                     @foreach ($user->getRoleNames() as $roleName)
-                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">{{ $roleName }}</span>
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-success-soft text-success">{{ $roleName }}</span>
                                     @endforeach
                                 </div>
                             </div>
@@ -37,7 +37,7 @@
                     <form action="{{ route('admin.users.reset-password', $user) }}" method="POST" class="space-y-6">
                         @csrf
 
-                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                        <div class="bg-warning-soft border border-warning/40 rounded-lg p-4 mb-6">
                             <div class="flex">
                                 <div class="flex-shrink-0">
                                     <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
@@ -45,8 +45,8 @@
                                     </svg>
                                 </div>
                                 <div class="ml-3">
-                                    <h3 class="text-sm font-medium text-yellow-800">Peringatan</h3>
-                                    <div class="mt-2 text-sm text-yellow-700">
+                                    <h3 class="text-sm font-medium text-warning">Peringatan</h3>
+                                    <div class="mt-2 text-sm text-warning">
                                         <p>Anda akan mengubah password untuk user <strong>{{ $user->name }}</strong>. Pastikan untuk memberitahu user tentang password baru ini.</p>
                                     </div>
                                 </div>
@@ -133,11 +133,11 @@
                 strengthBar.style.width = strength + '%';
                 
                 if (strength < 30) {
-                    strengthBar.className = 'h-2 rounded-full transition-all duration-300 bg-red-500';
+                    strengthBar.className = 'h-2 rounded-full transition-all duration-300 bg-error';
                     strengthText.textContent = 'Lemah';
-                    strengthText.className = 'text-xs text-red-500 mt-1';
+                    strengthText.className = 'text-xs text-error mt-1';
                 } else if (strength < 60) {
-                    strengthBar.className = 'h-2 rounded-full transition-all duration-300 bg-yellow-500';
+                    strengthBar.className = 'h-2 rounded-full transition-all duration-300 bg-warning';
                     strengthText.textContent = 'Sedang';
                     strengthText.className = 'text-xs text-yellow-500 mt-1';
                 } else if (strength < 80) {
@@ -145,9 +145,9 @@
                     strengthText.textContent = 'Kuat';
                     strengthText.className = 'text-xs text-navy mt-1';
                 } else {
-                    strengthBar.className = 'h-2 rounded-full transition-all duration-300 bg-green-500';
+                    strengthBar.className = 'h-2 rounded-full transition-all duration-300 bg-success';
                     strengthText.textContent = 'Sangat Kuat';
-                    strengthText.className = 'text-xs text-green-500 mt-1';
+                    strengthText.className = 'text-xs text-success mt-1';
                 }
             }
         });

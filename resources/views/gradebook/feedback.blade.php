@@ -12,7 +12,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             @if (session('success'))
-                <div class="mb-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
+                <div class="mb-4 p-4 text-sm text-success bg-success-soft rounded-lg" role="alert">
                     {{ session('success') }}
                 </div>
             @endif
@@ -66,7 +66,7 @@
                 </div>
             </div>
              <div class="mt-6">
-                <a href="javascript:void(0)" onclick="window.history.back()" class="text-sm text-bass-red hover:text-[#B91818]">&larr; Kembali</a>
+                <a href="javascript:void(0)" onclick="window.history.back()" class="text-sm text-bass-red hover:text-bass-red-hover">&larr; Kembali</a>
             </div>
         </div>
     </div>

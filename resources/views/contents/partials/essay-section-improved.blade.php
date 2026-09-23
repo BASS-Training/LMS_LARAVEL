@@ -8,7 +8,7 @@
         <div id="essay-toast-container" class="fixed top-4 right-4 z-50 space-y-2 pointer-events-none"></div>
         {{-- JIKA SUDAH ADA JAWABAN YANG SUBMITTED --}}
         @if ($submission && $submission->status === 'submitted')
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-md dark:bg-green-900 dark:text-green-200 dark:border-green-600" role="alert">
+            <div class="bg-success-soft border-l-4 border-success text-success p-4 rounded-md dark:bg-success/20 dark:text-success dark:border-success/60" role="alert">
                 <p class="font-bold">Anda Sudah Mengumpulkan Jawaban</p>
                 <p>Jawaban Anda dikumpulkan pada: {{ $submission->created_at->format('d F Y, H:i') }}</p>
 
@@ -42,7 +42,7 @@
 
                 @if ($isProcessed)
                     <div class="mt-4">
-                        <a href="{{ route('essays.result', $submission->id) }}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md inline-block">
+                        <a href="{{ route('essays.result', $submission->id) }}" class="bg-navy hover:bg-navy-light text-white font-bold py-2 px-4 rounded-md inline-block">
                             @if($submission->content->scoring_enabled)
                                 Lihat Nilai dan Feedback
                             @else
@@ -65,7 +65,7 @@
                     @if(!($submission->content->requires_review ?? true))
                         {{-- Essay latihan mandiri - tidak perlu review --}}
                         <div class="mt-4">
-                            <div class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
+                            <div class="inline-flex items-center px-3 py-1 bg-success-soft text-success text-sm rounded-full">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
@@ -73,7 +73,7 @@
                             </div>
                             <p class="mt-2 text-sm text-gray-600">Essay latihan mandiri telah berhasil dikumpulkan dan langsung selesai.</p>
                             <div class="mt-3">
-                                <a href="{{ route('essays.result', $submission->id) }}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md inline-block">
+                                <a href="{{ route('essays.result', $submission->id) }}" class="bg-navy hover:bg-navy-light text-white font-bold py-2 px-4 rounded-md inline-block">
                                     Lihat Jawaban Saya
                                 </a>
                             </div>
@@ -142,7 +142,7 @@
                                     </div>
 
                                     <!-- Current Question Info -->
-                                    <div class="mt-3 p-2 bg-red-50 dark:bg-red-900/30 rounded-lg border border-red-200 dark:border-red-700">
+                                    <div class="mt-3 p-2 bg-bass-red-soft dark:bg-bass-red/15 rounded-lg border border-bass-red/30 dark:border-bass-red/40">
                                         <div class="text-xs text-gray-600 dark:text-gray-300">
                                             <span class="font-semibold">Soal Aktif:</span>
                                             <span id="current-question-display" class="ml-2 text-base font-bold">1</span>
@@ -164,7 +164,7 @@
                                     <div class="grid grid-cols-5 gap-1.5">
                                         @for($i = 1; $i <= $questions->count(); $i++)
                                             <button type="button" onclick="goToQuestion({{ $i - 1 }})"
-                                                    class="question-nav-btn w-full aspect-square rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-bold transition-all duration-200 hover:border-bass-red hover:bg-red-50 dark:hover:bg-red-900/30 hover:scale-105"
+                                                    class="question-nav-btn w-full aspect-square rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-bold transition-all duration-200 hover:border-bass-red hover:bg-bass-red-soft dark:hover:bg-bass-red/20 hover:scale-105"
                                                     data-question="{{ $i - 1 }}"
                                                     title="Soal {{ $i }}">
                                                 {{ $i }}
@@ -179,11 +179,11 @@
                                             <span class="text-gray-600 dark:text-gray-400">Belum dijawab</span>
                                         </div>
                                         <div class="flex items-center space-x-2">
-                                            <div class="w-5 h-5 rounded border-2 border-green-400 bg-green-100 dark:bg-green-900/30"></div>
+                                            <div class="w-5 h-5 rounded border-2 border-success bg-success-soft dark:bg-success/20"></div>
                                             <span class="text-gray-600 dark:text-gray-400">Sudah dijawab</span>
                                         </div>
                                         <div class="flex items-center space-x-2">
-                                            <div class="w-5 h-5 rounded border-2 border-bass-red bg-red-50 dark:bg-red-900/30"></div>
+                                            <div class="w-5 h-5 rounded border-2 border-bass-red bg-bass-red-soft dark:bg-bass-red/20"></div>
                                             <span class="text-gray-600 dark:text-gray-400">Sedang dilihat</span>
                                         </div>
                                     </div>
@@ -251,7 +251,7 @@
                                                 <!-- Question Content - MAXIMUM WIDTH & HEIGHT -->
                                                 <div class="p-6 lg:p-10 bg-white dark:bg-gray-900 min-h-[650px]">
                                                     <div class="mb-6">
-                                                        <div class="p-5 bg-red-50 dark:bg-red-900/30 rounded-xl border-l-4 border-bass-red">
+                                                        <div class="p-5 bg-bass-red-soft dark:bg-bass-red/15 rounded-xl border-l-4 border-bass-red">
                                                             <p class="text-xl font-medium text-gray-900 dark:text-gray-100 leading-relaxed whitespace-pre-line">{{ $question->question }}</p>
                                                         </div>
                                                     </div>
@@ -277,7 +277,7 @@
                                                         </div>
 
                                                         @error("answer_{$question->id}")
-                                                            <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                                                            <p class="mt-2 text-sm text-error dark:text-error">{{ $message }}</p>
                                                         @enderror
                                                     </div>
                                                 </div>
@@ -302,7 +302,7 @@
                                                         <div class="flex items-center gap-3 flex-wrap">
                                                             <button type="button"
                                                                     onclick="saveCurrentAnswer(true)"
-                                                                    class="px-5 py-3 bg-bass-red hover:bg-[#B91818] text-white font-semibold rounded-lg transition-all duration-200 {{ $index === $questions->count() - 1 ? 'hidden' : '' }}"
+                                                                    class="px-5 py-3 bg-bass-red hover:bg-bass-red-hover text-white font-semibold rounded-lg transition-all duration-200 {{ $index === $questions->count() - 1 ? 'hidden' : '' }}"
                                                                     id="save-next-btn-{{ $index }}">
                                                                 Simpan Jawaban & Lanjut
                                                                 <svg class="w-4 h-4 inline ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -322,14 +322,14 @@
 
                                                             <button type="button"
                                                                     onclick="saveCurrentAnswer(false)"
-                                                                    class="px-5 py-3 bg-bass-red hover:bg-[#B91818] text-white font-semibold rounded-lg transition-all duration-200 {{ $index !== $questions->count() - 1 ? 'hidden' : '' }}"
+                                                                    class="px-5 py-3 bg-bass-red hover:bg-bass-red-hover text-white font-semibold rounded-lg transition-all duration-200 {{ $index !== $questions->count() - 1 ? 'hidden' : '' }}"
                                                                     id="save-btn-{{ $index }}">
                                                                 Simpan Jawaban
                                                             </button>
 
                                                             <button type="button"
                                                                     onclick="showSubmitConfirmation(event)"
-                                                                    class="px-5 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all duration-200 {{ $index !== $questions->count() - 1 ? 'hidden' : '' }}"
+                                                                    class="px-5 py-3 bg-success hover:bg-success/90 text-white font-semibold rounded-lg transition-all duration-200 {{ $index !== $questions->count() - 1 ? 'hidden' : '' }}"
                                                                     id="submit-btn-{{ $index }}">
                                                                 <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -354,7 +354,7 @@
                     <div class="bg-white dark:bg-gray-900 rounded-2xl p-8 max-w-md w-full mx-4 transform transition-all duration-300 shadow-2xl">
                         <div class="text-center">
                             <div class="bg-warning-soft w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <svg class="w-10 h-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-10 h-10 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                                 </svg>
                             </div>
@@ -373,7 +373,7 @@
                                     </div>
                                     <div>
                                         <span class="text-gray-500 dark:text-gray-400">Total Pertanyaan:</span>
-                                        <br><span class="font-bold text-green-600">{{ $questions->count() }}</span>
+                                        <br><span class="font-bold text-success">{{ $questions->count() }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -715,17 +715,17 @@
                                 statusText.textContent = 'Belum dijawab';
                                 statusText.className = 'status-text text-sm text-gray-500';
                             } else if (dirty) {
-                                statusIndicator.className = 'status-indicator w-4 h-4 rounded-full bg-yellow-400 transition-all duration-300';
+                                statusIndicator.className = 'status-indicator w-4 h-4 rounded-full bg-warning transition-all duration-300';
                                 statusText.textContent = 'Belum disimpan';
-                                statusText.className = 'status-text text-sm text-yellow-600 font-medium';
+                                statusText.className = 'status-text text-sm text-warning font-medium';
                             } else if (savedNonEmpty && completed) {
-                                statusIndicator.className = 'status-indicator w-4 h-4 rounded-full bg-green-500 transition-all duration-300';
+                                statusIndicator.className = 'status-indicator w-4 h-4 rounded-full bg-success transition-all duration-300';
                                 statusText.textContent = 'Tersimpan';
-                                statusText.className = 'status-text text-sm text-green-600 font-medium';
+                                statusText.className = 'status-text text-sm text-success font-medium';
                             } else if (savedNonEmpty) {
-                                statusIndicator.className = 'status-indicator w-4 h-4 rounded-full bg-yellow-400 transition-all duration-300';
+                                statusIndicator.className = 'status-indicator w-4 h-4 rounded-full bg-warning transition-all duration-300';
                                 statusText.textContent = 'Draft tersimpan (min ' + MIN_WORDS + ' kata)';
-                                statusText.className = 'status-text text-sm text-yellow-600 font-medium';
+                                statusText.className = 'status-text text-sm text-warning font-medium';
                             } else {
                                 statusIndicator.className = 'status-indicator w-4 h-4 rounded-full border-2 border-gray-300 transition-all duration-300';
                                 statusText.textContent = 'Belum dijawab';
@@ -760,10 +760,10 @@
                             if (!statusEl) return;
 
                             const colors = {
-                                'saving': 'text-yellow-600',
-                                'saved': 'text-green-600',
+                                'saving': 'text-warning',
+                                'saved': 'text-success',
                                 'unsaved': 'text-gray-400',
-                                'error': 'text-red-600'
+                                'error': 'text-error'
                             };
 
                             statusEl.className = 'save-status ' + colors[status];
@@ -775,10 +775,10 @@
                             const textEl = document.getElementById('save-indicator-text');
 
                             const classes = {
-                                'saved': 'flex items-center space-x-2 text-green-600 transition-opacity duration-300',
-                                'saving': 'flex items-center space-x-2 text-yellow-600 transition-opacity duration-300',
-                                'dirty': 'flex items-center space-x-2 text-yellow-600 transition-opacity duration-300',
-                                'error': 'flex items-center space-x-2 text-red-600 transition-opacity duration-300',
+                                'saved': 'flex items-center space-x-2 text-success transition-opacity duration-300',
+                                'saving': 'flex items-center space-x-2 text-warning transition-opacity duration-300',
+                                'dirty': 'flex items-center space-x-2 text-warning transition-opacity duration-300',
+                                'error': 'flex items-center space-x-2 text-error transition-opacity duration-300',
                                 'idle': 'flex items-center space-x-2 text-gray-500 transition-opacity duration-300'
                             };
 
@@ -794,10 +794,10 @@
                             if (!container) return;
 
                             const typeClasses = {
-                                'success': 'bg-green-600',
-                                'info': 'bg-blue-600',
-                                'warning': 'bg-yellow-500',
-                                'error': 'bg-red-600'
+                                'success': 'bg-success',
+                                'info': 'bg-info',
+                                'warning': 'bg-warning',
+                                'error': 'bg-error'
                             };
 
                             const toast = document.createElement('div');
@@ -932,7 +932,7 @@
                     <div class="flex items-center space-x-2">
                         <span class="text-sm text-gray-600">Status Penilaian:</span>
                         @if ($content->scoring_enabled)
-                            <span class="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                            <span class="inline-flex items-center px-2 py-1 bg-success-soft text-success text-xs rounded-full">
                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
@@ -986,7 +986,7 @@
                         <input type="hidden" name="max_score" value="0">
                     @endif
 
-                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-bass-red hover:bg-[#B91818] text-white font-medium rounded-md transition-colors">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-bass-red hover:bg-bass-red-hover text-white font-medium rounded-md transition-colors">
                         Tambah Pertanyaan
                     </button>
                 </form>
@@ -1009,7 +1009,7 @@
                                         </div>
                                         <div class="flex items-center gap-2 ml-4">
                                             <button type="button"
-                                                    class="edit-question-btn text-bass-red hover:text-[#B91818] p-2 rounded-lg hover:bg-red-50 transition-colors"
+                                                    class="edit-question-btn text-navy hover:text-navy-light p-2 rounded-lg hover:bg-navy/10 transition-colors"
                                                     data-question-id="{{ $question->id }}"
                                                     title="Edit pertanyaan">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1020,7 +1020,7 @@
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit"
-                                                        class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                                                        class="text-neutral-900 hover:opacity-75 p-2 rounded-lg hover:bg-neutral-100 transition-colors"
                                                         onclick="return confirm('Hapus pertanyaan ini?')"
                                                         title="Hapus pertanyaan">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1067,7 +1067,7 @@
                                             @endif
 
                                             <div class="flex items-center gap-2">
-                                                <button type="submit" class="inline-flex items-center px-4 py-2 bg-bass-red hover:bg-[#B91818] text-white font-medium rounded-md transition-colors">
+                                                <button type="submit" class="inline-flex items-center px-4 py-2 bg-bass-red hover:bg-bass-red-hover text-white font-medium rounded-md transition-colors">
                                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                     </svg>

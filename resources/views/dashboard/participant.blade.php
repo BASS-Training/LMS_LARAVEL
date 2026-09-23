@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-navy leading-tight">
@@ -6,7 +6,7 @@
             </h2>
             <div class="flex items-center space-x-4">
                 <!-- Komponen Notifikasi Fungsional -->
-                <a href="{{ route('announcements.index') }}" class="relative p-2 text-gray-600 hover:text-bass-red hover:bg-red-50 rounded-full">
+                <a href="{{ route('announcements.index') }}" class="relative p-2 text-gray-600 hover:text-bass-red hover:bg-error-soft rounded-full">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M15 17h5l-1.5-1.5A2 2 0 0118 14v-3a6 6 0 10-12 0v3a2 2 0 01-.5 1.5L4 17h5m6 0v1a3 3 0 11-6 0v-1" />
@@ -51,7 +51,7 @@
             </div>
 
             @if (session('certificate_created'))
-        <div class="mb-8 bg-green-50 border border-green-200 rounded-2xl shadow-lg overflow-hidden"
+        <div class="mb-8 bg-success-soft border border-success/40 rounded-2xl shadow-lg overflow-hidden"
             x-data="{ show: true }" 
             x-show="show" 
             x-transition:enter="transition ease-out duration-300"
@@ -64,7 +64,7 @@
             <div class="p-6">
                 <div class="flex items-start">
                     <div class="flex-shrink-0">
-                        <div class="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <div class="w-12 h-12 bg-success rounded-xl flex items-center justify-center shadow-lg">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
                             </svg>
@@ -74,18 +74,18 @@
                     <div class="ml-4 flex-1">
                         <div class="flex items-center justify-between">
                             <div>
-                                <h3 class="text-lg font-bold text-green-900">
+                                <h3 class="text-lg font-bold text-success">
                                     Sertifikat Berhasil Dibuat!
                                 </h3>
-                                <p class="text-green-800 mt-1">
+                                <p class="text-success mt-1">
                                     {{ session('success') }}
                                 </p>
-                                <p class="text-sm text-green-600 mt-2">
+                                <p class="text-sm text-success mt-2">
                                     Kursus: <span class="font-semibold">{{ session('course_title') }}</span>
                                 </p>
                             </div>
                             
-                            <button @click="show = false" class="flex-shrink-0 ml-4 text-green-500 hover:text-green-700 transition-colors">
+                            <button @click="show = false" class="flex-shrink-0 ml-4 text-success hover:text-success transition-colors">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
@@ -94,7 +94,7 @@
                         
                         <div class="mt-4 flex flex-wrap gap-3">
                             <a href="{{ route('certificates.index') }}" 
-                            class="inline-flex items-center px-4 py-2 bg-bass-red hover:bg-[#B91818] text-white text-sm font-medium rounded-lg transition-colors duration-200 shadow-sm hover:shadow">
+                            class="inline-flex items-center px-4 py-2 bg-bass-red hover:bg-bass-red-hover text-white text-sm font-medium rounded-lg transition-colors duration-200 shadow-sm hover:shadow">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path>
                                 </svg>
@@ -116,36 +116,36 @@
             </div>
             
             {{-- Decorative bottom border --}}
-            <div class="h-2 bg-green-500"></div>
+            <div class="h-2 bg-success"></div>
         </div>
     @endif
 
     {{-- Standard Success/Error Messages --}}
     @if (session('success') && !session('certificate_created'))
-        <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl shadow-sm" role="alert">
+        <div class="mb-6 p-4 bg-success-soft border border-success/40 rounded-xl shadow-sm" role="alert">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
-                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
                 <div class="ml-3">
-                    <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+                    <p class="text-sm font-medium text-success">{{ session('success') }}</p>
                 </div>
             </div>
         </div>
     @endif
 
     @if (session('error'))
-        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl shadow-sm" role="alert">
+        <div class="mb-6 p-4 bg-error-soft border border-error/40 rounded-xl shadow-sm" role="alert">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
-                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.664-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                     </svg>
                 </div>
                 <div class="ml-3">
-                    <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
+                    <p class="text-sm font-medium text-error">{{ session('error') }}</p>
                 </div>
             </div>
         </div>
@@ -167,15 +167,15 @@
     @endif
 
     @if (session('warning'))
-        <div class="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl shadow-sm" role="alert">
+        <div class="mb-6 p-4 bg-warning-soft border border-warning/40 rounded-xl shadow-sm" role="alert">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
-                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <svg class="w-5 h-5 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.664-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                     </svg>
                 </div>
                 <div class="ml-3">
-                    <p class="text-sm font-medium text-amber-800">{{ session('warning') }}</p>
+                    <p class="text-sm font-medium text-warning">{{ session('warning') }}</p>
                 </div>
             </div>
         </div>
@@ -266,7 +266,7 @@
                         <div class="mt-4">
                             <div class="flex text-xs text-gray-600">
                                 <span class="flex items-center">
-                                    <span class="w-2 h-2 bg-green-400 rounded-full mr-1"></span>
+                                    <span class="w-2 h-2 bg-success rounded-full mr-1"></span>
                                     {{ $stats['courses']['completed'] }} Selesai
                                 </span>
                                 <span class="flex items-center ml-3">
@@ -383,7 +383,7 @@
                                         <div class="flex items-start justify-between mb-2">
                                             <h4 class="text-lg font-medium text-gray-900 truncate">{{ $course['title'] }}</h4>
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ml-2 flex-shrink-0
-                                                {{ $course['status'] === 'completed' ? 'bg-green-100 text-green-800' :
+                                                {{ $course['status'] === 'completed' ? 'bg-success-soft text-success' :
                                                    ($course['status'] === 'in_progress' ? 'bg-gray-100 text-navy' : 'bg-gray-100 text-gray-800') }}">
                                                 {{ $course['status'] === 'completed' ? 'Selesai' :
                                                    ($course['status'] === 'in_progress' ? 'Berlangsung' : 'Belum Dimulai') }}
@@ -408,7 +408,7 @@
                                         <div class="flex justify-between items-center mt-4">
                                             <div class="flex items-center gap-4">
                                                 <a href="{{ route('courses.show', $course['id']) }}" 
-                                                class="px-4 py-2 bg-bass-red hover:bg-[#B91818] text-white font-medium text-sm rounded-lg transition-colors duration-200">
+                                                class="px-4 py-2 bg-bass-red hover:bg-bass-red-hover text-white font-medium text-sm rounded-lg transition-colors duration-200">
                                                     {{ $course['status'] === 'not_started' ? 'Mulai Belajar' : 'Lanjutkan Belajar' }}
                                                 </a>
                                                 <a href="{{ route('courses.my-scores', $course['id']) }}" 
@@ -454,7 +454,7 @@
                                                     {{-- Sudah punya sertifikat - tombol download + view --}}
                                                     <div class="flex gap-1">
                                                         <a href="{{ route('certificates.download', $certificate) }}" 
-                                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-bass-red text-white rounded-md hover:bg-[#B91818] text-xs font-semibold transition-colors duration-200"
+                                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-bass-red text-white rounded-md hover:bg-bass-red-hover text-xs font-semibold transition-colors duration-200"
                                                         title="Download certificate">
                                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                                             Unduh
@@ -469,7 +469,7 @@
                                                 @elseif($certificateButtonType === 'generate')
                                                     {{-- Eligible tapi belum generate --}}
                                                     <a href="{{ route('my-certificates.generate', $courseModel) }}"
-                                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-bass-red text-white rounded-md hover:bg-[#B91818] text-xs font-semibold transition-colors duration-200"
+                                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-bass-red text-white rounded-md hover:bg-bass-red-hover text-xs font-semibold transition-colors duration-200"
                                                     title="Generate your certificate">
                                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422A12.083 12.083 0 0118.5 17.5c-2 1.5-4.167 2.25-6.5 2.25S7.5 19 5.5 17.5a12.083 12.083 0 01.34-6.922L12 14z"/></svg>
                                                         Cetak Sertifikat
@@ -507,9 +507,9 @@
                         <div class="p-6">
                             <div class="space-y-4">
                                 @forelse($stats['recent_activities']['completions'] as $completion)
-                                <div class="flex items-center p-3 bg-green-50 rounded-lg">
-                                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="flex items-center p-3 bg-success-soft rounded-lg">
+                                    <div class="w-10 h-10 bg-success-soft rounded-full flex items-center justify-center mr-3">
+                                        <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                         </svg>
                                     </div>
@@ -603,9 +603,9 @@
                                 @if($showAvpnStatus)
                                     @php
                                         $avpnStatusClass = match($avpnStatus) {
-                                            'approved' => 'bg-green-50 border-green-200 text-green-700',
-                                            'pending' => 'bg-amber-50 border-amber-200 text-amber-700',
-                                            'rejected' => 'bg-red-50 border-red-200 text-red-700',
+                                            'approved' => 'bg-success-soft border-success/40 text-success',
+                                            'pending' => 'bg-warning-soft border-warning/40 text-warning',
+                                            'rejected' => 'bg-error-soft border-error/40 text-error',
                                             default => 'bg-gray-50 border-gray-200 text-gray-700'
                                         };
                                     @endphp
@@ -625,7 +625,7 @@
                                     @php($avpnGoogleFormUrl = config('services.avpn.google_form_url'))
                                     <form action="{{ route('profile.avpn.request') }}" method="POST" class="mb-3 js-avpn-verify-form" data-google-form-url="{{ $avpnGoogleFormUrl ?? '' }}">
                                         @csrf
-                                        <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 bg-bass-red hover:bg-[#B91818] text-white text-sm font-medium rounded-lg transition-colors">
+                                        <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 bg-bass-red hover:bg-bass-red-hover text-white text-sm font-medium rounded-lg transition-colors">
                                             Ajukan Verifikasi AVPN
                                         </button>
                                         <p class="mt-2 text-xs text-gray-500">
@@ -655,7 +655,7 @@
                                             required
                                             class="flex-1 h-11 px-3 placeholder-gray-400 focus:outline-none" />
                                         <button type="submit"
-                                            class="h-11 px-4 bg-bass-red hover:bg-[#B91818] text-white font-medium transition-colors duration-200 flex items-center justify-center">
+                                            class="h-11 px-4 bg-bass-red hover:bg-bass-red-hover text-white font-medium transition-colors duration-200 flex items-center justify-center">
                                             <span class="sr-only">Gabung</span>
                                             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                                 <path d="M13.172 12l-4.95-4.95 1.414-1.414L16 12l-6.364 6.364-1.414-1.414z"/>
@@ -664,8 +664,8 @@
                                     </div>
 
                                     @if($errors->has('token'))
-                                        <div class="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
-                                            <p class="text-sm text-red-600">{{ $errors->first('token') }}</p>
+                                        <div class="mt-2 p-2 bg-error-soft border border-error/40 rounded-lg">
+                                            <p class="text-sm text-error">{{ $errors->first('token') }}</p>
                                         </div>
                                     @endif
 
@@ -692,7 +692,7 @@
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-navy">
                                             {{ ucfirst($content->type) }}
                                         </span>
-                                        <a href="{{ route('courses.show', $content->lesson->course->id) }}" class="text-xs text-bass-red hover:text-[#B91818] font-medium">
+                                        <a href="{{ route('courses.show', $content->lesson->course->id) }}" class="text-xs text-bass-red hover:text-bass-red-hover font-medium">
                                             Mulai →
                                         </a>
                                     </div>
@@ -728,13 +728,13 @@
                             @endif
 
                             @if($stats['essays']['submissions'] > $stats['essays']['graded'])
-                            <div class="flex items-center w-full px-4 py-3 text-left text-sm font-medium bg-amber-50 rounded-lg border border-amber-200">
-                                <svg class="w-5 h-5 mr-3 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <div class="flex items-center w-full px-4 py-3 text-left text-sm font-medium bg-warning-soft rounded-lg border border-warning/40">
+                                <svg class="w-5 h-5 mr-3 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                                 <div class="flex-1">
-                                    <p class="text-amber-800 font-medium">Esai Menunggu Penilaian</p>
-                                    <p class="text-xs text-amber-700">{{ $stats['essays']['submissions'] - $stats['essays']['graded'] }} esai belum dinilai</p>
+                                    <p class="text-warning font-medium">Esai Menunggu Penilaian</p>
+                                    <p class="text-xs text-warning">{{ $stats['essays']['submissions'] - $stats['essays']['graded'] }} esai belum dinilai</p>
                                 </div>
                             </div>
                             @endif
@@ -766,7 +766,7 @@
                     <button type="button" id="avpnModalCancelBtn" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-100 transition-colors">
                         Batal
                     </button>
-                    <button type="button" id="avpnModalContinueBtn" class="px-4 py-2 rounded-lg bg-bass-red text-white text-sm font-medium hover:bg-[#B91818] transition-colors">
+                    <button type="button" id="avpnModalContinueBtn" class="px-4 py-2 rounded-lg bg-bass-red text-white text-sm font-medium hover:bg-bass-red-hover transition-colors">
                         Lanjutkan
                     </button>
                 </div>
@@ -1010,9 +1010,9 @@
 
             const typeStyles = {
                 info: 'bg-navy text-white',
-                success: 'bg-green-600 text-white',
-                warning: 'bg-amber-600 text-white',
-                error: 'bg-red-600 text-white'
+                success: 'bg-success text-white',
+                warning: 'bg-warning text-white',
+                error: 'bg-bass-red text-white'
             };
 
             toast.className = `notification-toast max-w-sm w-full ${typeStyles[type]} shadow-lg rounded-lg pointer-events-auto overflow-hidden`;

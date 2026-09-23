@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Metode pembayaran — ' . $course->title)
 
@@ -34,7 +34,7 @@
     <h1 class="text-2xl font-bold text-gray-900">Metode pembayaran</h1>
 
     @if ($errors->has('shop'))
-        <div class="mt-5 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+        <div class="mt-5 rounded-lg bg-error-soft border border-error/40 px-4 py-3 text-sm text-error">
             {{ $errors->first('shop') }}
         </div>
     @endif
@@ -47,7 +47,7 @@
             @forelse ($options as $i => $opt)
                 <label class="flex items-center gap-4 rounded-xl border p-4 cursor-pointer transition-colors"
                        :class="selected === '{{ $opt['key'] }}'
-                           ? 'border-bass-red ring-1 ring-bass-red bg-red-50/40'
+                           ? 'border-bass-red ring-1 ring-bass-red bg-error-soft/40'
                            : 'border-gray-200 hover:border-gray-300'">
                     <input type="radio" name="method" value="{{ $opt['key'] }}"
                            x-model="selected"
@@ -57,7 +57,7 @@
                         <div class="flex items-center gap-2">
                             <p class="font-semibold text-gray-900">{{ $opt['label'] }}</p>
                             @if ($i === 0 && $opt['fee'] > 0)
-                                <span class="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
+                                <span class="inline-flex items-center rounded-full bg-success-soft px-2 py-0.5 text-[11px] font-semibold text-success">
                                     Termurah
                                 </span>
                             @endif
@@ -71,7 +71,7 @@
                         @if ($opt['fee'] > 0)
                             <span class="text-sm text-gray-500">+{{ $rupiah($opt['fee']) }}</span>
                         @else
-                            <span class="text-sm font-medium text-emerald-600">Gratis</span>
+                            <span class="text-sm font-medium text-success">Gratis</span>
                         @endif
                     </div>
                 </label>
@@ -115,7 +115,7 @@
                     </dl>
 
                     <button type="submit" @disabled(empty($options))
-                            class="w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-[#B91818] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            class="w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                         Lanjutkan Pembayaran
                     </button>
 

@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Admin Tools') }}
@@ -13,7 +13,7 @@
                     <p class="text-sm text-gray-600 mb-4">Refresh cache permission agar perubahan role/permission langsung berlaku.</p>
                     <form action="{{ route('admin.tools.permissions.refresh') }}" method="POST" onsubmit="return confirm('Refresh permission cache sekarang?');">
                         @csrf
-                        <button type="submit" class="px-4 py-2 bg-bass-red text-white rounded-lg hover:bg-[#B91818] transition-colors">Refresh Permission Cache</button>
+                        <button type="submit" class="px-4 py-2 bg-bass-red text-white rounded-lg hover:bg-bass-red-hover transition-colors">Refresh Permission Cache</button>
                     </form>
                 </div>
 

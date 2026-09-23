@@ -136,12 +136,12 @@
                     <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
                         
                         <!-- PDF Controls Header -->
-                        <div class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+                        <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-4">
                                     <h3 class="text-xl font-bold text-gray-900 dark:text-white">Certificate Preview</h3>
                                     <div class="hidden sm:flex items-center space-x-2">
-                                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                        <div class="w-2 h-2 bg-success rounded-full animate-pulse"></div>
                                         <span class="text-sm text-gray-600 dark:text-gray-400">Live Preview</span>
                                     </div>
                                 </div>
@@ -149,7 +149,7 @@
                                 <!-- PDF Navigation -->
                                 <div id="pdf-controls" class="hidden flex items-center space-x-3">
                                     <div class="flex items-center bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-600 overflow-hidden">
-                                        <button id="prev-page" class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <button id="prev-page" class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-navy/10 dark:hover:bg-navy transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                                             </svg>
@@ -159,7 +159,7 @@
                                                 <span id="page-num">1</span> / <span id="page-count">-</span>
                                             </span>
                                         </div>
-                                        <button id="next-page" class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <button id="next-page" class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-navy/10 dark:hover:bg-navy transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                             </svg>
@@ -168,7 +168,7 @@
                                     
                                     <!-- Zoom Controls -->
                                     <div class="flex items-center bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-600 overflow-hidden">
-                                        <button id="zoom-out" class="px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900 transition-colors">
+                                        <button id="zoom-out" class="px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-bass-red-soft dark:hover:bg-bass-red/30 transition-colors">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
                                             </svg>
@@ -176,7 +176,7 @@
                                         <div class="px-3 py-2 border-x border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
                                             <span id="zoom-level" class="text-sm font-medium text-gray-700 dark:text-gray-300">100%</span>
                                         </div>
-                                        <button id="zoom-in" class="px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900 transition-colors">
+                                        <button id="zoom-in" class="px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-success-soft dark:hover:bg-success/30 transition-colors">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                                             </svg>
@@ -190,8 +190,8 @@
                         <div id="pdf-loading" class="flex items-center justify-center h-96 bg-gray-100 dark:bg-gray-800">
                             <div class="text-center">
                                 <div class="relative">
-                                    <div class="w-20 h-20 border-4 border-blue-200 dark:border-blue-700 rounded-full animate-spin border-t-blue-600 dark:border-t-blue-400 mx-auto mb-4"></div>
-                                    <div class="absolute inset-0 w-20 h-20 border-4 border-transparent rounded-full animate-ping border-t-blue-400 mx-auto"></div>
+                                    <div class="w-20 h-20 border-4 border-bass-red/30 dark:border-bass-red/30 rounded-full animate-spin border-t-bass-red dark:border-t-bass-red mx-auto mb-4"></div>
+                                    <div class="absolute inset-0 w-20 h-20 border-4 border-transparent rounded-full animate-ping border-t-bass-red/60 mx-auto"></div>
                                 </div>
                                 <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Loading Certificate</h3>
                                 <p class="text-gray-500 dark:text-gray-400">Preparing secure document viewer...</p>
@@ -200,7 +200,7 @@
 
                         <!-- PDF Viewer Container -->
                         <div id="pdf-viewer" class="hidden">
-                            <div class="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 p-6" style="min-height: 800px;">
+                            <div class="bg-gray-100 dark:bg-gray-800 p-6" style="min-height: 800px;">
                                 <div class="flex justify-center">
                                     <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
                                         <canvas id="pdf-canvas" class="max-w-full h-auto"></canvas>
@@ -211,8 +211,8 @@
 
                         <!-- Fallback State -->
                         <div id="pdf-fallback" class="hidden flex flex-col items-center justify-center h-96 p-8 text-center bg-error-soft dark:bg-gray-800">
-                            <div class="w-24 h-24 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mb-6">
-                                <svg class="w-12 h-12 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-24 h-24 bg-error-soft dark:bg-error-soft rounded-full flex items-center justify-center mb-6">
+                                <svg class="w-12 h-12 text-error dark:text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
                             </div>
@@ -475,7 +475,7 @@
             });
 
             // Add floating animation to verification badge
-            const badge = document.querySelector('.sticky .bg-green-100');
+            const badge = document.querySelector('.sticky .bg-success-soft');
             if (badge) {
                 badge.style.animation = 'float 3s ease-in-out infinite';
             }
@@ -494,7 +494,7 @@
                 50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.8), 0 0 40px rgba(59, 130, 246, 0.3); }
             }
             
-            .group:hover .bg-gradient-to-r {
+            .group:hover .bg-navy {
                 animation: glow 2s ease-in-out infinite;
             }
             

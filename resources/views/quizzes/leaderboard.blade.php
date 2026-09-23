@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
@@ -70,14 +70,14 @@
                     {{-- 3rd Place --}}
                     @if(isset($leaderboard[2]))
                         <div class="bg-white border-2 border-amber-600 rounded-lg p-6 text-center transform translate-y-12 shadow-lg">
-                            <div class="w-20 h-20 mx-auto bg-amber-600 rounded-full flex items-center justify-center mb-3 shadow-lg">
+                            <div class="w-20 h-20 mx-auto bg-warning rounded-full flex items-center justify-center mb-3 shadow-lg">
                                 <span class="text-3xl font-bold text-white">3</span>
                             </div>
-                            <div class="w-16 h-16 mx-auto mb-3 bg-amber-500 rounded-full flex items-center justify-center text-2xl font-bold text-white">
+                            <div class="w-16 h-16 mx-auto mb-3 bg-warning rounded-full flex items-center justify-center text-2xl font-bold text-white">
                                 {{ strtoupper(substr($leaderboard[2]['user']->name, 0, 1)) }}
                             </div>
                             <h3 class="font-bold text-lg text-gray-800 truncate">{{ $leaderboard[2]['user']->name }}</h3>
-                            <p class="text-2xl font-bold text-amber-600 mt-2">{{ $leaderboard[2]['percentage'] }}%</p>
+                            <p class="text-2xl font-bold text-warning mt-2">{{ $leaderboard[2]['percentage'] }}%</p>
                             <p class="text-sm text-gray-600">{{ $leaderboard[2]['score'] }}/{{ $leaderboard[2]['total_marks'] }}</p>
                         </div>
                     @endif
@@ -116,7 +116,7 @@
                                                     {{ $entry['rank'] }}
                                                 </span>
                                             @elseif($entry['rank'] == 3)
-                                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-amber-600 text-white font-bold shadow-md">
+                                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-warning text-white font-bold shadow-md">
                                                     {{ $entry['rank'] }}
                                                 </span>
                                             @else

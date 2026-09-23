@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="flex flex-wrap justify-between items-center gap-4">
             <div>
@@ -186,12 +186,12 @@
                                                         </div>
 
                                                         @if($quizData['needs_retry'])
-                                                            <div class="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                                                            <div class="mb-3 p-3 bg-warning-soft border border-warning/40 rounded-lg">
                                                                 <div class="flex items-center">
-                                                                    <svg class="w-4 h-4 text-amber-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <svg class="w-4 h-4 text-warning mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                                                                     </svg>
-                                                                    <span class="text-sm font-medium text-amber-800">Perlu mengulang quiz ini untuk lulus</span>
+                                                                    <span class="text-sm font-medium text-warning">Perlu mengulang quiz ini untuk lulus</span>
                                                                 </div>
                                                             </div>
                                                         @endif

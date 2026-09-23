@@ -2,7 +2,7 @@
 <div class="mt-8 pt-8 border-t" x-data="{ newTopic: false, activeReply: null }">
     <div class="flex justify-between items-center mb-4">
         <h3 class="text-2xl font-bold text-gray-800">Forum Diskusi</h3>
-        <button @click="newTopic = !newTopic" class="inline-flex items-center px-4 py-2 bg-bass-red border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#B91818]">Mulai Topik Baru</button>
+        <button @click="newTopic = !newTopic" class="inline-flex items-center px-4 py-2 bg-bass-red border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-bass-red-hover">Mulai Topik Baru</button>
     </div>
 
     <div x-show="newTopic" x-collapse class="mb-6">
@@ -41,7 +41,7 @@
                     </div>
                     <button 
                         @click="activeReply === {{ $discussion->id }} ? activeReply = null : activeReply = {{ $discussion->id }}" 
-                        class="px-4 py-2 text-sm font-medium text-white bg-bass-red rounded-md shadow hover:bg-[#B91818] transition duration-200 focus:outline-none focus:ring-2 focus:ring-bass-red focus:ring-offset-1">
+                        class="px-4 py-2 text-sm font-medium text-white bg-bass-red rounded-md shadow hover:bg-bass-red-hover transition duration-200 focus:outline-none focus:ring-2 focus:ring-bass-red focus:ring-offset-1">
                         Balas ({{ $discussion->replies->count() }})
                     </button>
                 </div>

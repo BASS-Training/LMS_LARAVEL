@@ -21,7 +21,7 @@
         }
 
         .gradient-bg {
-            background: linear-gradient(135deg, #DA1E1E 0%, #B01818 100%);
+            background: #DA1E1E;
         }
 
         #login-form, #signup-form {
@@ -80,12 +80,12 @@
 
             <div class="flex items-center justify-between mt-5">
                 <label for="remember_me" class="inline-flex items-center cursor-pointer">
-                    <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-[#DA1E1E] shadow-sm focus:ring-[#DA1E1E]" name="remember">
+                    <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-bass-red shadow-sm focus:ring-bass-red]" name="remember">
                     <span class="ms-2 text-sm text-gray-600 font-medium">{{ __('Ingat saya') }}</span>
                 </label>
 
                 @if (Route::has('password.request'))
-                    <a class="text-sm text-[#DA1E1E] hover:underline font-medium" href="{{ route('password.request') }}">
+                    <a class="text-sm text-bass-red hover:underline font-medium" href="{{ route('password.request') }}">
                         {{ __('Lupa password?') }}
                     </a>
                 @endif
@@ -103,7 +103,7 @@
             <div class="mt-6 text-center">
                 <p class="text-sm text-gray-600">
                     Belum punya akun?
-                    <a href="{{ route('register') }}" class="text-[#DA1E1E] hover:underline font-semibold">Daftar sekarang</a>
+                    <a href="{{ route('register') }}" class="text-bass-red hover:underline font-semibold">Daftar sekarang</a>
                 </p>
             </div>
         </form>

@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
@@ -41,7 +41,7 @@
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
             <!-- Token Management Link -->
             <a href="{{ route('courses.tokens', $course) }}" class="block mb-6">
-                <div class="bg-bass-red overflow-hidden shadow-lg sm:rounded-xl hover:bg-[#B91818] hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]">
+                <div class="bg-bass-red overflow-hidden shadow-lg sm:rounded-xl hover:bg-bass-red-hover hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]">
                     <div class="px-6 py-4 flex items-center justify-between">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
@@ -111,9 +111,9 @@
                     }
                 }">
                     @if ($errors->any())
-                        <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
-                            <div class="mb-2 text-sm font-semibold text-red-700">Gagal memperbarui kursus. Periksa data berikut:</div>
-                            <ul class="list-disc pl-5 text-sm text-red-700 space-y-1">
+                        <div class="mb-6 rounded-lg border border-error/40 bg-error-soft p-4">
+                            <div class="mb-2 text-sm font-semibold text-error">Gagal memperbarui kursus. Periksa data berikut:</div>
+                            <ul class="list-disc pl-5 text-sm text-error space-y-1">
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
                                 @endforeach
@@ -157,7 +157,7 @@
                                                autofocus
                                                placeholder="Masukkan judul kursus yang menarik...">
                                         @error('title')
-                                            <p class="text-red-500 text-sm mt-2 flex items-center">
+                                            <p class="text-error text-sm mt-2 flex items-center">
                                                 <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                                                 </svg>
@@ -181,7 +181,7 @@
                                                   placeholder="Jelaskan tentang kursus Anda, apa yang akan dipelajari siswa...">{{ old('description', $course->description) }}</textarea>
                                         <div class="flex justify-between items-center mt-1">
                                             @error('description')
-                                                <p class="text-red-500 text-sm flex items-center">
+                                                <p class="text-error text-sm flex items-center">
                                                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                                                     </svg>
@@ -208,7 +208,7 @@
                                                   class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-bass-red focus:border-transparent transition-all duration-200 group-hover:border-gray-400 resize-none"
                                                   placeholder="Setelah menyelesaikan kursus ini, peserta akan mampu...">{{ old('objectives', $course->objectives) }}</textarea>
                                         @error('objectives')
-                                            <p class="text-red-500 text-sm mt-2 flex items-center">
+                                            <p class="text-error text-sm mt-2 flex items-center">
                                                 <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                                                 </svg>
@@ -233,8 +233,8 @@
                                             <div class="flex items-center">
                                                 <input type="checkbox" name="clear_thumbnail" id="clear_thumbnail"
                                                        @change="if ($event.target.checked) imagePreview = ''"
-                                                       class="rounded border-gray-300 text-red-600 shadow-sm focus:ring-red-500">
-                                                <label for="clear_thumbnail" class="ml-2 text-md font-bold text-red-600 hover:text-red-700 cursor-pointer">
+                                                       class="rounded border-gray-300 text-error shadow-sm focus:ring-bass-red">
+                                                <label for="clear_thumbnail" class="ml-2 text-md font-bold text-error hover:text-error cursor-pointer">
                                                     Hapus Gambar Saat Ini
                                                 </label>
                                             </div>
@@ -244,7 +244,7 @@
                                             <div class="space-y-1 text-center">
                                                 <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
                                                 <div class="flex text-sm text-gray-600">
-                                                    <label for="thumbnail" class="relative cursor-pointer bg-white rounded-md font-medium text-bass-red hover:text-[#B91818]">
+                                                    <label for="thumbnail" class="relative cursor-pointer bg-white rounded-md font-medium text-bass-red hover:text-bass-red-hover">
                                                         <span>Ganti gambar</span>
                                                         <input id="thumbnail" name="thumbnail" type="file" class="sr-only" accept="image/*" @change="imagePreview = URL.createObjectURL($event.target.files[0]); document.getElementById('clear_thumbnail').checked = false;">
                                                     </label>
@@ -254,7 +254,7 @@
                                             </div>
                                         </div>
                                         @error('thumbnail')
-                                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                            <p class="text-error text-sm mt-2">{{ $message }}</p>
                                         @enderror
                                     </div>
 
@@ -277,7 +277,7 @@
                                             </option>
                                         </select>
                                         @error('status')
-                                            <p class="text-red-500 text-sm mt-2 flex items-center">
+                                            <p class="text-error text-sm mt-2 flex items-center">
                                                 <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                                                 </svg>
@@ -307,7 +307,7 @@
                                             </option>
                                         </select>
                                         @error('program_type')
-                                            <p class="text-red-500 text-sm mt-2 flex items-center">
+                                            <p class="text-error text-sm mt-2 flex items-center">
                                                 <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                                                 </svg>
@@ -332,7 +332,7 @@
                                                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-bass-red focus:border-transparent transition-all duration-200 group-hover:border-gray-400"
                                                        value="{{ old('training_start_date', optional($course->training_start_date)->format('Y-m-d')) }}">
                                                 @error('training_start_date')
-                                                    <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                                    <p class="text-error text-sm mt-2">{{ $message }}</p>
                                                 @enderror
                                             </div>
                                             <div>
@@ -343,7 +343,7 @@
                                                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-bass-red focus:border-transparent transition-all duration-200 group-hover:border-gray-400"
                                                        value="{{ old('training_end_date', optional($course->training_end_date)->format('Y-m-d')) }}">
                                                 @error('training_end_date')
-                                                    <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                                    <p class="text-error text-sm mt-2">{{ $message }}</p>
                                                 @enderror
                                             </div>
                                         </div>
@@ -459,7 +459,7 @@
                                         </h4>
                                         <button type="button"
                                                 @click="addPeriod(); console.log('Button clicked!');"
-                                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-bass-red bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bass-red">
+                                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-bass-red bg-error-soft hover:bg-error-soft focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bass-red">
                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                             </svg>
@@ -487,7 +487,7 @@
                                                     </h5>
                                                     <button type="button"
                                                             @click="removePeriod(index)"
-                                                            class="text-red-600 hover:text-red-800">
+                                                            class="text-error hover:text-error">
                                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                         </svg>
@@ -600,7 +600,7 @@
 
                                 <div class="flex space-x-3">
                                     <button type="submit"
-                                            class="inline-flex items-center px-6 py-2 bg-bass-red hover:bg-[#B91818] text-white font-semibold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105">
+                                            class="inline-flex items-center px-6 py-2 bg-bass-red hover:bg-bass-red-hover text-white font-semibold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                         </svg>

@@ -27,7 +27,7 @@
         initial: @js($feedbackInit),
         anonymous: @js((bool) ($content->is_anonymous ?? false)),
      })"
-     class="bg-gray-50 rounded-xl p-6 border border-red-100 space-y-5">
+     class="bg-gray-50 rounded-xl p-6 border border-gray-200 space-y-5">
 
     <div class="flex items-start justify-between flex-wrap gap-3">
         <div>
@@ -35,13 +35,13 @@
             <p class="text-sm text-gray-600">Susun pertanyaan survei. Tidak ada penilaian — peserta hanya memberi tanggapan.</p>
         </div>
         <button type="button" @click="addQuestion()"
-                class="inline-flex items-center px-4 py-2 bg-bass-red hover:bg-[#B91818] text-white text-sm font-semibold rounded-lg shadow">
+                class="inline-flex items-center px-4 py-2 bg-bass-red hover:bg-bass-red-hover text-white text-sm font-semibold rounded-lg shadow">
             + Tambah Pertanyaan
         </button>
     </div>
 
     {{-- Pengaturan form --}}
-    <div class="bg-white rounded-lg border border-red-200 p-4">
+    <div class="bg-white rounded-lg border border-gray-200 p-4">
         <label class="flex items-center gap-2 cursor-pointer text-sm">
             {{-- native checkbox: absen saat tidak dicentang → boolean() false --}}
             <input type="checkbox" name="is_anonymous" value="1" x-model="anonymous"
@@ -53,7 +53,7 @@
     {{-- Daftar pertanyaan --}}
     <div class="space-y-4">
         <template x-if="questions.length === 0">
-            <div class="text-center text-sm text-gray-500 bg-white border border-dashed border-red-300 rounded-lg py-8">
+            <div class="text-center text-sm text-gray-500 bg-white border border-dashed border-gray-300 rounded-lg py-8">
                 Belum ada pertanyaan. Klik "Tambah Pertanyaan" untuk mulai.
             </div>
         </template>
@@ -69,7 +69,7 @@
                     <span class="mt-2 text-xs font-bold text-bass-red" x-text="(qIdx+1)+'.'"></span>
                     <div class="flex-1 space-y-2">
                         <input type="text" :name="'questions['+qIdx+'][question]'" x-model="q.question"
-                               class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-semibold focus:border-bass-red focus:ring-2 focus:ring-red-100"
+                               class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-semibold focus:border-bass-red focus:ring-2 focus:ring-bass-red/50"
                                placeholder="Tulis pertanyaan (mis. Seberapa puas Anda dengan pelatihan ini?)">
                         <input type="text" :name="'questions['+qIdx+'][help_text]'" x-model="q.help_text"
                                class="w-full px-3 py-1.5 border border-gray-100 rounded-lg text-xs text-gray-600 focus:border-bass-red"
@@ -102,7 +102,7 @@
                             <input type="text" :name="'questions['+qIdx+'][max_label]'" x-model="q.max_label"
                                    class="w-full px-3 py-2 border border-gray-200 rounded text-sm" placeholder="mis. Sangat puas">
                         </div>
-                        <div class="sm:col-span-3 flex items-center gap-1 text-amber-400">
+                        <div class="sm:col-span-3 flex items-center gap-1 text-bass-gold">
                             <template x-for="n in (parseInt(q.scale_max) || 5)" :key="n">
                                 <span class="text-xl">★</span>
                             </template>
@@ -121,11 +121,11 @@
                                        class="flex-1 px-3 py-1.5 border border-gray-200 rounded text-sm"
                                        :placeholder="'Opsi ' + (oIdx+1)">
                                 <button type="button" @click="removeOption(q, oIdx)"
-                                        class="p-1 text-red-400 hover:bg-red-50 rounded" title="Hapus opsi">✕</button>
+                                        class="p-1 text-neutral-900 hover:bg-neutral-100 rounded" title="Hapus opsi">✕</button>
                             </div>
                         </template>
                         <button type="button" @click="addOption(q)"
-                                class="text-md text-bass-red hover:text-[#B91818] font-medium">+ Tambah opsi</button>
+                                class="text-md text-bass-red hover:text-bass-red-hover font-medium">+ Tambah opsi</button>
                     </div>
                 </template>
 
@@ -144,7 +144,7 @@
                     <div class="flex items-center gap-1">
                         <button type="button" @click="moveQuestion(qIdx, -1)" class="p-1.5 text-gray-400 hover:bg-gray-100 rounded" title="Naik">▲</button>
                         <button type="button" @click="moveQuestion(qIdx, 1)" class="p-1.5 text-gray-400 hover:bg-gray-100 rounded" title="Turun">▼</button>
-                        <button type="button" @click="removeQuestion(qIdx)" class="p-1.5 text-red-500 hover:bg-red-50 rounded" title="Hapus">
+                        <button type="button" @click="removeQuestion(qIdx)" class="p-1.5 text-neutral-900 hover:bg-neutral-100 rounded" title="Hapus">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                             </svg>

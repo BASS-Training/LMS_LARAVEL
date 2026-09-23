@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
@@ -153,7 +153,7 @@
                     <button type="button"
                             x-show="availableCodes.length > 0"
                             @click="navigator.clipboard.writeText(availableCodes.join('\n'))"
-                            class="inline-flex items-center px-3 py-2 text-sm font-medium text-bass-red bg-bass-red-soft rounded-lg hover:bg-red-100 transition-colors">
+                            class="inline-flex items-center px-3 py-2 text-sm font-medium text-bass-red bg-bass-red-soft rounded-lg hover:bg-error-soft transition-colors">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                         </svg>
@@ -246,7 +246,7 @@
                                                           onsubmit="return confirm('Hapus kode ini permanen?')">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="text-xs font-medium text-error hover:opacity-80">Hapus</button>
+                                                        <button type="submit" class="text-xs font-medium text-neutral-900 hover:underline">Hapus</button>
                                                     </form>
                                                 </div>
                                             @else

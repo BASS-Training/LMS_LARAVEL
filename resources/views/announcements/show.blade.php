@@ -8,7 +8,7 @@
                 <p class="text-sm text-gray-600 mt-1">Lihat detail pengumuman yang dipilih</p>
             </div>
             <a href="javascript:void(0)" onclick="window.history.back()"
-               class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 border border-gray-300 rounded-xl font-semibold text-sm text-gray-700 uppercase tracking-wide transition-all duration-200 transform hover:scale-105 hover:shadow-lg">
+               class="inline-flex items-center px-6 py-3 bg-gray-100 border border-gray-300 rounded-xl font-semibold text-sm text-gray-700 uppercase tracking-wide hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-bass-red focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 hover:shadow-lg">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
@@ -79,7 +79,7 @@
                                 margin-bottom: 0.5rem;
                             }
                             .prose blockquote {
-                                border-left: 4px solid #3b82f6;
+                                border-left: 4px solid #17243A;
                                 background: #f8fafc;
                                 padding: 1rem 1.5rem;
                                 margin: 2rem 0;

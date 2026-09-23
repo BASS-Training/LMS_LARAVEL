@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <div class="min-h-screen bg-gray-50">
         <!-- Header Section -->
         <div class="bg-white border-b-4 border-bass-red">
@@ -222,7 +222,7 @@
                                                 $rankBg = match($entry['rank']) {
                                                     1 => 'bg-bass-gold',
                                                     2 => 'bg-gray-300',
-                                                    3 => 'bg-amber-600',
+                                                    3 => 'bg-warning',
                                                     default => 'bg-gray-200'
                                                 };
                                                 $rankTextColor = $entry['rank'] <= 3 ? 'text-white' : 'text-gray-700';

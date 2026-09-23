@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Manajemen Pengguna') }}
@@ -6,7 +6,7 @@
         
         <div class="flex justify-end mb-4">
             <!-- Tombol Impor Baru -->
-            <a href="{{ route('admin.users.import.show') }}" class="bg-bass-red hover:bg-[#B91818] text-white font-bold py-2 px-4 rounded-lg mr-2 transition-colors">
+            <a href="{{ route('admin.users.import.show') }}" class="bg-bass-red hover:bg-bass-red-hover text-white font-bold py-2 px-4 rounded-lg mr-2 transition-colors">
                 Impor Pengguna
             </a>
             <a href="{{ route('admin.users.create') }}" class="bg-navy hover:bg-navy/90 text-white font-bold py-2 px-4 rounded-lg transition-colors">
@@ -22,10 +22,10 @@
                     
                     {{-- Pesan Sukses atau Error --}}
                     @if (session('success'))
-                        <div class="mb-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">{{ session('success') }}</div>
+                        <div class="mb-4 p-4 text-sm text-success bg-success-soft rounded-lg" role="alert">{{ session('success') }}</div>
                     @endif
                     @if (session('error'))
-                        <div class="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">{{ session('error') }}</div>
+                        <div class="mb-4 p-4 text-sm text-error bg-error-soft rounded-lg" role="alert">{{ session('error') }}</div>
                     @endif
 
                     {{-- PERUBAHAN: Formulir Pencarian dan Filter --}}
@@ -68,7 +68,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->email }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             @foreach ($user->getRoleNames() as $roleName)
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">{{ $roleName }}</span>
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-success-soft text-success">{{ $roleName }}</span>
                                             @endforeach
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -78,14 +78,14 @@
                                                     Edit
                                                 </a>
                                                 @if(auth()->user()->id !== $user->id)
-                                                    <a href="{{ route('admin.users.reset-password-form', $user) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-amber-600 bg-amber-50 rounded-lg hover:bg-amber-100 transition-colors">
+                                                    <a href="{{ route('admin.users.reset-password-form', $user) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-warning bg-warning-soft rounded-lg hover:bg-warning-soft transition-colors">
                                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
                                                         Reset
                                                     </a>
                                                     <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?');">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                                                        <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-error bg-error-soft rounded-lg hover:bg-error-soft transition-colors">
                                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
                                                             Hapus
                                                         </button>

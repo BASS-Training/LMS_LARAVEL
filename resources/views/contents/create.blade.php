@@ -1,9 +1,9 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
             <div class="space-y-2">
                 <a href="javascript:void(0)" onclick="window.history.back()"
-                   class="inline-flex items-center text-bass-red hover:text-[#B91818] font-medium transition-colors duration-200 group">
+                   class="inline-flex items-center text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200 group">
                     <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform duration-200"
                          fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
@@ -14,7 +14,7 @@
                     Buat Konten Baru
                 </h1>
                 <div class="flex items-center space-x-2 text-sm text-gray-600">
-                    <span class="px-3 py-1 bg-red-50 text-bass-red rounded-full font-medium">
+                    <span class="px-3 py-1 bg-bass-red-soft text-bass-red rounded-full font-medium">
                         {{ $lesson->title }}
                     </span>
                     <span class="text-gray-400">•</span>
@@ -29,7 +29,7 @@
             <div class="mb-8">
                 <div class="flex items-center justify-center space-x-4">
                     <div class="flex items-center">
-                        <div class="w-8 h-8 bg-navy text-white rounded-full flex items-center justify-center text-sm font-medium">1</div>
+                        <div class="w-8 h-8 bg-bass-red text-white rounded-full flex items-center justify-center text-sm font-medium">1</div>
                         <span class="ml-2 text-sm font-medium text-bass-red">Pilih Tipe</span>
                     </div>
                     <div class="w-16 h-1 bg-gray-200 rounded"></div>
@@ -67,7 +67,7 @@
                                    value="{{ old('title') }}"
                                    required autofocus>
                             @error('title')
-                                <p class="text-red-500 text-sm mt-2 flex items-center">
+                                <p class="text-error text-sm mt-2 flex items-center">
                                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                                     </svg>
@@ -96,7 +96,7 @@
                                     <input type="radio" name="type" value="text" class="sr-only" onchange="toggleContentTypeFields()" {{ old('type') == 'text' ? 'checked' : '' }}>
                                     <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-bass-red hover:border-opacity-50 transition-all duration-300 hover:shadow-lg group">
                                         <div class="text-center">
-                                             <div class="w-12 h-12 bg-red-50 text-bass-red rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
+                                             <div class="w-12 h-12 bg-navy/10 text-navy rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
                                                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                                  </svg>
@@ -111,7 +111,7 @@
                                     <input type="radio" name="type" value="video" class="sr-only" onchange="toggleContentTypeFields()" {{ old('type') == 'video' ? 'checked' : '' }}>
                                     <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-bass-red hover:border-opacity-50 transition-all duration-300 hover:shadow-lg group">
                                         <div class="text-center">
-                                             <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
+                                             <div class="w-12 h-12 bg-navy/10 text-navy rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
                                                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                                  </svg>
@@ -126,7 +126,7 @@
                                     <input type="radio" name="type" value="document" class="sr-only" onchange="toggleContentTypeFields()" {{ old('type') == 'document' ? 'checked' : '' }}>
                                     <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-bass-red hover:border-opacity-50 transition-all duration-300 hover:shadow-lg group">
                                         <div class="text-center">
-                                             <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
+                                             <div class="w-12 h-12 bg-navy/10 text-navy rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
                                                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-6 4h6"/>
@@ -142,7 +142,7 @@
                                     <input type="radio" name="type" value="image" class="sr-only" onchange="toggleContentTypeFields()" {{ old('type') == 'image' ? 'checked' : '' }}>
                                     <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-bass-red hover:border-opacity-50 transition-all duration-300 hover:shadow-lg group">
                                         <div class="text-center">
-                                             <div class="w-12 h-12 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
+                                             <div class="w-12 h-12 bg-navy/10 text-navy rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
                                                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                                  </svg>
@@ -157,7 +157,7 @@
                                     <input type="radio" name="type" value="quiz" class="sr-only" onchange="toggleContentTypeFields()" {{ old('type') == 'quiz' ? 'checked' : '' }}>
                                     <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-bass-red hover:border-opacity-50 transition-all duration-300 hover:shadow-lg group">
                                         <div class="text-center">
-                                             <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
+                                             <div class="w-12 h-12 bg-navy/10 text-navy rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
                                                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.538-.994 1.09V14m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                                  </svg>
@@ -172,7 +172,7 @@
                                     <input type="radio" name="type" value="essay" class="sr-only" onchange="toggleContentTypeFields()" {{ old('type') == 'essay' ? 'checked' : '' }}>
                                     <div class="p-6 border-2 border-gray-200 rounded-xl hover:border-bass-red hover:border-opacity-50 transition-all duration-300 hover:shadow-lg group">
                                         <div class="text-center">
-                                             <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
+                                             <div class="w-12 h-12 bg-navy/10 text-navy rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
                                                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                                  </svg>
@@ -184,14 +184,14 @@
                                 </label>
                             </div>
                             @error('type')
-                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                <p class="text-error text-sm mt-2">{{ $message }}</p>
                             @enderror
                         </div>
                     </div>
 
                     <div class="mt-8 space-y-6">
                         <div id="body_field" class="content-field hidden">
-                            <div class="bg-gray-50 rounded-xl p-6 border border-red-100">
+                            <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
                                 <label for="body_text" class="block text-sm font-semibold text-gray-700 mb-3">
                                     <span id="body_label">Isi Konten</span>
                                 </label>
@@ -206,10 +206,10 @@
                         </div>
 
                         <div id="essay_questions_field" class="content-field hidden">
-                            <div class="bg-green-50 rounded-xl p-6 border border-green-100" x-data="essayQuestionsManager()">
+                            <div class="bg-gray-50 rounded-xl p-6 border border-gray-200" x-data="essayQuestionsManager()">
                                 <div class="flex items-start mb-6">
                                     <div class="flex-shrink-0">
-                                         <div class="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
+                                         <div class="w-10 h-10 bg-navy/10 text-navy rounded-full flex items-center justify-center">
                                              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                              </svg>
@@ -227,24 +227,24 @@
                                         <div class="border border-gray-200 rounded-lg p-4 bg-white">
                                             <div class="flex justify-between items-center mb-4">
                                                 <h5 class="font-medium text-gray-700 flex items-center">
-                                                    <span class="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs mr-2" 
+                                                    <span class="w-6 h-6 bg-navy/10 text-navy rounded-full flex items-center justify-center text-xs mr-2"
                                                         x-text="index + 1"></span>
                                                     <span x-text="'Pertanyaan ' + (index + 1)"></span>
                                                 </h5>
-                                                <button type="button" 
+                                                <button type="button"
                                                         @click="removeQuestion(index)"
                                                         x-show="questions.length > 1"
-                                                        class="text-red-600 hover:text-red-800 text-sm px-2 py-1 rounded hover:bg-red-50">
+                                                        class="text-neutral-900 hover:text-black text-sm px-2 py-1 rounded hover:bg-neutral-100">
                                                     Hapus
                                                 </button>
                                             </div>
-                                            
+
                                             <div class="space-y-4">
                                                 <div>
                                                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                                                        Pertanyaan <span class="text-red-500">*</span>
+                                                        Pertanyaan <span class="text-error">*</span>
                                                     </label>
-                                                    <textarea 
+                                                    <textarea
                                                         x-model="question.text"
                                                         :name="'questions[' + index + '][text]'"
                                                         rows="4"
@@ -253,16 +253,16 @@
                                                         required
                                                     ></textarea>
                                                 </div>
-                                                
+
                                                 <div class="w-40">
                                                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                                                        Skor Maksimal <span class="text-red-500">*</span>
+                                                        Skor Maksimal <span class="text-error">*</span>
                                                     </label>
-                                                    <input 
-                                                        type="number" 
+                                                    <input
+                                                        type="number"
                                                         x-model="question.max_score"
                                                         :name="'questions[' + index + '][max_score]'"
-                                                        min="1" 
+                                                        min="1"
                                                         max="1000"
                                                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red text-sm"
                                                         required
@@ -273,18 +273,18 @@
                                     </template>
 
                                     <div class="flex justify-between items-center pt-4 border-t border-gray-200">
-                                        <button type="button" 
+                                        <button type="button"
                                                 @click="addQuestion()"
-                                                class="inline-flex items-center px-4 py-2 border border-green-600 text-sm font-medium rounded-md text-green-600 bg-white hover:bg-green-50">
+                                                class="inline-flex items-center px-4 py-2 border border-bass-red text-sm font-medium rounded-md text-bass-red bg-white hover:bg-bass-red-soft">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                                             </svg>
                                             Tambah Pertanyaan
                                         </button>
-                                        
+
                                         <div class="text-sm text-gray-600">
-                                            Total: <span x-text="questions.length" class="font-semibold"></span> soal, 
-                                            <span x-text="totalScore" class="font-semibold text-green-600"></span> poin
+                                            Total: <span x-text="questions.length" class="font-semibold"></span> soal,
+                                            <span x-text="totalScore" class="font-semibold text-navy"></span> poin
                                         </div>
                                     </div>
                                 </div>
@@ -293,15 +293,15 @@
                                     function essayQuestionsManager() {
                                         return {
                                             questions: [{ text: '', max_score: 100 }],
-                                            
+
                                             get totalScore() {
                                                 return this.questions.reduce((total, q) => total + parseInt(q.max_score || 0), 0);
                                             },
-                                            
+
                                             addQuestion() {
                                                 this.questions.push({ text: '', max_score: 100 });
                                             },
-                                            
+
                                             removeQuestion(index) {
                                                 if (this.questions.length > 1) {
                                                     this.questions.splice(index, 1);
@@ -314,14 +314,14 @@
                         </div>
 
                         <div id="video_field" class="content-field hidden">
-                            <div class="bg-red-50 rounded-xl p-6 border border-red-100">
+                            <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
                                  <label for="body_video" class="block text-sm font-semibold text-gray-700 mb-3">
                                      URL Video YouTube/Vimeo
                                 </label>
                                 <input type="url"
                                        name="body_video"
                                        id="body_video"
-                                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:ring-4 focus:ring-red-100 transition-all duration-300"
+                                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-bass-red focus:ring-4 focus:ring-bass-red focus:ring-opacity-50 transition-all duration-300"
                                        placeholder="https://www.youtube.com/watch?v=..."
                                        value="{{ old('body_video') }}">
                                 <p class="text-sm text-gray-500 mt-2">Masukkan URL lengkap video dari YouTube atau Vimeo</p>
@@ -329,11 +329,11 @@
                         </div>
 
                         <div id="file_upload_field" class="content-field hidden">
-                            <div class="bg-green-50 rounded-xl p-6 border border-green-100">
+                            <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
                                  <label for="file_upload" class="block text-sm font-semibold text-gray-700 mb-3">
                                      Unggah File
                                 </label>
-                                <div id="file_dropzone" class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-green-400 transition-colors duration-300">
+                                <div id="file_dropzone" class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-bass-red transition-colors duration-300">
                                     <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                                     </svg>
@@ -343,7 +343,7 @@
                                            class="hidden"
                                            onchange="handleFileSelect(this)">
                                     <label for="file_upload" class="cursor-pointer">
-                                        <span class="text-bass-red font-medium hover:text-[#B91818]">Klik untuk memilih file</span>
+                                        <span class="text-bass-red font-medium hover:text-bass-red-hover">Klik untuk memilih file</span>
                                         <span class="text-gray-500"> atau drag & drop</span>
                                     </label>
                                     <p class="text-sm text-gray-500 mt-2">Maksimal 10MB (PDF, DOCX, PPTX, JPG, PNG)</p>
@@ -351,7 +351,7 @@
                                 <div id="file_preview" class="hidden mt-4 p-4 bg-white rounded-lg border">
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center">
-                                            <svg class="w-8 h-8 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <svg class="w-8 h-8 text-navy" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
                                             </svg>
                                             <div class="ml-3">
@@ -359,7 +359,7 @@
                                                 <p class="text-sm text-gray-500" id="file_size"></p>
                                             </div>
                                         </div>
-                                        <button type="button" onclick="clearFile()" class="text-red-500 hover:text-red-700">
+                                        <button type="button" onclick="clearFile()" class="text-neutral-900 hover:text-black">
                                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
                                             </svg>
@@ -382,7 +382,7 @@
                                 <!-- Pengumpulan Tugas Dokumen (untuk tipe document) -->
                                 <div class="mt-6" x-show="document.querySelector('input[name=\"type\"]:checked')?.value === 'document'"
                                      x-data="{ collect: {{ old('collect_submission') ? 'true' : 'false' }} }">
-                                    <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+                                    <div class="bg-navy/5 border border-navy/10 rounded-xl p-4">
                                         <label class="flex items-start gap-3 cursor-pointer">
                                             <input type="hidden" name="collect_submission" value="0">
                                             <input type="checkbox" name="collect_submission" value="1" x-model="collect"
@@ -394,7 +394,7 @@
                                         </label>
 
                                         <div x-show="collect" x-cloak class="mt-4 space-y-4 pl-8">
-                                            <label class="flex items-start gap-3 cursor-pointer bg-white rounded-lg border border-red-200 p-3">
+                                            <label class="flex items-start gap-3 cursor-pointer bg-white rounded-lg border border-gray-200 p-3">
                                                 <input type="hidden" name="require_submission_pass" value="0">
                                                 <input type="checkbox" name="require_submission_pass" value="1"
                                                        {{ old('require_submission_pass') ? 'checked' : '' }}
@@ -442,7 +442,7 @@
                         </div>
 
                         <div id="quiz_form_fields" class="content-field hidden">
-                            <div class="bg-orange-50 rounded-xl p-6 border border-orange-100">
+                            <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
                                  <h3 class="text-lg font-semibold text-gray-900 mb-4">Pengaturan Kuis</h3>
 
                                 <!-- Quiz Creation Method Toggle -->
@@ -453,8 +453,8 @@
                                     <div class="grid grid-cols-2 gap-4">
                                         <label class="cursor-pointer">
                                             <input type="radio" name="quiz_method" value="manual" class="sr-only" onchange="toggleQuizMethod()" checked>
-                                             <div class="p-4 border-2 border-gray-200 rounded-xl hover:border-orange-300 transition-all duration-300 text-center quiz-method-card">
-                                                 <svg class="w-8 h-8 mx-auto mb-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                             <div class="p-4 border-2 border-gray-200 rounded-xl hover:border-bass-red hover:border-opacity-50 transition-all duration-300 text-center quiz-method-card">
+                                                 <svg class="w-8 h-8 mx-auto mb-2 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                                  </svg>
                                                 <h4 class="font-semibold text-gray-900">Manual</h4>
@@ -463,8 +463,8 @@
                                         </label>
                                         <label class="cursor-pointer">
                                             <input type="radio" name="quiz_method" value="import" class="sr-only" onchange="toggleQuizMethod()">
-                                             <div class="p-4 border-2 border-gray-200 rounded-xl hover:border-orange-300 transition-all duration-300 text-center quiz-method-card">
-                                                 <svg class="w-8 h-8 mx-auto mb-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                             <div class="p-4 border-2 border-gray-200 rounded-xl hover:border-bass-red hover:border-opacity-50 transition-all duration-300 text-center quiz-method-card">
+                                                 <svg class="w-8 h-8 mx-auto mb-2 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z"/>
                                                  </svg>
                                                 <h4 class="font-semibold text-gray-900">Import Excel</h4>
@@ -498,7 +498,7 @@
                                 <!-- Import Method Fields -->
                                 <div id="import_quiz_fields" class="hidden">
                                     <!-- Download Template Section -->
-                                    <div class="bg-green-600 rounded-xl p-4 mb-4 text-white">
+                                    <div class="bg-navy rounded-xl p-4 mb-4 text-white">
                                         <div class="flex items-center justify-between">
                                             <div class="flex items-center space-x-3">
                                                  <div class="bg-white/20 p-3 rounded-lg">
@@ -508,11 +508,11 @@
                                                 </div>
                                                 <div>
                                                     <h4 class="font-bold">Template Excel</h4>
-                                                    <p class="text-xs text-green-100">Download template terlebih dahulu</p>
+                                                    <p class="text-xs text-gray-300">Download template terlebih dahulu</p>
                                                 </div>
                                             </div>
                                              <a href="{{ route('quizzes.download-template') }}" target="_blank"
-                                                class="bg-white text-green-600 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-50 transition-all duration-200 flex items-center space-x-2">
+                                                class="bg-white text-navy px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-50 transition-all duration-200 flex items-center space-x-2">
                                                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                                                  </svg>
@@ -545,7 +545,7 @@
                                     </div>
 
                                     <!-- Instructions -->
-                                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                    <div class="bg-info-soft border border-gray-200 rounded-lg p-4">
                                          <h5 class="font-semibold text-navy mb-2 flex items-center">
                                              Panduan Cepat
                                         </h5>
@@ -572,7 +572,7 @@
 
                         <button type="button"
                                 onclick="submitCreateForm()"
-                                class="inline-flex items-center px-8 py-4 bg-bass-red text-white font-semibold rounded-xl hover:bg-[#B91818] transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                                class="inline-flex items-center px-8 py-4 bg-bass-red text-white font-semibold rounded-xl hover:bg-bass-red-hover transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>
@@ -586,7 +586,7 @@
 
     <style>
         .content-type-card input:checked + div {
-            @apply border-bass-red bg-red-50 shadow-lg;
+            @apply border-bass-red bg-bass-red-soft shadow-lg;
         }
 
         .content-field {
@@ -609,11 +609,11 @@
         }
 
         .step-active {
-            @apply bg-navy text-white;
+            @apply bg-bass-red text-white;
         }
 
         .step-completed {
-            @apply bg-green-500 text-white;
+            @apply bg-success text-white;
         }
     </style>
 
@@ -714,7 +714,7 @@
                 document.getElementById('body_field').classList.remove('hidden');
                  document.getElementById('body_label').textContent = 'Isi Konten';
                 document.getElementById('body_hint').textContent = 'Gunakan editor untuk memformat teks dengan rich content';
-                
+
                 // Initialize summernote for text with File Manager
                 setTimeout(() => {
                     initSummernoteWithFileManager('#body_text', {
@@ -726,7 +726,7 @@
             } else if (type === 'essay') {
                 // Show essay questions field instead of body field
                 document.getElementById('essay_questions_field').classList.remove('hidden');
-                
+
             } else if (type === 'video') {
                 document.getElementById('video_field').classList.remove('hidden');
             } else if (type === 'document' || type === 'image') {
@@ -765,8 +765,8 @@
             const input = document.getElementById('file_upload');
             if (!dropzone || !input) return;
             const highlight = on => {
-                dropzone.classList.toggle('border-green-500', on);
-                dropzone.classList.toggle('bg-green-50', on);
+                dropzone.classList.toggle('border-bass-red', on);
+                dropzone.classList.toggle('bg-bass-red-soft', on);
             };
             dropzone.addEventListener('dragover', function(e) { e.preventDefault(); highlight(true); });
             dropzone.addEventListener('dragleave', function(e) { e.preventDefault(); highlight(false); });
@@ -874,10 +874,10 @@
 
             // Update card styling
             document.querySelectorAll('.quiz-method-card').forEach(card => {
-                card.classList.remove('border-orange-500', 'bg-orange-50', 'shadow-lg');
+                card.classList.remove('border-bass-red', 'bg-bass-red-soft', 'shadow-lg');
             });
             const selectedCard = document.querySelector('input[name="quiz_method"]:checked').parentElement.querySelector('.quiz-method-card');
-            selectedCard.classList.add('border-orange-500', 'bg-orange-50', 'shadow-lg');
+            selectedCard.classList.add('border-bass-red', 'bg-bass-red-soft', 'shadow-lg');
         }
 
         // Update quiz file name display
@@ -887,14 +887,14 @@
             if (fileName) {
                 fileNameDisplay.textContent = 'File terpilih: ' + fileName;
                 fileNameDisplay.classList.remove('text-gray-400');
-                fileNameDisplay.classList.add('text-orange-600', 'font-semibold');
+                fileNameDisplay.classList.add('text-navy', 'font-semibold');
             }
         }
     </script>
 
     <style>
         .quiz-method-card input:checked + div {
-            @apply border-orange-500 bg-orange-50 shadow-lg;
+            @apply border-bass-red bg-bass-red-soft shadow-lg;
         }
     </style>
 </x-app-layout>

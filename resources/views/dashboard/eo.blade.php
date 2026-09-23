@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-navy leading-tight">
@@ -6,7 +6,7 @@
             </h2>
             <div class="flex items-center space-x-4">
                 <!-- Komponen Notifikasi Fungsional -->
-                <a href="{{ route('announcements.index') }}" class="relative p-2 text-gray-600 hover:text-bass-red hover:bg-red-50 rounded-full">
+                <a href="{{ route('announcements.index') }}" class="relative p-2 text-gray-600 hover:text-bass-red hover:bg-error-soft rounded-full">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M15 17h5l-1.5-1.5A2 2 0 0118 14v-3a6 6 0 10-12 0v3a2 2 0 01-.5 1.5L4 17h5m6 0v1a3 3 0 11-6 0v-1" />
@@ -130,11 +130,11 @@
                         <div class="mt-4">
                             <div class="flex text-xs text-gray-600">
                                 <span class="flex items-center">
-                                    <span class="w-2 h-2 bg-green-400 rounded-full mr-1"></span>
+                                    <span class="w-2 h-2 bg-success rounded-full mr-1"></span>
                                     {{ $stats['course_summary']['published'] }} Published
                                 </span>
                                 <span class="flex items-center ml-3">
-                                    <span class="w-2 h-2 bg-amber-400 rounded-full mr-1"></span>
+                                    <span class="w-2 h-2 bg-warning rounded-full mr-1"></span>
                                     {{ $stats['course_summary']['draft'] }} Draft
                                 </span>
                             </div>
@@ -155,11 +155,11 @@
                                 <h3 class="text-lg font-medium text-gray-900">Performa Kursus Dikelola</h3>
                                 <div class="flex items-center space-x-2">
                                     <div class="flex items-center">
-                                        <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                                        <div class="w-3 h-3 bg-success rounded-full mr-2"></div>
                                         <span class="text-xs text-gray-600">Published</span>
                                     </div>
                                     <div class="flex items-center">
-                                        <div class="w-3 h-3 bg-amber-500 rounded-full mr-2"></div>
+                                        <div class="w-3 h-3 bg-warning rounded-full mr-2"></div>
                                         <span class="text-xs text-gray-600">Draft</span>
                                     </div>
                                 </div>
@@ -181,7 +181,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $course['status'] === 'published' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800' }}">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $course['status'] === 'published' ? 'bg-success-soft text-success' : 'bg-warning-soft text-warning' }}">
                                             {{ ucfirst($course['status']) }}
                                         </span>
                                     </div>
@@ -201,7 +201,7 @@
                                     </svg>
                                     <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Kursus</h3>
                                     <p class="text-gray-600 mb-4">Anda belum mengelola kursus apapun.</p>
-                                    <a href="{{ route('courses.create') }}" class="inline-flex items-center px-4 py-2 bg-bass-red border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#B91818] transition">
+                                    <a href="{{ route('courses.create') }}" class="inline-flex items-center px-4 py-2 bg-bass-red border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-bass-red-hover transition">
                                         Buat Kursus Pertama
                                     </a>
                                 </div>
@@ -237,7 +237,7 @@
                                             </div>
                                             <div class="text-right">
                                                 <p class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($user->last_enrolled_at)->diffForHumans() }}</p>
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-success-soft text-success">
                                                     Peserta Baru
                                                 </span>
                                             </div>
@@ -265,7 +265,7 @@
                             <h3 class="text-lg font-medium text-gray-900">Aksi Cepat</h3>
                         </div>
                         <div class="p-6 space-y-3">
-                            <a href="{{ route('courses.index') }}" class="flex items-center w-full px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-red-50 hover:text-bass-red transition-colors hover-lift group">
+                            <a href="{{ route('courses.index') }}" class="flex items-center w-full px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-error-soft hover:text-bass-red transition-colors hover-lift group">
                                 <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-bass-red" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                     <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path>
                                 </svg>
@@ -275,7 +275,7 @@
                                 </svg>
                             </a>
 
-                            <a href="{{ route('courses.create') }}" class="flex items-center w-full px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-red-50 hover:text-bass-red transition-colors hover-lift group">
+                            <a href="{{ route('courses.create') }}" class="flex items-center w-full px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-error-soft hover:text-bass-red transition-colors hover-lift group">
                                 <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                 </svg>
@@ -285,7 +285,7 @@
                                 </svg>
                             </a>
 
-                            <a href="{{ route('admin.users.index') }}" class="flex items-center w-full px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-red-50 hover:text-bass-red transition-colors hover-lift group">
+                            <a href="{{ route('admin.users.index') }}" class="flex items-center w-full px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-error-soft hover:text-bass-red transition-colors hover-lift group">
                                 <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-bass-red" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                     <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
                                 </svg>
@@ -307,15 +307,15 @@
                                 <div class="flex justify-between items-center">
                                     <span class="text-sm text-gray-600">Kursus Published</span>
                                     <div class="flex items-center">
-                                        <span class="text-sm font-medium text-green-600">{{ $stats['course_summary']['published'] }}</span>
-                                        <div class="w-3 h-3 bg-green-500 rounded-full ml-2"></div>
+                                        <span class="text-sm font-medium text-success">{{ $stats['course_summary']['published'] }}</span>
+                                        <div class="w-3 h-3 bg-success rounded-full ml-2"></div>
                                     </div>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-sm text-gray-600">Kursus Draft</span>
                                     <div class="flex items-center">
-                                        <span class="text-sm font-medium text-amber-600">{{ $stats['course_summary']['draft'] }}</span>
-                                        <div class="w-3 h-3 bg-amber-500 rounded-full ml-2"></div>
+                                        <span class="text-sm font-medium text-warning">{{ $stats['course_summary']['draft'] }}</span>
+                                        <div class="w-3 h-3 bg-warning rounded-full ml-2"></div>
                                     </div>
                                 </div>
                                 <div class="pt-4 border-t border-gray-200">
@@ -375,8 +375,8 @@
                         <div class="p-6">
                             <div class="flex items-center justify-between">
                                 <span class="text-sm font-medium text-gray-900">Event Organizer Dashboard</span>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    <div class="w-2 h-2 bg-green-600 rounded-full mr-1 animate-pulse"></div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-soft text-success">
+                                    <div class="w-2 h-2 bg-success rounded-full mr-1 animate-pulse"></div>
                                     Aktif
                                 </span>
                             </div>

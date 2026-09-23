@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Tinjau Pembayaran ' . $order->order_code)
 
@@ -17,7 +17,7 @@
     <p class="mt-1 text-sm text-gray-500">Pastikan dana benar-benar masuk sebelum membuka akses.</p>
 
     @if ($errors->has('verify'))
-        <div class="mt-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+        <div class="mt-4 rounded-lg bg-error-soft border border-error/40 px-4 py-3 text-sm text-error">
             {{ $errors->first('verify') }}
         </div>
     @endif
@@ -90,7 +90,7 @@
                     </button>
                 </form>
                 <button type="button" @click="rejecting = true"
-                        class="flex-1 inline-flex items-center justify-center min-h-[48px] rounded-lg border border-red-300 text-red-700 font-semibold hover:bg-red-50 transition-colors">
+                        class="flex-1 inline-flex items-center justify-center min-h-[48px] rounded-lg border border-error/40 text-error font-semibold hover:bg-error-soft transition-colors">
                     Tolak
                 </button>
             </div>
@@ -102,11 +102,11 @@
                 <textarea name="reason" rows="3" required minlength="3" maxlength="255"
                           class="w-full rounded-lg border-gray-300 focus:border-bass-red focus:ring-bass-red text-sm"
                           placeholder="Mis. dana tidak ditemukan saat rekonsiliasi rekening.">{{ old('reason') }}</textarea>
-                @error('reason')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+                @error('reason')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
                 <p class="mt-1.5 text-xs text-gray-500">Refund (bila perlu) diproses manual di dashboard Midtrans.</p>
                 <div class="mt-3 flex gap-3">
                     <button type="submit"
-                            class="inline-flex items-center justify-center px-5 min-h-[44px] rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors">
+                            class="inline-flex items-center justify-center px-5 min-h-[44px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors">
                         Konfirmasi Tolak
                     </button>
                     <button type="button" @click="rejecting = false"
@@ -124,7 +124,7 @@
                 pada {{ optional($order->verified_at)->format('d M Y, H:i') }}.
             @endif
             @if ($order->isRejected() && $order->rejection_reason)
-                <div class="mt-1 text-red-700">Alasan: {{ $order->rejection_reason }}</div>
+                <div class="mt-1 text-error">Alasan: {{ $order->rejection_reason }}</div>
             @endif
         </div>
     @endif

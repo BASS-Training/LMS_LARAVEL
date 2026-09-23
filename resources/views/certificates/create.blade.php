@@ -25,7 +25,7 @@
             <div class="mb-8 bg-success-soft dark:bg-success-soft border border-success/30 dark:border-success/30 rounded-2xl p-6">
                 <div class="flex items-start space-x-4">
                     <div class="flex-shrink-0">
-                        <div class="w-10 h-10 bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center">
+                        <div class="w-10 h-10 bg-success-soft rounded-full flex items-center justify-center">
                             <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
@@ -76,7 +76,7 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
                                             </svg>
                                         </div>
-                                        <x-text-input id="email" class="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition duration-200" type="email" name="email" :value="old('email', auth()->user()->email)" required />
+                                        <x-text-input id="email" class="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-bass-red focus:border-bass-red dark:bg-gray-700 dark:text-white transition duration-200" type="email" name="email" :value="old('email', auth()->user()->email)" required />
                                     </div>
                                     <x-input-error :messages="$errors->get('email')" class="mt-2" />
                                 </div>
@@ -91,7 +91,7 @@
                                                 <div class="w-5 h-5 border-2 border-gray-300 dark:border-gray-500 rounded-full flex items-center justify-center mr-3 radio-custom">
                                                     <div class="w-2.5 h-2.5 bg-bass-red rounded-full opacity-0 radio-dot transition duration-200"></div>
                                                 </div>
-                                                <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="w-5 h-5 text-navy mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7c0-1.3 1.3-2 2-2s2 .7 2 2-1.3 2-2 2-2-.7-2-2zM6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"></path>
                                                 </svg>
                                                 <span class="text-gray-900 dark:text-white font-medium">Laki-laki</span>
@@ -103,7 +103,7 @@
                                                 <div class="w-5 h-5 border-2 border-gray-300 dark:border-gray-500 rounded-full flex items-center justify-center mr-3 radio-custom">
                                                     <div class="w-2.5 h-2.5 bg-bass-red rounded-full opacity-0 radio-dot transition duration-200"></div>
                                                 </div>
-                                                <svg class="w-5 h-5 text-pink-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="w-5 h-5 text-navy mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7c0-1.3 1.3-2 2-2s2 .7 2 2-1.3 2-2 2-2-.7-2-2zM6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"></path>
                                                 </svg>
                                                 <span class="text-gray-900 dark:text-white font-medium">Perempuan</span>
@@ -122,7 +122,7 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                             </svg>
                                         </div>
-                                        <x-text-input id="date_of_birth" class="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition duration-200" type="date" name="date_of_birth" :value="old('date_of_birth')" required />
+                                        <x-text-input id="date_of_birth" class="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-bass-red focus:border-bass-red dark:bg-gray-700 dark:text-white transition duration-200" type="date" name="date_of_birth" :value="old('date_of_birth')" required />
                                     </div>
                                     <x-input-error :messages="$errors->get('date_of_birth')" class="mt-2" />
                                 </div>
@@ -152,7 +152,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                                         </svg>
                                     </div>
-                                    <x-text-input id="institution_name" class="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition duration-200" type="text" name="institution_name" :value="old('institution_name')" placeholder="Contoh: Universitas Indonesia, PT. Teknologi Maju, dll." required />
+                                    <x-text-input id="institution_name" class="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-bass-red focus:border-bass-red dark:bg-gray-700 dark:text-white transition duration-200" type="text" name="institution_name" :value="old('institution_name')" placeholder="Contoh: Universitas Indonesia, PT. Teknologi Maju, dll." required />
                                 </div>
                                 <x-input-error :messages="$errors->get('institution_name')" class="mt-2" />
                             </div>

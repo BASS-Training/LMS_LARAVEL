@@ -35,7 +35,7 @@
                 </div>
             @endforeach
             
-            <button type="submit" class="w-full sm:w-auto px-6 py-3 bg-bass-red text-white font-semibold rounded-lg hover:bg-[#B91818] transition-colors">
+            <button type="submit" class="w-full sm:w-auto px-6 py-3 bg-bass-red text-white font-semibold rounded-lg hover:bg-bass-red-hover transition-colors">
                 Simpan Nilai Per Pertanyaan
             </button>
         </form>
@@ -69,7 +69,7 @@
                 </div>
             @endforeach
             
-            <button type="submit" class="w-full sm:w-auto px-6 py-3 bg-bass-red text-white font-semibold rounded-lg hover:bg-[#B91818] transition-colors">
+            <button type="submit" class="w-full sm:w-auto px-6 py-3 bg-bass-red text-white font-semibold rounded-lg hover:bg-bass-red-hover transition-colors">
                 Simpan Feedback Per Pertanyaan
             </button>
         </form>
@@ -113,7 +113,7 @@
                 </div>
             </div>
             
-            <button type="submit" class="w-full sm:w-auto mt-4 px-6 py-3 bg-bass-red text-white font-semibold rounded-lg hover:bg-[#B91818] transition-colors">
+            <button type="submit" class="w-full sm:w-auto mt-4 px-6 py-3 bg-bass-red text-white font-semibold rounded-lg hover:bg-bass-red-hover transition-colors">
                 Simpan Nilai Keseluruhan
             </button>
         </form>
@@ -149,7 +149,7 @@
                           required>{{ $submission->answers->first()->feedback ?? '' }}</textarea>
             </div>
             
-            <button type="submit" class="w-full sm:w-auto mt-4 px-6 py-3 bg-bass-red text-white font-semibold rounded-lg hover:bg-[#B91818] transition-colors">
+            <button type="submit" class="w-full sm:w-auto mt-4 px-6 py-3 bg-bass-red text-white font-semibold rounded-lg hover:bg-bass-red-hover transition-colors">
                 Simpan Feedback Keseluruhan
             </button>
         </form>

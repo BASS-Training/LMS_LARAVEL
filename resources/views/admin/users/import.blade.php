@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('Unggah Pengguna Massal') }}
@@ -31,7 +31,7 @@
                     </div>
 
                     @if (session('import_errors'))
-                        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg" role="alert">
+                        <div class="mb-4 bg-error-soft border border-red-400 text-error px-4 py-3 rounded-lg" role="alert">
                             <strong class="font-bold">Beberapa baris gagal diimpor:</strong>
                             <ul class="mt-2 list-disc list-inside text-sm">
                                 @foreach(session('import_errors') as $error)
@@ -53,7 +53,7 @@
                                 @endforeach
                             </select>
                             @error('course_id')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <p class="text-error text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -64,11 +64,11 @@
                                 file:mr-4 file:py-2 file:px-4
                                 file:rounded-full file:border-0
                                 file:text-sm file:font-semibold
-                                file:bg-red-50 file:text-bass-red
-                                hover:file:bg-red-100
+                                file:bg-error-soft file:text-bass-red
+                                hover:file:bg-error-soft
                             "/>
                              @error('user_file')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <p class="text-error text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 

@@ -55,7 +55,7 @@
 
                                 <div class="border-l border-gray-200 pl-4 flex space-x-2">
                                     <a href="{{ route('admin.certificate-templates.index') }}" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md">Batal</a>
-                                    <button type="submit" class="px-4 py-2 text-sm text-white bg-bass-red hover:bg-[#B91818] rounded-md">Simpan Template</button>
+                                    <button type="submit" class="px-4 py-2 text-sm text-white bg-bass-red hover:bg-bass-red-hover rounded-md">Simpan Template</button>
                                 </div>
                             </div>
                         </div>
@@ -137,7 +137,7 @@
                                     <button type="button"
                                             @click="selectedElement.textAlign = 'left'"
                                             class="flex items-center justify-center p-1 border rounded text-xs transition-all duration-200"
-                                             :class="selectedElement.textAlign === 'left' || !selectedElement.textAlign ? 'bg-bass-red/10 border-bass-red/20 text-[#B91818]' : 'border-gray-300 hover:border-gray-400'">
+                                             :class="selectedElement.textAlign === 'left' || !selectedElement.textAlign ? 'bg-bass-red/10 border-bass-red/20 text-bass-red' : 'border-gray-300 hover:border-gray-400'">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16"></path>
                                         </svg>
@@ -145,7 +145,7 @@
                                     <button type="button"
                                             @click="selectedElement.textAlign = 'center'"
                                             class="flex items-center justify-center p-1 border rounded text-xs transition-all duration-200"
-                                             :class="selectedElement.textAlign === 'center' ? 'bg-bass-red/10 border-bass-red/20 text-[#B91818]' : 'border-gray-300 hover:border-gray-400'">
+                                             :class="selectedElement.textAlign === 'center' ? 'bg-bass-red/10 border-bass-red/20 text-bass-red' : 'border-gray-300 hover:border-gray-400'">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M8 12h8M6 18h12"></path>
                                         </svg>
@@ -153,7 +153,7 @@
                                     <button type="button"
                                             @click="selectedElement.textAlign = 'right'"
                                             class="flex items-center justify-center p-1 border rounded text-xs transition-all duration-200"
-                                             :class="selectedElement.textAlign === 'right' ? 'bg-bass-red/10 border-bass-red/20 text-[#B91818]' : 'border-gray-300 hover:border-gray-400'">
+                                             :class="selectedElement.textAlign === 'right' ? 'bg-bass-red/10 border-bass-red/20 text-bass-red' : 'border-gray-300 hover:border-gray-400'">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M12 12h8M4 18h16"></path>
                                         </svg>
@@ -174,8 +174,8 @@
                             <div>
                                 <label class="text-xs font-medium text-gray-600 mb-1 block">Aksi</label>
                                 <div class="grid grid-cols-2 gap-1">
-                                    <button type="button" @click="duplicateElement" class="p-1 text-xs bg-bass-red text-white rounded hover:bg-[#B91818]">Salin</button>
-                                    <button type="button" @click="removeElement" class="p-1 text-xs bg-red-600 text-white rounded hover:bg-red-700">Hapus</button>
+                                    <button type="button" @click="duplicateElement" class="p-1 text-xs bg-bass-red text-white rounded hover:bg-bass-red-hover">Salin</button>
+                                    <button type="button" @click="removeElement" class="p-1 text-xs bg-bass-red text-white rounded hover:bg-bass-red-hover">Hapus</button>
                                 </div>
                             </div>
                         </div>
@@ -188,7 +188,7 @@
                             <div class="bg-white shadow-sm rounded-2xl border border-gray-200 p-4">
                                 <div class="flex items-center justify-between mb-3">
                                     <h3 class="font-semibold text-gray-900">Halaman</h3>
-                                    <button type="button" @click="addPage" class="text-xs px-3 py-1 bg-bass-red text-white rounded-md hover:bg-[#B91818]">+ Tambah</button>
+                                    <button type="button" @click="addPage" class="text-xs px-3 py-1 bg-bass-red text-white rounded-md hover:bg-bass-red-hover">+ Tambah</button>
                                 </div>
                                 <div class="space-y-2">
                                     <template x-for="(page, index) in pages" :key="index">
@@ -199,7 +199,7 @@
                                                 </div>
                                                 <span x-text="'Halaman ' + (index + 1)" class="text-sm"></span>
                                             </button>
-                                            <button type="button" x-show="pages.length > 1" @click="removePage(index)" class="text-red-600 hover:text-red-800">
+                                            <button type="button" x-show="pages.length > 1" @click="removePage(index)" class="text-error hover:text-error">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                 </svg>
@@ -232,7 +232,7 @@
                                     <h4 class="text-sm font-medium text-gray-700 mb-2">Teks Statis</h4>
                                     <div class="flex">
                                         <input type="text" x-model="customText" placeholder="Masukkan teks kustom..." class="flex-1 text-sm border border-gray-300 rounded-l px-2 py-1">
-                                        <button type="button" @click="addCustomText" class="px-3 py-1 bg-green-600 text-white text-sm rounded-r">Tambah</button>
+                                        <button type="button" @click="addCustomText" class="px-3 py-1 bg-success text-white text-sm rounded-r">Tambah</button>
                                     </div>
                                 </div>
                             </div>

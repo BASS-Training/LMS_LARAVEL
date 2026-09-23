@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Status Pembayaran')
 
@@ -14,8 +14,8 @@
 
         @if ($order->isPaid())
             <div class="p-8 text-center">
-                <div class="mx-auto w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center">
-                    <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="mx-auto w-16 h-16 rounded-full bg-success-soft flex items-center justify-center">
+                    <svg class="w-8 h-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
                 </div>
@@ -25,22 +25,22 @@
                     Kursusnya juga langsung muncul di aplikasi mobile.
                 </p>
                 @if ($needsVerif)
-                    <p class="mt-2 inline-flex items-center gap-1 text-xs text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
+                    <p class="mt-2 inline-flex items-center gap-1 text-xs text-success bg-success-soft px-2.5 py-1 rounded-full">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/></svg>
                         Pembayaran terverifikasi oleh tim kami
                     </p>
                 @endif
 
                 <a href="{{ route('courses.show', $order->course) }}"
-                   class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-[#B91818] transition-colors">
+                   class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors">
                     Mulai Belajar
                 </a>
             </div>
 
         @elseif ($order->isAwaitingVerification())
             <div class="p-8 text-center">
-                <div class="mx-auto w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center">
-                    <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="mx-auto w-16 h-16 rounded-full bg-warning-soft flex items-center justify-center">
+                    <svg class="w-8 h-8 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
@@ -62,8 +62,8 @@
 
         @elseif ($order->isPending())
             <div class="p-8 text-center">
-                <div class="mx-auto w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center">
-                    <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="mx-auto w-16 h-16 rounded-full bg-warning-soft flex items-center justify-center">
+                    <svg class="w-8 h-8 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
@@ -75,7 +75,7 @@
 
                 @if ($order->isPayable())
                     <a href="{{ $order->snap_redirect_url }}"
-                       class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-[#B91818] transition-colors">
+                       class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors">
                         Lanjutkan Pembayaran
                     </a>
                 @endif
@@ -99,8 +99,8 @@
 
         @else
             <div class="p-8 text-center">
-                <div class="mx-auto w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
-                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="mx-auto w-16 h-16 rounded-full bg-error-soft flex items-center justify-center">
+                    <svg class="w-8 h-8 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </div>
@@ -110,7 +110,7 @@
                         Maaf, pembayaran ini <strong>tidak dapat kami verifikasi</strong>.
                     </p>
                     @if ($order->rejection_reason)
-                        <p class="mt-2 text-sm text-red-700 bg-red-50 rounded-lg px-3 py-2">
+                        <p class="mt-2 text-sm text-error bg-error-soft rounded-lg px-3 py-2">
                             Alasan: {{ $order->rejection_reason }}
                         </p>
                     @endif
@@ -124,7 +124,7 @@
                 @endif
 
                 <a href="{{ route('shop.show', $order->course) }}"
-                   class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-[#B91818] transition-colors">
+                   class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors">
                     Pesan Ulang
                 </a>
             </div>

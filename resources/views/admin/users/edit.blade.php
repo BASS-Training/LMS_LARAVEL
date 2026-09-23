@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Edit Pengguna: ') }} {{ $user->name }}
@@ -13,7 +13,7 @@
                     {{-- Tampilkan error validasi jika ada --}}
                     @if ($errors->any())
                         <div class="mb-4">
-                            <ul class="list-disc list-inside text-sm text-red-600">
+                            <ul class="list-disc list-inside text-sm text-error">
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
                                 @endforeach

@@ -12,7 +12,7 @@
                 @endphp
                 
                 @if($scoringEnabled)
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-soft text-success">
                         Dengan Penilaian
                     </span>
                 @else
@@ -23,11 +23,11 @@
                 
                 {{-- Grading Mode Badge --}}
                 @if($gradingMode === 'overall')
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-50 text-bass-red">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-bass-red-soft text-bass-red">
                         Penilaian Keseluruhan
                     </span>
                 @else
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-soft text-warning">
                         Per Pertanyaan
                     </span>
                 @endif
@@ -84,7 +84,7 @@
                                         @endif
                                     </p>
                                 @else
-                                    <p class="text-xs text-amber-700 mt-1">
+                                    <p class="text-xs text-warning mt-1">
                                         @if($scoringEnabled)
                                             Setiap pertanyaan mendapatkan nilai tersendiri
                                         @else
@@ -106,7 +106,7 @@
                                     @endif
                                 </div>
                                 <div class="mt-2">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $percentage >= 100 ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800' }}">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $percentage >= 100 ? 'bg-success-soft text-success' : 'bg-warning-soft text-warning' }}">
                                         {{ $percentage }}% Selesai
                                     </span>
                                 </div>
@@ -130,7 +130,7 @@
                     {{-- Left: Questions & Answers (Read-only) --}}
                     <div class="lg:col-span-2 space-y-4">
                         <div class="bg-white overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
-                            <div class="p-4 border-b border-red-200 bg-red-50">
+                            <div class="p-4 border-b border-bass-red/30 bg-bass-red-soft">
                                 <h3 class="text-lg font-semibold text-gray-900 flex items-center">
                                     <svg class="w-5 h-5 mr-2 text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -165,7 +165,7 @@
                                                 </span>
                                             </div>
                                             
-                                            <div class="p-3 bg-red-50 rounded-lg border-l-4 border-bass-red mb-3">
+                                            <div class="p-3 bg-bass-red-soft rounded-lg border-l-4 border-bass-red mb-3">
                                                 <p class="text-gray-900">{!! nl2br(e($question->question)) !!}</p>
                                             </div>
                                             
@@ -205,7 +205,7 @@
                             @csrf
 
                             <div class="bg-white overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
-                                <div class="p-4 border-b border-red-200 bg-red-50">
+                                <div class="p-4 border-b border-bass-red/30 bg-bass-red-soft">
                                     <h3 class="text-lg font-semibold text-gray-900 flex items-center">
                                         <svg class="w-5 h-5 mr-2 text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
@@ -262,15 +262,15 @@
                                         <h4 class="text-sm font-medium text-gray-700 mb-2">Template Feedback Cepat:</h4>
                                         <div class="grid grid-cols-1 gap-2">
                                             <button type="button" onclick="setFeedback('Hasil sangat baik! Struktur jelas, argumen kuat, dan seluruh pertanyaan dibahas secara menyeluruh.')"
-                                                    class="p-2 text-left bg-green-100 text-green-800 text-xs rounded hover:bg-green-200 transition-colors">
+                                                    class="p-2 text-left bg-success-soft text-success text-xs rounded hover:bg-success transition-colors">
                                                 Sangat Baik
                                             </button>
                                             <button type="button" onclick="setFeedback('Secara keseluruhan sudah baik. Sebagian besar pertanyaan dijawab dengan baik, tetapi beberapa bagian memerlukan detail dan contoh tambahan.')"
-                                                    class="p-2 text-left bg-red-50 text-bass-red text-xs rounded hover:bg-red-100 transition-colors">
+                                                    class="p-2 text-left bg-bass-red-soft text-bass-red text-xs rounded hover:bg-bass-red hover:text-white transition-colors">
                                                 Baik
                                             </button>
                                             <button type="button" onclick="setFeedback('Perlu diperbaiki. Tinjau kembali setiap pertanyaan dan berikan jawaban yang lebih menyeluruh.')"
-                                                    class="p-2 text-left bg-amber-100 text-amber-800 text-xs rounded hover:bg-amber-200 transition-colors">
+                                                    class="p-2 text-left bg-warning-soft text-warning text-xs rounded hover:bg-warning hover:text-white transition-colors">
                                                 Perlu Diperbaiki
                                             </button>
                                         </div>
@@ -281,7 +281,7 @@
                                         <div class="border-t pt-4">
                                             <h4 class="text-sm font-medium text-gray-700 mb-2">Penilaian Saat Ini:</h4>
                                             @if($overallScore !== null)
-                                                <p class="text-sm text-green-700">Nilai: <span class="font-bold">{{ $overallScore }}</span>/{{ $totalMaxScore }}</p>
+                                                <p class="text-sm text-success">Nilai: <span class="font-bold">{{ $overallScore }}</span>/{{ $totalMaxScore }}</p>
                                             @endif
                                             @if($overallFeedback)
                                                 <p class="text-sm text-gray-600 mt-1">{{ Str::limit($overallFeedback, 100) }}</p>
@@ -289,7 +289,7 @@
                                         </div>
                                     @endif
 
-                                    <button type="submit" class="w-full px-4 py-3 bg-bass-red hover:bg-[#B91818] text-white font-medium rounded-lg transition-colors flex items-center justify-center space-x-2">
+                                    <button type="submit" class="w-full px-4 py-3 bg-bass-red hover:bg-bass-red-hover text-white font-medium rounded-lg transition-colors flex items-center justify-center space-x-2">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"></path>
                                         </svg>
@@ -323,13 +323,13 @@
                                     <div class="p-6">
                                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                                             <h4 class="text-lg font-semibold text-gray-900 flex items-center">
-                                                <span class="bg-red-50 text-bass-red text-sm font-medium px-2.5 py-0.5 rounded-full mr-3">
+                                                <span class="bg-bass-red-soft text-bass-red text-sm font-medium px-2.5 py-0.5 rounded-full mr-3">
                                                     {{ $index + 1 }}
                                                 </span>
                                                 Pertanyaan {{ $index + 1 }} dari {{ $totalQuestions }}
                                             </h4>
                                             @if($answer && (($scoringEnabled && $answer->score !== null) || (!$scoringEnabled && $answer->feedback)))
-                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-success-soft text-success">
                                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                     </svg>
@@ -340,7 +340,7 @@
                                                     @endif
                                                 </span>
                                             @else
-                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-warning-soft text-warning">
                                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                     </svg>
@@ -350,7 +350,7 @@
                                         </div>
                                         
                                         {{-- Question Text --}}
-                                        <div class="mb-6 p-4 bg-red-50 border-l-4 border-bass-red rounded-r-lg">
+                                        <div class="mb-6 p-4 bg-bass-red-soft border-l-4 border-bass-red rounded-r-lg">
                                             <h5 class="font-medium text-gray-900 mb-2">Pertanyaan:</h5>
                                             <div class="text-gray-800">{!! nl2br(e($question->question)) !!}</div>
                                         </div>
@@ -457,14 +457,14 @@
                                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                     <div class="text-sm text-gray-600">
                                         @if($gradedAnswers >= $totalQuestions && $totalQuestions > 0)
-                                            <span class="text-green-600 font-medium flex items-center">
+                                            <span class="text-success font-medium flex items-center">
                                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                 </svg>
                                                 Semua pertanyaan telah dinilai
                                             </span>
                                         @else
-                                            <span class="text-amber-600 font-medium flex items-center">
+                                            <span class="text-warning font-medium flex items-center">
                                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                 </svg>
@@ -474,7 +474,7 @@
                                     </div>
                                     
                                     <button type="submit"
-                                            class="w-full sm:w-auto px-6 py-3 bg-bass-red hover:bg-[#B91818] text-white font-medium rounded-lg transition-colors flex items-center justify-center space-x-2">
+                                            class="w-full sm:w-auto px-6 py-3 bg-bass-red hover:bg-bass-red-hover text-white font-medium rounded-lg transition-colors flex items-center justify-center space-x-2">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"></path>
                                         </svg>

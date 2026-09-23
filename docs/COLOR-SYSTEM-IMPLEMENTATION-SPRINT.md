@@ -698,7 +698,11 @@ Gunakan nama area dan tracker progress untuk menghindari ambiguitas nomor sprint
 - [x] R04 Auto Grade actions and statuses
 - [x] R05 Force Complete actions and statuses
 - [x] R06 Participant management, AVPN states, and analytics palette
-- [ ] Continue active-route residual tasks before Sprint 11 final verification
+- [x] R07-R10 Content core residual (courses-period, content create/edit/show, partials)
+- [x] R11-R15 Discussions, essays result, case studies, document submissions, feedback
+- [x] R16-R19 File control, certificates, auth/profile, gradebook
+- [x] Batch D full scan: hex/focus/status/gradient/action mapping + bulk-replace fixes + build/view:cache/test
+- [ ] Continue active-route residual tasks before Sprint 11 final verification (non-color / functional backlog)
 
 ---
 

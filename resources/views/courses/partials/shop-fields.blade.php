@@ -1,4 +1,4 @@
-{{--
+﻿{{--
     Pengaturan etalase (katalog publik).
     Dipakai bersama oleh courses/create & courses/edit.
     $course opsional (tidak ada saat create).
@@ -39,7 +39,7 @@
 
         <div x-show="inCatalog" x-collapse style="display:none" class="space-y-4 pt-1">
 
-            <div class="rounded-md bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800">
+            <div class="rounded-md bg-warning-soft border border-warning/40 px-3 py-2 text-xs text-warning">
                 Kursus hanya muncul di katalog publik jika <strong>Status Publikasi</strong> juga diatur ke
                 <strong>Published</strong>. Kursus berstatus Draft tidak dapat dilihat atau dibeli oleh publik.
             </div>
@@ -56,7 +56,7 @@
                     pembayaran sebelum memperoleh akses kursus.
                 </p>
                 @error('price')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    <p class="text-error text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
@@ -70,7 +70,7 @@
                        placeholder="Satu kalimat yang muncul di kartu katalog"
                        class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-bass-red focus:border-transparent">
                 @error('short_description')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    <p class="text-error text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
 

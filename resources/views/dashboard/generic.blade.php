@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-navy leading-tight">
@@ -55,30 +55,30 @@
                     <h3 class="text-lg font-semibold text-navy mb-4">Akses Cepat</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                         @can('view courses')
-                            <a href="{{ route('courses.index') }}" class="group block border border-gray-200 rounded-lg p-4 hover:bg-red-50 hover:border-red-200 transition-colors">
+                            <a href="{{ route('courses.index') }}" class="group block border border-gray-200 rounded-lg p-4 hover:bg-navy/5 hover:border-navy/40 transition-colors">
                                 <div class="font-semibold group-hover:text-bass-red">Kursus</div>
                                 <div class="text-sm text-gray-500">Lihat daftar kursus</div>
                             </a>
                         @endcan
                         @can('view instructor analytics')
-                            <a href="{{ route('instructor-analytics.index') }}" class="group block border border-gray-200 rounded-lg p-4 hover:bg-red-50 hover:border-red-200 transition-colors">
+                            <a href="{{ route('instructor-analytics.index') }}" class="group block border border-gray-200 rounded-lg p-4 hover:bg-navy/5 hover:border-navy/40 transition-colors">
                                 <div class="font-semibold group-hover:text-bass-red">Analitik Instruktur</div>
                                 <div class="text-sm text-gray-500">Lihat kinerja instruktur</div>
                             </a>
                         @endcan
                         @can('view certificate management')
-                            <a href="{{ route('certificate-management.analytics') }}" class="group block border border-gray-200 rounded-lg p-4 hover:bg-red-50 hover:border-red-200 transition-colors">
+                            <a href="{{ route('certificate-management.analytics') }}" class="group block border border-gray-200 rounded-lg p-4 hover:bg-navy/5 hover:border-navy/40 transition-colors">
                                 <div class="font-semibold group-hover:text-bass-red">Sertifikat</div>
                                 <div class="text-sm text-gray-500">Analitik & manajemen</div>
                             </a>
                         @endcan
                         @can('manage users')
-                            <a href="{{ route('admin.users.index') }}" class="group block border border-gray-200 rounded-lg p-4 hover:bg-red-50 hover:border-red-200 transition-colors">
+                            <a href="{{ route('admin.users.index') }}" class="group block border border-gray-200 rounded-lg p-4 hover:bg-navy/5 hover:border-navy/40 transition-colors">
                                 <div class="font-semibold group-hover:text-bass-red">Pengguna</div>
                                 <div class="text-sm text-gray-500">Kelola pengguna & peran</div>
                             </a>
                         @endcan
-                        <a href="{{ route('announcements.index') }}" class="group block border border-gray-200 rounded-lg p-4 hover:bg-red-50 hover:border-red-200 transition-colors">
+                        <a href="{{ route('announcements.index') }}" class="group block border border-gray-200 rounded-lg p-4 hover:bg-navy/5 hover:border-navy/40 transition-colors">
                             <div class="font-semibold group-hover:text-bass-red">Pengumuman</div>
                             <div class="text-sm text-gray-500">Lihat semua pengumuman</div>
                         </a>

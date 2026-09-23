@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -42,7 +42,7 @@
                                 </button>
                             </div>
                             
-                            <button id="download-pdf" class="px-4 py-2 bg-bass-red text-white rounded-xl font-medium text-sm hover:bg-[#B91818] transition shadow-sm">
+                            <button id="download-pdf" class="px-4 py-2 bg-bass-red text-white rounded-xl font-medium text-sm hover:bg-bass-red-hover transition shadow-sm">
                                 <span class="flex items-center gap-2">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
                                     Unduh PDF
@@ -78,7 +78,7 @@
                             <input type="text" id="sample-grade" value="A+" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-bass-red focus:ring-bass-red">
                         </div>
                         <div class="flex items-end">
-                            <button id="update-preview" class="w-full px-3 py-2 bg-bass-red text-white rounded-xl font-medium text-sm hover:bg-[#B91818] transition shadow-sm">
+                            <button id="update-preview" class="w-full px-3 py-2 bg-bass-red text-white rounded-xl font-medium text-sm hover:bg-bass-red-hover transition shadow-sm">
                                 Perbarui Pratinjau
                             </button>
                         </div>

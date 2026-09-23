@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="bg-navy -mx-4 -my-2 px-4 py-8 sm:px-6 lg:px-8 rounded-2xl shadow-lg">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -209,8 +209,8 @@
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             @if($index === 0)
-                                                <div class="flex-shrink-0 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center mr-3">
-                                                    <span class="text-yellow-900 text-xs font-bold"></span>
+                                                <div class="flex-shrink-0 w-6 h-6 bg-warning rounded-full flex items-center justify-center mr-3">
+                                                    <span class="text-warning text-xs font-bold"></span>
                                                 </div>
                                             @endif
                                             <div class="flex-shrink-0 h-10 w-10 bg-navy rounded-full flex items-center justify-center">
@@ -251,7 +251,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
                                         @if($index === 0)
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-bass-gold/20 text-yellow-800">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-bass-gold/20 text-warning">
                                                  #1
                                             </span>
                                         @else

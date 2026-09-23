@@ -1,4 +1,4 @@
-{{-- resources/views/dashboard/admin.blade.php --}}
+﻿{{-- resources/views/dashboard/admin.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -8,7 +8,7 @@
             <div class="flex items-center gap-3 text-sm text-gray-500">
                 <span>{{ now()->translatedFormat('l, d F Y') }}</span>
                 <span class="flex items-center gap-1.5">
-                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <span class="w-2 h-2 bg-success rounded-full animate-pulse"></span>
                     Online
                 </span>
             </div>
@@ -105,8 +105,8 @@
                             <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Kursus</p>
                             <p class="text-2xl font-bold text-gray-900 tabular-nums">{{ number_format($stats['courses']['total']) }}</p>
                             <div class="flex flex-wrap gap-x-3 gap-y-1 mt-1.5 text-xs text-gray-500">
-                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500"></span>{{ $stats['courses']['published'] }} Published</span>
-                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-400"></span>{{ $stats['courses']['draft'] }} Draft</span>
+                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-success"></span>{{ $stats['courses']['published'] }} Published</span>
+                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-warning"></span>{{ $stats['courses']['draft'] }} Draft</span>
                             </div>
                         </div>
                     </div>
@@ -171,7 +171,7 @@
                                             <p class="text-sm font-medium text-gray-900 truncate">{{ $course->title }}</p>
                                             <p class="text-xs text-gray-500">oleh {{ $course->instructors->pluck('name')->join(', ') }} &middot; {{ $course->created_at->diffForHumans() }}</p>
                                         </div>
-                                        <span class="badge flex-shrink-0 {{ $course->status === 'published' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700' }}">
+                                        <span class="badge flex-shrink-0 {{ $course->status === 'published' ? 'bg-success-soft text-success' : 'bg-warning-soft text-warning' }}">
                                             {{ ucfirst($course->status) }}
                                         </span>
                                     </div>
@@ -231,7 +231,7 @@
                                 ['route' => 'activity-logs.index', 'label' => 'Log Aktivitas',   'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'],
                             ] as $action)
                             <a href="{{ route($action['route']) }}"
-                               class="flex items-center gap-3 w-full min-h-[44px] px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 bg-gray-50 hover:bg-red-50 hover:text-bass-red transition-colors group">
+                               class="flex items-center gap-3 w-full min-h-[44px] px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 bg-gray-50 hover:bg-error-soft hover:text-bass-red transition-colors group">
                                 <svg class="w-4 h-4 text-gray-400 group-hover:text-bass-red flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $action['icon'] }}"/>
                                 </svg>
@@ -274,8 +274,8 @@
                     <div class="bg-white rounded-xl shadow-card p-4 sm:p-5">
                         <div class="flex items-center justify-between">
                             <span class="text-sm font-semibold text-gray-900">Platform LMS</span>
-                            <span class="badge bg-green-100 text-green-700">
-                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                            <span class="badge bg-success-soft text-success">
+                                <span class="w-1.5 h-1.5 rounded-full bg-success animate-pulse"></span>
                                 Online
                             </span>
                         </div>

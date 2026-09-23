@@ -16,7 +16,7 @@
                         <div>
                             <h3 class="text-2xl font-bold">Skor Akhir: {{ number_format($attempt->score) }}</h3>
                         </div>
-                        <a href="javascript:void(0)" onclick="window.history.back()" class="text-sm text-bass-red hover:text-[#B91818]">&larr; Kembali</a>
+                        <a href="javascript:void(0)" onclick="window.history.back()" class="text-sm text-bass-red hover:text-bass-red-hover">&larr; Kembali</a>
                     </div>
 
                     @foreach ($attempt->quiz->questions as $question)
@@ -39,13 +39,13 @@
 
                                         if ($isUserAnswer && $isCorrect) {
                                             // Jawaban user, dan itu benar
-                                            $styleClass = 'bg-green-50 border-green-500 text-green-800';
+                                            $styleClass = 'bg-success-soft border-success text-success';
                                         } elseif ($isUserAnswer && !$isCorrect) {
                                             // Jawaban user, tapi salah
-                                            $styleClass = 'bg-red-50 border-red-500 text-red-800';
+                                            $styleClass = 'bg-error-soft border-error text-error';
                                         } elseif (!$isUserAnswer && $isCorrect) {
                                             // Bukan jawaban user, tapi ini kunci jawabannya
-                                            $styleClass = 'bg-red-50 border-navy text-navy';
+                                            $styleClass = 'bg-navy/5 border-navy text-navy';
                                         } else {
                                             // Opsi lain yang tidak dipilih
                                             $styleClass = 'bg-gray-50 border-gray-200';
@@ -61,7 +61,7 @@
                             </div>
 
                              @if(!$userAnswer)
-                                <div class="mt-4 p-3 rounded-lg border-2 bg-yellow-50 border-yellow-500 text-yellow-800">
+                                <div class="mt-4 p-3 rounded-lg border-2 bg-warning-soft border-warning text-warning">
                                     <p class="font-semibold">Tidak Dijawab</p>
                                 </div>
                             @endif

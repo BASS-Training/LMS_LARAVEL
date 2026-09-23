@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-navy leading-tight">
@@ -6,14 +6,14 @@
             </h2>
             <div class="flex items-center space-x-4">
                 <!-- Komponen Notifikasi Fungsional -->
-                <a href="{{ route('announcements.index') }}" class="relative p-2 text-gray-600 hover:text-bass-red hover:bg-red-50 rounded-full">
+                <a href="{{ route('announcements.index') }}" class="relative p-2 text-gray-600 hover:text-bass-red hover:bg-error-soft rounded-full">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M15 17h5l-1.5-1.5A2 2 0 0118 14v-3a6 6 0 10-12 0v3a2 2 0 01-.5 1.5L4 17h5m6 0v1a3 3 0 11-6 0v-1" />
                     </svg>
                     {{-- Panggil sebagai properti, bukan metode --}}
                     @if(Auth::user()->unread_announcements_count > 0)
-                        <span class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
+                        <span class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-error rounded-full">
                             {{ Auth::user()->unread_announcements_count }}
                         </span>
                     @endif
@@ -117,11 +117,11 @@
                         <div class="mt-4">
                             <div class="flex text-xs text-gray-600">
                                 <span class="flex items-center">
-                                    <span class="w-2 h-2 bg-green-400 rounded-full mr-1"></span>
+                                    <span class="w-2 h-2 bg-success rounded-full mr-1"></span>
                                     {{ $stats['courses']['published'] }} Published
                                 </span>
                                 <span class="flex items-center ml-3">
-                                    <span class="w-2 h-2 bg-yellow-400 rounded-full mr-1"></span>
+                                    <span class="w-2 h-2 bg-warning rounded-full mr-1"></span>
                                     {{ $stats['courses']['draft'] }} Draft
                                 </span>
                             </div>
@@ -147,7 +147,7 @@
                         </div>
                         <div class="mt-4">
                             <div class="text-xs text-gray-600">
-                                <span class="text-green-600 font-medium">+{{ $stats['students']['recent_enrollments'] }}</span>
+                                <span class="text-success font-medium">+{{ $stats['students']['recent_enrollments'] }}</span>
                                 pendaftaran baru (30 hari)
                             </div>
                         </div>
@@ -188,7 +188,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
                                     @if($stats['essays']['pending'] > 0)
-                                    <span class="absolute -top-1 -right-1 block w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
+                                    <span class="absolute -top-1 -right-1 block w-3 h-3 bg-error rounded-full animate-pulse"></span>
                                     @endif
                                 </div>
                             </div>
@@ -222,7 +222,7 @@
                                     <div class="flex-1 min-w-0">
                                         <div class="flex flex-wrap items-center gap-2 mb-2">
                                             <h4 class="text-sm font-medium text-gray-900 truncate">{{ $course['title'] }}</h4>
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $course['status'] === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $course['status'] === 'published' ? 'bg-success-soft text-success' : 'bg-warning-soft text-warning' }}">
                                                 {{ ucfirst($course['status']) }}
                                             </span>
                                         </div>
@@ -241,7 +241,7 @@
                                         </div>
                                     </div>
                                     <div class="flex-shrink-0 self-end sm:self-center">
-                                        <a href="{{ route('courses.show', $course['id']) }}" class="inline-flex items-center justify-center min-h-[40px] px-4 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-bass-red bg-red-50 hover:bg-red-100 transition-colors">
+                                        <a href="{{ route('courses.show', $course['id']) }}" class="inline-flex items-center justify-center min-h-[40px] px-4 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-bass-red bg-error-soft hover:bg-error-soft transition-colors">
                                             Kelola
                                         </a>
                                     </div>
@@ -252,7 +252,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                                     </svg>
                                     <p class="mb-4">Belum ada kursus yang dibuat</p>
-                                    <a href="{{ route('courses.create') }}" class="inline-flex items-center px-4 py-2 bg-bass-red border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#B91818] transition">
+                                    <a href="{{ route('courses.create') }}" class="inline-flex items-center px-4 py-2 bg-bass-red border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-bass-red-hover transition">
                                         Buat Kursus Pertama
                                     </a>
                                 </div>
@@ -277,7 +277,7 @@
                         <div class="p-6 space-y-3">
                             <!-- Kelola Diskusi -->
                             @if($stats['courses']['total'] > 0)
-                            <a href="{{ route('courses.discussions.index', $stats['courses']['performance'][0]['id'] ?? 1) }}" class="flex items-center w-full px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-red-50 hover:text-bass-red transition-colors hover-lift group">
+                            <a href="{{ route('courses.discussions.index', $stats['courses']['performance'][0]['id'] ?? 1) }}" class="flex items-center w-full px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-error-soft hover:text-bass-red transition-colors hover-lift group">
                                 <svg class="w-5 h-5 mr-3 text-navy group-hover:text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                                 </svg>
@@ -292,14 +292,14 @@
                             </a>
 
                             <!-- Kelola Penilaian -->
-                            <a href="{{ route('courses.gradebook', $stats['courses']['performance'][0]['id'] ?? 1) }}" class="flex items-center w-full px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-red-50 hover:text-bass-red transition-colors hover-lift group">
+                            <a href="{{ route('courses.gradebook', $stats['courses']['performance'][0]['id'] ?? 1) }}" class="flex items-center w-full px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-error-soft hover:text-bass-red transition-colors hover-lift group">
                                 <svg class="w-5 h-5 mr-3 text-navy group-hover:text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
                                 </svg>
                                 <div class="flex-1">
                                     <span>Kelola Penilaian</span>
                                     @if($stats['essays']['pending'] > 0)
-                                    <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-error-soft text-error">
                                         {{ $stats['essays']['pending'] }} pending
                                     </span>
                                     @endif
@@ -307,7 +307,7 @@
                             </a>
 
                             <!-- Lihat Progres -->
-                            <a href="{{ route('eo.courses.index') }}" class="flex items-center w-full px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-red-50 hover:text-bass-red transition-colors hover-lift group">
+                            <a href="{{ route('eo.courses.index') }}" class="flex items-center w-full px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-error-soft hover:text-bass-red transition-colors hover-lift group">
                                 <svg class="w-5 h-5 mr-3 text-navy group-hover:text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                                 </svg>
@@ -316,15 +316,15 @@
                             @endif
 
                             @if($stats['essays']['pending'] > 0)
-                            <div class="flex items-center w-full px-4 py-3 text-left text-sm font-medium bg-amber-50 rounded-lg border border-amber-200">
-                                <svg class="w-5 h-5 mr-3 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <div class="flex items-center w-full px-4 py-3 text-left text-sm font-medium bg-warning-soft rounded-lg border border-warning/40">
+                                <svg class="w-5 h-5 mr-3 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                 </svg>
                                 <div class="flex-1">
-                                    <p class="text-amber-800 font-medium">{{ $stats['essays']['pending'] }} Esai Perlu Dinilai</p>
-                                    <p class="text-xs text-amber-700">Klik tombol menu penilaian di atas</p>
+                                    <p class="text-warning font-medium">{{ $stats['essays']['pending'] }} Esai Perlu Dinilai</p>
+                                    <p class="text-xs text-warning">Klik tombol menu penilaian di atas</p>
                                 </div>
-                                <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                                <span class="w-2 h-2 bg-error rounded-full animate-pulse"></span>
                             </div>
                             @endif
                         </div>
@@ -336,8 +336,8 @@
                         <div class="p-6">
                             <div class="flex items-center justify-between">
                                 <span class="text-sm font-medium text-gray-900">Instruktur Dashboard</span>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    <div class="w-2 h-2 bg-green-600 rounded-full mr-1 animate-pulse"></div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-soft text-success">
+                                    <div class="w-2 h-2 bg-success rounded-full mr-1 animate-pulse"></div>
                                     Aktif
                                 </span>
                             </div>
@@ -466,9 +466,9 @@
 
             const typeStyles = {
                 info: 'bg-navy text-white',
-                success: 'bg-green-600 text-white',
-                warning: 'bg-amber-600 text-white',
-                error: 'bg-red-600 text-white'
+                success: 'bg-success text-white',
+                warning: 'bg-warning text-white',
+                error: 'bg-bass-red text-white'
             };
 
             toast.className = `notification-toast max-w-sm w-full ${typeStyles[type]} shadow-lg rounded-lg pointer-events-auto overflow-hidden`;

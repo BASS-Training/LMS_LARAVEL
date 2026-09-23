@@ -1,4 +1,4 @@
-@php
+﻿@php
     // Setel nilai default jika variabel $announcement tidak ada (untuk halaman create)
     $announcement = $announcement ?? new \App\Models\Announcement();
 @endphp
@@ -30,7 +30,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a.997.997 0 01-1.414 0l-7-7A1.997 1.997 0 013 12V7a4 4 0 014-4z"></path>
                             </svg>
                             Judul Pengumuman
-                            <span class="text-red-500 ml-1">*</span>
+                            <span class="text-error ml-1">*</span>
                         </span>
                     </label>
                     <div class="relative">
@@ -48,7 +48,7 @@
                         </div>
                     </div>
                     @error('title') 
-                        <p class="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
+                        <p class="mt-2 text-sm text-error dark:text-gray-400 flex items-center">
                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                             </svg>
@@ -65,7 +65,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                             Level Prioritas
-                            <span class="text-red-500 ml-1">*</span>
+                            <span class="text-error ml-1">*</span>
                         </span>
                     </label>
                     <select name="level" 
@@ -85,7 +85,7 @@
                         </option>
                     </select>
                     @error('level') 
-                        <p class="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
+                        <p class="mt-2 text-sm text-error dark:text-gray-400 flex items-center">
                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                             </svg>
@@ -119,7 +119,7 @@
                         </p>
                     </div>
                     @error('published_at') 
-                        <p class="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
+                        <p class="mt-2 text-sm text-error dark:text-gray-400 flex items-center">
                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                             </svg>
@@ -139,7 +139,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
                             Isi Pengumuman
-                            <span class="text-red-500 ml-1">*</span>
+                            <span class="text-error ml-1">*</span>
                         </span>
                     </label>
                     <textarea name="content" 
@@ -149,7 +149,7 @@
                               placeholder="Tulis detail pengumuman di sini. Jelaskan informasi yang ingin disampaikan dengan jelas dan lengkap..."
                               required>{{ old('content', $announcement->content) }}</textarea>
                     @error('content') 
-                        <p class="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
+                        <p class="mt-2 text-sm text-error dark:text-gray-400 flex items-center">
                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                             </svg>

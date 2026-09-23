@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             Attendance Management - {{ $course->title }}
@@ -128,23 +128,23 @@
                                                     <div class="text-sm">
                                                         <span class="text-gray-600">Attendance Rate:</span>
                                                         <span class="font-semibold ml-1
-                                                            @if($attendanceRate >= 80) text-green-600
-                                                            @elseif($attendanceRate >= 50) text-yellow-600
-                                                            @else text-red-600
+                                                            @if($attendanceRate >= 80) text-success
+                                                            @elseif($attendanceRate >= 50) text-warning
+                                                            @else text-error
                                                             @endif">
                                                             {{ $attendanceRate }}%
                                                         </span>
                                                     </div>
                                                     <div class="text-sm">
-                                                        <span class="text-green-600 font-semibold">{{ $stats['present'] }}</span>
+                                                        <span class="text-success font-semibold">{{ $stats['present'] }}</span>
                                                         <span class="text-gray-600"> Present</span>
                                                     </div>
                                                     <div class="text-sm">
-                                                        <span class="text-red-600 font-semibold">{{ $stats['absent'] }}</span>
+                                                        <span class="text-error font-semibold">{{ $stats['absent'] }}</span>
                                                         <span class="text-gray-600"> Absent</span>
                                                     </div>
                                                     <div class="text-sm">
-                                                        <span class="text-yellow-600 font-semibold">{{ $stats['late'] }}</span>
+                                                        <span class="text-warning font-semibold">{{ $stats['late'] }}</span>
                                                         <span class="text-gray-600"> Late</span>
                                                     </div>
                                                     <div class="text-sm">
@@ -170,9 +170,9 @@
                                         <div class="mt-3">
                                             <div class="w-full bg-gray-200 rounded-full h-2">
                                                 <div class="h-2 rounded-full transition-all
-                                                    @if($attendanceRate >= 80) bg-green-500
-                                                    @elseif($attendanceRate >= 50) bg-yellow-500
-                                                    @else bg-red-500
+                                                    @if($attendanceRate >= 80) bg-success
+                                                    @elseif($attendanceRate >= 50) bg-warning
+                                                    @else bg-error
                                                     @endif"
                                                     style="width: {{ $attendanceRate }}%">
                                                 </div>
