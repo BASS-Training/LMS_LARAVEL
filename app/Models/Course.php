@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use App\Models\Traits\Duplicateable; // Import Trait
+use App\Models\Traits\Duplicateable;
 use App\Services\TokenGenerator;
+use Illuminate\Database\Eloquent\Factories\HasFactory; // Import Trait
+use Illuminate\Database\Eloquent\Model;
 
 class Course extends Model
 {
-    use HasFactory, Duplicateable; // Gunakan Trait
+    use Duplicateable, HasFactory; // Gunakan Trait
 
     protected $fillable = [
         'title',
@@ -45,16 +45,17 @@ class Course extends Model
      * PERBAIKAN: Hanya duplikasi lessons, TIDAK duplikasi users (instructors, eventOrganizers, participants)
      * agar course duplikat tidak membawa data user dari course asli.
      * Ini untuk kelas/batch baru dengan peserta baru.
+     *
      * @var array
      */
     protected $duplicateRelations = ['lessons'];
 
     /**
      * Define which attribute contains a file to be duplicated.
+     *
      * @var string
      */
     protected $replicateFile = 'thumbnail';
-
 
     // Relasi ke User (instruktur yang membuat kursus)
     public function instructors()
@@ -91,7 +92,7 @@ class Course extends Model
 
     public function eventOrganizers()
     {
-        return $this->belongsToMany(User::class, 'course_event_organizer');
+        return $this->belongsToMany(User::class, 'course_event_organizer')->withTimestamps();
     }
 
     public function contents()
@@ -198,7 +199,7 @@ class Course extends Model
      */
     public function hasUser($userId): bool
     {
-        return  $this->enrolledUsers()->where('users.id', $userId)->exists() ||
+        return $this->enrolledUsers()->where('users.id', $userId)->exists() ||
             $this->instructors()->where('users.id', $userId)->exists() ||
             $this->eventOrganizers()->where('users.id', $userId)->exists();
     }
@@ -210,7 +211,7 @@ class Course extends Model
     {
         return $this->periods()->whereHas('participants', function ($query) use ($userId) {
             $query->where('users.id', $userId);
-        })->exists() || 
+        })->exists() ||
         $this->periods()->whereHas('instructors', function ($query) use ($userId) {
             $query->where('users.id', $userId);
         })->exists() ||
@@ -232,9 +233,11 @@ class Course extends Model
      */
     public function getUserInstructorPeriods($userId)
     {
-        return $this->periods()->whereHas('instructors', function ($query) use ($userId) {
-            $query->where('users.id', $userId);
-        })->get();
+        return $this->periods()
+            ->select('id', 'course_id', 'name', 'start_date', 'end_date', 'status', 'description')
+            ->whereHas('instructors', function ($query) use ($userId) {
+                $query->where('users.id', $userId);
+            })->get();
     }
 
     /**
@@ -243,11 +246,11 @@ class Course extends Model
     public function getAllPeriodParticipants()
     {
         $userIds = collect();
-        
+
         foreach ($this->periods as $period) {
             $userIds = $userIds->merge($period->participants()->pluck('users.id'));
         }
-        
+
         return User::whereIn('id', $userIds->unique())->get();
     }
 
@@ -267,7 +270,7 @@ class Course extends Model
         if ($this->usesPeriodEnrollment()) {
             return $this->getAllPeriodParticipants();
         }
-        
+
         return $this->participants;
     }
 
@@ -312,7 +315,7 @@ class Course extends Model
      */
     public function hasCertificateTemplate(): bool
     {
-        return !is_null($this->certificate_template_id);
+        return ! is_null($this->certificate_template_id);
     }
 
     /**
@@ -337,6 +340,7 @@ class Course extends Model
                 $count++;
             }
         }
+
         return $count;
     }
 
@@ -347,10 +351,10 @@ class Course extends Model
     /**
      * Generate enrollment token (random or custom)
      *
-     * @param string $type 'random' or 'custom'
-     * @param string|null $customToken Token kustom jika type = 'custom'
-     * @param int $length Panjang token jika type = 'random'
-     * @param string $format Format token: 'alphanumeric', 'numeric', 'alpha'
+     * @param  string  $type  'random' or 'custom'
+     * @param  string|null  $customToken  Token kustom jika type = 'custom'
+     * @param  int  $length  Panjang token jika type = 'random'
+     * @param  string  $format  Format token: 'alphanumeric', 'numeric', 'alpha'
      * @return array ['success' => bool, 'token' => string, 'message' => string]
      */
     public function generateEnrollmentToken(
@@ -365,7 +369,7 @@ class Course extends Model
                     return [
                         'success' => false,
                         'token' => '',
-                        'message' => 'Custom token tidak boleh kosong'
+                        'message' => 'Custom token tidak boleh kosong',
                     ];
                 }
 
@@ -376,11 +380,11 @@ class Course extends Model
                     $this->id
                 );
 
-                if (!$validation['valid']) {
+                if (! $validation['valid']) {
                     return [
                         'success' => false,
                         'token' => $validation['token'],
-                        'message' => $validation['message']
+                        'message' => $validation['message'],
                     ];
                 }
 
@@ -403,13 +407,13 @@ class Course extends Model
             return [
                 'success' => true,
                 'token' => $token,
-                'message' => 'Token berhasil dibuat'
+                'message' => 'Token berhasil dibuat',
             ];
         } catch (\Exception $e) {
             return [
                 'success' => false,
                 'token' => '',
-                'message' => 'Gagal membuat token: ' . $e->getMessage()
+                'message' => 'Gagal membuat token: '.$e->getMessage(),
             ];
         }
     }
@@ -422,7 +426,7 @@ class Course extends Model
 
     public function isTokenValid(): bool
     {
-        if (!$this->token_enabled || !$this->enrollment_token) {
+        if (! $this->token_enabled || ! $this->enrollment_token) {
             return false;
         }
 
@@ -443,7 +447,7 @@ class Course extends Model
      */
     public function getTokenTypeLabel(): string
     {
-        return match($this->token_type) {
+        return match ($this->token_type) {
             'custom' => 'Custom',
             'random' => 'Random',
             default => 'Random',
@@ -494,7 +498,7 @@ class Course extends Model
     {
         return $this->isFree()
             ? 'Gratis'
-            : 'Rp ' . number_format((int) $this->price, 0, ',', '.');
+            : 'Rp '.number_format((int) $this->price, 0, ',', '.');
     }
 
     public function isEnrolledBy(?User $user): bool

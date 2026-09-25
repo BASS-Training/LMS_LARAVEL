@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreCourseRequest;
+use App\Jobs\ExportCourseParticipantsJob;
+use App\Models\CertificateTemplate;
 use App\Models\Course;
 use App\Models\ExportHistory;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
-use App\Models\CertificateTemplate;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use App\Http\Requests\StoreCourseRequest;
-use App\Jobs\ExportCourseParticipantsJob;
 use App\Services\CourseParticipantQueryService;
 use App\Services\CourseService;
-use PDF;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+use PDF;
 
 class CourseController extends Controller
 {
@@ -59,7 +59,7 @@ class CourseController extends Controller
                     $q->where('user_id', $user->id);
                 });
 
-            if (!$user->isAvpnApproved()) {
+            if (! $user->isAvpnApproved()) {
                 $query->where('program_type', '!=', 'avpn_ai');
             }
         }
@@ -69,8 +69,8 @@ class CourseController extends Controller
             $validated = $request->validate(['q' => 'required|string|min:2|max:100']);
             $search = $validated['q'];
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', '%' . $search . '%')
-                  ->orWhere('description', 'like', '%' . $search . '%');
+                $q->where('title', 'like', '%'.$search.'%')
+                    ->orWhere('description', 'like', '%'.$search.'%');
             });
         }
 
@@ -83,6 +83,7 @@ class CourseController extends Controller
     {
         $this->authorize('create', Course::class);
         $templates = CertificateTemplate::all(); // Ambil semua template
+
         return view('courses.create', compact('templates')); // Kirim ke view
     }
 
@@ -127,7 +128,7 @@ class CourseController extends Controller
             if ($request->boolean('enable_periods')) {
                 if (
                     $request->boolean('create_default_period') ||
-                    (!empty($validatedData['periods']) && is_array($validatedData['periods']) && count($validatedData['periods']) > 0)
+                    (! empty($validatedData['periods']) && is_array($validatedData['periods']) && count($validatedData['periods']) > 0)
                 ) {
                     $this->courseService->createCoursePeriods($course, $validatedData);
                 }
@@ -143,10 +144,10 @@ class CourseController extends Controller
                     'program_type' => $course->program_type,
                     'training_start_date' => $course->training_start_date?->format('Y-m-d'),
                     'training_end_date' => $course->training_end_date?->format('Y-m-d'),
-                    'has_thumbnail' => !empty($course->thumbnail),
+                    'has_thumbnail' => ! empty($course->thumbnail),
                     'certificate_template_id' => $course->certificate_template_id,
                     'periods_enabled' => $request->boolean('enable_periods'),
-                ]
+                ],
             ]);
 
             DB::commit();
@@ -160,10 +161,9 @@ class CourseController extends Controller
                 Storage::disk('public')->delete($validatedData['thumbnail']);
             }
 
-            return back()->withInput()->withErrors(['error' => 'Gagal membuat kursus: ' . $e->getMessage()]);
+            return back()->withInput()->withErrors(['error' => 'Gagal membuat kursus: '.$e->getMessage()]);
         }
     }
-
 
     public function show(Course $course)
     {
@@ -193,25 +193,70 @@ class CourseController extends Controller
 
         // Jika bukan peserta, atau jika tidak ada content, atau jika tidak terdaftar,
         // tampilkan halaman detail seperti biasa.
-        $course->load('lessons.contents', 'instructors');
-
-        if ($canManageCourse) {
-            $course->load([
-                'eventOrganizers',
-            ]);
-        } else {
-            $course->setRelation('eventOrganizers', collect());
-        }
+        $course->load([
+            'lessons' => function ($query) {
+                $query->select('id', 'course_id', 'title', 'description', 'order')
+                    ->with(['contents' => function ($query) {
+                        $query->select('id', 'lesson_id', 'title', 'type', 'order');
+                    }]);
+            },
+            'instructors:users.id,users.name',
+            'eventOrganizers:users.id,users.name',
+        ]);
         $course->setRelation('enrolledUsers', collect());
 
+        // Load all periods first (needed for hasActivePeriod before instructor filter)
+        $course->load([
+            'periods' => function ($query) {
+                $query->select('id', 'course_id', 'name', 'start_date', 'end_date', 'status', 'description');
+            },
+        ]);
+
+        // Same semantics as Course::hasActivePeriod(), but from loaded collection (no extra query)
+        $now = now();
+        $hasActivePeriod = $course->periods->contains(function ($period) use ($now) {
+            return $period->status === 'active'
+                && $period->start_date !== null
+                && $period->end_date !== null
+                && $period->start_date->lte($now)
+                && $period->end_date->gte($now);
+        });
+
         // Filter periods for instructors - only show periods they are assigned to
-        if ($user->isInstructorFor($course) && !$user->can('manage all courses') && !$user->isEventOrganizerFor($course)) {
+        $isInstructor = $course->instructors->contains('id', $user->id);
+        $isEventOrganizer = $course->eventOrganizers->contains('id', $user->id);
+
+        if ($isInstructor && ! $user->can('manage all courses') && ! $isEventOrganizer) {
             // Replace the periods relation with filtered periods
             $course->setRelation('periods', $course->getUserInstructorPeriods($user->id));
-        } else {
-            // Load all periods for super-admin, event-organizer, or other roles
-            $course->load('periods');
         }
+
+        // Plain-array payloads for JS: explicit fields only (no body, tokens, class_code)
+        $lessonPayload = $course->lessons
+            ->sortBy('order')
+            ->values()
+            ->map(fn ($lesson) => [
+                'id' => $lesson->id,
+                'title' => $lesson->title,
+                'description' => $lesson->description,
+                'contents' => $lesson->contents->map(fn ($content) => [
+                    'id' => $content->id,
+                    'title' => $content->title,
+                    'type' => $content->type,
+                ])->values(),
+            ])
+            ->values();
+
+        $periodPayload = $course->periods
+            ->map(fn ($period) => [
+                'id' => $period->id,
+                'name' => $period->name,
+                'status' => $period->status,
+                'start_date' => $period->start_date,
+                'end_date' => $period->end_date,
+                'description' => $period->description,
+            ])
+            ->values();
 
         $availableInstructors = collect();
         $unEnrolledParticipants = collect();
@@ -226,7 +271,7 @@ class CourseController extends Controller
                 ->limit($userListLimit)
                 ->get();
 
-            $availableOrganizers = User::permission('view progress reports')
+            $availableOrganizers = User::role('event-organizer')
                 ->select('id', 'name', 'email')
                 ->whereNotIn('id', $course->eventOrganizers->pluck('id'))
                 ->orderBy('name')
@@ -235,21 +280,24 @@ class CourseController extends Controller
         }
 
         if ($user->can('viewProgress', $course)) {
-            $exportHistories = ExportHistory::where('course_id', $course->id)
+            $exportHistories = ExportHistory::query()
+                ->select('id', 'filter', 'course_class_id', 'file_path', 'status', 'error_message', 'created_at')
+                ->where('course_id', $course->id)
                 ->where('user_id', $user->id)
-                ->with('courseClass')
+                ->with('courseClass:id,name')
                 ->latest()
                 ->limit(10)
                 ->get();
         }
 
-        return view('courses.show', compact('course', 'availableInstructors', 'availableOrganizers', 'unEnrolledParticipants', 'exportHistories'));
+        return view('courses.show', compact('course', 'availableInstructors', 'availableOrganizers', 'unEnrolledParticipants', 'exportHistories', 'hasActivePeriod', 'lessonPayload', 'periodPayload'));
     }
 
     public function edit(Course $course)
     {
         $this->authorize('update', $course);
         $templates = CertificateTemplate::all(); // <-- AMBIL SEMUA TEMPLATE
+
         return view('courses.edit', compact('course', 'templates')); // <-- KIRIM TEMPLATE KE VIEW
     }
 
@@ -324,13 +372,13 @@ class CourseController extends Controller
                 if ($originalData[$field] != $course->$field) {
                     $changes[$field] = [
                         'before' => $originalData[$field],
-                        'after' => $course->$field
+                        'after' => $course->$field,
                     ];
                 }
             }
 
             \App\Models\ActivityLog::log('course_updated', [
-                'description' => "Updated course: {$course->title}" . (count($changes) > 0 ? " (" . implode(', ', array_keys($changes)) . " changed)" : ""),
+                'description' => "Updated course: {$course->title}".(count($changes) > 0 ? ' ('.implode(', ', array_keys($changes)).' changed)' : ''),
                 'metadata' => [
                     'course_id' => $course->id,
                     'course_title' => $course->title,
@@ -339,14 +387,16 @@ class CourseController extends Controller
                     'changed_fields' => array_keys($changes),
                     'thumbnail_changed' => $request->hasFile('thumbnail') || $request->boolean('clear_thumbnail'),
                     'periods_enabled' => $request->boolean('enable_periods'),
-                ]
+                ],
             ]);
 
             DB::commit();
+
             return redirect()->route('courses.index')->with('success', 'Kursus berhasil diperbarui.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->withErrors(['error' => 'Gagal memperbarui kursus: ' . $e->getMessage()]);
+
+            return back()->withInput()->withErrors(['error' => 'Gagal memperbarui kursus: '.$e->getMessage()]);
         }
     }
 
@@ -433,7 +483,7 @@ class CourseController extends Controller
         // ✅ LOG COURSE DELETION
         \App\Models\ActivityLog::log('course_deleted', [
             'description' => "Deleted course: {$courseData['course_title']}",
-            'metadata' => $courseData
+            'metadata' => $courseData,
         ]);
 
         return redirect()->route('courses.index')->with('success', 'Kursus berhasil dihapus.');
@@ -472,13 +522,13 @@ class CourseController extends Controller
         // ✅ LOG PARTICIPANT ENROLLMENT
         $enrolledUsers = User::whereIn('id', $participantUserIds)->get(['id', 'name', 'email']);
         \App\Models\ActivityLog::log('participants_enrolled', [
-            'description' => "Enrolled " . $participantUserIds->count() . " participant(s) to course: {$course->title}",
+            'description' => 'Enrolled '.$participantUserIds->count()." participant(s) to course: {$course->title}",
             'metadata' => [
                 'course_id' => $course->id,
                 'course_title' => $course->title,
                 'participant_count' => $participantUserIds->count(),
-                'participants' => $enrolledUsers->map(fn($u) => ['id' => $u->id, 'name' => $u->name, 'email' => $u->email])->toArray(),
-            ]
+                'participants' => $enrolledUsers->map(fn ($u) => ['id' => $u->id, 'name' => $u->name, 'email' => $u->email])->toArray(),
+            ],
         ]);
 
         return redirect()->back()->with('success', 'Peserta berhasil didaftarkan.');
@@ -511,8 +561,8 @@ class CourseController extends Controller
 
         if ($search !== '') {
             $query->where(function ($query) use ($search) {
-                $query->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('email', 'like', '%' . $search . '%');
+                $query->where('name', 'like', '%'.$search.'%')
+                    ->orWhere('email', 'like', '%'.$search.'%');
             });
         }
 
@@ -554,13 +604,13 @@ class CourseController extends Controller
 
         // ✅ LOG PARTICIPANT UNENROLLMENT
         \App\Models\ActivityLog::log('participants_unenrolled', [
-            'description' => "Unenrolled " . count($request->user_ids) . " participant(s) from course: {$course->title}",
+            'description' => 'Unenrolled '.count($request->user_ids)." participant(s) from course: {$course->title}",
             'metadata' => [
                 'course_id' => $course->id,
                 'course_title' => $course->title,
                 'participant_count' => count($request->user_ids),
-                'participants' => $unenrolledUsers->map(fn($u) => ['id' => $u->id, 'name' => $u->name, 'email' => $u->email])->toArray(),
-            ]
+                'participants' => $unenrolledUsers->map(fn ($u) => ['id' => $u->id, 'name' => $u->name, 'email' => $u->email])->toArray(),
+            ],
         ]);
 
         return redirect()->back()->with('success', 'Akses peserta berhasil dicabut.');
@@ -583,14 +633,14 @@ class CourseController extends Controller
         }
 
         // ✅ FIX: Ensure current course is included in dropdown
-        if (!$instructorCourses->contains('id', $course->id)) {
+        if (! $instructorCourses->contains('id', $course->id)) {
             // If current course is not in the list, add it
             $instructorCourses->push($course);
         }
 
         // ✅ FIX: Buat base query untuk analytics (tanpa search/pagination)
         // Filter participants by instructor's assigned periods
-        if ($user->isInstructorFor($course) && !$user->can('manage all courses') && !$user->isEventOrganizerFor($course)) {
+        if ($user->isInstructorFor($course) && ! $user->can('manage all courses') && ! $user->isEventOrganizerFor($course)) {
             // Get periods where this instructor is assigned for this course
             $instructorPeriods = $user->instructorPeriods()
                 ->where('course_id', $course->id)
@@ -617,8 +667,8 @@ class CourseController extends Controller
         if ($request->filled('search')) {
             $searchTerm = $request->input('search');
             $enrolledUsersQuery->where(function ($query) use ($searchTerm) {
-                $query->where('name', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('email', 'like', '%' . $searchTerm . '%');
+                $query->where('name', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('email', 'like', '%'.$searchTerm.'%');
             });
         }
 
@@ -632,24 +682,24 @@ class CourseController extends Controller
                     $query->whereHas('lesson', function ($q) use ($course) {
                         $q->where('course_id', $course->id);
                     })
-                    ->wherePivot('completed', true)
-                    ->with('lesson:id,title,course_id');
+                        ->wherePivot('completed', true)
+                        ->with('lesson:id,title,course_id');
                 },
                 'quizAttempts' => function ($query) use ($course) {
                     $query->whereHas('quiz.lesson', function ($q) use ($course) {
                         $q->where('course_id', $course->id);
                     })
-                    ->where('passed', true)
-                    ->select('id', 'user_id', 'quiz_id', 'passed', 'completed_at');
+                        ->where('passed', true)
+                        ->select('id', 'user_id', 'quiz_id', 'passed', 'completed_at');
                 },
                 'essaySubmissions' => function ($query) use ($course) {
                     $query->whereHas('content.lesson', function ($q) use ($course) {
                         $q->where('course_id', $course->id);
                     })
-                    ->with(['answers' => function ($q) {
-                        $q->select('id', 'submission_id', 'question_id', 'score', 'feedback');
-                    }]);
-                }
+                        ->with(['answers' => function ($q) {
+                            $q->select('id', 'submission_id', 'question_id', 'score', 'feedback');
+                        }]);
+                },
             ])
             ->orderBy('name')
             ->paginate($perPage);
@@ -713,23 +763,23 @@ class CourseController extends Controller
                     $query->whereHas('lesson', function ($q) use ($course) {
                         $q->where('course_id', $course->id);
                     })
-                    ->wherePivot('completed', true)
-                    ->with('lesson:id,title,course_id,order');
+                        ->wherePivot('completed', true)
+                        ->with('lesson:id,title,course_id,order');
                 },
                 'quizAttempts' => function ($query) use ($course) {
                     $query->whereHas('quiz.lesson', function ($q) use ($course) {
                         $q->where('course_id', $course->id);
                     })
-                    ->where('passed', true);
+                        ->where('passed', true);
                 },
                 'essaySubmissions' => function ($query) use ($course) {
                     $query->whereHas('content.lesson', function ($q) use ($course) {
                         $q->where('course_id', $course->id);
                     })
-                    ->with(['answers' => function ($q) {
-                        $q->select('id', 'submission_id', 'question_id', 'score', 'feedback');
-                    }]);
-                }
+                        ->with(['answers' => function ($q) {
+                            $q->select('id', 'submission_id', 'question_id', 'score', 'feedback');
+                        }]);
+                },
             ])
             ->get();
 
@@ -779,7 +829,7 @@ class CourseController extends Controller
                 $lessonId = $lastCompletedContent->lesson->id;
                 $lessonTitle = $lastCompletedContent->lesson->title;
 
-                if (!isset($lessonPositions[$lessonId])) {
+                if (! isset($lessonPositions[$lessonId])) {
                     $lessonPositions[$lessonId] = [
                         'title' => $lessonTitle,
                         'count' => 0,
@@ -791,7 +841,7 @@ class CourseController extends Controller
         }
 
         // Sort lessons by count and get top 5
-        uasort($lessonPositions, function($a, $b) {
+        uasort($lessonPositions, function ($a, $b) {
             return $b['count'] <=> $a['count'];
         });
         $topLessons = array_slice($lessonPositions, 0, 5, true);
@@ -869,7 +919,7 @@ class CourseController extends Controller
      */
     private function checkEssayCompletionOptimized($content, $submission)
     {
-        if (!$submission) {
+        if (! $submission) {
             return false;
         }
 
@@ -881,12 +931,12 @@ class CourseController extends Controller
         }
 
         // Check if requires review
-        if (!($content->requires_review ?? true)) {
+        if (! ($content->requires_review ?? true)) {
             return $submission->answers->count() > 0;
         }
 
         // New system - check based on scoring and grading mode
-        if (!$content->scoring_enabled) {
+        if (! $content->scoring_enabled) {
             // Without scoring
             if ($content->grading_mode === 'overall') {
                 return $submission->answers->whereNotNull('feedback')->count() > 0;
@@ -907,7 +957,7 @@ class CourseController extends Controller
     {
         $this->authorize('viewProgress', $course);
 
-        if (!$course->enrolledUsers()->where('user_id', $user->id)->exists()) {
+        if (! $course->enrolledUsers()->where('user_id', $user->id)->exists()) {
             abort(404, 'Peserta tidak terdaftar pada kursus ini.');
         }
 
@@ -920,7 +970,7 @@ class CourseController extends Controller
                 $query->orderBy('order');
             },
             'lessons.contents.essayQuestions',
-            'lessons.contents.quiz'
+            'lessons.contents.quiz',
         ]);
 
         // ✅ OPTIMASI: Load semua data user yang dibutuhkan sekaligus
@@ -941,7 +991,7 @@ class CourseController extends Controller
                 })->with(['answers' => function ($q) {
                     $q->select('id', 'submission_id', 'question_id', 'score', 'feedback');
                 }]);
-            }
+            },
         ]);
 
         // ✅ OPTIMASI: Buat map untuk akses cepat O(1)
@@ -970,7 +1020,7 @@ class CourseController extends Controller
             'lessons' => $course->lessons,
             'completedContentsMap' => $completedContentsMap,
             'contentStatusData' => $contentStatusData,
-            'essaySubmissionsMap' => $essaySubmissionsMap
+            'essaySubmissionsMap' => $essaySubmissionsMap,
         ]);
     }
 
@@ -992,6 +1042,7 @@ class CourseController extends Controller
                 $statusText = 'Selesai';
                 $badgeClass = 'bg-green-100 text-green-800';
             }
+
             return compact('status', 'statusText', 'badgeClass', 'isCompleted');
         }
 
@@ -1013,6 +1064,7 @@ class CourseController extends Controller
                     $badgeClass = 'bg-red-100 text-red-800';
                 }
             }
+
             return compact('status', 'statusText', 'badgeClass', 'isCompleted');
         }
 
@@ -1020,7 +1072,7 @@ class CourseController extends Controller
         if ($content->type === 'essay') {
             $submission = $essaySubmissionsMap->get($content->id);
 
-            if (!$submission) {
+            if (! $submission) {
                 return compact('status', 'statusText', 'badgeClass', 'isCompleted');
             }
 
@@ -1034,22 +1086,24 @@ class CourseController extends Controller
                     $badgeClass = 'bg-green-100 text-green-800';
                     $isCompleted = true;
                 }
+
                 return compact('status', 'statusText', 'badgeClass', 'isCompleted');
             }
 
             // Check if requires review
-            if (!($content->requires_review ?? true)) {
+            if (! ($content->requires_review ?? true)) {
                 if ($submission->answers->count() > 0) {
                     $status = 'completed';
                     $statusText = 'Selesai';
                     $badgeClass = 'bg-green-100 text-green-800';
                     $isCompleted = true;
                 }
+
                 return compact('status', 'statusText', 'badgeClass', 'isCompleted');
             }
 
             // New system - check based on scoring and grading mode
-            if (!$content->scoring_enabled) {
+            if (! $content->scoring_enabled) {
                 // Without scoring
                 if ($content->grading_mode === 'overall') {
                     $answersWithFeedback = $submission->answers->whereNotNull('feedback')->count();
@@ -1104,6 +1158,7 @@ class CourseController extends Controller
                     }
                 }
             }
+
             return compact('status', 'statusText', 'badgeClass', 'isCompleted');
         }
 
@@ -1131,17 +1186,17 @@ class CourseController extends Controller
 
         // ✅ LOG INSTRUCTOR ASSIGNMENT
         \App\Models\ActivityLog::log('instructor_added', [
-            'description' => "Added " . count($addedInstructors) . " instructor(s) to course: {$course->title}",
+            'description' => 'Added '.count($addedInstructors)." instructor(s) to course: {$course->title}",
             'metadata' => [
                 'course_id' => $course->id,
                 'course_title' => $course->title,
                 'instructor_count' => count($addedInstructors),
-                'instructors' => $addedInstructors->map(fn($i) => [
+                'instructors' => $addedInstructors->map(fn ($i) => [
                     'id' => $i->id,
                     'name' => $i->name,
-                    'email' => $i->email
+                    'email' => $i->email,
                 ])->toArray(),
-            ]
+            ],
         ]);
 
         return back()->with('success', 'Instruktur berhasil ditambahkan.');
@@ -1159,17 +1214,17 @@ class CourseController extends Controller
 
         // ✅ LOG INSTRUCTOR REMOVAL
         \App\Models\ActivityLog::log('instructor_removed', [
-            'description' => "Removed " . count($removedInstructors) . " instructor(s) from course: {$course->title}",
+            'description' => 'Removed '.count($removedInstructors)." instructor(s) from course: {$course->title}",
             'metadata' => [
                 'course_id' => $course->id,
                 'course_title' => $course->title,
                 'instructor_count' => count($removedInstructors),
-                'instructors' => $removedInstructors->map(fn($i) => [
+                'instructors' => $removedInstructors->map(fn ($i) => [
                     'id' => $i->id,
                     'name' => $i->name,
-                    'email' => $i->email
+                    'email' => $i->email,
                 ])->toArray(),
-            ]
+            ],
         ]);
 
         return back()->with('success', 'Instruktur berhasil dihapus.');
@@ -1182,7 +1237,7 @@ class CourseController extends Controller
         $course->load('lessons.contents', 'enrolledUsers');
 
         // Get all contents for this course
-        $allContents = $course->lessons->flatMap(fn($l) => $l->contents);
+        $allContents = $course->lessons->flatMap(fn ($l) => $l->contents);
         $totalContentCount = $allContents->count();
 
         $participantsProgress = $course->enrolledUsers->map(function ($participant) use ($course) {
@@ -1205,7 +1260,7 @@ class CourseController extends Controller
                         'max_score' => $attempt->quiz->questions->count(),
                         'percentage' => $attempt->quiz->questions->count() > 0
                             ? round(($attempt->score / $attempt->quiz->questions->count()) * 100, 2)
-                            : 0
+                            : 0,
                     ];
                 });
 
@@ -1230,7 +1285,7 @@ class CourseController extends Controller
                     $essayScores->push([
                         'essay_title' => $submission->content->title,
                         'score' => round($averageScore, 2),
-                        'percentage' => round($averageScore, 2)
+                        'percentage' => round($averageScore, 2),
                     ]);
                 }
             }
@@ -1251,12 +1306,12 @@ class CourseController extends Controller
         $data = [
             'course' => $course,
             'participantsProgress' => $participantsProgress,
-            'date' => date('d M Y')
+            'date' => date('d M Y'),
         ];
 
         $pdf = PDF::loadView('reports.progress_pdf', $data);
 
-        return $pdf->download('laporan-progres-' . Str::slug($course->title) . '.pdf');
+        return $pdf->download('laporan-progres-'.Str::slug($course->title).'.pdf');
     }
 
     public function showScores(Course $course, Request $request)
@@ -1273,12 +1328,12 @@ class CourseController extends Controller
                 ->merge($user->eventOrganizedCourses()->with('instructors')->orderBy('title')->get())
                 ->unique('id')->values();
         }
-        if (!$courseOptions->contains('id', $course->id)) {
+        if (! $courseOptions->contains('id', $course->id)) {
             $courseOptions->push($course);
         }
 
         // Filter participants by instructor periods (same logic as showProgress)
-        if ($user->isInstructorFor($course) && !$user->can('manage all courses') && !$user->isEventOrganizerFor($course)) {
+        if ($user->isInstructorFor($course) && ! $user->can('manage all courses') && ! $user->isEventOrganizerFor($course)) {
             $instructorPeriods = $user->instructorPeriods()
                 ->where('course_id', $course->id)
                 ->pluck('course_classes.id');
@@ -1308,11 +1363,11 @@ class CourseController extends Controller
         $lessonsWithQuizzes = $course->lessons()
             ->with(['contents' => function ($query) {
                 $query->where('type', 'quiz')
-                      ->whereNotNull('quiz_id')
-                      ->with(['quiz' => function ($q) {
-                          $q->with('questions');
-                      }])
-                      ->orderBy('order');
+                    ->whereNotNull('quiz_id')
+                    ->with(['quiz' => function ($q) {
+                        $q->with('questions');
+                    }])
+                    ->orderBy('order');
             }])
             ->whereHas('contents', function ($query) {
                 $query->where('type', 'quiz')->whereNotNull('quiz_id');
@@ -1327,11 +1382,11 @@ class CourseController extends Controller
 
             foreach ($lessonsWithQuizzes as $lesson) {
                 $lessonQuizzes = [];
-                
+
                 foreach ($lesson->contents as $content) {
                     if ($content->type === 'quiz' && $content->quiz) {
                         $quiz = $content->quiz;
-                        
+
                         // Get all attempts for this quiz by this participant
                         $attempts = $participant->quizAttempts()
                             ->where('quiz_id', $quiz->id)
@@ -1344,7 +1399,7 @@ class CourseController extends Controller
 
                         // ✅ FIX: Hitung pass_marks dari passing_percentage
                         // ⚠️ CRITICAL FIX: Load questions jika belum ter-load
-                        if (!$quiz->relationLoaded('questions')) {
+                        if (! $quiz->relationLoaded('questions')) {
                             $quiz->load('questions');
                         }
 
@@ -1355,12 +1410,12 @@ class CourseController extends Controller
                             // ✅ FIX: total_marks sudah dihitung di atas
                             $percentage = $totalMarks > 0 ? round(($attempt->score / $totalMarks) * 100, 2) : 0;
                             $attemptPassed = $attempt->passed || ($passMarks > 0 && $attempt->score >= $passMarks);
-                            
+
                             if ($index === 0) { // Latest attempt
                                 $latestScore = $percentage;
                                 $isPassed = $attemptPassed;
                             }
-                            
+
                             $attemptsData[] = [
                                 'attempt_number' => $attempts->count() - $index,
                                 'score' => $attempt->score,
@@ -1368,7 +1423,7 @@ class CourseController extends Controller
                                 'percentage' => $percentage,
                                 'passed' => $attemptPassed,
                                 'completed_at' => $attempt->completed_at,
-                                'is_latest' => $index === 0
+                                'is_latest' => $index === 0,
                             ];
                         }
 
@@ -1385,7 +1440,7 @@ class CourseController extends Controller
                             'is_passed' => $isPassed,
                             'total_attempts' => count($attemptsData),
                             'pass_marks' => $passMarks,
-                            'needs_retry' => !$isPassed && count($attemptsData) > 0
+                            'needs_retry' => ! $isPassed && count($attemptsData) > 0,
                         ];
                     }
                 }
@@ -1395,7 +1450,7 @@ class CourseController extends Controller
                         'lesson_id' => $lesson->id,
                         'lesson_title' => $lesson->title,
                         'lesson_order' => $lesson->order,
-                        'quizzes' => $lessonQuizzes
+                        'quizzes' => $lessonQuizzes,
                     ];
                 }
             }
@@ -1411,9 +1466,9 @@ class CourseController extends Controller
                 'quiz_data' => $participantQuizData,
                 'overall_quiz_average' => $overallQuizAverage,
                 'progress_percentage' => $progressData['progress_percentage'] ?? 0,
-                'total_quiz_attempts' => collect($participantQuizData)->flatMap(function($lesson) {
+                'total_quiz_attempts' => collect($participantQuizData)->flatMap(function ($lesson) {
                     return collect($lesson['quizzes'])->sum('total_attempts');
-                })->sum()
+                })->sum(),
             ];
         });
 
@@ -1428,8 +1483,19 @@ class CourseController extends Controller
     public function addEventOrganizer(Request $request, Course $course)
     {
         $this->authorize('update', $course);
-        $request->validate(['user_ids' => 'required|array']);
-        $organizerIds = User::whereIn('id', $request->user_ids)->role('event-organizer')->pluck('id');
+        $validated = $request->validate([
+            'user_ids' => ['required', 'array', 'min:1'],
+            'user_ids.*' => ['integer', 'distinct', Rule::exists('users', 'id')],
+        ]);
+
+        $requestedIds = collect($validated['user_ids'])->map(fn ($id) => (int) $id);
+        $organizerIds = User::role('event-organizer')->whereKey($requestedIds)->pluck('id');
+
+        if ($organizerIds->count() !== $requestedIds->count()) {
+            throw ValidationException::withMessages([
+                'user_ids' => 'Pengguna yang dipilih harus memiliki peran Event Organizer.',
+            ]);
+        }
 
         // Get organizer details for logging
         $addedOrganizers = User::whereIn('id', $organizerIds)->get(['id', 'name', 'email']);
@@ -1438,17 +1504,17 @@ class CourseController extends Controller
 
         // ✅ LOG EVENT ORGANIZER ASSIGNMENT
         \App\Models\ActivityLog::log('event_organizer_added', [
-            'description' => "Added " . count($addedOrganizers) . " Event Organizer(s) to course: {$course->title}",
+            'description' => 'Added '.count($addedOrganizers)." Event Organizer(s) to course: {$course->title}",
             'metadata' => [
                 'course_id' => $course->id,
                 'course_title' => $course->title,
                 'organizer_count' => count($addedOrganizers),
-                'organizers' => $addedOrganizers->map(fn($o) => [
+                'organizers' => $addedOrganizers->map(fn ($o) => [
                     'id' => $o->id,
                     'name' => $o->name,
-                    'email' => $o->email
+                    'email' => $o->email,
                 ])->toArray(),
-            ]
+            ],
         ]);
 
         return back()->with('success', 'Event Organizer berhasil ditambahkan.');
@@ -1457,26 +1523,38 @@ class CourseController extends Controller
     public function removeEventOrganizer(Request $request, Course $course)
     {
         $this->authorize('update', $course);
-        $request->validate(['user_ids' => 'required|array']);
+        $validated = $request->validate([
+            'user_ids' => ['required', 'array', 'min:1'],
+            'user_ids.*' => ['integer', 'distinct', Rule::exists('users', 'id')],
+        ]);
+
+        $requestedIds = collect($validated['user_ids'])->map(fn ($id) => (int) $id);
+        $organizerIds = $course->eventOrganizers()->whereKey($requestedIds)->pluck('users.id');
+
+        if ($organizerIds->count() !== $requestedIds->count()) {
+            throw ValidationException::withMessages([
+                'user_ids' => 'Event Organizer yang dipilih tidak ditugaskan pada kursus ini.',
+            ]);
+        }
 
         // Get organizer details before removal for logging
-        $removedOrganizers = User::whereIn('id', $request->user_ids)->get(['id', 'name', 'email']);
+        $removedOrganizers = User::whereKey($organizerIds)->get(['id', 'name', 'email']);
 
-        $course->eventOrganizers()->detach($request->user_ids);
+        $course->eventOrganizers()->detach($organizerIds);
 
         // ✅ LOG EVENT ORGANIZER REMOVAL
         \App\Models\ActivityLog::log('event_organizer_removed', [
-            'description' => "Removed " . count($removedOrganizers) . " Event Organizer(s) from course: {$course->title}",
+            'description' => 'Removed '.count($removedOrganizers)." Event Organizer(s) from course: {$course->title}",
             'metadata' => [
                 'course_id' => $course->id,
                 'course_title' => $course->title,
                 'organizer_count' => count($removedOrganizers),
-                'organizers' => $removedOrganizers->map(fn($o) => [
+                'organizers' => $removedOrganizers->map(fn ($o) => [
                     'id' => $o->id,
                     'name' => $o->name,
-                    'email' => $o->email
+                    'email' => $o->email,
                 ])->toArray(),
-            ]
+            ],
         ]);
 
         return back()->with('success', 'Event Organizer berhasil dihapus.');
@@ -1544,11 +1622,11 @@ class CourseController extends Controller
                 'error_message' => $e->getMessage(),
                 'error_file' => $e->getFile(),
                 'error_line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             // ✅ FIX: Return more detailed error message for debugging
-            $errorMessage = 'Gagal menduplikasi course: ' . $e->getMessage();
+            $errorMessage = 'Gagal menduplikasi course: '.$e->getMessage();
 
             return redirect()->route('courses.index')
                 ->with('error', $errorMessage);
@@ -1578,7 +1656,7 @@ class CourseController extends Controller
             'token_type' => 'required|in:random,custom',
             'custom_token' => 'required_if:token_type,custom|nullable|string|max:20',
             'token_length' => 'nullable|integer|min:4|max:20',
-            'token_format' => 'nullable|in:alphanumeric,numeric,alpha'
+            'token_format' => 'nullable|in:alphanumeric,numeric,alpha',
         ]);
 
         $type = $request->token_type;
@@ -1606,7 +1684,7 @@ class CourseController extends Controller
             'token_type' => 'required|in:random,custom',
             'custom_token' => 'required_if:token_type,custom|nullable|string|max:20',
             'token_length' => 'nullable|integer|min:4|max:20',
-            'token_format' => 'nullable|in:alphanumeric,numeric,alpha'
+            'token_format' => 'nullable|in:alphanumeric,numeric,alpha',
         ]);
 
         $type = $request->token_type;
@@ -1631,14 +1709,14 @@ class CourseController extends Controller
         $this->authorize('update', $course);
 
         try {
-            $course->token_enabled = !$course->token_enabled;
+            $course->token_enabled = ! $course->token_enabled;
             $course->save();
 
             $status = $course->token_enabled ? 'diaktifkan' : 'dinonaktifkan';
 
             return back()->with('success', "Token berhasil {$status}");
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Gagal toggle token: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Gagal toggle token: '.$e->getMessage()]);
         }
     }
 
@@ -1651,11 +1729,11 @@ class CourseController extends Controller
         $this->authorize('viewProgress', $course);
 
         $validated = $request->validate([
-            'filter'   => ['required', Rule::in(['all', 'class'])],
+            'filter' => ['required', Rule::in(['all', 'class'])],
             'class_id' => ['nullable', 'integer', 'min:1'],
         ]);
 
-        $filter  = $validated['filter'];
+        $filter = $validated['filter'];
         $classId = isset($validated['class_id']) ? (int) $validated['class_id'] : null;
 
         $class = null;
@@ -1674,11 +1752,11 @@ class CourseController extends Controller
         }
 
         $exportHistory = ExportHistory::create([
-            'user_id'         => $user->id,
-            'course_id'       => $course->id,
-            'filter'          => $filter,
+            'user_id' => $user->id,
+            'course_id' => $course->id,
+            'filter' => $filter,
             'course_class_id' => $classId,
-            'status'          => 'processing',
+            'status' => 'processing',
         ]);
 
         ExportCourseParticipantsJob::dispatch($exportHistory);
@@ -1690,7 +1768,7 @@ class CourseController extends Controller
     {
         $this->authorize('viewProgress', $course);
 
-        $filter  = $request->input('filter', 'all');
+        $filter = $request->input('filter', 'all');
         $classId = $request->input('class_id') ? (int) $request->input('class_id') : null;
 
         $count = app(CourseParticipantQueryService::class)

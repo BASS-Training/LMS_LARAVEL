@@ -1,4 +1,4 @@
-﻿<x-app-layout>
+<x-app-layout>
     <x-slot name="header">
         <div class="flex flex-wrap justify-between items-center gap-6">
             <div class="flex items-center space-x-4">
@@ -135,6 +135,21 @@
                 </div>
             @endif
 
+            @if ($errors->any())
+                <div class="mb-8 p-4 bg-error-soft border border-error/30 rounded-xl shadow-sm" role="alert">
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-error flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"></path>
+                        </svg>
+                        <ul class="ml-3 text-sm font-medium text-error space-y-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endif
+
             <div x-data="{ currentTab: 'lessons' }" class="bg-white rounded-2xl shadow-xl overflow-hidden">
                 <!-- Enhanced Tab Navigation -->
                 <div class="bg-gray-50 border-b border-gray-200">
@@ -202,7 +217,7 @@
                 <div x-show="currentTab === 'lessons'" class="p-8">
                     <div
                         x-data="{
-                            lessons: {{ Js::from($course->lessons->sortBy('order')->values()) }},
+                            lessons: {{ Js::from($lessonPayload) }},
                             activeAccordion: null,
                             moveUp(index) {
                                 if (index === 0) return;
@@ -491,7 +506,7 @@
 
                 {{-- 🆕 NEW: Periods & Chat Tab --}}
                 <div x-show="currentTab === 'periods'" x-cloak class="p-8" 
-                     x-data="periodManager({{ $course->id }}, @js($course->periods->toArray() ?? []))">
+                     x-data="periodManager({{ $course->id }}, @js($periodPayload))">
                     <div class="mb-8">
                         <h3 class="text-2xl font-bold text-gray-900">Kelas & Komunikasi Kursus</h3>
                         <p class="text-gray-600 mt-1">Kelola kelas kursus dan akses chat realtime</p>
@@ -509,7 +524,7 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                             </svg>
                                         </div>
-                                        <input x-model="searchTerm" type="text" 
+                                        <input x-model.debounce.250ms="searchTerm" type="text"
                                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bass-red focus:border-transparent"
                                                placeholder="Cari kelas berdasarkan nama atau deskripsi...">
                                     </div>
@@ -564,7 +579,7 @@ class="inline-flex items-center px-4 py-2 bg-neutral-900 hover:bg-black text-whi
                                     </a>
                                 @endcan
 
-                                @if($course->hasActivePeriod())
+                                @if($hasActivePeriod)
                                     <a href="{{ route('chat.index') }}?course={{ $course->id }}"
                                        class="inline-flex items-center px-4 py-2 bg-navy text-white text-sm font-medium rounded-lg hover:bg-navy-light shadow-md transition-all duration-200">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -726,27 +741,27 @@ class="inline-flex items-center px-4 py-2 bg-neutral-900 hover:bg-black text-whi
 
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             <!-- Current Instructors -->
-                            <div class="bg-error-soft rounded-2xl p-6 border border-error/40">
+                            <div class="bg-success-soft rounded-2xl p-6 border border-success/40">
                                 <div class="flex items-center mb-6">
-                                    <div class="w-10 h-10 bg-error-soft rounded-xl flex items-center justify-center mr-3">
-                                        <svg class="w-5 h-5 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="w-10 h-10 bg-success/10 rounded-xl flex items-center justify-center mr-3">
+                                        <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                         </svg>
                                     </div>
                                     <div>
-                                        <h4 class="text-lg font-bold text-navy">Instruktur Ditugaskan</h4>
-                                        <p class="text-sm text-error">{{ $course->instructors->count() }} instruktur aktif</p>
+                                        <h4 class="text-lg font-bold text-success">Instruktur Ditugaskan</h4>
+                                        <p class="text-sm text-success">{{ $course->instructors->count() }} instruktur aktif</p>
                                     </div>
                                 </div>
 
-                                <form action="{{ route('courses.removeInstructor', $course) }}" method="POST" onsubmit="return confirm('Anda yakin ingin menghapus instruktur terpilih?');">
+                                <form action="{{ route('courses.removeInstructor', $course) }}" method="POST" x-data="{ selectedInstructors: [] }" onsubmit="return confirm('Anda yakin ingin menghapus instruktur terpilih?');">
                                     @csrf @method('DELETE')
                                     <div class="space-y-3 mb-6 max-h-80 overflow-y-auto">
                                         @forelse($course->instructors as $instructor)
-                                            <div class="flex items-center p-3 bg-white rounded-xl border border-error/40 hover:bg-error-soft transition-colors">
-                                                <input type="checkbox" name="user_ids[]" value="{{ $instructor->id }}" id="instructor-{{$instructor->id}}" class="mr-3 rounded border-error/40 text-error focus:ring-bass-red">
+                                            <div class="flex items-center p-3 bg-white rounded-xl border border-success/40 hover:bg-success-soft transition-colors">
+                                                <input type="checkbox" name="user_ids[]" value="{{ $instructor->id }}" id="instructor-{{$instructor->id}}" x-model="selectedInstructors" class="mr-3 rounded border-success/40 text-success focus:ring-success">
                                                 <div class="flex items-center space-x-3">
-                                                    <div class="w-8 h-8 bg-bass-red rounded-full flex items-center justify-center">
+                                                    <div class="w-8 h-8 bg-success rounded-full flex items-center justify-center">
                                                         <span class="text-white text-sm font-semibold">{{ strtoupper(substr($instructor->name, 0, 1)) }}</span>
                                                     </div>
                                                     <label for="instructor-{{$instructor->id}}" class="font-medium text-gray-900 cursor-pointer">{{ $instructor->name }}</label>
@@ -754,17 +769,17 @@ class="inline-flex items-center px-4 py-2 bg-neutral-900 hover:bg-black text-whi
                                             </div>
                                         @empty
                                             <div class="text-center py-8">
-                                                <div class="w-16 h-16 bg-error-soft rounded-full flex items-center justify-center mx-auto mb-4">
-                                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <div class="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                    <svg class="w-8 h-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                                     </svg>
                                                 </div>
-                                                <p class="text-error font-medium">Belum ada instruktur ditugaskan</p>
+                                                <p class="text-success font-medium">Belum ada instruktur ditugaskan</p>
                                             </div>
                                         @endforelse
                                     </div>
                                     @if($course->instructors->isNotEmpty())
-                                        <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-3 bg-neutral-900 hover:bg-black text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
+                                        <button type="submit" disabled :disabled="selectedInstructors.length === 0" class="w-full inline-flex justify-center items-center px-4 py-3 bg-neutral-900 hover:bg-black text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:bg-neutral-900">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                             </svg>
@@ -775,27 +790,27 @@ class="inline-flex items-center px-4 py-2 bg-neutral-900 hover:bg-black text-whi
                             </div>
 
                             <!-- Available Instructors -->
-                            <div class="bg-info-soft rounded-2xl p-6 border border-navy/20">
+                            <div class="bg-blue-50 rounded-2xl p-6 border border-blue-200">
                                 <div class="flex items-center mb-6">
-                                    <div class="w-10 h-10 bg-navy rounded-xl flex items-center justify-center mr-3">
-                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-3">
+                                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                         </svg>
                                     </div>
                                     <div>
-                                        <h4 class="text-lg font-bold text-navy">Tambahkan Instruktur</h4>
-                                        <p class="text-sm text-navy/70">{{ $availableInstructors->count() }} instruktur tersedia</p>
+                                        <h4 class="text-lg font-bold text-blue-900">Tambahkan Instruktur</h4>
+                                        <p class="text-sm text-blue-700">{{ $availableInstructors->count() }} instruktur tersedia</p>
                                     </div>
                                 </div>
 
-                                <form action="{{ route('courses.addInstructor', $course) }}" method="POST">
+                                <form action="{{ route('courses.addInstructor', $course) }}" method="POST" x-data="{ selectedInstructors: [] }">
                                     @csrf
                                     <div class="space-y-3 mb-6 max-h-80 overflow-y-auto">
                                         @forelse($availableInstructors as $instructor)
-                                            <div class="flex items-center p-3 bg-white rounded-xl border border-navy/20 hover:bg-navy/5 transition-colors">
-                                                <input type="checkbox" name="user_ids[]" value="{{ $instructor->id }}" id="avail-instructor-{{$instructor->id}}" class="mr-3 rounded border-gray-300 text-bass-red focus:ring-bass-red">
+                                            <div class="flex items-center p-3 bg-white rounded-xl border border-blue-200 hover:bg-blue-100/60 transition-colors">
+                                                <input type="checkbox" name="user_ids[]" value="{{ $instructor->id }}" id="avail-instructor-{{$instructor->id}}" x-model="selectedInstructors" class="mr-3 rounded border-blue-300 text-blue-600 focus:ring-blue-500">
                                                 <div class="flex items-center space-x-3">
-                                                    <div class="w-8 h-8 bg-navy rounded-full flex items-center justify-center">
+                                                    <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                                                         <span class="text-white text-sm font-semibold">{{ strtoupper(substr($instructor->name, 0, 1)) }}</span>
                                                     </div>
                                                     <label for="avail-instructor-{{$instructor->id}}" class="font-medium text-gray-900 cursor-pointer">{{ $instructor->name }}</label>
@@ -803,18 +818,18 @@ class="inline-flex items-center px-4 py-2 bg-neutral-900 hover:bg-black text-whi
                                             </div>
                                         @empty
                                             <div class="text-center py-8">
-                                                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                    <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                     </svg>
                                                 </div>
-                                                <p class="text-gray-600 font-medium">Semua instruktur sudah ditugaskan</p>
+                                                <p class="text-blue-700 font-medium">Semua instruktur sudah ditugaskan</p>
                                             </div>
                                         @endforelse
                                     </div>
                                     {{-- All pagination removed - now using Collection directly --}}
                                     @if($availableInstructors->count() > 0)
-                                        <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-3 bg-bass-red text-white font-semibold rounded-xl hover:bg-bass-red-hover shadow-lg hover:shadow-xl transition-all duration-200">
+                                        <button type="submit" disabled :disabled="selectedInstructors.length === 0" class="w-full inline-flex justify-center items-center px-4 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:bg-blue-600">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                             </svg>
@@ -835,27 +850,27 @@ class="inline-flex items-center px-4 py-2 bg-neutral-900 hover:bg-black text-whi
 
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             <!-- Current Event Organizers -->
-                            <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+                            <div class="bg-success-soft rounded-2xl p-6 border border-success/40">
                                 <div class="flex items-center mb-6">
-                                    <div class="w-10 h-10 bg-navy rounded-xl flex items-center justify-center mr-3">
-                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="w-10 h-10 bg-success/10 rounded-xl flex items-center justify-center mr-3">
+                                        <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                                         </svg>
                                     </div>
                                     <div>
-                                        <h4 class="text-lg font-bold text-gray-900">EO Ditugaskan</h4>
-                                        <p class="text-sm text-gray-600">{{ $course->eventOrganizers->count() }} EO aktif</p>
+                                        <h4 class="text-lg font-bold text-success">EO Ditugaskan</h4>
+                                        <p class="text-sm text-success">{{ $course->eventOrganizers->count() }} EO aktif</p>
                                     </div>
                                 </div>
 
-                                <form action="{{ route('courses.removeEo', $course) }}" method="POST" onsubmit="return confirm('Anda yakin ingin menghapus EO terpilih?');">
+                                <form action="{{ route('courses.removeEo', $course) }}" method="POST" x-data="{ selectedOrganizers: [] }" onsubmit="return confirm('Anda yakin ingin menghapus EO terpilih?');">
                                     @csrf @method('DELETE')
                                     <div class="space-y-3 mb-6 max-h-80 overflow-y-auto">
                                         @forelse($course->eventOrganizers as $organizer)
-                                            <div class="flex items-center p-3 bg-white rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors">
-                                                <input type="checkbox" name="user_ids[]" value="{{ $organizer->id }}" id="organizer-{{$organizer->id}}" class="mr-3 rounded border-gray-300 text-bass-red focus:ring-bass-red">
+                                            <div class="flex items-center p-3 bg-white rounded-xl border border-success/40 hover:bg-success-soft transition-colors">
+                                                <input type="checkbox" name="user_ids[]" value="{{ $organizer->id }}" id="organizer-{{$organizer->id}}" x-model="selectedOrganizers" class="mr-3 rounded border-success/40 text-success focus:ring-success">
                                                 <div class="flex items-center space-x-3">
-                                                    <div class="w-8 h-8 bg-navy rounded-full flex items-center justify-center">
+                                                    <div class="w-8 h-8 bg-success rounded-full flex items-center justify-center">
                                                         <span class="text-white text-sm font-semibold">{{ strtoupper(substr($organizer->name, 0, 1)) }}</span>
                                                     </div>
                                                     <label for="organizer-{{$organizer->id}}" class="font-medium text-gray-900 cursor-pointer">{{ $organizer->name }}</label>
@@ -863,17 +878,17 @@ class="inline-flex items-center px-4 py-2 bg-neutral-900 hover:bg-black text-whi
                                             </div>
                                         @empty
                                             <div class="text-center py-8">
-                                                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                     <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <div class="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                     <svg class="w-8 h-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                                                     </svg>
                                                 </div>
-                                                <p class="text-gray-600 font-medium">Belum ada EO ditugaskan</p>
+                                                <p class="text-success font-medium">Belum ada EO ditugaskan</p>
                                             </div>
                                         @endforelse
                                     </div>
                                     @if($course->eventOrganizers->isNotEmpty())
-                                        <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-3 bg-neutral-900 hover:bg-black text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
+                                        <button type="submit" disabled :disabled="selectedOrganizers.length === 0" class="w-full inline-flex justify-center items-center px-4 py-3 bg-neutral-900 hover:bg-black text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:bg-neutral-900">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                             </svg>
@@ -884,27 +899,27 @@ class="inline-flex items-center px-4 py-2 bg-neutral-900 hover:bg-black text-whi
                             </div>
 
                             <!-- Available Event Organizers -->
-                            <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+                            <div class="bg-blue-50 rounded-2xl p-6 border border-blue-200">
                                 <div class="flex items-center mb-6">
-                                    <div class="w-10 h-10 bg-gray-200 rounded-xl flex items-center justify-center mr-3">
-                                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-3">
+                                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                         </svg>
                                     </div>
                                     <div>
-                                        <h4 class="text-lg font-bold text-gray-900">Tambahkan EO</h4>
-                                        <p class="text-sm text-gray-600">{{ $availableOrganizers->count() }} EO tersedia</p>
+                                        <h4 class="text-lg font-bold text-blue-900">Tambahkan EO</h4>
+                                        <p class="text-sm text-blue-700">{{ $availableOrganizers->count() }} EO tersedia</p>
                                     </div>
                                 </div>
 
-                                <form action="{{ route('courses.addEo', $course) }}" method="POST">
+                                <form action="{{ route('courses.addEo', $course) }}" method="POST" x-data="{ selectedOrganizers: [] }">
                                     @csrf
                                     <div class="space-y-3 mb-6 max-h-80 overflow-y-auto">
                                         @forelse($availableOrganizers as $organizer)
-                                            <div class="flex items-center p-3 bg-white rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors">
-                                                <input type="checkbox" name="user_ids[]" value="{{ $organizer->id }}" id="avail-organizer-{{$organizer->id}}" class="mr-3 rounded border-gray-300 text-bass-red focus:ring-bass-red">
+                                            <div class="flex items-center p-3 bg-white rounded-xl border border-blue-200 hover:bg-blue-100/60 transition-colors">
+                                                <input type="checkbox" name="user_ids[]" value="{{ $organizer->id }}" id="avail-organizer-{{$organizer->id}}" x-model="selectedOrganizers" class="mr-3 rounded border-blue-300 text-blue-600 focus:ring-blue-500">
                                                 <div class="flex items-center space-x-3">
-                                                    <div class="w-8 h-8 bg-navy rounded-full flex items-center justify-center">
+                                                    <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                                                         <span class="text-white text-sm font-semibold">{{ strtoupper(substr($organizer->name, 0, 1)) }}</span>
                                                     </div>
                                                     <label for="avail-organizer-{{$organizer->id}}" class="font-medium text-gray-900 cursor-pointer">{{ $organizer->name }}</label>
@@ -912,18 +927,18 @@ class="inline-flex items-center px-4 py-2 bg-neutral-900 hover:bg-black text-whi
                                             </div>
                                         @empty
                                             <div class="text-center py-8">
-                                                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                    <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                     </svg>
                                                 </div>
-                                                <p class="text-gray-600 font-medium">Semua EO sudah ditugaskan</p>
+                                                <p class="text-blue-700 font-medium">Semua EO sudah ditugaskan</p>
                                             </div>
                                         @endforelse
                                     </div>
                                     {{-- All pagination removed - now using Collection directly --}}
                                     @if($availableOrganizers->count() > 0)
-                                        <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-3 bg-navy text-white font-semibold rounded-xl hover:bg-navy/90 shadow-lg hover:shadow-xl transition-all duration-200">
+                                        <button type="submit" disabled :disabled="selectedOrganizers.length === 0" class="w-full inline-flex justify-center items-center px-4 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:bg-blue-600">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                             </svg>
