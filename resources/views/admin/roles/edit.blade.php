@@ -1,4 +1,4 @@
-﻿<x-app-layout>
+<x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Edit Peran: ') }} {{ $role->name }}
@@ -125,12 +125,16 @@
             // Permission search filter
             const search = document.getElementById('permissionSearch');
             if (search) {
+                let searchTimeout;
                 search.addEventListener('input', function() {
-                    const q = this.value.toLowerCase();
-                    document.querySelectorAll('.permission-item').forEach(item => {
-                        const name = item.getAttribute('data-name');
-                        item.style.display = name.includes(q) ? '' : 'none';
-                    });
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        const q = search.value.toLowerCase();
+                        document.querySelectorAll('.permission-item').forEach(item => {
+                            const name = item.getAttribute('data-name');
+                            item.style.display = name.includes(q) ? '' : 'none';
+                        });
+                    }, 250);
                 });
             }
         });

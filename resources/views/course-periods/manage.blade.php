@@ -277,26 +277,30 @@
         const participantList = document.getElementById('participant-list');
 
         if (searchInput) {
+            let searchTimeout;
             searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                let hasResults = false;
-                participantItems.forEach(function(item) {
-                    const name = item.dataset.name;
-                    const email = item.dataset.email;
-                    if (name.includes(searchTerm) || email.includes(searchTerm)) {
-                        item.style.display = 'flex';
-                        hasResults = true;
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function() {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    let hasResults = false;
+                    participantItems.forEach(function(item) {
+                        const name = item.dataset.name;
+                        const email = item.dataset.email;
+                        if (name.includes(searchTerm) || email.includes(searchTerm)) {
+                            item.style.display = 'flex';
+                            hasResults = true;
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                    if (hasResults) {
+                        participantList.style.display = 'block';
+                        noResults.style.display = 'none';
                     } else {
-                        item.style.display = 'none';
+                        participantList.style.display = 'none';
+                        noResults.style.display = 'block';
                     }
-                });
-                if (hasResults) {
-                    participantList.style.display = 'block';
-                    noResults.style.display = 'none';
-                } else {
-                    participantList.style.display = 'none';
-                    noResults.style.display = 'block';
-                }
+                }, 300);
             });
         }
 

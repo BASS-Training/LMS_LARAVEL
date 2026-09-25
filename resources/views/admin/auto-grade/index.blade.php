@@ -312,7 +312,11 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        searchInput.addEventListener('input', filterParticipants);
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(filterParticipants, 300);
+        });
         filterSelect.addEventListener('change', filterParticipants);
     }
 });
