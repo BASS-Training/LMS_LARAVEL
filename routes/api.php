@@ -63,9 +63,11 @@ Route::middleware('mobile.api.user')->group(function () {
     | berisi kursus milik user. TIDAK ADA jalur pembelian di sini — kebijakan
     | anti-steering Google Play. Hanya kursus GRATIS yang bisa diikuti langsung.
     */
-    Route::get('/mobile/catalog', [ShopApiController::class, 'index']);
-    Route::get('/mobile/catalog/{course}', [ShopApiController::class, 'show']);
-    Route::post('/mobile/catalog/{course}/daftar-gratis', [ShopApiController::class, 'enrollFree']);
+    Route::middleware('force.json')->group(function () {
+        Route::get('/mobile/catalog', [ShopApiController::class, 'index']);
+        Route::get('/mobile/catalog/{course}', [ShopApiController::class, 'show']);
+        Route::post('/mobile/catalog/{course}/daftar-gratis', [ShopApiController::class, 'enrollFree']);
+    });
     Route::get('/documents/{path}', [DocumentController::class, 'show'])->where('path', '.*');
     Route::get('/mobile/courses/{course}/results', [CourseResultsApiController::class, 'index']);
     Route::post('/mobile/enroll', [EnrollmentApiController::class, 'enroll']);

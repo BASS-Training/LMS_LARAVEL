@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\MobileCatalogIndexRequest;
 use App\Models\Course;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -33,12 +34,9 @@ class ShopApiController extends Controller
     /**
      * Daftar kursus di etalase. Mendukung pencarian & filter gratis/berbayar.
      */
-    public function index(Request $request): JsonResponse
+    public function index(MobileCatalogIndexRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'q' => 'nullable|string|max:100',
-            'harga' => 'nullable|in:free,paid',
-        ]);
+        $validated = $request->validated();
 
         $user = $request->user();
         $search = $validated['q'] ?? null;
@@ -47,7 +45,7 @@ class ShopApiController extends Controller
 
         $this->hideRestrictedPrograms($query, $user);
 
-        if ($search !== null && mb_strlen($search) >= 2) {
+        if ($search !== null) {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', '%'.$search.'%')
                     ->orWhere('short_description', 'like', '%'.$search.'%')
@@ -62,7 +60,12 @@ class ShopApiController extends Controller
             $query->where('price', '>', 0);
         }
 
-        $courses = $query->withCount('lessons')->latest()->get();
+        $courses = $query
+            ->withCount('lessons')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->paginate($validated['perPage'] ?? 20)
+            ->withQueryString();
 
         // Satu query untuk semua, daripada isEnrolledBy() per baris (N+1).
         $enrolledIds = $this->enrolledIds($user, $courses->pluck('id')->all());
@@ -70,13 +73,24 @@ class ShopApiController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Berhasil mengambil katalog kursus',
-            'data' => $courses->map(
+            'data' => $courses->getCollection()->map(
                 fn (Course $course) => $this->transformCard($course, $enrolledIds)
             )->values(),
             'meta' => [
                 // Mobile membaca ini untuk memutuskan menampilkan harga atau
                 // sekadar label "Berbayar". Lihat config/shop.php.
                 'showPrice' => $this->showPrice(),
+                'pagination' => [
+                    'currentPage' => $courses->currentPage(),
+                    'lastPage' => $courses->lastPage(),
+                    'perPage' => $courses->perPage(),
+                    'total' => $courses->total(),
+                    'from' => $courses->firstItem(),
+                    'to' => $courses->lastItem(),
+                    'hasMorePages' => $courses->hasMorePages(),
+                    'nextPageUrl' => $courses->nextPageUrl(),
+                    'previousPageUrl' => $courses->previousPageUrl(),
+                ],
             ],
         ]);
     }
