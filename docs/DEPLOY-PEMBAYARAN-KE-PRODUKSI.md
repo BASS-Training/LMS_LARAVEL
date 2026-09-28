@@ -104,7 +104,9 @@ php artisan config:clear
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
-php artisan storage:link      # jika symlink storage belum ada
+php artisan storage:link # jika symlink storage belum ada
+php artisan optimize:clear
+php artisan optimize     
 
 npm ci
 npm run build                 # kompilasi ulang aset (halaman checkout pakai Tailwind/Alpine)

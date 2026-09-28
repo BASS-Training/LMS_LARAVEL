@@ -25,32 +25,41 @@ use App\Http\Controllers\Api\QuizApiController;
 use App\Http\Controllers\Api\ShopApiController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/mobile/auth/login', [AuthApiController::class, 'login']);
-Route::post('/mobile/auth/register', [AuthApiController::class, 'register']);
+Route::post('/mobile/auth/login', [AuthApiController::class, 'login'])
+    ->middleware('throttle:mobile-login');
+Route::post('/mobile/auth/register', [AuthApiController::class, 'register'])
+    ->middleware('throttle:mobile-register');
 
 // Lupa password (publik, tanpa login): kirim OTP lalu reset.
-Route::post('/mobile/auth/password/send-otp', [PasswordApiController::class, 'sendOtp']);
-Route::post('/mobile/auth/password/reset', [PasswordApiController::class, 'reset']);
+Route::post('/mobile/auth/password/send-otp', [PasswordApiController::class, 'sendOtp'])
+    ->middleware('throttle:mobile-otp-send');
+Route::post('/mobile/auth/password/reset', [PasswordApiController::class, 'reset'])
+    ->middleware('throttle:mobile-otp-verify');
 
-Route::middleware('mobile.api.user')->group(function () {
+Route::middleware(['mobile.api.user', 'throttle:mobile-api'])->group(function () {
     Route::get('/mobile/auth/me', [AuthApiController::class, 'me']);
     Route::post('/mobile/auth/logout', [AuthApiController::class, 'logout']);
 
     // Verifikasi email (OTP). Tidak memblokir login; dipakai akun baru (wajib)
     // maupun akun lama (opsional, lewat nudge di Profil).
-    Route::post('/mobile/auth/email/send-otp', [EmailVerificationApiController::class, 'sendOtp']);
-    Route::post('/mobile/auth/email/verify-otp', [EmailVerificationApiController::class, 'verifyOtp']);
+    Route::post('/mobile/auth/email/send-otp', [EmailVerificationApiController::class, 'sendOtp'])
+        ->middleware('throttle:mobile-otp-send');
+    Route::post('/mobile/auth/email/verify-otp', [EmailVerificationApiController::class, 'verifyOtp'])
+        ->middleware('throttle:mobile-otp-verify');
 
     // Ubah email (pola verifikasi-dulu): OTP dikirim ke email BARU, email akun
     // baru berubah setelah OTP-nya benar — aman dari lockout akibat salah ketik.
-    Route::post('/mobile/auth/email/change/send-otp', [EmailVerificationApiController::class, 'sendChangeEmailOtp']);
-    Route::post('/mobile/auth/email/change', [EmailVerificationApiController::class, 'changeEmail']);
+    Route::post('/mobile/auth/email/change/send-otp', [EmailVerificationApiController::class, 'sendChangeEmailOtp'])
+        ->middleware('throttle:mobile-otp-send');
+    Route::post('/mobile/auth/email/change', [EmailVerificationApiController::class, 'changeEmail'])
+        ->middleware('throttle:mobile-otp-verify');
 
     // Ganti password saat sudah login (butuh password lama).
     Route::post('/mobile/auth/password/change', [PasswordApiController::class, 'change']);
 
     // Update profil (data dasar + foto). POST karena multipart upload file.
-    Route::post('/mobile/profile', [ProfileApiController::class, 'update']);
+    Route::post('/mobile/profile', [ProfileApiController::class, 'update'])
+        ->middleware('throttle:mobile-upload');
 
     Route::get('/mobile/courses', [CourseApiController::class, 'index']);
     // Saved courses (bookmark) — mobile-only. Letakkan sebelum route {course}
@@ -83,19 +92,22 @@ Route::middleware('mobile.api.user')->group(function () {
     Route::get('/mobile/quizzes/{quiz}/leaderboard', [QuizApiController::class, 'leaderboard']);
 
     Route::post('/mobile/essays/{content}/submit', [EssayApiController::class, 'submit']);
-    Route::post('/mobile/essays/{content}/draft', [EssayApiController::class, 'autosave']);
+    Route::post('/mobile/essays/{content}/draft', [EssayApiController::class, 'autosave'])
+        ->middleware('throttle:mobile-autosave');
 
     Route::get('/mobile/essays/by-lesson/{content}', [EssayApiController::class, 'getByLesson']);
 
     // Studi Kasus (case_study)
     Route::get('/mobile/case-studies/by-lesson/{content}', [CaseStudyApiController::class, 'getByLesson']);
     Route::post('/mobile/case-studies/{content}/submit', [CaseStudyApiController::class, 'submit']);
-    Route::post('/mobile/case-studies/{content}/draft', [CaseStudyApiController::class, 'autosave']);
+    Route::post('/mobile/case-studies/{content}/draft', [CaseStudyApiController::class, 'autosave'])
+        ->middleware('throttle:mobile-autosave');
     Route::get('/mobile/case-studies/{content}/download', [CaseStudyApiController::class, 'download']);
 
     // Pengumpulan tugas dokumen (konten tipe 'document' dgn collect_submission)
     Route::get('/mobile/document-submissions/by-lesson/{content}', [DocumentSubmissionApiController::class, 'getByLesson']);
-    Route::post('/mobile/document-submissions/{content}/upload', [DocumentSubmissionApiController::class, 'upload']);
+    Route::post('/mobile/document-submissions/{content}/upload', [DocumentSubmissionApiController::class, 'upload'])
+        ->middleware('throttle:mobile-upload');
     Route::delete('/mobile/document-submissions/{content}/file', [DocumentSubmissionApiController::class, 'removeFile']);
     Route::post('/mobile/document-submissions/{content}/submit', [DocumentSubmissionApiController::class, 'submit']);
     // Instruktur/admin: lihat & nilai
@@ -139,7 +151,8 @@ Route::middleware('mobile.api.user')->group(function () {
 
     // Sertifikat peserta — aturan kelayakan & PDF sama persis dengan web.
     Route::get('/mobile/certificates', [CertificateApiController::class, 'index']);
-    Route::post('/mobile/certificates/{course}/generate', [CertificateApiController::class, 'generate']);
+    Route::post('/mobile/certificates/{course}/generate', [CertificateApiController::class, 'generate'])
+        ->middleware('throttle:mobile-certificate');
 
     // Instructor / admin (mobile): lihat peserta & progres, dan nilai essay / studi kasus.
     // Menulis ke tabel yang sama dengan web → grading tersinkron dua arah.
