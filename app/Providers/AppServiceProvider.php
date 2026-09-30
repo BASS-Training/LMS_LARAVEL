@@ -205,5 +205,10 @@ class AppServiceProvider extends ServiceProvider
                 ->by($userKey($request).':course:'.$courseKey)
                 ->response($tooManyRequests);
         });
+
+        RateLimiter::for('mobile-handoff', static fn (Request $request): array => [
+            Limit::perMinute(10)->by($userKey($request))->response($tooManyRequests),
+            Limit::perMinute(30)->by('ip:'.$request->ip())->response($tooManyRequests),
+        ]);
     }
 }

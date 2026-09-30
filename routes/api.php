@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\PersonalAgendaApiController;
 use App\Http\Controllers\Api\ProfileApiController;
 use App\Http\Controllers\Api\QuizApiController;
 use App\Http\Controllers\Api\ShopApiController;
+use App\Http\Controllers\Api\WebSessionApiController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/mobile/auth/login', [AuthApiController::class, 'login'])
@@ -77,6 +78,11 @@ Route::middleware(['mobile.api.user', 'throttle:mobile-api'])->group(function ()
         Route::get('/mobile/catalog/{course}', [ShopApiController::class, 'show']);
         Route::post('/mobile/catalog/{course}/daftar-gratis', [ShopApiController::class, 'enrollFree']);
     });
+    // Tautan sekali-pakai untuk membuka detail katalog di BROWSER dengan
+    // session web yang sudah login. Lihat HandoffController.
+    Route::post('/mobile/web-session', WebSessionApiController::class)
+        ->middleware('throttle:mobile-handoff');
+
     Route::get('/documents/{path}', [DocumentController::class, 'show'])->where('path', '.*');
     Route::get('/mobile/courses/{course}/results', [CourseResultsApiController::class, 'index']);
     Route::post('/mobile/enroll', [EnrollmentApiController::class, 'enroll']);

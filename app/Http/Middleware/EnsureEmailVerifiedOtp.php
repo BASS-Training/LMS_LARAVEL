@@ -32,6 +32,10 @@ class EnsureEmailVerifiedOtp
         'email.change.otp',
         'email.change.update',
         'logout',
+        // Handoff dari mobile: tautan hanya berlaku sekali & 2 menit, jadi
+        // harus dipakai SEBELUM dicek verifikasi. Kalau tidak, session web
+        // lama milik akun belum-verifikasi akan mem-bounce dan tautan hangus.
+        'auth.handoff',
         // Sisakan jalur bawaan Laravel agar tetap berfungsi bila dipakai.
         'verification.notice',
         'verification.verify',

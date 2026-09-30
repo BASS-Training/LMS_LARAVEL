@@ -76,7 +76,7 @@ class OtpVerificationController extends Controller
         $user = $request->user();
 
         if ($user->isEmailVerified()) {
-            return redirect()->route('dashboard');
+            return redirect()->intended(route('dashboard'));
         }
 
         $error = $this->otp->verify(
@@ -94,7 +94,10 @@ class OtpVerificationController extends Controller
             'email_verification_optional' => false,
         ])->save();
 
-        return redirect()->route('dashboard')
+        // intended() kembali ke tujuan handoff mobile (lihat HandoffController).
+        // Pada alur login web biasa key ini sudah dipakai di
+        // AuthenticatedSessionController::store, jadi jatuh ke dashboard.
+        return redirect()->intended(route('dashboard'))
             ->with('success', 'Email berhasil diverifikasi. Selamat datang!');
     }
 
@@ -104,7 +107,7 @@ class OtpVerificationController extends Controller
         $user = $request->user();
 
         if ($user->isEmailVerified()) {
-            return redirect()->route('dashboard');
+            return redirect()->intended(route('dashboard'));
         }
 
         try {
