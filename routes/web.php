@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\CourseClassController;
@@ -39,9 +40,7 @@ use App\Http\Controllers\Admin\PaymentVerificationController;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('welcome');
+Route::get('/', LandingPageController::class)->name('welcome');
 
 Route::get('/certificates/verify/{code}', [CertificateController::class, 'verify'])->name('certificates.verify');
 
