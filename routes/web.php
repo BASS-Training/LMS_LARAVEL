@@ -3,7 +3,6 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CourseController;
-use App\Http\Controllers\HandoffController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\CourseClassController;
@@ -57,16 +56,6 @@ Route::get('/certificates/download/{code}', [CertificateController::class, 'publ
 Route::get('/katalog', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/katalog/{course}', [ShopController::class, 'show'])->name('shop.show');
 Route::post('/katalog/{course}/daftar-gratis', [ShopController::class, 'enrollFree'])->name('shop.enroll-free');
-
-/*
-| Handoff dari aplikasi mobile: menukar tautan sekali-pakai menjadi session web
-| lalu mengarahkan ke detail katalog. Sengaja TIDAK diberi middleware `auth`
-| (pengguna memang belum login) maupun `guest` (session lama boleh diganti).
-| Request-nya GET karena dibuka sebagai navigasi browser biasa.
-*/
-Route::get('/auth/handoff/{token}', HandoffController::class)
-    ->middleware('throttle:6,1')
-    ->name('auth.handoff');
 
 /*
 | Pembelian kursus.

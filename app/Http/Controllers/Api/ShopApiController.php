@@ -20,13 +20,9 @@ use Illuminate\Support\Facades\DB;
  *
  * Mirror dari ShopController (web), dengan dua perbedaan penting:
  *  1. Wajib login (mobile selalu punya sesi) — tidak melayani tamu.
- *  2. TIDAK ADA jalur pembelian di dalam app. Tombol di mobile hanya berlabel
- *     generik "Website" dan membuka DETAIL KATALOG ini di browser melalui
- *     tautan sekali-pakai (WebSessionApiController → HandoffController), sehingga
- *     pengguna tiba di website dalam keadaan sudah login. App tidak mengirim
- *     CTA pembelian, link checkout, maupun ajakan membeli. Kursus berbayar hanya
- *     bisa di-preview; jalan masuknya adalah kode akses (EnrollmentApiController)
- *     atau pembelian di web.
+ *  2. TIDAK ADA jalur pembelian di dalam app. Kursus berbayar hanya bisa
+ *     di-preview; jalan masuknya adalah kode akses (EnrollmentApiController)
+ *     atau pembelian di website.
  *
  * Yang dikirim hanya metadata + JUDUL kurikulum. Isi konten (body, file,
  * template soal) tidak pernah ikut — persis seperti halaman preview di web.

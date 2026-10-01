@@ -94,9 +94,6 @@ class OtpVerificationController extends Controller
             'email_verification_optional' => false,
         ])->save();
 
-        // intended() kembali ke tujuan handoff mobile (lihat HandoffController).
-        // Pada alur login web biasa key ini sudah dipakai di
-        // AuthenticatedSessionController::store, jadi jatuh ke dashboard.
         return redirect()->intended(route('dashboard'))
             ->with('success', 'Email berhasil diverifikasi. Selamat datang!');
     }
