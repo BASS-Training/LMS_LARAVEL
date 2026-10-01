@@ -30,6 +30,17 @@
                     <p class="mt-2 text-gray-600">{{ $course->short_description }}</p>
                 @endif
 
+                @if ($course->categories->isNotEmpty() || $course->tags->isNotEmpty())
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        @foreach ($course->categories as $category)
+                            <a href="{{ route('shop.index', ['category' => $category->slug]) }}" class="rounded-full bg-navy/10 px-3 py-1 text-xs font-semibold text-navy hover:bg-navy/20">{{ $category->name }}</a>
+                        @endforeach
+                        @foreach ($course->tags as $tag)
+                            <a href="{{ route('shop.index', ['tag' => $tag->slug]) }}" class="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600 hover:bg-gray-200">#{{ $tag->name }}</a>
+                        @endforeach
+                    </div>
+                @endif
+
                 <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-gray-500">
                     <span class="inline-flex items-center gap-1.5">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>

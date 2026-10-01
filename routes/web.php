@@ -1,38 +1,38 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CourseController;
-use App\Http\Controllers\LandingPageController;
-use App\Http\Controllers\LessonController;
-use App\Http\Controllers\Api\ChatController;
-use App\Http\Controllers\CourseClassController;
-use App\Http\Controllers\EnrollmentCodeController;
-use App\Http\Controllers\TokenEnrollmentController;
-use App\Http\Controllers\Api\MessageController;
-use App\Http\Controllers\ContentController;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\Admin\AnnouncementController as AdminAnnouncementController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CertificateTemplateController;
+use App\Http\Controllers\Admin\PaymentVerificationController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UserImportController;
-use App\Http\Controllers\Admin\AnnouncementController as AdminAnnouncementController;
-use App\Http\Controllers\Admin\CertificateTemplateController;
 use App\Http\Controllers\AnnouncementController;
-use App\Http\Controllers\QuizController;
-use App\Http\Controllers\GradebookController;
-use App\Http\Controllers\DiscussionController;
-use App\Http\Controllers\EventOrganizerController;
-use App\Http\Controllers\ProgressController;
-use App\Http\Controllers\EssaySubmissionController;
-use App\Http\Controllers\CertificateController;
-use App\Http\Controllers\ImageUploadController;
-use App\Http\Controllers\EssayQuestionController;
-use App\Http\Controllers\FileControlController;
-use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\AttendanceController;
-use App\Http\Controllers\ShopController;
+use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\CheckoutController;
-use App\Http\Controllers\Admin\PaymentVerificationController;
+use App\Http\Controllers\ContentController;
+use App\Http\Controllers\CourseClassController;
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EnrollmentCodeController;
+use App\Http\Controllers\EssayQuestionController;
+use App\Http\Controllers\EssaySubmissionController;
+use App\Http\Controllers\EventOrganizerController;
+use App\Http\Controllers\FileControlController;
+use App\Http\Controllers\GradebookController;
+use App\Http\Controllers\ImageUploadController;
+use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\LessonController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProgressController;
+use App\Http\Controllers\QuizController;
+use App\Http\Controllers\ShopController;
+use App\Http\Controllers\TokenEnrollmentController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -171,8 +171,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('permission:duplicate contents');
 
     // ✅ PERBAIKAN: Mengubah URL rute AJAX agar tidak konflik
-    Route::get('/ajax/quizzes/get-full-quiz-form-partial', fn() => view('quizzes.partials.full-quiz-form')->render())->name('quiz-full-form-partial');
-    Route::get('/ajax/quizzes/get-question-form-partial', fn(Illuminate\Http\Request $request) => view('quizzes.partials.question-form-fields', ['question_loop_index' => $request->query('index'), 'question' => null])->render())->name('quiz-question-partial');
+    Route::get('/ajax/quizzes/get-full-quiz-form-partial', fn () => view('quizzes.partials.full-quiz-form')->render())->name('quiz-full-form-partial');
+    Route::get('/ajax/quizzes/get-question-form-partial', fn (Illuminate\Http\Request $request) => view('quizzes.partials.question-form-fields', ['question_loop_index' => $request->query('index'), 'question' => null])->render())->name('quiz-question-partial');
 
     // Pengumuman
     Route::prefix('notifications')->name('notifications.')->group(function () {
@@ -433,7 +433,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/contents/{content}/complete-and-continue', [ContentController::class, 'completeAndContinue'])->name('contents.complete_and_continue')->middleware('auth');
 
     // Grup Route untuk Admin, Instruktur, dan EO
-    Route::middleware(['permission:manage users|manage roles|view certificate templates|view activity logs|view announcements|view certificate analytics|view certificate management'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['permission:manage users|manage roles|view certificate templates|view activity logs|view announcements|view certificate analytics|view certificate management|manage course taxonomy'])->prefix('admin')->name('admin.')->group(function () {
         // Add explicit permission middleware so these can be opened to admin-like roles later safely
         Route::resource('roles', RoleController::class)->except(['show'])->middleware('permission:manage roles');
 
@@ -492,6 +492,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('announcements.toggle-status')
             ->middleware('permission:publish announcements|update announcements');
 
+        Route::resource('categories', CategoryController::class)
+            ->except(['show'])
+            ->middleware('permission:manage course taxonomy');
+        Route::resource('tags', TagController::class)
+            ->except(['show'])
+            ->middleware('permission:manage course taxonomy');
+
         // Automatic Grading Completion
         Route::get('/auto-grade', [\App\Http\Controllers\Admin\AutoGradeController::class, 'index'])->name('auto-grade.index')->middleware('permission:grade essays|grade quizzes');
         Route::post('/auto-grade/complete', [\App\Http\Controllers\Admin\AutoGradeController::class, 'processAutoGrade'])->name('auto-grade.complete')->middleware('permission:grade essays|grade quizzes');
@@ -527,7 +534,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/essay-submissions/{submission}/detail', [GradebookController::class, 'showEssayDetail'])
             ->name('gradebook.essay-detail');
-        
+
         Route::post('/essay-submissions/{submission}/grade-overall', [GradebookController::class, 'storeOverallGrade'])
             ->name('gradebook.store-overall-grade');
         Route::post('/essay-submissions/{submission}/feedback-overall', [GradebookController::class, 'storeOverallFeedback'])
@@ -645,14 +652,14 @@ Route::middleware('auth:sanctum')->prefix('api')->group(function () {
     Route::get('/course-classes/available', [App\Http\Controllers\Api\ChatController::class, 'availableCourseClasses']);
 });
 
-require __DIR__ . '/auth.php';
-        // Tools (Admin Utilities)
-        Route::get('/tools', [\App\Http\Controllers\Admin\ToolsController::class, 'index'])
-            ->name('tools.index')
-            ->middleware('permission:manage users|manage roles');
-        Route::post('/tools/permissions/refresh', [\App\Http\Controllers\Admin\ToolsController::class, 'refreshPermissionCache'])
-            ->name('tools.permissions.refresh')
-            ->middleware('permission:manage users|manage roles');
-        Route::get('/tools/roles/export', [\App\Http\Controllers\Admin\ToolsController::class, 'exportRoleMatrix'])
-            ->name('tools.roles.export')
-            ->middleware('permission:manage users|manage roles');
+require __DIR__.'/auth.php';
+// Tools (Admin Utilities)
+Route::get('/tools', [\App\Http\Controllers\Admin\ToolsController::class, 'index'])
+    ->name('tools.index')
+    ->middleware('permission:manage users|manage roles');
+Route::post('/tools/permissions/refresh', [\App\Http\Controllers\Admin\ToolsController::class, 'refreshPermissionCache'])
+    ->name('tools.permissions.refresh')
+    ->middleware('permission:manage users|manage roles');
+Route::get('/tools/roles/export', [\App\Http\Controllers\Admin\ToolsController::class, 'exportRoleMatrix'])
+    ->name('tools.roles.export')
+    ->middleware('permission:manage users|manage roles');

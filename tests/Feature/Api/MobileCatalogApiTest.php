@@ -2,9 +2,11 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Category;
 use App\Models\Content;
 use App\Models\Course;
 use App\Models\Lesson;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -91,6 +93,31 @@ class MobileCatalogApiTest extends TestCase
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', (string) $freeCourse->id)
             ->assertJsonPath('data.0.isFree', true);
+    }
+
+    public function test_catalog_filters_and_returns_active_taxonomy(): void
+    {
+        $category = Category::factory()->create(['name' => 'Teknologi']);
+        $tag = Tag::factory()->create(['name' => 'Pemula']);
+        $inactiveTag = Tag::factory()->create(['name' => 'Internal', 'is_active' => false]);
+        $course = Course::factory()->create([
+            'status' => 'published',
+            'visibility' => 'catalog',
+            'program_type' => 'regular',
+        ]);
+        $course->categories()->attach($category);
+        $course->tags()->attach([$tag->id, $inactiveTag->id]);
+
+        $response = $this->withToken('catalog-test-token')
+            ->getJson('/api/mobile/catalog?category='.$category->slug.'&tag='.$tag->slug);
+
+        $response->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.categories.0.slug', $category->slug)
+            ->assertJsonPath('data.0.tags.0.slug', $tag->slug)
+            ->assertJsonPath('meta.filters.categories.0.slug', $category->slug);
+
+        $this->assertNotContains($inactiveTag->slug, collect($response->json('meta.filters.tags'))->pluck('slug'));
     }
 
     public function test_catalog_rejects_invalid_query_as_json(): void

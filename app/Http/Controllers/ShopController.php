@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Course;
+use App\Models\Tag;
 use App\Services\Payment\ServiceFee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 /**
  * Etalase kursus (katalog publik).
@@ -28,27 +31,43 @@ class ShopController extends Controller
 
     public function index(Request $request)
     {
-        $search = null;
-        $query = Course::inCatalog()->with('instructors');
+        $validated = $request->validate([
+            'q' => ['nullable', 'string', 'min:2', 'max:100'],
+            'harga' => ['nullable', Rule::in(['free', 'paid'])],
+            'category' => ['nullable', 'string', Rule::exists('categories', 'slug')->where('is_active', true)],
+            'tag' => ['nullable', 'string', Rule::exists('tags', 'slug')->where('is_active', true)],
+        ]);
+        $search = $validated['q'] ?? null;
+        $query = Course::inCatalog()->with([
+            'instructors',
+            'categories' => fn ($query) => $query->active()->ordered()->select('categories.id', 'name', 'slug'),
+            'tags' => fn ($query) => $query->active()->orderBy('name')->select('tags.id', 'name', 'slug'),
+        ]);
 
-        if ($request->filled('q')) {
-            $validated = $request->validate(['q' => 'required|string|min:2|max:100']);
-            $search = $validated['q'];
+        if ($search !== null) {
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', '%' . $search . '%')
-                    ->orWhere('short_description', 'like', '%' . $search . '%')
-                    ->orWhere('description', 'like', '%' . $search . '%');
+                $q->where('title', 'like', '%'.$search.'%')
+                    ->orWhere('short_description', 'like', '%'.$search.'%')
+                    ->orWhere('description', 'like', '%'.$search.'%');
             });
         }
 
         // Filter harga: 'free' | 'paid'
-        $priceFilter = $request->input('harga');
+        $priceFilter = $validated['harga'] ?? null;
         if ($priceFilter === 'free') {
             $query->where(fn ($q) => $q->whereNull('price')->orWhere('price', '<=', 0));
         } elseif ($priceFilter === 'paid') {
             $query->where('price', '>', 0);
-        } else {
-            $priceFilter = null;
+        }
+
+        $categoryFilter = $validated['category'] ?? null;
+        if ($categoryFilter !== null) {
+            $query->whereHas('categories', fn ($query) => $query->active()->where('slug', $categoryFilter));
+        }
+
+        $tagFilter = $validated['tag'] ?? null;
+        if ($tagFilter !== null) {
+            $query->whereHas('tags', fn ($query) => $query->active()->where('slug', $tagFilter));
         }
 
         $courses = $query->withCount('lessons')
@@ -60,6 +79,10 @@ class ShopController extends Controller
             'courses' => $courses,
             'search' => $search,
             'priceFilter' => $priceFilter,
+            'categoryFilter' => $categoryFilter,
+            'tagFilter' => $tagFilter,
+            'categories' => Category::active()->ordered()->get(['id', 'name', 'slug']),
+            'tags' => Tag::active()->orderBy('name')->get(['id', 'name', 'slug']),
             'enrolledIds' => $this->enrolledIds($courses->pluck('id')->all()),
             'managedIds' => $this->managedIds($courses),
         ]);
@@ -72,6 +95,8 @@ class ShopController extends Controller
         // Kurikulum: judul saja. Isi konten TIDAK pernah dikirim ke view.
         $course->load([
             'instructors:id,name',
+            'categories' => fn ($query) => $query->active()->ordered()->select('categories.id', 'name', 'slug'),
+            'tags' => fn ($query) => $query->active()->orderBy('name')->select('tags.id', 'name', 'slug'),
             'lessons' => fn ($q) => $q->select('id', 'course_id', 'title', 'order')->orderBy('order'),
             'lessons.contents' => fn ($q) => $q->select('id', 'lesson_id', 'title', 'type', 'order')->orderBy('order'),
         ]);

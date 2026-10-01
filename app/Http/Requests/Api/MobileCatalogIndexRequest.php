@@ -5,6 +5,7 @@ namespace App\Http\Requests\Api;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class MobileCatalogIndexRequest extends FormRequest
 {
@@ -18,6 +19,8 @@ class MobileCatalogIndexRequest extends FormRequest
         return [
             'q' => ['nullable', 'string', 'min:2', 'max:100'],
             'harga' => ['nullable', 'in:free,paid'],
+            'category' => ['nullable', 'string', Rule::exists('categories', 'slug')->where('is_active', true)],
+            'tag' => ['nullable', 'string', Rule::exists('tags', 'slug')->where('is_active', true)],
             'page' => ['nullable', 'integer', 'min:1'],
             'perPage' => ['nullable', 'integer', 'min:1', 'max:50'],
         ];

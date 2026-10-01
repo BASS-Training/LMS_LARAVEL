@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreCourseRequest extends FormRequest
 {
@@ -27,6 +28,11 @@ class StoreCourseRequest extends FormRequest
             'training_start_date' => 'nullable|date|required_with:training_end_date',
             'training_end_date' => 'nullable|date|after_or_equal:training_start_date|required_with:training_start_date',
             'certificate_template_id' => 'nullable|exists:certificate_templates,id',
+            'category_ids' => ['nullable', 'array'],
+            'category_ids.*' => ['integer', 'distinct', Rule::exists('categories', 'id')->where('is_active', true)],
+            'tag_ids' => ['nullable', 'array'],
+            'tag_ids.*' => ['integer', 'distinct', Rule::exists('tags', 'id')->where('is_active', true)],
+            'taxonomy_present' => ['nullable', 'boolean'],
 
             'enable_periods' => 'nullable|boolean',
             'periods' => 'nullable|array',

@@ -14,8 +14,8 @@
     </div>
 
     {{-- Filter --}}
-    <form method="GET" action="{{ route('shop.index') }}" class="mb-6 flex flex-col sm:flex-row gap-3">
-        <div class="relative flex-1">
+    <form method="GET" action="{{ route('shop.index') }}" class="mb-6 grid grid-cols-1 gap-3 lg:grid-cols-12">
+        <div class="relative lg:col-span-4">
             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
@@ -23,10 +23,24 @@
                    class="w-full pl-10 pr-4 py-2.5 rounded-lg border-gray-300 focus:border-bass-red focus:ring-bass-red text-sm">
         </div>
 
-        <div class="flex gap-2">
+        <select name="category" class="rounded-lg border-gray-300 text-sm focus:border-bass-red focus:ring-bass-red lg:col-span-2">
+            <option value="">Semua kategori</option>
+            @foreach ($categories as $category)
+                <option value="{{ $category->slug }}" @selected($categoryFilter === $category->slug)>{{ $category->name }}</option>
+            @endforeach
+        </select>
+
+        <select name="tag" class="rounded-lg border-gray-300 text-sm focus:border-bass-red focus:ring-bass-red lg:col-span-2">
+            <option value="">Semua tag</option>
+            @foreach ($tags as $tag)
+                <option value="{{ $tag->slug }}" @selected($tagFilter === $tag->slug)>{{ $tag->name }}</option>
+            @endforeach
+        </select>
+
+        <div class="flex gap-2 lg:col-span-4">
             @foreach (['' => 'Semua', 'free' => 'Gratis', 'paid' => 'Berbayar'] as $value => $label)
                 <button type="submit" name="harga" value="{{ $value }}"
-                        class="px-4 py-2.5 rounded-lg text-sm font-medium border transition-colors
+                        class="flex-1 px-3 py-2.5 rounded-lg text-sm font-medium border transition-colors
                                {{ $priceFilter === ($value ?: null)
                                    ? 'bg-bass-red text-white border-bass-red'
                                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50' }}">
@@ -90,6 +104,17 @@
 
                         @if ($course->short_description)
                             <p class="mt-1.5 text-sm text-gray-500 line-clamp-2">{{ $course->short_description }}</p>
+                        @endif
+
+                        @if ($course->categories->isNotEmpty() || $course->tags->isNotEmpty())
+                            <div class="mt-3 flex flex-wrap gap-1.5">
+                                @foreach ($course->categories->take(1) as $category)
+                                    <span class="rounded-full bg-navy/10 px-2 py-0.5 text-xs font-medium text-navy">{{ $category->name }}</span>
+                                @endforeach
+                                @foreach ($course->tags->take(2) as $tag)
+                                    <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">#{{ $tag->name }}</span>
+                                @endforeach
+                            </div>
                         @endif
 
                         <p class="mt-2 text-xs text-gray-400">

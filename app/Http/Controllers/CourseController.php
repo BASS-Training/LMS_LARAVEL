@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCourseRequest;
 use App\Jobs\ExportCourseParticipantsJob;
+use App\Models\Category;
 use App\Models\CertificateTemplate;
 use App\Models\Course;
 use App\Models\ExportHistory;
+use App\Models\Tag;
 use App\Models\User;
 use App\Services\CourseParticipantQueryService;
 use App\Services\CourseService;
@@ -83,8 +85,10 @@ class CourseController extends Controller
     {
         $this->authorize('create', Course::class);
         $templates = CertificateTemplate::all(); // Ambil semua template
+        $categories = Category::active()->ordered()->get(['id', 'name', 'parent_id', 'is_active']);
+        $tags = Tag::active()->orderBy('name')->get(['id', 'name', 'is_active']);
 
-        return view('courses.create', compact('templates')); // Kirim ke view
+        return view('courses.create', compact('templates', 'categories', 'tags')); // Kirim ke view
     }
 
     public function store(StoreCourseRequest $request)
@@ -122,6 +126,9 @@ class CourseController extends Controller
                 'certificate_template_id' => $validatedData['certificate_template_id'] ?? null,
             ]);
 
+            $course->categories()->sync($validatedData['category_ids'] ?? []);
+            $course->tags()->sync($validatedData['tag_ids'] ?? []);
+
             // Assign creator as instructor
             $course->instructors()->attach(Auth::id());
 
@@ -147,6 +154,8 @@ class CourseController extends Controller
                     'has_thumbnail' => ! empty($course->thumbnail),
                     'certificate_template_id' => $course->certificate_template_id,
                     'periods_enabled' => $request->boolean('enable_periods'),
+                    'category_ids' => $validatedData['category_ids'] ?? [],
+                    'tag_ids' => $validatedData['tag_ids'] ?? [],
                 ],
             ]);
 
@@ -297,13 +306,27 @@ class CourseController extends Controller
     {
         $this->authorize('update', $course);
         $templates = CertificateTemplate::all(); // <-- AMBIL SEMUA TEMPLATE
+        $course->load(['categories:id,name,is_active', 'tags:id,name,is_active']);
+        $categories = Category::query()
+            ->where('is_active', true)
+            ->orWhereIn('id', $course->categories->pluck('id'))
+            ->ordered()
+            ->get(['id', 'name', 'parent_id', 'is_active']);
+        $tags = Tag::query()
+            ->where('is_active', true)
+            ->orWhereIn('id', $course->tags->pluck('id'))
+            ->orderBy('name')
+            ->get(['id', 'name', 'is_active']);
 
-        return view('courses.edit', compact('course', 'templates')); // <-- KIRIM TEMPLATE KE VIEW
+        return view('courses.edit', compact('course', 'templates', 'categories', 'tags')); // <-- KIRIM TEMPLATE KE VIEW
     }
 
     public function update(Request $request, Course $course)
     {
         $this->authorize('update', $course);
+
+        $existingCategoryIds = $course->categories()->pluck('categories.id')->all();
+        $existingTagIds = $course->tags()->pluck('tags.id')->all();
 
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
@@ -320,6 +343,15 @@ class CourseController extends Controller
             'training_end_date' => 'nullable|date|after_or_equal:training_start_date|required_with:training_start_date',
             'clear_thumbnail' => 'nullable|boolean',
             'certificate_template_id' => 'nullable|exists:certificate_templates,id',
+            'category_ids' => ['nullable', 'array'],
+            'category_ids.*' => ['integer', 'distinct', Rule::exists('categories', 'id')->where(function ($query) use ($existingCategoryIds) {
+                $query->where('is_active', true)->orWhereIn('id', $existingCategoryIds);
+            })],
+            'tag_ids' => ['nullable', 'array'],
+            'tag_ids.*' => ['integer', 'distinct', Rule::exists('tags', 'id')->where(function ($query) use ($existingTagIds) {
+                $query->where('is_active', true)->orWhereIn('id', $existingTagIds);
+            })],
+            'taxonomy_present' => ['nullable', 'boolean'],
             'enable_periods' => 'nullable|boolean',
             'periods_to_delete' => 'nullable|array',
             'periods_to_delete.*' => 'exists:course_classes,id',
@@ -340,6 +372,13 @@ class CourseController extends Controller
 
             // ✅ ENHANCED LOGGING: Capture original data
             $originalData = $course->getOriginal();
+            $categoryIds = $request->boolean('taxonomy_present')
+                ? ($validatedData['category_ids'] ?? [])
+                : $existingCategoryIds;
+            $tagIds = $request->boolean('taxonomy_present')
+                ? ($validatedData['tag_ids'] ?? [])
+                : $existingTagIds;
+            unset($validatedData['category_ids'], $validatedData['tag_ids'], $validatedData['taxonomy_present']);
 
             if ($request->boolean('clear_thumbnail')) {
                 if ($course->thumbnail) {
@@ -354,6 +393,8 @@ class CourseController extends Controller
             }
 
             $course->update($validatedData);
+            $course->categories()->sync($categoryIds);
+            $course->tags()->sync($tagIds);
 
             // Keep all class/batch program types aligned with the parent course.
             $course->periods()->update(['program_type' => $course->program_type]);
@@ -387,6 +428,12 @@ class CourseController extends Controller
                     'changed_fields' => array_keys($changes),
                     'thumbnail_changed' => $request->hasFile('thumbnail') || $request->boolean('clear_thumbnail'),
                     'periods_enabled' => $request->boolean('enable_periods'),
+                    'taxonomy' => [
+                        'categories_before' => $existingCategoryIds,
+                        'categories_after' => $categoryIds,
+                        'tags_before' => $existingTagIds,
+                        'tags_after' => $tagIds,
+                    ],
                 ],
             ]);
 

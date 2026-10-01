@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\MobileCatalogIndexRequest;
+use App\Models\Category;
 use App\Models\Course;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -39,7 +41,11 @@ class ShopApiController extends Controller
         $user = $request->user();
         $search = $validated['q'] ?? null;
 
-        $query = Course::inCatalog()->with('instructors:id,name');
+        $query = Course::inCatalog()->with([
+            'instructors:id,name',
+            'categories' => fn ($query) => $query->active()->ordered()->select('categories.id', 'name', 'slug'),
+            'tags' => fn ($query) => $query->active()->orderBy('name')->select('tags.id', 'name', 'slug'),
+        ]);
 
         $this->hideRestrictedPrograms($query, $user);
 
@@ -56,6 +62,14 @@ class ShopApiController extends Controller
             $query->where(fn ($q) => $q->whereNull('price')->orWhere('price', '<=', 0));
         } elseif ($priceFilter === 'paid') {
             $query->where('price', '>', 0);
+        }
+
+        if (isset($validated['category'])) {
+            $query->whereHas('categories', fn ($query) => $query->active()->where('slug', $validated['category']));
+        }
+
+        if (isset($validated['tag'])) {
+            $query->whereHas('tags', fn ($query) => $query->active()->where('slug', $validated['tag']));
         }
 
         $courses = $query
@@ -78,6 +92,18 @@ class ShopApiController extends Controller
                 // Mobile membaca ini untuk memutuskan menampilkan harga atau
                 // sekadar label "Berbayar". Lihat config/shop.php.
                 'showPrice' => $this->showPrice(),
+                'filters' => [
+                    'categories' => Category::active()->ordered()->get(['id', 'name', 'slug'])->map(fn (Category $category) => [
+                        'id' => (string) $category->id,
+                        'name' => $category->name,
+                        'slug' => $category->slug,
+                    ])->values(),
+                    'tags' => Tag::active()->orderBy('name')->get(['id', 'name', 'slug'])->map(fn (Tag $tag) => [
+                        'id' => (string) $tag->id,
+                        'name' => $tag->name,
+                        'slug' => $tag->slug,
+                    ])->values(),
+                ],
                 'pagination' => [
                     'currentPage' => $courses->currentPage(),
                     'lastPage' => $courses->lastPage(),
@@ -104,6 +130,8 @@ class ShopApiController extends Controller
 
         $course->load([
             'instructors:id,name',
+            'categories' => fn ($query) => $query->active()->ordered()->select('categories.id', 'name', 'slug'),
+            'tags' => fn ($query) => $query->active()->orderBy('name')->select('tags.id', 'name', 'slug'),
             'lessons' => fn ($q) => $q->select('id', 'course_id', 'title', 'order')->orderBy('order'),
             'lessons.contents' => fn ($q) => $q->select('id', 'lesson_id', 'title', 'type', 'order')->orderBy('order'),
         ]);
@@ -208,6 +236,16 @@ class ShopApiController extends Controller
                 ? 'Gratis'
                 : ($showPrice ? $course->price_label : 'Berbayar'),
             'isEnrolled' => isset($enrolledIds[$course->id]),
+            'categories' => $course->categories->map(fn ($category) => [
+                'id' => (string) $category->id,
+                'name' => $category->name,
+                'slug' => $category->slug,
+            ])->values(),
+            'tags' => $course->tags->map(fn ($tag) => [
+                'id' => (string) $tag->id,
+                'name' => $tag->name,
+                'slug' => $tag->slug,
+            ])->values(),
         ];
     }
 

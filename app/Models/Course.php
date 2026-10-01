@@ -48,7 +48,7 @@ class Course extends Model
      *
      * @var array
      */
-    protected $duplicateRelations = ['lessons'];
+    protected $duplicateRelations = ['lessons', 'categories', 'tags'];
 
     /**
      * Define which attribute contains a file to be duplicated.
@@ -61,6 +61,16 @@ class Course extends Model
     public function instructors()
     {
         return $this->belongsToMany(User::class, 'course_instructor');
+    }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class);
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
     }
 
     // Relasi ke Lesson (satu kursus punya banyak pelajaran)

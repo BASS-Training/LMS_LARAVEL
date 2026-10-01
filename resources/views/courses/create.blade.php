@@ -303,6 +303,8 @@
                             </div>
                         </div>
 
+                        @include('courses.partials.taxonomy-fields')
+
                         <!-- ===================================== -->
                         <!-- 🆕 SECTION 2: COURSE PERIODS (OPTIONAL) -->
                         <!-- ===================================== -->

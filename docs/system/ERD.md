@@ -114,6 +114,28 @@ erDiagram
         boolean token_enabled
         string program_type
     }
+    CATEGORIES {
+        bigint id PK
+        bigint parent_id FK
+        string name
+        string slug UK
+        boolean is_active
+        integer sort_order
+    }
+    TAGS {
+        bigint id PK
+        string name
+        string slug UK
+        boolean is_active
+    }
+    CATEGORY_COURSE {
+        bigint category_id FK
+        bigint course_id FK
+    }
+    COURSE_TAG {
+        bigint course_id FK
+        bigint tag_id FK
+    }
     LESSONS {
         bigint id PK
         bigint course_id FK
@@ -205,6 +227,11 @@ erDiagram
     LESSONS o|--o{ LESSONS : prerequisite
     LESSONS ||--o{ CONTENTS : contains
     COURSES ||--o{ COURSE_CLASSES : has_batches
+    CATEGORIES o|--o{ CATEGORIES : parent
+    CATEGORIES ||--o{ CATEGORY_COURSE : classifies
+    COURSES ||--o{ CATEGORY_COURSE : categorized
+    TAGS ||--o{ COURSE_TAG : labels
+    COURSES ||--o{ COURSE_TAG : tagged
 
     COURSES ||--o{ COURSE_USER : enrollment
     USERS ||--o{ COURSE_USER : enrolls
@@ -240,6 +267,12 @@ Constraint unik penting:
 - `lesson_user(lesson_id, user_id)`
 - `content_user(content_id, user_id)`
 - `saved_courses(user_id, course_id)`
+- `categories.slug`
+- `tags.slug`
+- `category_course(category_id, course_id)`
+- `course_tag(course_id, tag_id)`
+
+Saat category induk dihapus, `categories.parent_id` pada anak menjadi `null`. Penghapusan category atau tag hanya menghapus relasi pivot dan tidak menghapus course. Taxonomy nonaktif tetap dapat tersimpan pada course, tetapi tidak ditampilkan atau diterima sebagai filter katalog publik.
 
 ## 3. Asesmen
 
@@ -655,6 +688,7 @@ erDiagram
 | Identity/Auth | `users`, `password_reset_tokens`, `sessions`, `email_otps` |
 | RBAC | `roles`, `permissions`, `model_has_roles`, `model_has_permissions`, `role_has_permissions` |
 | Course | `courses`, `lessons`, `contents`, `course_classes` |
+| Course taxonomy | `categories`, `tags`, `category_course`, `course_tag` |
 | Membership | `course_user`, `course_instructor`, `course_event_organizer`, `course_class_user`, `course_class_instructor`, `saved_courses` |
 | Progress | `lesson_user`, `content_user`, `attendances` |
 | Enrollment | `enrollment_codes` |
@@ -684,6 +718,7 @@ Aturan berikut belum seluruhnya dipaksa oleh constraint database:
 6. Tanggal akhir class, course, dan jadwal content tidak boleh lebih awal dari tanggal mulai.
 7. Sertifikat diterbitkan hanya jika syarat kelulusan dan review konten wajib terpenuhi.
 8. Enrollment berbayar hanya diberikan setelah status pembayaran valid atau verifikasi admin selesai.
+9. Hierarki category tidak boleh menjadikan category sebagai induk dirinya sendiri atau salah satu turunannya.
 
 ## Ketidaksesuaian Model yang Perlu Diperhatikan
 

@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 class RolesAndPermissionsSeeder extends Seeder
@@ -36,6 +36,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'assign instructors',
             'assign event organizers',
             'manage course tokens',
+            'manage course taxonomy',
 
             // Classes / Periods
             'view classes',
@@ -143,13 +144,11 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::firstOrCreate(['name' => $perm]);
         }
 
-
         // --- TAHAP 2: Ciptakan semua Peran ---
         $participantRole = Role::firstOrCreate(['name' => 'participant']);
         $instructorRole = Role::firstOrCreate(['name' => 'instructor']);
         $eventOrganizerRole = Role::firstOrCreate(['name' => 'event-organizer']);
         $superAdminRole = Role::firstOrCreate(['name' => 'super-admin']);
-
 
         // --- ✅ TAHAP 3: Berikan Izin Default untuk Setiap Peran ---
         // Jangan overwrite di production kecuali diizinkan
@@ -201,6 +200,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $applyDefaults = function (Role $role, array $defaults) use ($overwrite) {
             if ($overwrite) {
                 $role->syncPermissions($defaults);
+
                 return;
             }
             if ($role->permissions()->count() === 0) {

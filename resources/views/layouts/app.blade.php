@@ -78,7 +78,7 @@
                         @endcan
 
                         {{-- Admin dropdown --}}
-                        @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management'])
+                        @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage course taxonomy'])
                         <div x-data="{ adminOpen: false }" class="relative">
                             <button @click="adminOpen = !adminOpen"
                                     @keydown.escape.window="adminOpen = false"
@@ -107,6 +107,7 @@
                                  class="absolute left-0 mt-2 w-64 rounded-xl bg-white shadow-xl ring-1 ring-black/5 divide-y divide-gray-100 z-50"
                                  style="display:none"
                                  role="menu">
+                                @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management'])
                                 <div class="py-1" role="none">
                                     <a href="{{ route('admin.users.index') }}"    class="dropdown-item-custom" role="menuitem">Manajemen Pengguna</a>
                                     <a href="{{ route('admin.roles.index') }}"    class="dropdown-item-custom" role="menuitem">Manajemen Peran</a>
@@ -136,6 +137,13 @@
                                     <a href="{{ route('file-control.index') }}"    class="dropdown-item-custom" role="menuitem">File Manager</a>
                                     <a href="{{ route('activity-logs.index') }}"   class="dropdown-item-custom" role="menuitem">Log Aktivitas</a>
                                 </div>
+                                @endcanany
+                                @can('manage course taxonomy')
+                                <div class="py-1" role="none">
+                                    <a href="{{ route('admin.categories.index') }}" class="dropdown-item-custom" role="menuitem">Kategori Course</a>
+                                    <a href="{{ route('admin.tags.index') }}" class="dropdown-item-custom" role="menuitem">Tag Course</a>
+                                </div>
+                                @endcan
                             </div>
                         </div>
                         @endcanany
@@ -280,9 +288,10 @@
                 </a>
                 @endcan
 
-                @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management'])
+                @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage course taxonomy'])
                 <div class="pt-2 mt-1 border-t border-gray-100">
                     <p class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Admin</p>
+                    @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management'])
                     <a href="{{ route('admin.users.index') }}"    class="responsive-nav-link-custom {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">Manajemen Pengguna</a>
                     <a href="{{ route('admin.roles.index') }}"    class="responsive-nav-link-custom {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">Manajemen Peran</a>
                     <a href="{{ route('admin.announcements.index') }}" class="responsive-nav-link-custom">Manajemen Pengumuman</a>
@@ -296,6 +305,11 @@
                     @endrole
                     <a href="{{ route('file-control.index') }}"   class="responsive-nav-link-custom">File Manager</a>
                     <a href="{{ route('activity-logs.index') }}"  class="responsive-nav-link-custom">Log Aktivitas</a>
+                    @endcanany
+                    @can('manage course taxonomy')
+                    <a href="{{ route('admin.categories.index') }}" class="responsive-nav-link-custom {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">Kategori Course</a>
+                    <a href="{{ route('admin.tags.index') }}" class="responsive-nav-link-custom {{ request()->routeIs('admin.tags.*') ? 'active' : '' }}">Tag Course</a>
+                    @endcan
                 </div>
                 @endcanany
             </div>
