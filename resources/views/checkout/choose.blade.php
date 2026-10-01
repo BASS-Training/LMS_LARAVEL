@@ -12,17 +12,15 @@
     ]])->toArray();
     $firstKey = $options[0]['key'] ?? '';
     $rupiah = fn ($n) => 'Rp ' . number_format((int) $n, 0, ',', '.');
+    $checkoutData = [
+        'selected' => $firstKey,
+        'options' => $optionsJs,
+        'base' => (int) $base,
+    ];
 @endphp
 
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
-     x-data="{
-        selected: '{{ $firstKey }}',
-        options: @js($optionsJs),
-        base: {{ (int) $base }},
-        fmt(n) { return 'Rp ' + Number(n).toLocaleString('id-ID'); },
-        get fee()   { return this.options[this.selected]?.fee ?? 0; },
-        get total() { return this.options[this.selected]?.total ?? this.base; },
-     }">
+     x-data="{{ Js::from($checkoutData) }}">
 
     <a href="{{ route('shop.show', $course) }}" class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-bass-red mb-5">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,11 +104,11 @@
                         </div>
                         <div class="flex justify-between text-gray-600">
                             <dt>Biaya layanan</dt>
-                            <dd x-text="fee > 0 ? fmt(fee) : 'Gratis'">{{ $rupiah($options[0]['fee'] ?? 0) }}</dd>
+                            <dd x-text="(options[selected]?.fee ?? 0) > 0 ? 'Rp ' + Number(options[selected].fee).toLocaleString('id-ID') : 'Gratis'">{{ $rupiah($options[0]['fee'] ?? 0) }}</dd>
                         </div>
                         <div class="flex justify-between pt-3 border-t border-gray-100">
                             <dt class="font-semibold text-gray-900">Total</dt>
-                            <dd class="text-lg font-bold text-bass-red" x-text="fmt(total)">{{ $rupiah($options[0]['total'] ?? $base) }}</dd>
+                            <dd class="text-lg font-bold text-bass-red" x-text="'Rp ' + Number(options[selected]?.total ?? base).toLocaleString('id-ID')">{{ $rupiah($options[0]['total'] ?? $base) }}</dd>
                         </div>
                     </dl>
 

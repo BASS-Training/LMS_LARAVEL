@@ -1,4 +1,4 @@
-﻿{{-- Stepper 3 langkah proses pembelian dengan verifikasi.
+{{-- Stepper 3 langkah proses pembelian dengan verifikasi.
      $active: 1=Bayar, 2=Verifikasi, 3=Akses --}}
 @php
     $steps = [1 => 'Bayar', 2 => 'Verifikasi', 3 => 'Akses'];
@@ -8,11 +8,11 @@
         <div class="flex-1 flex flex-col items-center relative">
             {{-- garis penghubung ke kiri --}}
             @if ($i > 1)
-                <div class="absolute top-4 right-1/2 w-full h-0.5 {{ $active >= $i ? 'bg-success-soft0' : 'bg-gray-200' }}"></div>
+                <div class="absolute top-4 right-1/2 w-full h-0.5 {{ $active >= $i ? 'bg-success' : 'bg-gray-200' }}"></div>
             @endif
 
             <div class="relative z-10 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold
-                @if ($active > $i) bg-success-soft0 text-white
+                @if ($active > $i) bg-success text-white
                 @elseif ($active === $i) bg-bass-red text-white ring-4 ring-bass-red/30
                 @else bg-gray-200 text-gray-500 @endif">
                 @if ($active > $i)
