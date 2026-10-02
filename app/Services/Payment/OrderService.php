@@ -2,6 +2,7 @@
 
 namespace App\Services\Payment;
 
+use App\Enums\RefundStatus;
 use App\Models\Course;
 use App\Models\Order;
 use App\Models\User;
@@ -32,8 +33,8 @@ class OrderService
      * dengan link pembayaran Snap.
      *
      * @param  string|null  $methodKey  Metode yang dipilih pembeli di awal
-     *   (mis. 'qris', 'bank_transfer'). Menentukan biaya layanan yang dipakai
-     *   dan mengunci Snap ke metode itu. null → tarif gabungan + semua metode.
+     *                                  (mis. 'qris', 'bank_transfer'). Menentukan biaya layanan yang dipakai
+     *                                  dan mengunci Snap ke metode itu. null → tarif gabungan + semua metode.
      */
     public function checkout(Course $course, User $user, ?string $methodKey = null): Order
     {
@@ -55,6 +56,25 @@ class OrderService
             throw new RuntimeException('Anda sudah terdaftar di kursus ini.');
         }
 
+        $confirmedOrder = Order::query()
+            ->where('user_id', $user->id)
+            ->where('course_id', $course->id)
+            ->whereIn('status', [Order::STATUS_AWAITING_VERIFICATION, Order::STATUS_REJECTED])
+            ->latest()
+            ->first();
+
+        if ($confirmedOrder) {
+            throw new RuntimeException('Pembayaran sebelumnya masih dalam proses verifikasi atau refund.');
+        }
+
+        if (Order::query()
+            ->where('user_id', $user->id)
+            ->where('course_id', $course->id)
+            ->where('status', Order::STATUS_CANCELLATION_PENDING)
+            ->exists()) {
+            throw new RuntimeException('Pembatalan tagihan sebelumnya masih diproses oleh penyedia pembayaran.');
+        }
+
         // Wajib pilih metode jika fitur per-metode aktif — supaya biaya yang
         // ditagih benar-benar sesuai metode & Snap bisa dikunci ke metode itu.
         if ($this->fee->methodsEnabled() && ! $this->fee->channelsFor($methodKey)) {
@@ -71,7 +91,7 @@ class OrderService
         // rincian & popup Snap konsisten dengan pilihan sekarang.
         $existing = Order::where('user_id', $user->id)
             ->where('course_id', $course->id)
-            ->where('status', 'pending')
+            ->where('status', Order::STATUS_PENDING)
             ->latest()
             ->first();
 
@@ -83,6 +103,14 @@ class OrderService
             return $existing;
         }
 
+        if ($existing) {
+            $cancelled = $this->cancelPending($existing, $user, 'Diganti dengan metode pembayaran atau harga terbaru.');
+
+            if ($cancelled->isCancellationPending()) {
+                throw new RuntimeException('Pembatalan tagihan sebelumnya masih diproses oleh penyedia pembayaran.');
+            }
+        }
+
         return DB::transaction(function () use ($course, $user, $breakdown, $methodKey) {
             $order = Order::create([
                 'user_id' => $user->id,
@@ -92,7 +120,7 @@ class OrderService
                 'fee_amount' => $breakdown['fee'],   // biaya layanan yang dibebankan ke pembeli
                 'amount' => $breakdown['total'],     // TOTAL yang ditagih ke Midtrans
                 'payment_method_key' => $methodKey,  // metode pilihan (dasar biaya + kunci Snap)
-                'status' => 'pending',
+                'status' => Order::STATUS_PENDING,
                 'expires_at' => now()->addHours((int) config('midtrans.expiry_hours', 24)),
             ]);
 
@@ -114,21 +142,119 @@ class OrderService
      *
      * Aman: pesanan yang SUDAH lunas tidak pernah dibatalkan.
      */
-    public function abandon(Order $order): void
+    public function abandon(Order $order, ?User $user = null): Order
     {
-        // Jangan pernah membatalkan pesanan yang uangnya sudah dikonfirmasi
-        // (lunas ATAU menunggu verifikasi) — dananya sudah masuk.
-        if ($order->isPaymentConfirmed()) {
-            return;
+        return $this->cancelPending($order, $user, 'Mengganti metode pembayaran.');
+    }
+
+    public function cancelPending(Order $order, ?User $user = null, ?string $reason = null): Order
+    {
+        $fresh = $this->refreshFromGateway($order->fresh());
+
+        if ($fresh->isPaymentConfirmed() || ! $fresh->isPending()) {
+            throw new RuntimeException('Pesanan ini tidak dapat dibatalkan karena statusnya sudah berubah.');
         }
 
-        if ($this->gateway->isConfigured()) {
-            $this->gateway->cancelTransaction($order->order_code);
+        $gatewayIdentifier = $fresh->transaction_id ?: $fresh->order_code;
+
+        $gatewayCancelled = ! $this->gateway->isConfigured()
+            || $this->gateway->cancelTransaction($gatewayIdentifier);
+
+        if (! $gatewayCancelled) {
+            $fresh = $this->refreshFromGateway($fresh->fresh());
+
+            if ($fresh->isPaymentConfirmed()) {
+                throw new RuntimeException('Pembayaran sudah diterima sehingga pesanan tidak dapat dibatalkan.');
+            }
+
+            // Cancel API dapat sempat merespons gagal walau pembatalan akhirnya
+            // diterima. Hasil rekonsiliasi gateway adalah sumber kebenarannya.
+            if (in_array($fresh->status, [Order::STATUS_CANCELLED, Order::STATUS_EXPIRED], true)) {
+                return $this->markCancellationConfirmed($fresh, $user, $reason);
+            }
+
+            if (! $fresh->isPending()) {
+                throw new RuntimeException('Pesanan ini tidak dapat dibatalkan karena statusnya sudah berubah.');
+            }
+
+            Log::warning('Pembatalan order menunggu konfirmasi Midtrans', [
+                'order_code' => $fresh->order_code,
+                'transaction_id' => $fresh->transaction_id,
+            ]);
+
+            return DB::transaction(function () use ($fresh, $user, $reason) {
+                $locked = Order::query()->lockForUpdate()->findOrFail($fresh->id);
+
+                if ($locked->isPaymentConfirmed() || ! $locked->isPending()) {
+                    throw new RuntimeException('Pesanan ini tidak dapat dibatalkan karena statusnya sudah berubah.');
+                }
+
+                $locked->update([
+                    'status' => Order::STATUS_CANCELLATION_PENDING,
+                    'cancelled_by' => $user?->id,
+                    'cancellation_reason' => $reason,
+                ]);
+
+                return $locked->refresh();
+            });
         }
 
-        if ($order->status === 'pending') {
-            $order->update(['status' => 'cancelled']);
+        return $this->markCancellationConfirmed($fresh, $user, $reason);
+    }
+
+    public function reconcileCancellation(Order $order): Order
+    {
+        if (! $this->gateway->isConfigured()) {
+            return $order;
         }
+
+        $payload = $this->gateway->fetchStatus($order->order_code);
+
+        if (! $payload) {
+            return $order;
+        }
+
+        $providerStatus = (string) ($payload['transaction_status'] ?? '');
+
+        if (in_array($providerStatus, ['settlement', 'capture'], true)) {
+            return $this->applyPaymentStatus($order, $payload);
+        }
+
+        if (in_array($providerStatus, ['cancel', 'expire'], true)) {
+            $fresh = DB::transaction(function () use ($order, $payload) {
+                $locked = Order::query()->lockForUpdate()->findOrFail($order->id);
+                $locked->update([
+                    'payment_type' => $payload['payment_type'] ?? $locked->payment_type,
+                    'transaction_id' => $payload['transaction_id'] ?? $locked->transaction_id,
+                    'raw_response' => $payload,
+                ]);
+
+                return $locked->refresh();
+            });
+
+            return $this->markCancellationConfirmed($fresh);
+        }
+
+        $fresh = DB::transaction(function () use ($order, $payload) {
+            $locked = Order::query()->lockForUpdate()->findOrFail($order->id);
+            $locked->update([
+                'status' => Order::STATUS_CANCELLATION_PENDING,
+                'payment_type' => $payload['payment_type'] ?? $locked->payment_type,
+                'transaction_id' => $payload['transaction_id'] ?? $locked->transaction_id,
+                'raw_response' => $payload,
+                'cancelled_at' => null,
+            ]);
+
+            return $locked->refresh();
+        });
+
+        $identifier = $fresh->transaction_id ?: $fresh->order_code;
+
+        if ($this->gateway->cancelTransaction($identifier)) {
+            return $this->markCancellationConfirmed($fresh);
+        }
+
+        return $fresh;
     }
 
     /**
@@ -140,6 +266,20 @@ class OrderService
      */
     public function applyPaymentStatus(Order $order, array $payload): Order
     {
+        if (isset($payload['gross_amount']) && (int) round((float) $payload['gross_amount']) !== $order->amount) {
+            Log::warning('Nominal notifikasi Midtrans tidak cocok', [
+                'order_code' => $order->order_code,
+                'expected' => $order->amount,
+                'received' => $payload['gross_amount'],
+            ]);
+
+            throw new RuntimeException('Nominal pembayaran dari Midtrans tidak cocok dengan pesanan.');
+        }
+
+        if (isset($payload['currency']) && strtoupper((string) $payload['currency']) !== 'IDR') {
+            throw new RuntimeException('Mata uang pembayaran tidak valid.');
+        }
+
         $status = $this->mapStatus(
             $payload['transaction_status'] ?? '',
             $payload['fraud_status'] ?? null
@@ -157,15 +297,40 @@ class OrderService
         }
 
         // Belum lunas (pending/failed/cancelled/expired) — catat status apa adanya.
-        $order->fill([
-            'payment_type' => $payload['payment_type'] ?? $order->payment_type,
-            'transaction_id' => $payload['transaction_id'] ?? $order->transaction_id,
-            'raw_response' => $payload,
-            'status' => $status,
-        ]);
-        $order->save();
+        return DB::transaction(function () use ($order, $payload, $status) {
+            $locked = Order::query()->lockForUpdate()->findOrFail($order->id);
 
-        return $order;
+            if ($locked->isPaymentConfirmed() || $locked->isRejected()) {
+                return $locked;
+            }
+
+            if (in_array($locked->status, [
+                Order::STATUS_CANCELLED,
+                Order::STATUS_EXPIRED,
+                Order::STATUS_FAILED,
+            ], true)) {
+                return $locked;
+            }
+
+            if ($locked->isCancellationPending() && $status === Order::STATUS_PENDING) {
+                $locked->update([
+                    'payment_type' => $payload['payment_type'] ?? $locked->payment_type,
+                    'transaction_id' => $payload['transaction_id'] ?? $locked->transaction_id,
+                    'raw_response' => $payload,
+                ]);
+
+                return $locked->refresh();
+            }
+
+            $locked->update([
+                'payment_type' => $payload['payment_type'] ?? $locked->payment_type,
+                'transaction_id' => $payload['transaction_id'] ?? $locked->transaction_id,
+                'raw_response' => $payload,
+                'status' => $status,
+            ]);
+
+            return $locked->refresh();
+        });
     }
 
     /**
@@ -215,12 +380,12 @@ class OrderService
                 'transaction_id' => $payload['transaction_id'] ?? $locked->transaction_id,
                 'raw_response' => $payload,
                 'payment_confirmed_at' => now(),
-                'invoice_number' => 'INV/' . now()->format('ymd') . '/'
-                    . str_pad((string) $locked->id, 4, '0', STR_PAD_LEFT),
+                'invoice_number' => 'INV/'.now()->format('ymd').'/'
+                    .str_pad((string) $locked->id, 4, '0', STR_PAD_LEFT),
             ]);
 
             if ($locked->course->requiresPaymentVerification()) {
-                $locked->status = 'awaiting_verification';
+                $locked->status = Order::STATUS_AWAITING_VERIFICATION;
                 $locked->save();
 
                 Log::info('Pembayaran dikonfirmasi — menunggu verifikasi manual', [
@@ -229,11 +394,16 @@ class OrderService
                     'course_id' => $locked->course_id,
                 ]);
             } else {
-                $locked->status = 'paid';
+                $locked->status = Order::STATUS_PAID;
                 $locked->paid_at = now();
                 $locked->save();
 
-                $locked->course->enrolledUsers()->syncWithoutDetaching([$locked->user_id]);
+                if (! $locked->course->enrolledUsers()->whereKey($locked->user_id)->exists()) {
+                    $locked->course->enrolledUsers()->attach($locked->user_id, [
+                        'order_id' => $locked->id,
+                        'has_independent_access' => false,
+                    ]);
+                }
 
                 Log::info('Pesanan lunas & peserta di-enroll (otomatis)', [
                     'order_code' => $locked->order_code,
@@ -260,13 +430,18 @@ class OrderService
             }
 
             $locked->update([
-                'status' => 'paid',
+                'status' => Order::STATUS_PAID,
                 'paid_at' => now(),
                 'verified_by' => $admin->id,
                 'verified_at' => now(),
             ]);
 
-            $locked->course->enrolledUsers()->syncWithoutDetaching([$locked->user_id]);
+            if (! $locked->course->enrolledUsers()->whereKey($locked->user_id)->exists()) {
+                $locked->course->enrolledUsers()->attach($locked->user_id, [
+                    'order_id' => $locked->id,
+                    'has_independent_access' => false,
+                ]);
+            }
 
             Log::info('Pembayaran diverifikasi & peserta di-enroll', [
                 'order_code' => $locked->order_code,
@@ -281,7 +456,7 @@ class OrderService
 
     /**
      * Super-admin MENOLAK pembayaran setelah ditinjau (mis. dana tak cocok saat
-     * rekonsiliasi bank). Akses tidak dibuka. Refund diproses manual di Midtrans.
+     * rekonsiliasi bank). Akses tidak dibuka dan full refund otomatis dibuat.
      * Hanya boleh dari status awaiting_verification; idempotent.
      */
     public function reject(Order $order, User $admin, string $reason): Order
@@ -294,10 +469,22 @@ class OrderService
             }
 
             $locked->update([
-                'status' => 'rejected',
+                'status' => Order::STATUS_REJECTED,
                 'rejection_reason' => $reason,
                 'verified_by' => $admin->id,
                 'verified_at' => now(),
+            ]);
+
+            $locked->refund()->firstOrCreate([], [
+                'requested_by' => $admin->id,
+                'reviewed_by' => $admin->id,
+                'amount' => $locked->amount,
+                'reason' => 'Refund otomatis: pembayaran ditolak saat verifikasi. '.$reason,
+                'admin_note' => 'Refund otomatis karena pembayaran ditolak saat verifikasi.',
+                'status' => RefundStatus::Approved,
+                'idempotency_key' => (string) Str::uuid(),
+                'requested_at' => now(),
+                'reviewed_at' => now(),
             ]);
 
             Log::warning('Pembayaran ditolak setelah ditinjau', [
@@ -307,7 +494,7 @@ class OrderService
                 'verified_by' => $admin->id,
             ]);
 
-            return $locked->refresh();
+            return $locked->refresh()->load('refund');
         });
     }
 
@@ -328,11 +515,31 @@ class OrderService
         };
     }
 
+    private function markCancellationConfirmed(Order $order, ?User $user = null, ?string $reason = null): Order
+    {
+        return DB::transaction(function () use ($order, $user, $reason) {
+            $locked = Order::query()->lockForUpdate()->findOrFail($order->id);
+
+            if ($locked->isPaymentConfirmed()) {
+                throw new RuntimeException('Pembayaran sudah diterima sehingga pesanan tidak dapat dibatalkan.');
+            }
+
+            $locked->update([
+                'status' => Order::STATUS_CANCELLED,
+                'cancelled_by' => $user?->id ?? $locked->cancelled_by,
+                'cancelled_at' => $locked->cancelled_at ?: now(),
+                'cancellation_reason' => $reason ?? $locked->cancellation_reason,
+            ]);
+
+            return $locked->refresh();
+        });
+    }
+
     private function generateOrderCode(): string
     {
         // Harus unik selamanya di sisi Midtrans, termasuk lintas percobaan bayar.
         do {
-            $code = 'BASS-' . now()->format('ymd') . '-' . strtoupper(Str::random(6));
+            $code = 'BASS-'.now()->format('ymd').'-'.strtoupper(Str::random(6));
         } while (Order::where('order_code', $code)->exists());
 
         return $code;

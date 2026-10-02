@@ -10,6 +10,17 @@
 
 @section('content')
 <div class="max-w-lg mx-auto px-4 sm:px-6 py-12">
+    @if (session('success'))
+        <div class="mb-4 rounded-lg bg-success-soft border border-success/30 px-4 py-3 text-sm text-success">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if ($errors->has('cancel') || $errors->has('refund'))
+        <div class="mb-4 rounded-lg bg-error-soft border border-error/40 px-4 py-3 text-sm text-error">
+            {{ $errors->first('cancel') ?: $errors->first('refund') }}
+        </div>
+    @endif
+
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
 
         @if ($order->isPaid())
@@ -35,6 +46,27 @@
                    class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors">
                     Mulai Belajar
                 </a>
+
+                @if (! $order->refund)
+                    <div class="mt-5 pt-5 border-t border-gray-100 text-left" x-data="{ open: false }">
+                        <button type="button" @click="open = !open"
+                                class="text-sm font-medium text-gray-500 hover:text-bass-red">
+                            Ajukan refund penuh
+                        </button>
+                        <form x-show="open" x-cloak method="POST" action="{{ route('refunds.store', $order) }}" class="mt-3">
+                            @csrf
+                            <label class="block text-sm font-medium text-gray-700">Alasan pengajuan</label>
+                            <textarea name="reason" rows="3" required minlength="10" maxlength="1000"
+                                      class="mt-1 w-full rounded-lg border-gray-300 focus:border-bass-red focus:ring-bass-red text-sm"
+                                      placeholder="Jelaskan alasan refund untuk ditinjau admin.">{{ old('reason') }}</textarea>
+                            <p class="mt-1 text-xs text-gray-500">Nominal refund penuh: {{ $order->amount_label }}. Akses tetap aktif sampai refund berhasil.</p>
+                            <button type="submit" class="mt-3 w-full min-h-[44px] rounded-lg border border-bass-red text-bass-red text-sm font-semibold hover:bg-red-50"
+                                    onclick="return confirm('Ajukan refund penuh untuk pesanan ini?');">
+                                Kirim Pengajuan
+                            </button>
+                        </form>
+                    </div>
+                @endif
             </div>
 
         @elseif ($order->isAwaitingVerification())
@@ -95,6 +127,30 @@
                 <p class="mt-1 text-center text-xs text-gray-400">
                     Membuat tagihan baru dan membatalkan yang ini — tidak ada dobel bayar.
                 </p>
+                <form method="POST" action="{{ route('checkout.cancel', $order) }}" class="mt-3"
+                      onsubmit="return confirm('Batalkan pesanan ini? Tagihan Midtrans tidak dapat digunakan lagi.');">
+                    @csrf
+                    <button type="submit" class="w-full inline-flex items-center justify-center min-h-[44px] rounded-lg border border-gray-300 text-gray-600 text-sm font-medium hover:bg-gray-50">
+                        Batalkan Pesanan
+                    </button>
+                </form>
+            </div>
+
+        @elseif ($order->isCancellationPending())
+            <div class="p-8 text-center">
+                <div class="mx-auto w-16 h-16 rounded-full bg-warning-soft flex items-center justify-center">
+                    <svg class="w-8 h-8 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h1 class="mt-5 text-xl font-bold text-gray-900">Pembatalan sedang diproses</h1>
+                <p class="mt-2 text-sm text-gray-600">
+                    Permintaan pembatalan sudah dicatat dan akan dikirim ulang otomatis sampai dikonfirmasi Midtrans.
+                </p>
+                <a href="{{ route('checkout.finish', $order) }}"
+                   class="mt-6 w-full inline-flex items-center justify-center min-h-[44px] rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors">
+                    Muat Ulang Status
+                </a>
             </div>
 
         @else
@@ -114,9 +170,7 @@
                             Alasan: {{ $order->rejection_reason }}
                         </p>
                     @endif
-                    <p class="mt-2 text-xs text-gray-500">
-                        Jika Anda merasa ini keliru atau ingin refund, hubungi admin dengan menyertakan kode pesanan.
-                    </p>
+                    <p class="mt-2 text-xs text-gray-500">Refund penuh otomatis diajukan dan diproses setelah penolakan ini.</p>
                 @else
                     <p class="mt-2 text-sm text-gray-600">
                         Pesanan ini tidak dapat dilanjutkan. Anda bisa memesan ulang kapan saja.
@@ -127,6 +181,29 @@
                    class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors">
                     Pesan Ulang
                 </a>
+            </div>
+        @endif
+
+        @if ($order->refund)
+            @php [$refundBg, $refundText] = $order->refund->status_colors; @endphp
+            <div class="border-t border-gray-100 px-8 py-5 bg-white">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-900">Refund penuh</p>
+                        <p class="mt-0.5 text-xs text-gray-500">{{ $order->refund->amount_label }}</p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold {{ $refundBg }} {{ $refundText }}">
+                        {{ $order->refund->status_label }}
+                    </span>
+                </div>
+                @if ($order->refund->admin_note)
+                    <p class="mt-3 text-xs text-gray-600">Catatan admin: {{ $order->refund->admin_note }}</p>
+                @endif
+                @if ($order->refund->isFailed())
+                    <p class="mt-3 text-xs text-error">Proses ke Midtrans gagal dan akan ditangani admin.</p>
+                @elseif ($order->refund->requiresManualProcessing())
+                    <p class="mt-3 text-xs text-gray-600">Admin sedang memproses pengembalian dana secara manual.</p>
+                @endif
             </div>
         @endif
 

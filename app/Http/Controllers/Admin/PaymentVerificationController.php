@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\Order;
 use App\Services\Payment\OrderService;
+use App\Services\Payment\RefundService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,7 +20,10 @@ use Illuminate\Support\Facades\Auth;
  */
 class PaymentVerificationController extends Controller
 {
-    public function __construct(private OrderService $orders) {}
+    public function __construct(
+        private OrderService $orders,
+        private RefundService $refunds,
+    ) {}
 
     /** Antrian pesanan yang menunggu verifikasi + riwayat keputusan terbaru. */
     public function index()
@@ -79,17 +83,29 @@ class PaymentVerificationController extends Controller
             return back()->withErrors(['verify' => 'Pesanan ini sudah diproses.']);
         }
 
-        $this->orders->reject($order, Auth::user(), $validated['reason']);
+        $order = $this->orders->reject($order, Auth::user(), $validated['reason']);
+        $refund = $this->refunds->createApprovedForRejectedOrder(
+            $order,
+            Auth::user(),
+            'Refund otomatis: pembayaran ditolak saat verifikasi. '.$validated['reason']
+        );
 
         ActivityLog::log('payment_rejected', [
             'description' => "Menolak pembayaran {$order->order_code} ({$order->course->title})",
             'metadata' => [
                 'order_code' => $order->order_code,
                 'reason' => $validated['reason'],
+                'refund_id' => $refund->id,
+                'refund_status' => $refund->status->value,
             ],
         ]);
 
+        if ($refund->isFailed()) {
+            return redirect()->route('admin.refunds.show', $refund)
+                ->withErrors(['refund' => 'Pembayaran ditolak, tetapi refund Midtrans gagal. Silakan coba ulang.']);
+        }
+
         return redirect()->route('admin.payment-verifications.index')
-            ->with('success', "Pembayaran {$order->order_code} ditolak.");
+            ->with('success', "Pembayaran {$order->order_code} ditolak dan full refund mulai diproses.");
     }
 }

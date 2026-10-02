@@ -5,12 +5,17 @@
 @section('content')
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-    <div class="mb-6">
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+        <div>
         <h1 class="text-2xl font-bold text-gray-900">Verifikasi Pembayaran</h1>
         <p class="mt-1 text-sm text-gray-500">
             Pesanan berikut sudah dibayar (uang dikonfirmasi Midtrans) tapi menunggu persetujuanmu
             sebelum akses kursus dibuka.
         </p>
+        </div>
+        <a href="{{ route('admin.refunds.index') }}" class="inline-flex items-center justify-center min-h-[42px] px-4 rounded-lg border border-gray-300 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+            Kelola Refund
+        </a>
     </div>
 
     @if (session('success'))

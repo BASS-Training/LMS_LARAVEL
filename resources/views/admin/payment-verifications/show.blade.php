@@ -103,7 +103,7 @@
                           class="w-full rounded-lg border-gray-300 focus:border-bass-red focus:ring-bass-red text-sm"
                           placeholder="Mis. dana tidak ditemukan saat rekonsiliasi rekening.">{{ old('reason') }}</textarea>
                 @error('reason')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
-                <p class="mt-1.5 text-xs text-gray-500">Refund (bila perlu) diproses manual di dashboard Midtrans.</p>
+                <p class="mt-1.5 text-xs text-gray-500">Penolakan otomatis membuat full refund {{ $order->amount_label }}. Sistem memprosesnya lewat Midtrans jika metode pembayaran mendukung.</p>
                 <div class="mt-3 flex gap-3">
                     <button type="submit"
                             class="inline-flex items-center justify-center px-5 min-h-[44px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors">

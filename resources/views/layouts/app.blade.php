@@ -131,6 +131,13 @@
                                             <span class="ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-warning text-white text-xs font-bold">{{ $pendingVerif }}</span>
                                         @endif
                                     </a>
+                                    @php($pendingRefunds = \App\Models\Refund::whereIn('status', ['requested', 'failed', 'approved', 'manual_required'])->count())
+                                    <a href="{{ route('admin.refunds.index') }}" class="dropdown-item-custom flex items-center justify-between" role="menuitem">
+                                        <span>Manajemen Refund</span>
+                                        @if ($pendingRefunds > 0)
+                                            <span class="ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-error text-white text-xs font-bold">{{ $pendingRefunds }}</span>
+                                        @endif
+                                    </a>
                                 </div>
                                 @endrole
                                 <div class="py-1" role="none">
@@ -302,6 +309,7 @@
                     <a href="{{ route('admin.force-complete.index') }}" class="responsive-nav-link-custom">Force Complete Konten</a>
                     @role('super-admin')
                     <a href="{{ route('admin.payment-verifications.index') }}" class="responsive-nav-link-custom">Verifikasi Pembayaran</a>
+                    <a href="{{ route('admin.refunds.index') }}" class="responsive-nav-link-custom">Manajemen Refund</a>
                     @endrole
                     <a href="{{ route('file-control.index') }}"   class="responsive-nav-link-custom">File Manager</a>
                     <a href="{{ route('activity-logs.index') }}"  class="responsive-nav-link-custom">Log Aktivitas</a>

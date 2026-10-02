@@ -9,6 +9,24 @@ class Order extends Model
 {
     use HasFactory;
 
+    public const STATUS_PENDING = 'pending';
+
+    public const STATUS_PAID = 'paid';
+
+    public const STATUS_AWAITING_VERIFICATION = 'awaiting_verification';
+
+    public const STATUS_REJECTED = 'rejected';
+
+    public const STATUS_FAILED = 'failed';
+
+    public const STATUS_EXPIRED = 'expired';
+
+    public const STATUS_CANCELLED = 'cancelled';
+
+    public const STATUS_CANCELLATION_PENDING = 'cancellation_pending';
+
+    public const STATUS_REFUNDED = 'refunded';
+
     protected $fillable = [
         'user_id',
         'course_id',
@@ -28,6 +46,9 @@ class Order extends Model
         'verified_by',
         'verified_at',
         'rejection_reason',
+        'cancelled_by',
+        'cancelled_at',
+        'cancellation_reason',
         'expires_at',
         'raw_response',
     ];
@@ -39,6 +60,7 @@ class Order extends Model
         'paid_at' => 'datetime',
         'payment_confirmed_at' => 'datetime',
         'verified_at' => 'datetime',
+        'cancelled_at' => 'datetime',
         'expires_at' => 'datetime',
         'raw_response' => 'array',
     ];
@@ -59,25 +81,50 @@ class Order extends Model
         return $this->belongsTo(User::class, 'verified_by');
     }
 
+    public function cancelledBy()
+    {
+        return $this->belongsTo(User::class, 'cancelled_by');
+    }
+
+    public function refunds()
+    {
+        return $this->hasMany(Refund::class);
+    }
+
+    public function refund()
+    {
+        return $this->hasOne(Refund::class);
+    }
+
     public function isPending(): bool
     {
-        return $this->status === 'pending';
+        return $this->status === self::STATUS_PENDING;
     }
 
     public function isPaid(): bool
     {
-        return $this->status === 'paid';
+        return $this->status === self::STATUS_PAID;
+    }
+
+    public function isCancellationPending(): bool
+    {
+        return $this->status === self::STATUS_CANCELLATION_PENDING;
     }
 
     /** Uang sudah masuk, tapi menunggu persetujuan manusia sebelum akses dibuka. */
     public function isAwaitingVerification(): bool
     {
-        return $this->status === 'awaiting_verification';
+        return $this->status === self::STATUS_AWAITING_VERIFICATION;
     }
 
     public function isRejected(): bool
     {
-        return $this->status === 'rejected';
+        return $this->status === self::STATUS_REJECTED;
+    }
+
+    public function isRefunded(): bool
+    {
+        return $this->status === self::STATUS_REFUNDED;
     }
 
     /**
@@ -130,7 +177,7 @@ class Order extends Model
     public function getPaymentMethodLabelAttribute(): string
     {
         if ($this->payment_method_key) {
-            $label = config('midtrans.methods.list.' . $this->payment_method_key . '.label');
+            $label = config('midtrans.methods.list.'.$this->payment_method_key.'.label');
 
             if ($label) {
                 return (string) $label;
@@ -144,7 +191,7 @@ class Order extends Model
 
     private function rupiah(int|string|null $value): string
     {
-        return 'Rp ' . number_format((int) $value, 0, ',', '.');
+        return 'Rp '.number_format((int) $value, 0, ',', '.');
     }
 
     public function getStatusLabelAttribute(): string
@@ -157,6 +204,8 @@ class Order extends Model
             'failed' => 'Gagal',
             'expired' => 'Kedaluwarsa',
             'cancelled' => 'Dibatalkan',
+            'cancellation_pending' => 'Pembatalan diproses',
+            'refunded' => 'Dana dikembalikan',
             default => ucfirst($this->status),
         };
     }
@@ -175,6 +224,8 @@ class Order extends Model
             'pending' => ['bg-blue-100', 'text-blue-800'],
             'rejected', 'failed' => ['bg-red-100', 'text-red-800'],
             'expired', 'cancelled' => ['bg-gray-100', 'text-gray-700'],
+            'cancellation_pending' => ['bg-amber-100', 'text-amber-800'],
+            'refunded' => ['bg-violet-100', 'text-violet-800'],
             default => ['bg-gray-100', 'text-gray-700'],
         };
     }

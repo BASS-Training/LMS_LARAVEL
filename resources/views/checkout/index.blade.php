@@ -34,6 +34,9 @@
                         <span class="mt-1 inline-block px-2 py-0.5 rounded text-xs font-medium {{ $bg }} {{ $text }}">
                             {{ $order->status_label }}
                         </span>
+                        @if ($order->refund && ! $order->refund->isRefunded())
+                            <span class="block mt-1 text-xs text-violet-700">Refund: {{ $order->refund->status_label }}</span>
+                        @endif
                         @if ($order->isPaymentConfirmed())
                             <a href="{{ route('checkout.invoice', $order) }}"
                                class="block mt-1 text-xs text-bass-red hover:underline">Invoice (PDF)</a>

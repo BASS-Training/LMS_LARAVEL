@@ -27,14 +27,19 @@ class MobileCatalogApiTest extends TestCase
         ]);
     }
 
-    public function test_catalog_requires_authentication(): void
+    public function test_catalog_is_public_without_authentication(): void
     {
         $this->getJson('/api/mobile/catalog')
+            ->assertOk()
+            ->assertJsonPath('status', 'success');
+    }
+
+    public function test_catalog_rejects_an_invalid_bearer_token(): void
+    {
+        $this->withToken('invalid-catalog-token')
+            ->getJson('/api/mobile/catalog')
             ->assertUnauthorized()
-            ->assertJson([
-                'status' => 'error',
-                'message' => 'Unauthenticated.',
-            ]);
+            ->assertJsonPath('message', 'Unauthenticated.');
     }
 
     public function test_catalog_only_returns_visible_courses_and_is_paginated(): void
@@ -53,8 +58,7 @@ class MobileCatalogApiTest extends TestCase
             'program_type' => 'avpn_ai',
         ]);
 
-        $response = $this->withToken('catalog-test-token')
-            ->getJson('/api/mobile/catalog?perPage=2');
+        $response = $this->getJson('/api/mobile/catalog?perPage=2');
 
         $response
             ->assertOk()
@@ -93,6 +97,41 @@ class MobileCatalogApiTest extends TestCase
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', (string) $freeCourse->id)
             ->assertJsonPath('data.0.isFree', true);
+    }
+
+    public function test_authenticated_catalog_includes_enrollment_status(): void
+    {
+        $course = Course::factory()->create([
+            'status' => 'published',
+            'visibility' => 'catalog',
+            'program_type' => 'regular',
+        ]);
+        $course->enrolledUsers()->attach($this->user);
+
+        $this->withToken('catalog-test-token')
+            ->getJson('/api/mobile/catalog')
+            ->assertOk()
+            ->assertJsonPath('data.0.id', (string) $course->id)
+            ->assertJsonPath('data.0.isEnrolled', true);
+    }
+
+    public function test_avpn_catalog_detail_requires_an_approved_user(): void
+    {
+        $course = Course::factory()->create([
+            'status' => 'published',
+            'visibility' => 'catalog',
+            'program_type' => 'avpn_ai',
+        ]);
+
+        $this->getJson("/api/mobile/catalog/{$course->id}")
+            ->assertNotFound();
+
+        $this->user->update(['avpn_verification_status' => 'approved']);
+
+        $this->withToken('catalog-test-token')
+            ->getJson("/api/mobile/catalog/{$course->id}")
+            ->assertOk()
+            ->assertJsonPath('data.id', (string) $course->id);
     }
 
     public function test_catalog_filters_and_returns_active_taxonomy(): void
@@ -144,8 +183,7 @@ class MobileCatalogApiTest extends TestCase
             'body' => 'Materi rahasia yang tidak boleh tampil di preview.',
         ]);
 
-        $response = $this->withToken('catalog-test-token')
-            ->getJson("/api/mobile/catalog/{$course->id}");
+        $response = $this->getJson("/api/mobile/catalog/{$course->id}");
 
         $response
             ->assertOk()
@@ -187,6 +225,25 @@ class MobileCatalogApiTest extends TestCase
 
         $this->assertDatabaseMissing('course_user', [
             'course_id' => $paidCourse->id,
+            'user_id' => $this->user->id,
+        ]);
+    }
+
+    public function test_free_course_enrollment_still_requires_authentication(): void
+    {
+        $course = Course::factory()->create([
+            'status' => 'published',
+            'visibility' => 'catalog',
+            'program_type' => 'regular',
+            'price' => 0,
+        ]);
+
+        $this->postJson("/api/mobile/catalog/{$course->id}/daftar-gratis")
+            ->assertUnauthorized()
+            ->assertJsonPath('message', 'Unauthenticated.');
+
+        $this->assertDatabaseMissing('course_user', [
+            'course_id' => $course->id,
             'user_id' => $this->user->id,
         ]);
     }

@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AnnouncementController as AdminAnnouncementContro
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CertificateTemplateController;
 use App\Http\Controllers\Admin\PaymentVerificationController;
+use App\Http\Controllers\Admin\RefundController as AdminRefundController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\UserController;
@@ -30,6 +31,7 @@ use App\Http\Controllers\LessonController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\QuizController;
+use App\Http\Controllers\RefundController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\TokenEnrollmentController;
 use Illuminate\Support\Facades\Route;
@@ -72,6 +74,8 @@ Route::get('/pesanan', [CheckoutController::class, 'index'])->name('checkout.ind
 Route::get('/pesanan/{order}', [CheckoutController::class, 'finish'])->name('checkout.finish');
 Route::get('/pesanan/{order}/invoice', [CheckoutController::class, 'invoice'])->name('checkout.invoice');
 Route::post('/pesanan/{order}/ganti-metode', [CheckoutController::class, 'changeMethod'])->name('checkout.change-method');
+Route::post('/pesanan/{order}/batalkan', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
+Route::post('/pesanan/{order}/refund', [RefundController::class, 'store'])->name('refunds.store');
 
 /*
 | Verifikasi pembayaran manual — KHUSUS super-admin.
@@ -86,6 +90,19 @@ Route::middleware(['auth', 'role:super-admin'])
         Route::get('/{order}', [PaymentVerificationController::class, 'show'])->name('show');
         Route::post('/{order}/setujui', [PaymentVerificationController::class, 'approve'])->name('approve');
         Route::post('/{order}/tolak', [PaymentVerificationController::class, 'reject'])->name('reject');
+    });
+
+Route::middleware(['auth', 'role:super-admin'])
+    ->prefix('admin/refund')
+    ->name('admin.refunds.')
+    ->group(function () {
+        Route::get('/', [AdminRefundController::class, 'index'])->name('index');
+        Route::get('/{refund}', [AdminRefundController::class, 'show'])->name('show');
+        Route::post('/{refund}/setujui', [AdminRefundController::class, 'approve'])->name('approve');
+        Route::post('/{refund}/tolak', [AdminRefundController::class, 'reject'])->name('reject');
+        Route::post('/{refund}/coba-lagi', [AdminRefundController::class, 'retry'])->name('retry');
+        Route::post('/{refund}/selesaikan-manual', [AdminRefundController::class, 'completeManual'])->name('complete-manual');
+        Route::post('/{refund}/rekonsiliasi', [AdminRefundController::class, 'reconcile'])->name('reconcile');
     });
 
 Route::middleware(['auth', 'verified'])->group(function () {

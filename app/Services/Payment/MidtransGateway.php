@@ -3,6 +3,7 @@
 namespace App\Services\Payment;
 
 use App\Models\Order;
+use App\Models\Refund;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
@@ -89,7 +90,7 @@ class MidtransGateway
             $payload['enabled_payments'] = $channels;
         }
 
-        $response = Http::withBasicAuth(config('midtrans.server_key'), '')
+        $response = $this->client()
             ->acceptJson()
             ->asJson()
             ->post($this->snapUrl(), $payload);
@@ -122,20 +123,29 @@ class MidtransGateway
      */
     public function fetchStatus(string $orderCode): ?array
     {
-        $response = Http::withBasicAuth(config('midtrans.server_key'), '')
+        $response = $this->client()
             ->acceptJson()
             ->get($this->statusUrl($orderCode));
 
-        if ($response->failed()) {
+        $payload = (array) $response->json();
+        $hasTransaction = ! empty($payload['transaction_status'])
+            && ($payload['order_id'] ?? null) === $orderCode;
+
+        // Get Status memakai 200 untuk settlement, 201 untuk pending, dan 202
+        // untuk beberapa status terminal. transaction_status + order_id adalah
+        // indikator bahwa respons tersebut benar-benar data transaksi.
+        if ($response->failed() || ! $hasTransaction) {
             Log::warning('Midtrans status gagal diambil', [
                 'order_code' => $orderCode,
-                'status' => $response->status(),
+                'http_status' => $response->status(),
+                'status_code' => $payload['status_code'] ?? null,
+                'status_message' => $payload['status_message'] ?? null,
             ]);
 
             return null;
         }
 
-        return $response->json();
+        return $payload;
     }
 
     /**
@@ -148,20 +158,77 @@ class MidtransGateway
      */
     public function cancelTransaction(string $orderCode): bool
     {
-        $response = Http::withBasicAuth(config('midtrans.server_key'), '')
+        $response = $this->client()
             ->acceptJson()
-            ->post($this->cancelUrl($orderCode));
+            // Endpoint cancel tidak menerima payload. PendingRequest::post()
+            // mengirim JSON `[]` saat data dikosongkan, jadi gunakan send().
+            ->send('POST', $this->cancelUrl($orderCode));
 
-        if ($response->failed()) {
+        if ($response->failed() || (string) $response->json('status_code') !== '200') {
             Log::info('Midtrans cancel tidak berhasil (mungkin belum ada / sudah selesai)', [
                 'order_code' => $orderCode,
-                'status' => $response->status(),
+                'http_status' => $response->status(),
+                'status_code' => $response->json('status_code'),
+                'status_message' => $response->json('status_message'),
             ]);
 
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * Kembalikan seluruh nominal yang dibayar pembeli. Refund key tetap sama
+     * pada retry agar permintaan yang meragukan tidak menghasilkan refund ganda.
+     *
+     * @return array<string, mixed>
+     */
+    public function refundTransaction(Order $order, Refund $refund): array
+    {
+        $response = $this->client()
+            ->acceptJson()
+            ->asJson()
+            ->post($this->refundUrl($order->order_code), [
+                'refund_key' => $refund->idempotency_key,
+                'amount' => $refund->amount,
+                'reason' => mb_substr($refund->reason, 0, 255),
+            ]);
+
+        $payload = (array) $response->json();
+        $valid = (string) ($payload['status_code'] ?? '') === '200'
+            && ($payload['refund_key'] ?? null) === $refund->idempotency_key
+            && (int) round((float) ($payload['refund_amount'] ?? 0)) === $refund->amount
+            && ($payload['transaction_status'] ?? null) === 'refund';
+
+        if ($response->failed() || ! $valid) {
+            Log::error('Refund Midtrans gagal', [
+                'order_code' => $order->order_code,
+                'refund_id' => $refund->id,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            throw new RuntimeException(
+                (string) ($response->json('status_message') ?: 'Respons refund Midtrans tidak valid.')
+            );
+        }
+
+        return $payload;
+    }
+
+    public function supportsRefund(Order $order): bool
+    {
+        return in_array($order->payment_type, [
+            'credit_card',
+            'gopay',
+            'shopeepay',
+            'dana',
+            'ovo',
+            'qris',
+            'kredivo',
+            'akulaku',
+        ], true);
     }
 
     /**
@@ -181,9 +248,9 @@ class MidtransGateway
 
         $expected = hash('sha512',
             ($payload['order_id'] ?? '')
-            . ($payload['status_code'] ?? '')
-            . ($payload['gross_amount'] ?? '')
-            . config('midtrans.server_key')
+            .($payload['status_code'] ?? '')
+            .($payload['gross_amount'] ?? '')
+            .config('midtrans.server_key')
         );
 
         return hash_equals($expected, $signature);
@@ -202,7 +269,7 @@ class MidtransGateway
             ? 'https://api.midtrans.com'
             : 'https://api.sandbox.midtrans.com';
 
-        return $base . '/v2/' . urlencode($orderCode) . '/status';
+        return $base.'/v2/'.urlencode($orderCode).'/status';
     }
 
     private function cancelUrl(string $orderCode): string
@@ -211,6 +278,22 @@ class MidtransGateway
             ? 'https://api.midtrans.com'
             : 'https://api.sandbox.midtrans.com';
 
-        return $base . '/v2/' . urlencode($orderCode) . '/cancel';
+        return $base.'/v2/'.urlencode($orderCode).'/cancel';
+    }
+
+    private function refundUrl(string $orderCode): string
+    {
+        $base = config('midtrans.is_production')
+            ? 'https://api.midtrans.com'
+            : 'https://api.sandbox.midtrans.com';
+
+        return $base.'/v2/'.urlencode($orderCode).'/refund';
+    }
+
+    private function client()
+    {
+        return Http::withBasicAuth(config('midtrans.server_key'), '')
+            ->connectTimeout(5)
+            ->timeout(15);
     }
 }

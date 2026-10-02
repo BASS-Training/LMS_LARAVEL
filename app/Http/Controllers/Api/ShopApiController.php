@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\DB;
  * kursus yang belum dimiliki ikut tersimpan & tampil sebagai milik user.
  *
  * Mirror dari ShopController (web), dengan dua perbedaan penting:
- *  1. Wajib login (mobile selalu punya sesi) — tidak melayani tamu.
+ *  1. Daftar dan preview melayani tamu, sedangkan pendaftaran wajib login.
  *  2. TIDAK ADA jalur pembelian di dalam app. Kursus berbayar hanya bisa
  *     di-preview; jalan masuknya adalah kode akses (EnrollmentApiController)
  *     atau pembelian di website.
@@ -268,7 +268,10 @@ class ShopApiController extends Controller
     private function assertVisible(Course $course, ?User $user): void
     {
         abort_unless($course->isInCatalog(), 404);
-        abort_unless($user && $user->canAccessProgram($course->program_type ?? ''), 404);
+        abort_if(
+            $course->isAvpnProgram() && (! $user || ! $user->canAccessProgram('avpn_ai')),
+            404
+        );
     }
 
     /**

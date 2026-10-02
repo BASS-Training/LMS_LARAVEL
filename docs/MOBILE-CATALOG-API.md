@@ -12,15 +12,19 @@ pendaftaran course gratis dari catalog.
 | `GET` | `/api/mobile/catalog/{courseId}` | Mengambil preview course catalog |
 | `POST` | `/api/mobile/catalog/{courseId}/daftar-gratis` | Mendaftar ke course gratis |
 
-Semua endpoint memerlukan bearer token:
+Endpoint daftar dan preview dapat diakses tanpa login. Bearer token bersifat
+opsional pada kedua endpoint tersebut dan digunakan untuk mengisi status
+`isEnrolled` serta menentukan akses ke program khusus:
 
 ```http
 Authorization: Bearer <token>
 Accept: application/json
 ```
 
-Token diperoleh melalui proses autentikasi mobile. Detail autentikasi berada di
-luar scope dokumen ini.
+Jika header `Authorization` dikirim, token harus valid. Token tidak valid atau
+format header yang salah menghasilkan `401 Unauthorized`. Endpoint pendaftaran
+course gratis tetap memerlukan bearer token yang diperoleh melalui autentikasi
+mobile.
 
 ## 1. Daftar Catalog
 
@@ -41,9 +45,11 @@ Contoh:
 
 ```http
 GET /api/mobile/catalog?q=bass&harga=free&page=1&perPage=20
-Authorization: Bearer <token>
 Accept: application/json
 ```
+
+Tambahkan `Authorization: Bearer <token>` jika pengguna sudah login dan aplikasi
+memerlukan status enrollment serta katalog yang sesuai dengan akses pengguna.
 
 ### Respons Berhasil
 
@@ -106,7 +112,6 @@ Accept: application/json
 
 ```http
 GET /api/mobile/catalog/{courseId}
-Authorization: Bearer <token>
 Accept: application/json
 ```
 
@@ -227,7 +232,7 @@ Jangan panggil endpoint pendaftaran gratis jika `isPaid` bernilai `true`.
 
 ## Penanganan Error
 
-### Token Tidak Valid atau Tidak Ada
+### Autentikasi Tidak Valid
 
 ```json
 {
@@ -236,8 +241,10 @@ Jangan panggil endpoint pendaftaran gratis jika `isPaid` bernilai `true`.
 }
 ```
 
-HTTP status: `401 Unauthorized`. Mobile harus mengarahkan pengguna ke proses
-autentikasi ulang.
+HTTP status: `401 Unauthorized`. Respons ini terjadi jika token yang dikirim
+tidak valid atau ketika endpoint pendaftaran dipanggil tanpa token. Request
+daftar dan preview yang tidak mengirim header `Authorization` tetap dilayani
+sebagai tamu.
 
 ### Parameter Daftar Tidak Valid
 
@@ -262,9 +269,9 @@ dalam `errors`; gunakan nama field sebagai acuan validasi UI.
 ### Course Tidak Tersedia
 
 HTTP status: `404 Not Found` dapat berarti ID tidak ditemukan, course bukan
-bagian dari catalog, belum dipublikasikan, atau pengguna tidak memiliki akses
-ke program tersebut. Mobile cukup menampilkan bahwa course sudah tidak tersedia
-dan tidak perlu membedakan penyebabnya.
+bagian dari catalog, belum dipublikasikan, atau tamu/pengguna tidak memiliki
+akses ke program tersebut. Mobile cukup menampilkan bahwa course sudah tidak
+tersedia dan tidak perlu membedakan penyebabnya.
 
 ## Alur Konsumsi yang Disarankan
 
@@ -274,7 +281,8 @@ dan tidak perlu membedakan penyebabnya.
    panjangnya mencapai 2 karakter.
 4. Muat halaman berikutnya berdasarkan `meta.pagination.hasMorePages`.
 5. Ketika kartu dipilih, request preview detail menggunakan ID course.
-6. Jika course gratis dan belum terdaftar, tampilkan aksi daftar gratis.
+6. Jika course gratis dan belum terdaftar, arahkan tamu ke login atau tampilkan
+   aksi daftar gratis untuk pengguna yang sudah login.
 7. Setelah pendaftaran berhasil, ubah status lokal menjadi terdaftar atau refresh
    halaman catalog.
 

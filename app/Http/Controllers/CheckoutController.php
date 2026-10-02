@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\Order;
 use App\Services\Payment\MidtransGateway;
 use App\Services\Payment\OrderService;
+use App\Services\Payment\RefundService;
 use App\Services\Payment\ServiceFee;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
@@ -20,6 +21,7 @@ class CheckoutController extends Controller
         private OrderService $orders,
         private MidtransGateway $gateway,
         private ServiceFee $fee,
+        private RefundService $refunds,
     ) {
         // notification() dipanggil server Midtrans, bukan pengguna — tanpa auth.
         $this->middleware('auth')->except('notification');
@@ -115,7 +117,7 @@ class CheckoutController extends Controller
         abort_unless($order->user_id === Auth::id(), 403);
 
         $order = $this->orders->refreshFromGateway($order);
-        $order->load('course');
+        $order->load(['course', 'refund']);
 
         return view('checkout.finish', compact('order'));
     }
@@ -139,7 +141,7 @@ class CheckoutController extends Controller
         $pdf = Pdf::loadView('invoices.pdf', ['order' => $order])->setPaper('a4');
 
         return $pdf->download(
-            'Invoice-' . str_replace('/', '-', (string) $order->invoice_number) . '.pdf'
+            'Invoice-'.str_replace('/', '-', (string) $order->invoice_number).'.pdf'
         );
     }
 
@@ -166,7 +168,17 @@ class CheckoutController extends Controller
             return redirect()->route('checkout.finish', $order);
         }
 
-        $this->orders->abandon($order);
+        try {
+            $order = $this->orders->abandon($order, Auth::user());
+        } catch (RuntimeException $exception) {
+            return redirect()->route('checkout.finish', $order)
+                ->withErrors(['cancel' => $exception->getMessage()]);
+        }
+
+        if ($order->isCancellationPending()) {
+            return redirect()->route('checkout.finish', $order)
+                ->with('success', 'Pembatalan sedang diproses oleh penyedia pembayaran.');
+        }
 
         // Mode tarif gabungan (1 klik) → buat langsung; jika per-metode → pilih.
         if (! $this->fee->methodsEnabled()) {
@@ -176,12 +188,37 @@ class CheckoutController extends Controller
         return redirect()->route('checkout.choose', $order->course);
     }
 
+    public function cancel(Request $request, Order $order)
+    {
+        abort_unless($order->user_id === Auth::id(), 403);
+
+        $validated = $request->validate([
+            'reason' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        try {
+            $order = $this->orders->cancelPending(
+                $order,
+                Auth::user(),
+                $validated['reason'] ?? 'Dibatalkan oleh pembeli.',
+            );
+        } catch (RuntimeException $exception) {
+            return back()->withErrors(['cancel' => $exception->getMessage()]);
+        }
+
+        $message = $order->isCancellationPending()
+            ? 'Pembatalan sedang diproses oleh penyedia pembayaran.'
+            : 'Pesanan berhasil dibatalkan.';
+
+        return redirect()->route('checkout.finish', $order)->with('success', $message);
+    }
+
     /**
      * Daftar pesanan milik pengguna.
      */
     public function index()
     {
-        $orders = Order::with('course')
+        $orders = Order::with(['course', 'refund'])
             ->where('user_id', Auth::id())
             ->latest()
             ->paginate(10);
@@ -220,7 +257,31 @@ class CheckoutController extends Controller
             return response()->json(['message' => 'Order not found'], 200);
         }
 
-        $this->orders->applyPaymentStatus($order, $payload);
+        if (in_array($payload['transaction_status'] ?? null, ['refund', 'partial_refund'], true)) {
+            try {
+                $this->refunds->applyProviderNotification($order, $payload);
+            } catch (RuntimeException $exception) {
+                Log::warning('Notifikasi refund Midtrans ditolak', [
+                    'order_id' => $order->id,
+                    'reason' => $exception->getMessage(),
+                ]);
+
+                return response()->json(['message' => $exception->getMessage()], 422);
+            }
+
+            return response()->json(['message' => 'OK']);
+        }
+
+        try {
+            $this->orders->applyPaymentStatus($order, $payload);
+        } catch (RuntimeException $exception) {
+            Log::warning('Notifikasi Midtrans ditolak', [
+                'order_id' => $order->id,
+                'reason' => $exception->getMessage(),
+            ]);
+
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
 
         return response()->json(['message' => 'OK']);
     }

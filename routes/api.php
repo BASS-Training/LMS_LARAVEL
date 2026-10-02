@@ -36,6 +36,16 @@ Route::post('/mobile/auth/password/send-otp', [PasswordApiController::class, 'se
 Route::post('/mobile/auth/password/reset', [PasswordApiController::class, 'reset'])
     ->middleware('throttle:mobile-otp-verify');
 
+/*
+| Etalase kursus ("Jelajahi"). Daftar dan preview dapat dilihat oleh tamu,
+| tetapi token yang dikirim tetap dibaca untuk status enrollment dan akses
+| program khusus. Tidak ada jalur pembelian kursus berbayar di sini.
+*/
+Route::middleware(['mobile.api.user:optional', 'throttle:mobile-api', 'force.json'])->group(function () {
+    Route::get('/mobile/catalog', [ShopApiController::class, 'index']);
+    Route::get('/mobile/catalog/{course}', [ShopApiController::class, 'show']);
+});
+
 Route::middleware(['mobile.api.user', 'throttle:mobile-api'])->group(function () {
     Route::get('/mobile/auth/me', [AuthApiController::class, 'me']);
     Route::post('/mobile/auth/logout', [AuthApiController::class, 'logout']);
@@ -67,16 +77,9 @@ Route::middleware(['mobile.api.user', 'throttle:mobile-api'])->group(function ()
     Route::get('/mobile/courses/saved', [CourseApiController::class, 'saved']);
     Route::post('/mobile/courses/{course}/save', [CourseApiController::class, 'toggleSave']);
 
-    /*
-    | Etalase kursus ("Jelajahi"). Terpisah dari /mobile/courses yang hanya
-    | berisi kursus milik user. TIDAK ADA jalur pembelian di sini — kebijakan
-    | anti-steering Google Play. Hanya kursus GRATIS yang bisa diikuti langsung.
-    */
-    Route::middleware('force.json')->group(function () {
-        Route::get('/mobile/catalog', [ShopApiController::class, 'index']);
-        Route::get('/mobile/catalog/{course}', [ShopApiController::class, 'show']);
-        Route::post('/mobile/catalog/{course}/daftar-gratis', [ShopApiController::class, 'enrollFree']);
-    });
+    // Hanya kursus gratis yang dapat diikuti langsung dan tetap wajib login.
+    Route::post('/mobile/catalog/{course}/daftar-gratis', [ShopApiController::class, 'enrollFree'])
+        ->middleware('force.json');
     Route::get('/documents/{path}', [DocumentController::class, 'show'])->where('path', '.*');
     Route::get('/mobile/courses/{course}/results', [CourseResultsApiController::class, 'index']);
     Route::post('/mobile/enroll', [EnrollmentApiController::class, 'enroll']);

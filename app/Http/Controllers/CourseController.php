@@ -564,7 +564,9 @@ class CourseController extends Controller
         }
 
         // Gunakan syncWithoutDetaching untuk menambahkan user tanpa menghapus yang sudah ada
-        $course->enrolledUsers()->syncWithoutDetaching($participantUserIds->all());
+        $course->enrolledUsers()->syncWithoutDetaching(
+            $participantUserIds->mapWithKeys(fn ($id) => [$id => ['has_independent_access' => true]])->all()
+        );
 
         // ✅ LOG PARTICIPANT ENROLLMENT
         $enrolledUsers = User::whereIn('id', $participantUserIds)->get(['id', 'name', 'email']);

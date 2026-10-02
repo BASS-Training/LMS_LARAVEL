@@ -92,7 +92,9 @@ class Course extends Model
 
     public function enrolledUsers()
     {
-        return $this->belongsToMany(User::class, 'course_user')->withPivot('feedback')->withTimestamps();
+        return $this->belongsToMany(User::class, 'course_user')
+            ->withPivot('feedback', 'order_id', 'has_independent_access')
+            ->withTimestamps();
     }
 
     public function feedback()
