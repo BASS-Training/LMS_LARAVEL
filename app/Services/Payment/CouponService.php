@@ -2,6 +2,7 @@
 
 namespace App\Services\Payment;
 
+use App\Models\Bundle;
 use App\Models\Coupon;
 use App\Models\CouponRedemption;
 use App\Models\CouponSetting;
@@ -41,6 +42,18 @@ class CouponService
         return $this->resolve($code, $amount, $course, $user, null, true);
     }
 
+    /** @return array{coupon:Coupon, code:string, discount:int, original_base:int, discounted_base:int} */
+    public function quoteForBundle(string $code, int $amount, Bundle $bundle, User $user, ?Order $existingOrder = null): array
+    {
+        return $this->resolve($code, $amount, null, $user, $existingOrder, false, true);
+    }
+
+    /** @return array{coupon:Coupon, code:string, discount:int, original_base:int, discounted_base:int} */
+    public function quoteBundleForReservation(string $code, int $amount, Bundle $bundle, User $user): array
+    {
+        return $this->resolve($code, $amount, null, $user, null, true, true);
+    }
+
     /** @param array{coupon:Coupon, discount:int} $quote */
     public function createRedemption(array $quote, Order $order, User $user): CouponRedemption
     {
@@ -68,6 +81,7 @@ class CouponService
         User $user,
         ?Order $existingOrder,
         bool $lock,
+        bool $bundle = false,
     ): array {
         if (! $this->checkoutEnabled()) {
             throw new RuntimeException('Fitur kupon sedang tidak tersedia.');
@@ -117,6 +131,10 @@ class CouponService
         }
 
         if (! $coupon->applies_to_all_courses) {
+            if ($bundle) {
+                throw new RuntimeException('Kupon khusus kursus tidak dapat digunakan untuk paket kursus.');
+            }
+
             if (! $course || ! $coupon->courses()->whereKey($course->id)->exists()) {
                 throw new RuntimeException('Kupon ini tidak berlaku untuk kursus yang dipilih.');
             }

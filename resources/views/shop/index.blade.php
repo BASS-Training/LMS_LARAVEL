@@ -50,6 +50,40 @@
         </div>
     </form>
 
+    @if ($bundles->isNotEmpty())
+        <section id="paket-kursus" class="mb-10 scroll-mt-24">
+            <div class="mb-4 flex items-end justify-between gap-4">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-[0.2em] text-bass-red">Lebih hemat</p>
+                    <h2 class="mt-1 text-xl font-bold text-gray-900">Paket Kursus</h2>
+                </div>
+                <p class="hidden text-sm text-gray-500 sm:block">Beberapa kursus dalam satu transaksi</p>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2">
+                @foreach ($bundles as $bundle)
+                    <a href="{{ route('bundles.show', $bundle) }}" class="group rounded-2xl border border-navy/15 bg-navy p-5 text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <span class="rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold">{{ $bundle->courses->count() }} kursus</span>
+                                <h3 class="mt-4 text-xl font-bold group-hover:text-red-100">{{ $bundle->title }}</h3>
+                            </div>
+                            <span class="text-2xl text-white/60" aria-hidden="true">&rarr;</span>
+                        </div>
+                        <div class="mt-6 flex items-end justify-between gap-4 border-t border-white/10 pt-4">
+                            <div>
+                                <p class="text-xs text-white/60 line-through">{{ $bundle->original_price_label }}</p>
+                                <p class="text-lg font-bold">{{ $bundle->price_label }}</p>
+                            </div>
+                            @if ($bundle->savings() > 0)
+                                <span class="rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-navy">Hemat {{ $bundle->savings_label }}</span>
+                            @endif
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
     @if ($courses->isEmpty())
         <div class="text-center py-20 bg-white rounded-xl border border-gray-200">
             <svg class="mx-auto w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">

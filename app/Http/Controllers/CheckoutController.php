@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bundle;
 use App\Models\Course;
 use App\Models\Order;
 use App\Services\Payment\CouponService;
@@ -97,13 +98,119 @@ class CheckoutController extends Controller
         ]);
     }
 
+    public function chooseBundle(Bundle $bundle)
+    {
+        abort_unless($bundle->isInCatalog(), 404);
+        $bundle->load('courses');
+        $user = Auth::user();
+        $pricing = $this->orders->bundlePricing($bundle, $user);
+
+        if ($pricing['payable_base'] <= 0) {
+            return redirect()->route('bundles.show', $bundle)->withErrors([
+                'shop' => $pricing['all_owned']
+                    ? 'Anda sudah memiliki seluruh isi paket kursus ini.'
+                    : 'Tidak ada nominal yang dapat ditagihkan setelah potongan kepemilikan kursus.',
+            ]);
+        }
+
+        if (! $this->gateway->isConfigured()) {
+            return redirect()->route('bundles.show', $bundle)
+                ->withErrors(['shop' => 'Pembayaran belum dikonfigurasi. Hubungi admin.']);
+        }
+
+        $couponQuote = null;
+        $couponError = null;
+        $couponCode = session($this->bundleCouponSessionKey($bundle));
+        if ($couponCode && $this->coupons->checkoutEnabled()) {
+            try {
+                $couponQuote = $this->coupons->quoteForBundle($couponCode, $pricing['payable_base'], $bundle, $user);
+            } catch (RuntimeException $exception) {
+                session()->forget($this->bundleCouponSessionKey($bundle));
+                $couponError = $exception->getMessage();
+            }
+        } elseif ($couponCode) {
+            session()->forget($this->bundleCouponSessionKey($bundle));
+        }
+
+        $discountedBase = $pricing['payable_base'] - ($couponQuote['discount'] ?? 0);
+        $methodsEnabled = $this->fee->methodsEnabled();
+        $options = $methodsEnabled
+            ? $this->fee->options($discountedBase)
+            : [[
+                'key' => 'combined',
+                'label' => 'Pembayaran Midtrans',
+                'description' => 'Pilih metode pembayaran pada halaman Midtrans.',
+                ...$this->fee->forBase($discountedBase),
+            ]];
+
+        return view('checkout.choose', [
+            'course' => null,
+            'bundle' => $bundle,
+            'productTitle' => $bundle->title,
+            'productUrl' => route('bundles.show', $bundle),
+            'checkoutAction' => route('checkout.bundle.store', $bundle),
+            'couponApplyAction' => route('checkout.bundle.coupon.apply', $bundle),
+            'couponRemoveAction' => route('checkout.bundle.coupon.remove', $bundle),
+            'thumbnail' => $bundle->courses->first()?->thumbnail,
+            'priceLabel' => 'Harga paket',
+            'bundleDiscount' => $pricing['bundle_discount'],
+            'base' => (int) $bundle->price,
+            'discountedBase' => $discountedBase,
+            'options' => $options,
+            'feeLabel' => $this->fee->label(),
+            'methodsEnabled' => $methodsEnabled,
+            'couponsEnabled' => $this->coupons->checkoutEnabled(),
+            'couponQuote' => $couponQuote,
+            'couponError' => $couponError,
+        ]);
+    }
+
+    public function applyBundleCoupon(Request $request, Bundle $bundle)
+    {
+        abort_unless($bundle->isInCatalog(), 404);
+        $validated = $request->validate(['coupon_code' => ['required', 'string', 'max:50']]);
+        $pricing = $this->orders->bundlePricing($bundle, Auth::user());
+
+        try {
+            $quote = $this->coupons->quoteForBundle(
+                $validated['coupon_code'],
+                $pricing['payable_base'],
+                $bundle,
+                Auth::user(),
+            );
+        } catch (RuntimeException $exception) {
+            return back()->withErrors(['coupon' => $exception->getMessage()])->withInput();
+        }
+
+        session()->put($this->bundleCouponSessionKey($bundle), $quote['code']);
+
+        return redirect()->route('checkout.bundle.choose', $bundle)
+            ->with('success', "Kupon {$quote['code']} berhasil digunakan.");
+    }
+
+    public function removeBundleCoupon(Bundle $bundle)
+    {
+        session()->forget($this->bundleCouponSessionKey($bundle));
+
+        return redirect()->route('checkout.bundle.choose', $bundle)
+            ->with('success', 'Kupon telah dihapus dari checkout.');
+    }
+
     public function applyCoupon(Request $request, Course $course)
     {
         abort_unless($course->isInCatalog() && ! $course->isFree(), 404);
-        $validated = $request->validate(['coupon_code' => ['required', 'string', 'max:50']]);
+
+        $validated = $request->validate([
+            'coupon_code' => ['required', 'string', 'max:50'],
+        ]);
 
         try {
-            $quote = $this->coupons->quote($validated['coupon_code'], (int) $course->price, $course, Auth::user());
+            $quote = $this->coupons->quote(
+                $validated['coupon_code'],
+                (int) $course->price,
+                $course,
+                Auth::user(),
+            );
         } catch (RuntimeException $exception) {
             return back()->withErrors(['coupon' => $exception->getMessage()])->withInput();
         }
@@ -145,7 +252,47 @@ class CheckoutController extends Controller
             }
         }
 
-        return $this->createAndRedirect($course, $methodKey, session($this->couponSessionKey($course)));
+        return $this->createAndRedirect(
+            $course,
+            $methodKey,
+            session($this->couponSessionKey($course)),
+        );
+    }
+
+    public function storeBundle(Bundle $bundle, Request $request)
+    {
+        abort_unless($bundle->isInCatalog(), 404);
+        $methodKey = null;
+
+        if ($this->fee->methodsEnabled()) {
+            $validated = $request->validate(['method' => 'required|string']);
+            $methodKey = $validated['method'];
+            if (! $this->fee->channelsFor($methodKey)) {
+                return redirect()->route('checkout.bundle.choose', $bundle)
+                    ->withErrors(['shop' => 'Metode pembayaran tidak valid. Silakan pilih lagi.']);
+            }
+        }
+
+        try {
+            $order = $this->orders->checkoutBundle(
+                $bundle,
+                Auth::user(),
+                $methodKey,
+                session($this->bundleCouponSessionKey($bundle)),
+            );
+        } catch (RuntimeException $exception) {
+            return redirect()->route('checkout.bundle.choose', $bundle)
+                ->withErrors(['shop' => $exception->getMessage()]);
+        } catch (ConnectionException $exception) {
+            Log::error('Koneksi Midtrans gagal saat checkout bundle', ['message' => $exception->getMessage()]);
+
+            return redirect()->route('checkout.bundle.choose', $bundle)
+                ->withErrors(['shop' => 'Penyedia pembayaran sedang tidak dapat dihubungi. Silakan coba lagi.']);
+        }
+
+        session()->forget($this->bundleCouponSessionKey($bundle));
+
+        return redirect()->away($order->snap_redirect_url);
     }
 
     /**
@@ -188,7 +335,7 @@ class CheckoutController extends Controller
         abort_unless($order->user_id === Auth::id(), 403);
 
         $order = $this->orders->refreshFromGateway($order);
-        $order->load(['course', 'refund']);
+        $order->load(['course', 'bundle', 'items.course', 'refund']);
         $refundEligibility = $order->isPaid() && ! $order->refund
             ? $this->refunds->eligibility($order, Auth::user())
             : null;
@@ -210,7 +357,7 @@ class CheckoutController extends Controller
         );
         abort_unless($order->isPaymentConfirmed(), 404);
 
-        $order->load(['course', 'user']);
+        $order->load(['course', 'bundle', 'items.course', 'user']);
 
         $pdf = Pdf::loadView('invoices.pdf', ['order' => $order])->setPaper('a4');
 
@@ -238,7 +385,7 @@ class CheckoutController extends Controller
 
         // Uang sudah masuk (lunas atau menunggu verifikasi) → jangan buat tagihan
         // baru; cukup tampilkan statusnya.
-        if ($order->isPaymentConfirmed() || $order->course->isEnrolledBy(Auth::user())) {
+        if ($order->isPaymentConfirmed() || (! $order->isBundleOrder() && $order->course->isEnrolledBy(Auth::user()))) {
             return redirect()->route('checkout.finish', $order);
         }
 
@@ -248,7 +395,10 @@ class CheckoutController extends Controller
         }
 
         if ($order->coupon_code) {
-            session()->put($this->couponSessionKey($order->course), $order->coupon_code);
+            $key = $order->isBundleOrder()
+                ? $this->bundleCouponSessionKey($order->bundle)
+                : $this->couponSessionKey($order->course);
+            session()->put($key, $order->coupon_code);
         }
 
         try {
@@ -263,12 +413,19 @@ class CheckoutController extends Controller
                 ->with('success', 'Pembatalan sedang diproses oleh penyedia pembayaran.');
         }
 
-        return redirect()->route('checkout.choose', $order->course);
+        return $order->isBundleOrder()
+            ? redirect()->route('checkout.bundle.choose', $order->bundle)
+            : redirect()->route('checkout.choose', $order->course);
     }
 
     private function couponSessionKey(Course $course): string
     {
         return 'checkout.coupon.'.Auth::id().'.'.$course->id;
+    }
+
+    private function bundleCouponSessionKey(Bundle $bundle): string
+    {
+        return 'checkout.bundle.coupon.'.Auth::id().'.'.$bundle->id;
     }
 
     public function cancel(Request $request, Order $order)
@@ -301,7 +458,7 @@ class CheckoutController extends Controller
      */
     public function index()
     {
-        $orders = Order::with(['course', 'refund'])
+        $orders = Order::with(['course', 'bundle', 'items', 'refund'])
             ->where('user_id', Auth::id())
             ->latest()
             ->paginate(10);

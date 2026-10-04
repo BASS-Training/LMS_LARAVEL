@@ -23,7 +23,7 @@ class RefundController extends Controller
             ->selectRaw('status, COUNT(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status');
-        $query = Refund::with(['order.user', 'order.course', 'reviewer'])->latest();
+        $query = Refund::with(['order.user', 'order.course', 'order.bundle', 'order.items', 'reviewer'])->latest();
 
         if ($status && in_array($status, array_column(RefundStatus::cases(), 'value'), true)) {
             $query->where('status', $status);
@@ -68,7 +68,7 @@ class RefundController extends Controller
 
     public function show(Refund $refund)
     {
-        $refund->load(['order.user', 'order.course', 'requester', 'reviewer']);
+        $refund->load(['order.user', 'order.course', 'order.bundle', 'order.items.course', 'requester', 'reviewer']);
 
         return view('admin.refunds.show', compact('refund'));
     }

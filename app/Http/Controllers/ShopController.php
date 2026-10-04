@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bundle;
 use App\Models\Category;
 use App\Models\Course;
 use App\Models\Tag;
@@ -76,6 +77,7 @@ class ShopController extends Controller
             ->withQueryString();
 
         return view('shop.index', [
+            'bundles' => Bundle::query()->inCatalog()->with('courses')->latest()->get(),
             'courses' => $courses,
             'search' => $search,
             'priceFilter' => $priceFilter,

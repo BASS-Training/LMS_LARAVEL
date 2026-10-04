@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Bundle;
 use App\Models\Course;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -46,6 +47,58 @@ class LandingPageTest extends TestCase
             ->assertOk()
             ->assertSee(route('shop.index'), false)
             ->assertSee('name="q"', false)
-            ->assertSeeText('Program sedang dipersiapkan');
+            ->assertSeeText('Program sedang dipersiapkan')
+            ->assertDontSeeText('Paket belajar pilihan');
+    }
+
+    public function test_landing_page_highlights_the_three_latest_eligible_bundles(): void
+    {
+        $courses = Course::factory()->count(2)->create([
+            'status' => 'published',
+            'visibility' => 'catalog',
+            'price' => 100000,
+        ]);
+        $visibleBundles = collect();
+
+        foreach (range(1, 4) as $number) {
+            $bundle = Bundle::factory()->create([
+                'title' => "Paket Karier {$number}",
+                'price' => 150000,
+                'is_active' => true,
+                'created_at' => now()->subDays(4 - $number),
+            ]);
+            $bundle->courses()->attach($courses->pluck('id'));
+            $visibleBundles->push($bundle);
+        }
+
+        $inactiveBundle = Bundle::factory()->create([
+            'title' => 'Paket Tidak Aktif',
+            'is_active' => false,
+        ]);
+        $inactiveBundle->courses()->attach($courses->pluck('id'));
+
+        $draftCourse = Course::factory()->create([
+            'status' => 'draft',
+            'visibility' => 'catalog',
+            'price' => 100000,
+        ]);
+        $ineligibleBundle = Bundle::factory()->create([
+            'title' => 'Paket Course Draft',
+            'price' => 150000,
+            'is_active' => true,
+        ]);
+        $ineligibleBundle->courses()->attach([$courses->first()->id, $draftCourse->id]);
+
+        $this->get(route('welcome'))
+            ->assertOk()
+            ->assertViewHas('bundles', fn ($bundles) => $bundles->count() === 3
+                && $bundles->first()->is($visibleBundles->last()))
+            ->assertSeeText('Paket belajar pilihan')
+            ->assertSeeText('Paket Karier 4')
+            ->assertSeeText('Paket Karier 3')
+            ->assertSeeText('Paket Karier 2')
+            ->assertDontSeeText('Paket Karier 1')
+            ->assertDontSeeText('Paket Tidak Aktif')
+            ->assertDontSeeText('Paket Course Draft');
     }
 }

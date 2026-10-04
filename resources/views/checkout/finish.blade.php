@@ -1,10 +1,10 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Status Pembayaran')
 
 @php
     // Langkah aktif untuk stepper (hanya relevan bila course perlu verifikasi).
-    $needsVerif = $order->course->requiresPaymentVerification();
+    $needsVerif = $order->requires_payment_verification;
     $activeStep = $order->isPaid() ? 3 : ($order->isPaymentConfirmed() ? 2 : 1);
 @endphp
 
@@ -32,8 +32,8 @@
                 </div>
                 <h1 class="mt-5 text-xl font-bold text-gray-900">Pembayaran berhasil</h1>
                 <p class="mt-2 text-sm text-gray-600">
-                    Anda sekarang terdaftar di <strong>{{ $order->course->title }}</strong>.
-                    Kursusnya juga langsung muncul di aplikasi mobile.
+                    Anda sekarang memiliki akses ke <strong>{{ $order->order_title }}</strong>.
+                    Materinya juga langsung muncul di aplikasi mobile.
                 </p>
                 @if ($needsVerif)
                     <p class="mt-2 inline-flex items-center gap-1 text-xs text-success bg-success-soft px-2.5 py-1 rounded-full">
@@ -42,10 +42,20 @@
                     </p>
                 @endif
 
-                <a href="{{ route('courses.show', $order->course) }}"
-                   class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors">
-                    Mulai Belajar
-                </a>
+                @if ($order->isBundleOrder())
+                    <div class="mt-6 grid gap-2">
+                        @foreach ($order->items as $item)
+                            @if ($item->course)
+                                <a href="{{ route('courses.show', $item->course) }}" class="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-bass-red px-4 font-semibold text-bass-red hover:bg-error-soft">Buka {{ $item->course_title }}</a>
+                            @endif
+                        @endforeach
+                    </div>
+                @else
+                    <a href="{{ route('courses.show', $order->course) }}"
+                       class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors">
+                         Mulai Belajar
+                    </a>
+                @endif
 
                 @if (! $order->refund)
                     <div class="mt-5 pt-5 border-t border-gray-100 text-left"
@@ -198,7 +208,7 @@
                     </p>
                 @endif
 
-                <a href="{{ route('shop.show', $order->course) }}"
+                <a href="{{ $order->isBundleOrder() ? route('bundles.show', $order->bundle) : route('shop.show', $order->course) }}"
                    class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors">
                     Pesan Ulang
                 </a>
@@ -241,14 +251,28 @@
                 </div>
             @endif
             <div class="flex justify-between">
-                <dt class="text-gray-500">Kursus</dt>
-                <dd class="text-gray-900 text-right ml-4">{{ $order->course->title }}</dd>
+                <dt class="text-gray-500">{{ $order->isBundleOrder() ? 'Bundle' : 'Kursus' }}</dt>
+                <dd class="text-gray-900 text-right ml-4">{{ $order->order_title }}</dd>
             </div>
-            @if ($order->hasFee())
+            @if ($order->hasFee() || $order->hasDiscount() || $order->hasBundleDiscount())
                 <div class="flex justify-between">
-                    <dt class="text-gray-500">Harga kursus</dt>
-                    <dd class="text-gray-900">{{ $order->base_amount_label }}</dd>
+                    <dt class="text-gray-500">{{ $order->isBundleOrder() ? 'Harga paket' : 'Harga kursus' }}</dt>
+                    <dd class="text-gray-900">{{ $order->original_base_amount_label }}</dd>
                 </div>
+            @endif
+            @if ($order->hasDiscount())
+                <div class="flex justify-between text-success">
+                    <dt>Kupon {{ $order->coupon_code }}</dt>
+                    <dd>-{{ $order->discount_amount_label }}</dd>
+                </div>
+            @endif
+            @if ($order->hasBundleDiscount())
+                <div class="flex justify-between text-success">
+                    <dt>Potongan kursus dimiliki</dt>
+                    <dd>-{{ $order->bundle_discount_amount_label }}</dd>
+                </div>
+            @endif
+            @if ($order->hasFee())
                 <div class="flex justify-between">
                     <dt class="text-gray-500">{{ config('midtrans.fee.label', 'Biaya layanan') }}</dt>
                     <dd class="text-gray-900">{{ $order->fee_amount_label }}</dd>

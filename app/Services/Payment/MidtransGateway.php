@@ -35,7 +35,7 @@ class MidtransGateway
      */
     public function createSnapTransaction(Order $order): array
     {
-        $order->loadMissing(['user', 'course']);
+        $order->loadMissing(['user', 'course', 'bundle']);
 
         $expiryHours = (int) config('midtrans.expiry_hours', 24);
 
@@ -47,8 +47,8 @@ class MidtransGateway
         $base = (int) $order->amount - $fee;
 
         $items = [[
-            'id' => (string) $order->course_id,
-            'name' => mb_substr($order->course->title, 0, 50),
+            'id' => $order->isBundleOrder() ? 'BUNDLE-'.$order->bundle_id : 'COURSE-'.$order->course_id,
+            'name' => mb_substr($order->order_title, 0, 50),
             'price' => $base,
             'quantity' => 1,
         ]];

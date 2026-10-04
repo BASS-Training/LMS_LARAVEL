@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AchievementApiController;
 use App\Http\Controllers\Api\AgendaApiController;
 use App\Http\Controllers\Api\AuthApiController;
+use App\Http\Controllers\Api\BundleApiController;
 use App\Http\Controllers\Api\CaseStudyApiController;
 use App\Http\Controllers\Api\CertificateApiController;
 use App\Http\Controllers\Api\CourseApiController;
@@ -42,6 +43,8 @@ Route::post('/mobile/auth/password/reset', [PasswordApiController::class, 'reset
 | program khusus. Tidak ada jalur pembelian kursus berbayar di sini.
 */
 Route::middleware(['mobile.api.user:optional', 'throttle:mobile-api', 'force.json'])->group(function () {
+    Route::get('/mobile/bundles', [BundleApiController::class, 'index']);
+    Route::get('/mobile/bundles/{bundle}', [BundleApiController::class, 'show']);
     Route::get('/mobile/catalog', [ShopApiController::class, 'index']);
     Route::get('/mobile/catalog/{course}', [ShopApiController::class, 'show']);
 });

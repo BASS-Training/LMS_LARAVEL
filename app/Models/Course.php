@@ -73,6 +73,12 @@ class Course extends Model
         return $this->belongsToMany(Tag::class);
     }
 
+    public function bundles()
+    {
+        return $this->belongsToMany(Bundle::class)
+            ->withPivot('sort_order');
+    }
+
     // Relasi ke Lesson (satu kursus punya banyak pelajaran)
     public function lessons()
     {

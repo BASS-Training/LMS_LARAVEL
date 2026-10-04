@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Tinjau Pembayaran ' . $order->order_code)
 
@@ -40,8 +40,8 @@
 
         <dl class="divide-y divide-gray-100 text-sm">
             <div class="px-6 py-3 flex justify-between gap-4">
-                <dt class="text-gray-500">Kursus</dt>
-                <dd class="font-medium text-gray-900 text-right">{{ $order->course->title }}</dd>
+                <dt class="text-gray-500">{{ $order->isBundleOrder() ? 'Bundle' : 'Kursus' }}</dt>
+                <dd class="font-medium text-gray-900 text-right">{{ $order->order_title }}</dd>
             </div>
             <div class="px-6 py-3 flex justify-between gap-4">
                 <dt class="text-gray-500">Pembeli</dt>
@@ -60,6 +60,30 @@
                 <dt class="text-gray-500">Metode</dt>
                 <dd class="text-gray-900 capitalize">{{ str_replace('_', ' ', (string) $order->payment_type) }}</dd>
             </div>
+            @if ($order->hasDiscount() || $order->hasBundleDiscount())
+                <div class="px-6 py-3 flex justify-between gap-4">
+                    <dt class="text-gray-500">Harga awal</dt>
+                    <dd class="text-gray-900">{{ $order->original_base_amount_label }}</dd>
+                </div>
+            @endif
+            @if ($order->hasDiscount())
+                <div class="px-6 py-3 flex justify-between gap-4">
+                    <dt class="text-success">Kupon {{ $order->coupon_code }}</dt>
+                    <dd class="font-semibold text-success">-{{ $order->discount_amount_label }}</dd>
+                </div>
+            @endif
+            @if ($order->hasBundleDiscount())
+                <div class="px-6 py-3 flex justify-between gap-4">
+                    <dt class="text-success">Potongan kursus dimiliki</dt>
+                    <dd class="font-semibold text-success">-{{ $order->bundle_discount_amount_label }}</dd>
+                </div>
+            @endif
+            @if ($order->hasFee())
+                <div class="px-6 py-3 flex justify-between gap-4">
+                    <dt class="text-gray-500">{{ config('midtrans.fee.label', 'Biaya layanan') }}</dt>
+                    <dd class="text-gray-900">{{ $order->fee_amount_label }}</dd>
+                </div>
+            @endif
             <div class="px-6 py-3 flex justify-between gap-4">
                 <dt class="text-gray-500">ID transaksi Midtrans</dt>
                 <dd class="text-gray-900 text-xs break-all">{{ $order->transaction_id ?: '-' }}</dd>

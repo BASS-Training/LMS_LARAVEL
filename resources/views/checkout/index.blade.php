@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Riwayat Pembelian')
 
@@ -24,13 +24,19 @@
 
                 <div class="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
                     <a href="{{ route('checkout.finish', $order) }}" class="min-w-0 flex-1">
-                        <p class="font-medium text-gray-900 truncate">{{ $order->course->title }}</p>
+                        <p class="font-medium text-gray-900 truncate">{{ $order->order_title }}</p>
                         <p class="mt-0.5 text-xs text-gray-500 font-mono">{{ $order->order_code }}</p>
                         <p class="mt-0.5 text-xs text-gray-400">{{ $order->created_at->translatedFormat('d M Y, H:i') }}</p>
                     </a>
 
                     <div class="text-right flex-shrink-0">
                         <p class="font-semibold text-gray-900">{{ $order->amount_label }}</p>
+                        @if ($order->hasDiscount())
+                            <span class="mt-1 block text-xs font-medium text-success">{{ $order->coupon_code }} &middot; Hemat {{ $order->discount_amount_label }}</span>
+                        @endif
+                        @if ($order->hasBundleDiscount())
+                            <span class="mt-1 block text-xs font-medium text-success">Potongan kepemilikan {{ $order->bundle_discount_amount_label }}</span>
+                        @endif
                         <span class="mt-1 inline-block px-2 py-0.5 rounded text-xs font-medium {{ $bg }} {{ $text }}">
                             {{ $order->status_label }}
                         </span>
