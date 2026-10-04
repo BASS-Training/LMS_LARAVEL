@@ -1,6 +1,9 @@
 <?php
 
 return [
+    /* Emergency kill switch. Admin checkout toggle only works when this is true. */
+    'coupons_feature_enabled' => env('COUPONS_FEATURE_ENABLED', false),
+
     /*
     | Apakah harga kursus berbayar boleh ditampilkan di APLIKASI MOBILE.
     |

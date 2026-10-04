@@ -78,7 +78,7 @@
                         @endcan
 
                         {{-- Admin dropdown --}}
-                        @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage course taxonomy'])
+                        @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage course taxonomy','manage coupons'])
                         <div x-data="{ adminOpen: false }" class="relative">
                             <button @click="adminOpen = !adminOpen"
                                     @keydown.escape.window="adminOpen = false"
@@ -107,7 +107,7 @@
                                  class="absolute left-0 mt-2 w-64 rounded-xl bg-white shadow-xl ring-1 ring-black/5 divide-y divide-gray-100 z-50"
                                  style="display:none"
                                  role="menu">
-                                @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management'])
+                                @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage coupons'])
                                 <div class="py-1" role="none">
                                     <a href="{{ route('admin.users.index') }}"    class="dropdown-item-custom" role="menuitem">Manajemen Pengguna</a>
                                     <a href="{{ route('admin.roles.index') }}"    class="dropdown-item-custom" role="menuitem">Manajemen Peran</a>
@@ -121,6 +121,9 @@
                                 <div class="py-1" role="none">
                                     <a href="{{ route('admin.auto-grade.index') }}"    class="dropdown-item-custom" role="menuitem">Penilaian Otomatis</a>
                                     <a href="{{ route('admin.force-complete.index') }}" class="dropdown-item-custom" role="menuitem">Force Complete Konten</a>
+                                    @can('manage coupons')
+                                    <a href="{{ route('admin.coupons.index') }}" class="dropdown-item-custom" role="menuitem">Manajemen Kupon</a>
+                                    @endcan
                                 </div>
                                 @role('super-admin')
                                 <div class="py-1" role="none">
@@ -295,10 +298,10 @@
                 </a>
                 @endcan
 
-                @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage course taxonomy'])
+                @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage course taxonomy','manage coupons'])
                 <div class="pt-2 mt-1 border-t border-gray-100">
                     <p class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Admin</p>
-                    @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management'])
+                    @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage coupons'])
                     <a href="{{ route('admin.users.index') }}"    class="responsive-nav-link-custom {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">Manajemen Pengguna</a>
                     <a href="{{ route('admin.roles.index') }}"    class="responsive-nav-link-custom {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">Manajemen Peran</a>
                     <a href="{{ route('admin.announcements.index') }}" class="responsive-nav-link-custom">Manajemen Pengumuman</a>
@@ -307,6 +310,9 @@
                     <a href="{{ route('certificate-management.index') }}"  class="responsive-nav-link-custom">Manajemen Sertifikat</a>
                     <a href="{{ route('admin.auto-grade.index') }}"   class="responsive-nav-link-custom">Penilaian Otomatis</a>
                     <a href="{{ route('admin.force-complete.index') }}" class="responsive-nav-link-custom">Force Complete Konten</a>
+                    @can('manage coupons')
+                    <a href="{{ route('admin.coupons.index') }}" class="responsive-nav-link-custom {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">Manajemen Kupon</a>
+                    @endcan
                     @role('super-admin')
                     <a href="{{ route('admin.payment-verifications.index') }}" class="responsive-nav-link-custom">Verifikasi Pembayaran</a>
                     <a href="{{ route('admin.refunds.index') }}" class="responsive-nav-link-custom">Manajemen Refund</a>

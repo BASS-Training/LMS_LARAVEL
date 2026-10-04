@@ -4,6 +4,7 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AnnouncementController as AdminAnnouncementController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CertificateTemplateController;
+use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\PaymentVerificationController;
 use App\Http\Controllers\Admin\RefundController as AdminRefundController;
 use App\Http\Controllers\Admin\RoleController;
@@ -70,6 +71,8 @@ Route::post('/webhooks/midtrans', [CheckoutController::class, 'notification'])->
 
 Route::get('/katalog/{course}/beli', [CheckoutController::class, 'choose'])->name('checkout.choose');
 Route::post('/katalog/{course}/beli', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::post('/katalog/{course}/beli/kupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.coupon.apply');
+Route::delete('/katalog/{course}/beli/kupon', [CheckoutController::class, 'removeCoupon'])->name('checkout.coupon.remove');
 Route::get('/pesanan', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::get('/pesanan/{order}', [CheckoutController::class, 'finish'])->name('checkout.finish');
 Route::get('/pesanan/{order}/invoice', [CheckoutController::class, 'invoice'])->name('checkout.invoice');
@@ -90,6 +93,19 @@ Route::middleware(['auth', 'role:super-admin'])
         Route::get('/{order}', [PaymentVerificationController::class, 'show'])->name('show');
         Route::post('/{order}/setujui', [PaymentVerificationController::class, 'approve'])->name('approve');
         Route::post('/{order}/tolak', [PaymentVerificationController::class, 'reject'])->name('reject');
+    });
+
+Route::middleware(['auth', 'permission:manage coupons'])
+    ->prefix('admin/coupons')
+    ->name('admin.coupons.')
+    ->group(function () {
+        Route::patch('/checkout', [CouponController::class, 'updateCheckout'])->name('checkout.update');
+        Route::get('/', [CouponController::class, 'index'])->name('index');
+        Route::get('/create', [CouponController::class, 'create'])->name('create');
+        Route::post('/', [CouponController::class, 'store'])->name('store');
+        Route::get('/{coupon}/edit', [CouponController::class, 'edit'])->name('edit');
+        Route::put('/{coupon}', [CouponController::class, 'update'])->name('update');
+        Route::delete('/{coupon}', [CouponController::class, 'destroy'])->name('destroy');
     });
 
 Route::middleware(['auth', 'role:super-admin'])

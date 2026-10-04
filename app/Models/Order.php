@@ -35,6 +35,8 @@ class Order extends Model
         'amount',
         'base_amount',
         'fee_amount',
+        'coupon_code',
+        'discount_amount',
         'status',
         'payment_type',
         'payment_method_key',
@@ -57,6 +59,7 @@ class Order extends Model
         'amount' => 'integer',
         'base_amount' => 'integer',
         'fee_amount' => 'integer',
+        'discount_amount' => 'integer',
         'paid_at' => 'datetime',
         'payment_confirmed_at' => 'datetime',
         'verified_at' => 'datetime',
@@ -94,6 +97,11 @@ class Order extends Model
     public function refund()
     {
         return $this->hasOne(Refund::class);
+    }
+
+    public function couponRedemption()
+    {
+        return $this->hasOne(CouponRedemption::class);
     }
 
     public function isPending(): bool
@@ -161,6 +169,26 @@ class Order extends Model
     public function getFeeAmountLabelAttribute(): string
     {
         return $this->rupiah($this->fee_amount);
+    }
+
+    public function getDiscountAmountLabelAttribute(): string
+    {
+        return $this->rupiah($this->discount_amount);
+    }
+
+    public function getOriginalBaseAmountAttribute(): int
+    {
+        return (int) $this->base_amount + (int) $this->discount_amount;
+    }
+
+    public function getOriginalBaseAmountLabelAttribute(): string
+    {
+        return $this->rupiah($this->original_base_amount);
+    }
+
+    public function hasDiscount(): bool
+    {
+        return (int) $this->discount_amount > 0;
     }
 
     public function getOrderTitleAttribute(): string

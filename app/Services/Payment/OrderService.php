@@ -26,6 +26,7 @@ class OrderService
     public function __construct(
         private MidtransGateway $gateway,
         private ServiceFee $fee,
+        private CouponService $coupons,
     ) {}
 
     /**
@@ -36,7 +37,7 @@ class OrderService
      *                                  (mis. 'qris', 'bank_transfer'). Menentukan biaya layanan yang dipakai
      *                                  dan mengunci Snap ke metode itu. null → tarif gabungan + semua metode.
      */
-    public function checkout(Course $course, User $user, ?string $methodKey = null): Order
+    public function checkout(Course $course, User $user, ?string $methodKey = null, ?string $couponCode = null): Order
     {
         if (! $this->gateway->isConfigured()) {
             throw new RuntimeException('Pembayaran belum dikonfigurasi. Hubungi admin.');
@@ -81,10 +82,6 @@ class OrderService
             throw new RuntimeException('Silakan pilih metode pembayaran terlebih dahulu.');
         }
 
-        // Rincian harga: pembeli menanggung biaya layanan gateway sesuai metode.
-        // total = harga kursus + biaya layanan (di-snapshot ke order).
-        $breakdown = $this->fee->forMethod((int) $course->price, $methodKey);
-
         // Jangan bikin pesanan baru kalau yang lama masih hidup DENGAN metode &
         // tarif yang sama — biar tidak menumpuk order pending dan pengguna bisa
         // lanjut bayar. Kalau metode/tarif berbeda, buat order baru supaya
@@ -95,9 +92,18 @@ class OrderService
             ->latest()
             ->first();
 
+        $normalizedCoupon = $this->coupons->normalize($couponCode);
+        $quote = $normalizedCoupon
+            ? $this->coupons->quote($normalizedCoupon, (int) $course->price, $course, $user, $existing)
+            : null;
+        $discount = $quote['discount'] ?? 0;
+        $breakdown = $this->fee->forMethod((int) $course->price - $discount, $methodKey);
+
         if ($existing
             && $existing->isPayable()
             && $existing->payment_method_key === $methodKey
+            && $existing->coupon_code === $normalizedCoupon
+            && (int) $existing->discount_amount === $discount
             && (int) $existing->base_amount === $breakdown['base']
             && (int) $existing->amount === $breakdown['total']) {
             return $existing;
@@ -111,18 +117,30 @@ class OrderService
             }
         }
 
-        return DB::transaction(function () use ($course, $user, $breakdown, $methodKey) {
+        return DB::transaction(function () use ($course, $user, $methodKey, $normalizedCoupon) {
+            $quote = $normalizedCoupon
+                ? $this->coupons->quoteForReservation($normalizedCoupon, (int) $course->price, $course, $user)
+                : null;
+            $discount = $quote['discount'] ?? 0;
+            $breakdown = $this->fee->forMethod((int) $course->price - $discount, $methodKey);
+
             $order = Order::create([
                 'user_id' => $user->id,
                 'course_id' => $course->id,
                 'order_code' => $this->generateOrderCode(),
                 'base_amount' => $breakdown['base'], // harga kursus (pendapatan penjual)
                 'fee_amount' => $breakdown['fee'],   // biaya layanan yang dibebankan ke pembeli
+                'coupon_code' => $quote['code'] ?? null,
+                'discount_amount' => $discount,
                 'amount' => $breakdown['total'],     // TOTAL yang ditagih ke Midtrans
                 'payment_method_key' => $methodKey,  // metode pilihan (dasar biaya + kunci Snap)
                 'status' => Order::STATUS_PENDING,
                 'expires_at' => now()->addHours((int) config('midtrans.expiry_hours', 24)),
             ]);
+
+            if ($quote) {
+                $this->coupons->createRedemption($quote, $order, $user);
+            }
 
             $snap = $this->gateway->createSnapTransaction($order);
 
@@ -329,6 +347,10 @@ class OrderService
                 'status' => $status,
             ]);
 
+            if (in_array($status, [Order::STATUS_CANCELLED, Order::STATUS_EXPIRED, Order::STATUS_FAILED], true)) {
+                $this->coupons->releaseForOrder($locked);
+            }
+
             return $locked->refresh();
         });
     }
@@ -498,6 +520,22 @@ class OrderService
         });
     }
 
+    public function expirePending(Order $order): bool
+    {
+        return DB::transaction(function () use ($order) {
+            $locked = Order::query()->lockForUpdate()->find($order->id);
+
+            if (! $locked?->isPending() || ! $locked->expires_at?->isPast()) {
+                return false;
+            }
+
+            $locked->update(['status' => Order::STATUS_EXPIRED]);
+            $this->coupons->releaseForOrder($locked);
+
+            return true;
+        });
+    }
+
     /**
      * Terjemahkan transaction_status Midtrans ke status internal kita.
      */
@@ -530,6 +568,8 @@ class OrderService
                 'cancelled_at' => $locked->cancelled_at ?: now(),
                 'cancellation_reason' => $reason ?? $locked->cancellation_reason,
             ]);
+
+            $this->coupons->releaseForOrder($locked);
 
             return $locked->refresh();
         });
