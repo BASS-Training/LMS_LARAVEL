@@ -87,15 +87,7 @@ class Refund extends Model
 
     public function getStatusLabelAttribute(): string
     {
-        return match ($this->status) {
-            RefundStatus::Requested => 'Menunggu keputusan admin',
-            RefundStatus::Approved => 'Disetujui',
-            RefundStatus::Processing => 'Sedang diproses',
-            RefundStatus::ManualRequired => 'Perlu refund manual',
-            RefundStatus::Refunded => 'Dana dikembalikan',
-            RefundStatus::Rejected => 'Ditolak',
-            RefundStatus::Failed => 'Proses gagal',
-        };
+        return $this->status->label();
     }
 
     public function getStatusColorsAttribute(): array

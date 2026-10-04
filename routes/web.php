@@ -97,6 +97,7 @@ Route::middleware(['auth', 'role:super-admin'])
     ->name('admin.refunds.')
     ->group(function () {
         Route::get('/', [AdminRefundController::class, 'index'])->name('index');
+        Route::patch('/pengaturan', [AdminRefundController::class, 'updateSettings'])->name('settings.update');
         Route::get('/{refund}', [AdminRefundController::class, 'show'])->name('show');
         Route::post('/{refund}/setujui', [AdminRefundController::class, 'approve'])->name('approve');
         Route::post('/{refund}/tolak', [AdminRefundController::class, 'reject'])->name('reject');

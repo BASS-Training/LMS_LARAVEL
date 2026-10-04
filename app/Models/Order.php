@@ -163,6 +163,11 @@ class Order extends Model
         return $this->rupiah($this->fee_amount);
     }
 
+    public function getOrderTitleAttribute(): string
+    {
+        return (string) ($this->course?->title ?: 'Pesanan');
+    }
+
     /** Ada biaya layanan yang dirinci pada pesanan ini. */
     public function hasFee(): bool
     {

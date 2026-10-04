@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RefundReason;
 use App\Models\ActivityLog;
 use App\Models\Order;
 use App\Services\Payment\RefundService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use RuntimeException;
 
 class RefundController extends Controller
@@ -21,11 +23,23 @@ class RefundController extends Controller
         abort_unless($order->user_id === Auth::id(), 403);
 
         $validated = $request->validate([
-            'reason' => ['required', 'string', 'min:10', 'max:1000'],
+            'reason_type' => ['required', Rule::enum(RefundReason::class)],
+            'reason_other' => [
+                Rule::requiredIf($request->input('reason_type') === RefundReason::Other->value),
+                'nullable',
+                'string',
+                'min:10',
+                'max:1000',
+            ],
         ]);
 
+        $reasonType = RefundReason::from($validated['reason_type']);
+        $reason = $reasonType === RefundReason::Other
+            ? $reasonType->label().': '.trim($validated['reason_other'])
+            : $reasonType->label();
+
         try {
-            $refund = $this->refunds->request($order, Auth::user(), $validated['reason']);
+            $refund = $this->refunds->request($order, Auth::user(), $reason);
         } catch (RuntimeException $exception) {
             return back()->withErrors(['refund' => $exception->getMessage()]);
         }

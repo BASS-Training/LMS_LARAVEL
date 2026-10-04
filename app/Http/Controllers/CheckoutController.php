@@ -118,8 +118,11 @@ class CheckoutController extends Controller
 
         $order = $this->orders->refreshFromGateway($order);
         $order->load(['course', 'refund']);
+        $refundEligibility = $order->isPaid() && ! $order->refund
+            ? $this->refunds->eligibility($order, Auth::user())
+            : null;
 
-        return view('checkout.finish', compact('order'));
+        return view('checkout.finish', compact('order', 'refundEligibility'));
     }
 
     /**

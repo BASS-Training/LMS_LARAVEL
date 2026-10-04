@@ -6,6 +6,7 @@ use App\Enums\RefundStatus;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\Refund;
+use App\Models\RefundSetting;
 use App\Services\Payment\RefundService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +19,10 @@ class RefundController extends Controller
     public function index(Request $request)
     {
         $status = $request->string('status')->toString();
+        $statusCounts = Refund::query()
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
         $query = Refund::with(['order.user', 'order.course', 'reviewer'])->latest();
 
         if ($status && in_array($status, array_column(RefundStatus::cases(), 'value'), true)) {
@@ -27,7 +32,38 @@ class RefundController extends Controller
         return view('admin.refunds.index', [
             'refunds' => $query->paginate(15)->withQueryString(),
             'status' => $status,
+            'statusCounts' => $statusCounts,
+            'attentionCount' => collect([
+                RefundStatus::Requested,
+                RefundStatus::Approved,
+                RefundStatus::Failed,
+                RefundStatus::ManualRequired,
+            ])->sum(fn (RefundStatus $item) => (int) ($statusCounts[$item->value] ?? 0)),
+            'processingCount' => (int) ($statusCounts[RefundStatus::Processing->value] ?? 0),
+            'refundedAmount' => Refund::query()
+                ->where('status', RefundStatus::Refunded)
+                ->sum('amount'),
+            'settings' => RefundSetting::current(),
         ]);
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $validated = $request->validate([
+            'request_window_days' => ['required', 'integer', 'min:1', 'max:365'],
+            'max_progress_percentage' => ['required', 'integer', 'min:0', 'max:100'],
+        ]);
+
+        $settings = RefundSetting::current();
+        $previous = $settings->only(['request_window_days', 'max_progress_percentage']);
+        $settings->update($validated);
+
+        ActivityLog::log('refund_settings_updated', [
+            'description' => 'Memperbarui kebijakan global refund',
+            'metadata' => ['before' => $previous, 'after' => $settings->fresh()->only(array_keys($previous))],
+        ]);
+
+        return back()->with('success', 'Kebijakan refund berhasil diperbarui.');
     }
 
     public function show(Refund $refund)

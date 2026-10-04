@@ -2,13 +2,19 @@
 
 namespace Tests\Feature;
 
+use App\Enums\RefundReason;
 use App\Enums\RefundStatus;
+use App\Models\Certificate;
+use App\Models\Content;
 use App\Models\Course;
+use App\Models\Lesson;
 use App\Models\Order;
+use App\Models\RefundSetting;
 use App\Models\User;
 use App\Services\Payment\OrderService;
 use App\Services\Payment\RefundService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 use Spatie\Permission\Models\Role;
@@ -23,7 +29,7 @@ class RefundFlowTest extends TestCase
         [$participant, $course, $order] = $this->paidOrder();
 
         $response = $this->actingAs($participant)->post(route('refunds.store', $order), [
-            'reason' => 'Materi kursus tidak sesuai dengan kebutuhan saya.',
+            'reason_type' => RefundReason::ContentMismatch->value,
         ]);
 
         $response->assertRedirect(route('checkout.finish', $order));
@@ -31,11 +37,166 @@ class RefundFlowTest extends TestCase
             'order_id' => $order->id,
             'amount' => 104000,
             'status' => RefundStatus::Requested->value,
+            'reason' => RefundReason::ContentMismatch->label(),
         ]);
         $this->assertDatabaseHas('course_user', [
             'course_id' => $course->id,
             'user_id' => $participant->id,
             'order_id' => $order->id,
+        ]);
+    }
+
+    public function test_super_admin_can_update_global_refund_policy(): void
+    {
+        $admin = User::factory()->create();
+        Role::findOrCreate('super-admin', 'web');
+        $admin->assignRole('super-admin');
+
+        $response = $this->actingAs($admin)->patch(route('admin.refunds.settings.update'), [
+            'request_window_days' => 14,
+            'max_progress_percentage' => 30,
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('refund_settings', [
+            'id' => 1,
+            'request_window_days' => 14,
+            'max_progress_percentage' => 30,
+        ]);
+    }
+
+    public function test_super_admin_can_view_refund_management_pages(): void
+    {
+        [$participant, $course, $order] = $this->paidOrder();
+        $refund = app(RefundService::class)->request(
+            $order,
+            $participant,
+            'Materi kursus tidak sesuai kebutuhan.'
+        );
+        $admin = User::factory()->create();
+        Role::findOrCreate('super-admin', 'web');
+        $admin->assignRole('super-admin');
+
+        $this->actingAs($admin)
+            ->get(route('admin.refunds.index'))
+            ->assertOk()
+            ->assertSee('Manajemen Refund')
+            ->assertSee($course->title);
+
+        $this->actingAs($admin)
+            ->get(route('admin.refunds.show', $refund))
+            ->assertOk()
+            ->assertSee('Keputusan Admin')
+            ->assertSee($order->order_code);
+    }
+
+    public function test_regular_user_cannot_update_global_refund_policy(): void
+    {
+        $response = $this->actingAs(User::factory()->create())->patch(route('admin.refunds.settings.update'), [
+            'request_window_days' => 14,
+            'max_progress_percentage' => 40,
+        ]);
+
+        $response->assertForbidden();
+        $this->assertDatabaseHas('refund_settings', [
+            'request_window_days' => 7,
+            'max_progress_percentage' => 30,
+        ]);
+    }
+
+    public function test_refund_is_rejected_after_global_request_window(): void
+    {
+        RefundSetting::current()->update(['request_window_days' => 7]);
+        [$participant, , $order] = $this->paidOrder();
+        $order->update(['paid_at' => now()->subDays(8)]);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Batas pengajuan refund');
+
+        app(RefundService::class)->request($order->fresh(), $participant, 'Alasan pengajuan refund yang valid.');
+    }
+
+    public function test_refund_is_rejected_when_progress_exceeds_global_limit(): void
+    {
+        RefundSetting::current()->update(['max_progress_percentage' => 30]);
+        [$participant, $course, $order] = $this->paidOrder();
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+        $contents = Content::factory()->count(2)->create(['lesson_id' => $lesson->id]);
+        $participant->completedContents()->attach($contents->first()->id, [
+            'completed' => true,
+            'completed_at' => now(),
+        ]);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('telah melebihi batas refund 30%');
+
+        app(RefundService::class)->request($order, $participant, 'Alasan pengajuan refund yang valid.');
+    }
+
+    public function test_refund_is_allowed_at_exactly_the_global_progress_limit(): void
+    {
+        RefundSetting::current()->update(['max_progress_percentage' => 30]);
+        [$participant, $course, $order] = $this->paidOrder();
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+        $contents = Content::factory()->count(10)->create(['lesson_id' => $lesson->id]);
+
+        foreach ($contents->take(3) as $content) {
+            $participant->completedContents()->attach($content->id, [
+                'completed' => true,
+                'completed_at' => now(),
+            ]);
+        }
+
+        $refund = app(RefundService::class)->request(
+            $order,
+            $participant,
+            'Alasan pengajuan refund yang valid.'
+        );
+
+        $this->assertSame(RefundStatus::Requested, $refund->status);
+    }
+
+    public function test_issued_certificate_blocks_refund_request(): void
+    {
+        [$participant, $course, $order] = $this->paidOrder();
+        $this->issueCertificate($participant, $course);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('sertifikat kursus sudah diterbitkan');
+
+        app(RefundService::class)->request($order, $participant, 'Alasan pengajuan refund yang valid.');
+    }
+
+    public function test_certificate_issued_after_request_blocks_admin_approval(): void
+    {
+        [$participant, $course, $order] = $this->paidOrder();
+        $refunds = app(RefundService::class);
+        $refund = $refunds->request($order, $participant, 'Alasan pengajuan refund yang valid.');
+        $this->issueCertificate($participant, $course);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('sertifikat kursus sudah diterbitkan');
+
+        $refunds->approve($refund, User::factory()->create());
+    }
+
+    public function test_other_refund_reason_requires_detail_and_is_persisted(): void
+    {
+        [$participant, , $order] = $this->paidOrder();
+
+        $this->actingAs($participant)->post(route('refunds.store', $order), [
+            'reason_type' => RefundReason::Other->value,
+        ])->assertSessionHasErrors('reason_other');
+
+        $detail = 'Saya memiliki kondisi khusus yang perlu ditinjau oleh admin.';
+        $this->actingAs($participant)->post(route('refunds.store', $order), [
+            'reason_type' => RefundReason::Other->value,
+            'reason_other' => $detail,
+        ])->assertRedirect(route('checkout.finish', $order));
+
+        $this->assertDatabaseHas('refunds', [
+            'order_id' => $order->id,
+            'reason' => 'Lainnya: '.$detail,
         ]);
     }
 
@@ -600,6 +761,24 @@ class RefundFlowTest extends TestCase
             'visibility' => 'catalog',
             'price' => 100000,
             'program_type' => 'regular',
+        ]);
+    }
+
+    private function issueCertificate(User $user, Course $course): Certificate
+    {
+        $templateId = DB::table('certificate_templates')->insertGetId([
+            'name' => 'Template Test',
+            'layout_data' => json_encode([]),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return Certificate::create([
+            'user_id' => $user->id,
+            'course_id' => $course->id,
+            'certificate_template_id' => $templateId,
+            'certificate_code' => 'CERT-'.fake()->unique()->numerify('######'),
+            'issued_at' => now(),
         ]);
     }
 }

@@ -48,23 +48,44 @@
                 </a>
 
                 @if (! $order->refund)
-                    <div class="mt-5 pt-5 border-t border-gray-100 text-left" x-data="{ open: false }">
-                        <button type="button" @click="open = !open"
-                                class="text-sm font-medium text-gray-500 hover:text-bass-red">
-                            Ajukan refund penuh
-                        </button>
-                        <form x-show="open" x-cloak method="POST" action="{{ route('refunds.store', $order) }}" class="mt-3">
-                            @csrf
-                            <label class="block text-sm font-medium text-gray-700">Alasan pengajuan</label>
-                            <textarea name="reason" rows="3" required minlength="10" maxlength="1000"
-                                      class="mt-1 w-full rounded-lg border-gray-300 focus:border-bass-red focus:ring-bass-red text-sm"
-                                      placeholder="Jelaskan alasan refund untuk ditinjau admin.">{{ old('reason') }}</textarea>
-                            <p class="mt-1 text-xs text-gray-500">Nominal refund penuh: {{ $order->amount_label }}. Akses tetap aktif sampai refund berhasil.</p>
-                            <button type="submit" class="mt-3 w-full min-h-[44px] rounded-lg border border-bass-red text-bass-red text-sm font-semibold hover:bg-red-50"
-                                    onclick="return confirm('Ajukan refund penuh untuk pesanan ini?');">
-                                Kirim Pengajuan
+                    <div class="mt-5 pt-5 border-t border-gray-100 text-left"
+                         x-data="{ open: @js($errors->has('reason_type') || $errors->has('reason_other')), reasonType: @js(old('reason_type', '')) }">
+                        @if ($refundEligibility['eligible'])
+                            <button type="button" @click="open = !open"
+                                    class="text-sm font-medium text-gray-500 hover:text-bass-red">
+                                Ajukan refund penuh
                             </button>
-                        </form>
+                            <form x-show="open" x-cloak method="POST" action="{{ route('refunds.store', $order) }}" class="mt-3">
+                                @csrf
+                                <label for="reason_type" class="block text-sm font-medium text-gray-700">Alasan pengajuan</label>
+                                <select id="reason_type" name="reason_type" x-model="reasonType" required
+                                        class="mt-1 w-full rounded-lg border-gray-300 focus:border-bass-red focus:ring-bass-red text-sm">
+                                    <option value="">Pilih alasan</option>
+                                    @foreach (\App\Enums\RefundReason::cases() as $reasonOption)
+                                        <option value="{{ $reasonOption->value }}">{{ $reasonOption->label() }}</option>
+                                    @endforeach
+                                </select>
+                                <div x-show="reasonType === 'other'" x-cloak class="mt-3">
+                                    <label for="reason_other" class="block text-sm font-medium text-gray-700">Jelaskan alasan lainnya</label>
+                                    <textarea id="reason_other" name="reason_other" rows="3" minlength="10" maxlength="1000"
+                                              :required="reasonType === 'other'"
+                                              class="mt-1 w-full rounded-lg border-gray-300 focus:border-bass-red focus:ring-bass-red text-sm"
+                                              placeholder="Jelaskan alasan refund untuk ditinjau admin.">{{ old('reason_other') }}</textarea>
+                                </div>
+                                <p class="mt-2 text-xs text-gray-500">
+                                    Maksimal {{ $refundEligibility['settings']->request_window_days }} hari setelah akses diberikan dan progres maksimal {{ $refundEligibility['settings']->max_progress_percentage }}%.
+                                    Batas pesanan ini {{ $refundEligibility['deadline']->translatedFormat('d F Y H:i') }}.
+                                </p>
+                                <p class="mt-1 text-xs text-gray-500">Nominal refund penuh: {{ $order->amount_label }}. Akses tetap aktif sampai refund berhasil.</p>
+                                <button type="submit" class="mt-3 w-full min-h-[44px] rounded-lg border border-bass-red text-bass-red text-sm font-semibold hover:bg-red-50"
+                                        onclick="return confirm('Ajukan refund penuh untuk pesanan ini?');">
+                                    Kirim Pengajuan
+                                </button>
+                            </form>
+                        @else
+                            <p class="text-sm font-medium text-gray-700">Refund tidak tersedia</p>
+                            <p class="mt-1 text-xs text-gray-500">{{ $refundEligibility['message'] }}</p>
+                        @endif
                     </div>
                 @endif
             </div>

@@ -5,6 +5,7 @@ namespace App\Services\Payment;
 use App\Enums\RefundStatus;
 use App\Models\Order;
 use App\Models\Refund;
+use App\Models\RefundSetting;
 use App\Models\User;
 use App\Notifications\RefundStatusNotification;
 use Illuminate\Http\Client\ConnectionException;
@@ -17,6 +18,40 @@ use Throwable;
 class RefundService
 {
     public function __construct(private MidtransGateway $gateway) {}
+
+    /**
+     * @return array{eligible: bool, message: ?string, progress: float, deadline: ?\Carbon\CarbonInterface, settings: RefundSetting}
+     */
+    public function eligibility(Order $order, User $user): array
+    {
+        $order->loadMissing('course');
+        $settings = RefundSetting::current();
+        $progress = (float) $user->courseProgress($order->course);
+        $deadline = $order->paid_at?->copy()->addDays($settings->request_window_days);
+        $message = null;
+
+        if ($order->user_id !== $user->id) {
+            $message = 'Anda tidak dapat mengajukan refund untuk pesanan ini.';
+        } elseif (! $order->isPaid()) {
+            $message = 'Refund hanya dapat diajukan untuk pesanan yang sudah lunas.';
+        } elseif ($order->refund()->exists()) {
+            $message = 'Refund untuk pesanan ini sudah pernah diajukan.';
+        } elseif (! $deadline || now()->isAfter($deadline)) {
+            $message = "Batas pengajuan refund {$settings->request_window_days} hari setelah akses kursus telah berakhir.";
+        } elseif ($progress > $settings->max_progress_percentage) {
+            $message = "Progres kursus Anda {$progress}% dan telah melebihi batas refund {$settings->max_progress_percentage}%.";
+        } elseif ($user->hasCertificateForCourse($order->course)) {
+            $message = "Refund tidak dapat diajukan karena sertifikat kursus sudah diterbitkan: {$order->course->title}.";
+        }
+
+        return [
+            'eligible' => $message === null,
+            'message' => $message,
+            'progress' => $progress,
+            'deadline' => $deadline,
+            'settings' => $settings,
+        ];
+    }
 
     public function request(Order $order, User $user, string $reason): Refund
     {
@@ -33,6 +68,11 @@ class RefundService
 
             if ($locked->refund()->exists()) {
                 throw new RuntimeException('Refund untuk pesanan ini sudah pernah diajukan.');
+            }
+
+            $eligibility = $this->eligibility($locked, $user);
+            if (! $eligibility['eligible']) {
+                throw new RuntimeException($eligibility['message']);
             }
 
             return $locked->refund()->create([
@@ -78,10 +118,14 @@ class RefundService
     public function approve(Refund $refund, User $admin, ?string $note = null): Refund
     {
         $approved = DB::transaction(function () use ($refund, $admin, $note) {
-            $locked = Refund::query()->lockForUpdate()->findOrFail($refund->id);
+            $locked = Refund::query()->with(['order.user', 'order.course'])->lockForUpdate()->findOrFail($refund->id);
 
             if (! $locked->isRequested()) {
                 throw new RuntimeException('Pengajuan refund ini sudah diproses.');
+            }
+
+            if ($locked->order->user->hasCertificateForCourse($locked->order->course)) {
+                throw new RuntimeException("Refund tidak dapat disetujui karena sertifikat kursus sudah diterbitkan: {$locked->order->course->title}.");
             }
 
             $locked->update([
