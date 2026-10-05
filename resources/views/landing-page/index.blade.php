@@ -261,6 +261,12 @@
                 </section>
             @endif
 
+            @if ($learningPaths->isNotEmpty())
+                <section id="jalur-belajar" class="border-y border-slate-200 bg-white py-16 sm:py-20">
+                    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><div class="max-w-2xl"><p class="text-xs font-extrabold uppercase tracking-[0.2em] text-bass-red">Belajar terarah</p><h2 class="mt-3 text-3xl font-extrabold tracking-tight text-navy sm:text-4xl">Jalur menuju kompetensi Anda</h2><p class="mt-3 text-slate-600">Rangkaian course dalam urutan yang disarankan, tanpa mengunci pilihan belajar Anda.</p></div><div class="mt-9 grid gap-5 md:grid-cols-3">@foreach ($learningPaths as $learningPath)<a href="{{ route('learning-paths.show', $learningPath) }}" class="group flex flex-col rounded-2xl border border-slate-200 bg-[#fafbfe] p-6 transition hover:-translate-y-1 hover:border-bass-red/30 hover:bg-white hover:shadow-card-hover"><div class="flex items-center justify-between"><span class="rounded-full bg-navy px-3 py-1 text-xs font-bold text-white">{{ $learningPath->courses->count() }} langkah</span><span class="text-xl text-slate-300 group-hover:text-bass-red">&rarr;</span></div><h3 class="mt-5 text-xl font-extrabold text-navy group-hover:text-bass-red">{{ $learningPath->title }}</h3>@if ($learningPath->short_description)<p class="mt-2 line-clamp-3 text-sm leading-6 text-slate-600">{{ $learningPath->short_description }}</p>@endif<div class="mt-6 border-t border-slate-200 pt-4 text-xs font-semibold text-slate-500">Mulai dari {{ $learningPath->courses->first()->title }}</div></a>@endforeach</div></div>
+                </section>
+            @endif
+
             <section id="program" class="scroll-mt-20 py-16 sm:py-20">
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">

@@ -84,6 +84,17 @@
         </section>
     @endif
 
+    @if ($learningPaths->isNotEmpty())
+        <section id="jalur-belajar" class="mb-10 scroll-mt-24">
+            <div class="mb-4"><p class="text-xs font-bold uppercase tracking-[0.2em] text-bass-red">Belajar terarah</p><h2 class="mt-1 text-xl font-bold text-gray-900">Jalur Belajar</h2><p class="mt-1 text-sm text-gray-500">Ikuti urutan course yang disarankan. Pendaftaran setiap course tetap terpisah.</p></div>
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                @foreach ($learningPaths as $learningPath)
+                    <a href="{{ route('learning-paths.show', $learningPath) }}" class="group rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-bass-red/30 hover:shadow-lg"><div class="flex items-center justify-between"><span class="rounded-full bg-bass-red-soft px-2.5 py-1 text-xs font-bold text-bass-red">{{ $learningPath->courses->count() }} langkah</span><span class="text-xl text-gray-300 group-hover:text-bass-red">&rarr;</span></div><h3 class="mt-4 text-lg font-bold text-navy group-hover:text-bass-red">{{ $learningPath->title }}</h3>@if ($learningPath->short_description)<p class="mt-2 line-clamp-2 text-sm text-gray-500">{{ $learningPath->short_description }}</p>@endif<p class="mt-4 line-clamp-1 text-xs font-medium text-gray-400">{{ $learningPath->courses->pluck('title')->join(' · ') }}</p></a>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
     @if ($courses->isEmpty())
         <div class="text-center py-20 bg-white rounded-xl border border-gray-200">
             <svg class="mx-auto w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">

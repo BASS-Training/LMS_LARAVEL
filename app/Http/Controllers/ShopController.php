@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Bundle;
 use App\Models\Category;
 use App\Models\Course;
+use App\Models\LearningPath;
 use App\Models\Tag;
 use App\Services\Payment\ServiceFee;
 use Illuminate\Http\Request;
@@ -78,6 +79,7 @@ class ShopController extends Controller
 
         return view('shop.index', [
             'bundles' => Bundle::query()->inCatalog()->with('courses')->latest()->get(),
+            'learningPaths' => LearningPath::query()->inCatalog()->visibleTo(Auth::user())->with('courses:id,title')->latest()->get(),
             'courses' => $courses,
             'search' => $search,
             'priceFilter' => $priceFilter,
@@ -104,6 +106,12 @@ class ShopController extends Controller
         ]);
 
         $user = Auth::user();
+        $learningPaths = LearningPath::query()
+            ->inCatalog()
+            ->visibleTo($user)
+            ->whereHas('courses', fn ($query) => $query->whereKey($course->id))
+            ->with('courses:id,title')
+            ->get();
 
         // Rincian harga hanya relevan untuk kursus berbayar. Saat pemilihan
         // metode aktif, biaya layanan berbeda per metode → tampilkan estimasi
@@ -121,6 +129,7 @@ class ShopController extends Controller
             'breakdown' => $breakdown,
             'methodsEnabled' => $methodsEnabled,
             'feeLabel' => $fee->label(),
+            'learningPaths' => $learningPaths,
         ]);
     }
 

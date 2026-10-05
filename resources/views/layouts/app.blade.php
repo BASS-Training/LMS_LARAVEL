@@ -78,7 +78,7 @@
                         @endcan
 
                         {{-- Admin dropdown --}}
-                        @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage course taxonomy','manage coupons','manage bundles'])
+                        @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage course taxonomy','manage coupons','manage bundles','manage learning paths'])
                         <div x-data="{ adminOpen: false }" class="relative">
                             <button @click="adminOpen = !adminOpen"
                                     @keydown.escape.window="adminOpen = false"
@@ -151,6 +151,11 @@
                                 @can('manage bundles')
                                 <div class="py-1" role="none">
                                     <a href="{{ route('admin.bundles.index') }}" class="dropdown-item-custom" role="menuitem">Manajemen Bundle</a>
+                                </div>
+                                @endcan
+                                @can('manage learning paths')
+                                <div class="py-1" role="none">
+                                    <a href="{{ route('admin.learning-paths.index') }}" class="dropdown-item-custom" role="menuitem">Manajemen Learning Path</a>
                                 </div>
                                 @endcan
                                 @can('manage course taxonomy')
@@ -303,7 +308,7 @@
                 </a>
                 @endcan
 
-                @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage course taxonomy','manage coupons','manage bundles'])
+                @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage course taxonomy','manage coupons','manage bundles','manage learning paths'])
                 <div class="pt-2 mt-1 border-t border-gray-100">
                     <p class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Admin</p>
                     @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage coupons'])
@@ -327,6 +332,9 @@
                     @endcanany
                     @can('manage bundles')
                     <a href="{{ route('admin.bundles.index') }}" class="responsive-nav-link-custom {{ request()->routeIs('admin.bundles.*') ? 'active' : '' }}">Manajemen Bundle</a>
+                    @endcan
+                    @can('manage learning paths')
+                    <a href="{{ route('admin.learning-paths.index') }}" class="responsive-nav-link-custom {{ request()->routeIs('admin.learning-paths.*') ? 'active' : '' }}">Manajemen Learning Path</a>
                     @endcan
                     @can('manage course taxonomy')
                     <a href="{{ route('admin.categories.index') }}" class="responsive-nav-link-custom {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">Kategori Course</a>

@@ -71,6 +71,10 @@
                 </div>
             @endif
 
+            @if ($learningPaths->isNotEmpty())
+                <section class="rounded-xl border border-gray-200 bg-white p-6"><p class="text-xs font-bold uppercase tracking-[0.16em] text-bass-red">Bagian dari jalur belajar</p><div class="mt-3 space-y-3">@foreach ($learningPaths as $learningPath)@php($position = $learningPath->courses->search(fn ($pathCourse) => $pathCourse->is($course)) + 1)<a href="{{ route('learning-paths.show', $learningPath) }}" class="flex items-center justify-between gap-4 rounded-xl bg-gray-50 p-4 hover:bg-bass-red-soft"><div><h2 class="font-semibold text-gray-900">{{ $learningPath->title }}</h2><p class="mt-1 text-xs text-gray-500">Langkah {{ $position }} dari {{ $learningPath->courses->count() }}</p></div><span class="text-bass-red">&rarr;</span></a>@endforeach</div></section>
+            @endif
+
             {{-- Kurikulum: judul saja, isi digembok --}}
             <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100">

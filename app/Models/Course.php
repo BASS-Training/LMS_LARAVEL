@@ -79,6 +79,13 @@ class Course extends Model
             ->withPivot('sort_order');
     }
 
+    public function learningPaths()
+    {
+        return $this->belongsToMany(LearningPath::class, 'course_learning_path')
+            ->withPivot('sort_order')
+            ->orderByPivot('sort_order');
+    }
+
     // Relasi ke Lesson (satu kursus punya banyak pelajaran)
     public function lessons()
     {

@@ -149,6 +149,13 @@ class RouteMiddlewareCoverageTest extends TestCase
             'admin.bundles.edit',
             'admin.bundles.update',
             'admin.bundles.destroy',
+            'admin.learning-paths.index',
+            'admin.learning-paths.course-options',
+            'admin.learning-paths.create',
+            'admin.learning-paths.store',
+            'admin.learning-paths.edit',
+            'admin.learning-paths.update',
+            'admin.learning-paths.destroy',
         ];
 
         $routes = collect(Route::getRoutes());
