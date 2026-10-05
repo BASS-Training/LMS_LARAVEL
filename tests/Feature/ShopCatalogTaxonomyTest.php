@@ -51,4 +51,42 @@ class ShopCatalogTaxonomyTest extends TestCase
         $this->get(route('shop.index', ['category' => $inactive->slug]))
             ->assertSessionHasErrors('category');
     }
+
+    public function test_catalog_sorts_courses_by_price_and_rejects_invalid_sort(): void
+    {
+        $expensive = Course::factory()->create([
+            'title' => 'Course Lebih Mahal',
+            'status' => 'published',
+            'visibility' => 'catalog',
+            'price' => 300000,
+        ]);
+        $cheap = Course::factory()->create([
+            'title' => 'Course Lebih Murah',
+            'status' => 'published',
+            'visibility' => 'catalog',
+            'price' => 100000,
+        ]);
+
+        $this->get(route('shop.index', ['sort' => 'price_asc']))
+            ->assertOk()
+            ->assertSeeTextInOrder(['Course Lebih Murah', 'Course Lebih Mahal']);
+
+        $samePrice = Course::factory()->create([
+            'title' => 'Course Harga Sama',
+            'status' => 'published',
+            'visibility' => 'catalog',
+            'price' => 100000,
+        ]);
+
+        $this->get(route('shop.index', ['sort' => 'price_asc']))
+            ->assertOk()
+            ->assertSeeTextInOrder(
+                $cheap->id < $samePrice->id
+                    ? [$cheap->title, $samePrice->title, $expensive->title]
+                    : [$samePrice->title, $cheap->title, $expensive->title]
+            );
+
+        $this->get(route('shop.index', ['sort' => 'unknown']))
+            ->assertSessionHasErrors('sort');
+    }
 }

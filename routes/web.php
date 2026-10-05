@@ -60,7 +60,9 @@ Route::get('/certificates/download/{code}', [CertificateController::class, 'publ
 | dan hanya judul kurikulum yang dibuka — isi konten tetap terkunci.
 */
 Route::get('/katalog', [ShopController::class, 'index'])->name('shop.index');
+Route::get('/bundles', [BundleController::class, 'index'])->name('bundles.index');
 Route::get('/bundles/{bundle}', [BundleController::class, 'show'])->name('bundles.show');
+Route::get('/learning-paths', [LearningPathController::class, 'index'])->name('learning-paths.index');
 Route::get('/learning-paths/{learningPath}', [LearningPathController::class, 'show'])->name('learning-paths.show');
 Route::get('/katalog/{course}', [ShopController::class, 'show'])->name('shop.show');
 Route::post('/katalog/{course}/daftar-gratis', [ShopController::class, 'enrollFree'])->name('shop.enroll-free');

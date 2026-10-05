@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Bundle;
 use App\Models\Category;
 use App\Models\Course;
 use App\Models\LearningPath;
@@ -38,6 +37,7 @@ class ShopController extends Controller
             'harga' => ['nullable', Rule::in(['free', 'paid'])],
             'category' => ['nullable', 'string', Rule::exists('categories', 'slug')->where('is_active', true)],
             'tag' => ['nullable', 'string', Rule::exists('tags', 'slug')->where('is_active', true)],
+            'sort' => ['nullable', Rule::in(['latest', 'price_asc', 'price_desc'])],
         ]);
         $search = $validated['q'] ?? null;
         $query = Course::inCatalog()->with([
@@ -72,19 +72,24 @@ class ShopController extends Controller
             $query->whereHas('tags', fn ($query) => $query->active()->where('slug', $tagFilter));
         }
 
+        $sort = $validated['sort'] ?? 'latest';
+        match ($sort) {
+            'price_asc' => $query->orderByRaw('COALESCE(price, 0) asc')->orderBy('id'),
+            'price_desc' => $query->orderByDesc('price')->orderBy('id'),
+            default => $query->latest()->orderByDesc('id'),
+        };
+
         $courses = $query->withCount('lessons')
-            ->latest()
             ->paginate(8)
             ->withQueryString();
 
         return view('shop.index', [
-            'bundles' => Bundle::query()->inCatalog()->with('courses')->latest()->get(),
-            'learningPaths' => LearningPath::query()->inCatalog()->visibleTo(Auth::user())->with('courses:id,title')->latest()->get(),
             'courses' => $courses,
             'search' => $search,
             'priceFilter' => $priceFilter,
             'categoryFilter' => $categoryFilter,
             'tagFilter' => $tagFilter,
+            'sort' => $sort,
             'categories' => Category::active()->ordered()->get(['id', 'name', 'slug']),
             'tags' => Tag::active()->orderBy('name')->get(['id', 'name', 'slug']),
             'enrolledIds' => $this->enrolledIds($courses->pluck('id')->all()),

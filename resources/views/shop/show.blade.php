@@ -1,246 +1,85 @@
-@extends('layouts.app')
+@extends('layouts.public')
 
 @section('title', $course->title)
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-    <a href="{{ route('shop.index') }}" class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-bass-red mb-5">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-        </svg>
-        Kembali ke katalog
-    </a>
-
-    @if ($errors->has('shop'))
-        <div class="mb-5 rounded-lg bg-error-soft border border-error/30 px-4 py-3 text-sm text-error" role="alert">
-            {{ $errors->first('shop') }}
-        </div>
-    @endif
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-        {{-- ─────────── KIRI: Detail ─────────── --}}
-        <div class="lg:col-span-2 space-y-6">
-
-            <div>
-                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $course->title }}</h1>
-
-                @if ($course->short_description)
-                    <p class="mt-2 text-gray-600">{{ $course->short_description }}</p>
-                @endif
-
-                @if ($course->categories->isNotEmpty() || $course->tags->isNotEmpty())
-                    <div class="mt-4 flex flex-wrap gap-2">
-                        @foreach ($course->categories as $category)
-                            <a href="{{ route('shop.index', ['category' => $category->slug]) }}" class="rounded-full bg-navy/10 px-3 py-1 text-xs font-semibold text-navy hover:bg-navy/20">{{ $category->name }}</a>
-                        @endforeach
-                        @foreach ($course->tags as $tag)
-                            <a href="{{ route('shop.index', ['tag' => $tag->slug]) }}" class="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600 hover:bg-gray-200">#{{ $tag->name }}</a>
-                        @endforeach
-                    </div>
-                @endif
-
-                <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-gray-500">
-                    <span class="inline-flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                        {{ $course->instructors->pluck('name')->join(', ') ?: 'Instruktur BASS' }}
-                    </span>
-                    <span class="inline-flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
-                        {{ $course->lessons->count() }} pelajaran &middot; {{ $totalContents }} materi
-                    </span>
-                </div>
-            </div>
-
-            @if ($course->description)
-                <div class="bg-white rounded-xl border border-gray-200 p-6">
-                    <h2 class="font-semibold text-gray-900 mb-3">Tentang kursus ini</h2>
-                    <div class="prose prose-sm max-w-none text-gray-700">
-                        {!! $course->description !!}
-                    </div>
-                </div>
-            @endif
-
-            @if ($course->objectives)
-                <div class="bg-white rounded-xl border border-gray-200 p-6">
-                    <h2 class="font-semibold text-gray-900 mb-3">Yang akan Anda pelajari</h2>
-                    <div class="prose prose-sm max-w-none text-gray-700">
-                        {!! $course->objectives !!}
-                    </div>
-                </div>
-            @endif
-
-            @if ($learningPaths->isNotEmpty())
-                <section class="rounded-xl border border-gray-200 bg-white p-6"><p class="text-xs font-bold uppercase tracking-[0.16em] text-bass-red">Bagian dari jalur belajar</p><div class="mt-3 space-y-3">@foreach ($learningPaths as $learningPath)@php($position = $learningPath->courses->search(fn ($pathCourse) => $pathCourse->is($course)) + 1)<a href="{{ route('learning-paths.show', $learningPath) }}" class="flex items-center justify-between gap-4 rounded-xl bg-gray-50 p-4 hover:bg-bass-red-soft"><div><h2 class="font-semibold text-gray-900">{{ $learningPath->title }}</h2><p class="mt-1 text-xs text-gray-500">Langkah {{ $position }} dari {{ $learningPath->courses->count() }}</p></div><span class="text-bass-red">&rarr;</span></a>@endforeach</div></section>
-            @endif
-
-            {{-- Kurikulum: judul saja, isi digembok --}}
-            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100">
-                    <h2 class="font-semibold text-gray-900">Kurikulum</h2>
-                    @unless ($isEnrolled)
-                        <p class="mt-0.5 text-xs text-gray-500">Materi terbuka setelah Anda terdaftar.</p>
-                    @endunless
-                </div>
-
-                <div class="divide-y divide-gray-100">
-                    @forelse ($course->lessons as $i => $lesson)
-                        <div x-data="{ open: {{ $i === 0 ? 'true' : 'false' }} }">
-                            <button type="button" @click="open = !open"
-                                    class="w-full flex items-center justify-between gap-3 px-6 py-4 text-left hover:bg-gray-50 transition-colors">
-                                <span class="flex items-center gap-3 min-w-0">
-                                    <span class="flex-shrink-0 w-7 h-7 rounded-full bg-gray-100 text-gray-600 text-xs font-semibold flex items-center justify-center">
-                                        {{ $i + 1 }}
-                                    </span>
-                                    <span class="font-medium text-gray-900 truncate">{{ $lesson->title }}</span>
-                                </span>
-                                <span class="flex items-center gap-2 flex-shrink-0">
-                                    <span class="text-xs text-gray-400">{{ $lesson->contents->count() }} materi</span>
-                                    <svg class="w-4 h-4 text-gray-400 transition-transform" :class="{ 'rotate-180': open }"
-                                         fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                                    </svg>
-                                </span>
-                            </button>
-
-                            <div x-show="open" x-collapse style="display:none" class="pb-2">
-                                @foreach ($lesson->contents as $content)
-                                    <div class="flex items-center gap-3 pl-16 pr-6 py-2 text-sm">
-                                        <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                        </svg>
-                                        <span class="text-gray-600 truncate">{{ $content->title }}</span>
-                                        <span class="ml-auto text-xs text-gray-400 capitalize flex-shrink-0">{{ $content->type }}</span>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    @empty
-                        <p class="px-6 py-8 text-center text-sm text-gray-500">Kurikulum belum tersedia.</p>
-                    @endforelse
-                </div>
-            </div>
-        </div>
-
-        {{-- ─────────── KANAN: Kartu beli (sticky) ─────────── --}}
-        <div class="lg:col-span-1">
-            <div class="lg:sticky lg:top-24 bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-
-                <div class="aspect-video bg-gray-100">
-                    @if ($course->thumbnail)
-                        <img src="{{ asset('storage/' . $course->thumbnail) }}" alt="{{ $course->title }}"
-                             class="w-full h-full object-cover">
-                    @else
-                        <div class="w-full h-full flex items-center justify-center bg-gray-200">
-                            <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                            </svg>
-                        </div>
-                    @endif
-                </div>
-
-                <div class="p-6 space-y-4">
-                    @if ($breakdown && $breakdown['fee'] > 0 && ($methodsEnabled ?? false))
-                        {{-- Biaya layanan berbeda per metode → tampilkan harga saja;
-                             biaya persisnya muncul saat memilih metode di checkout. --}}
-                        <p class="text-3xl font-bold text-gray-900">
-                            Rp {{ number_format($breakdown['base'], 0, ',', '.') }}
-                        </p>
-                    @elseif ($breakdown && $breakdown['fee'] > 0)
-                        <div>
-                            <p class="text-3xl font-bold text-gray-900">
-                                Rp {{ number_format($breakdown['total'], 0, ',', '.') }}
-                            </p>
-                            <p class="mt-0.5 text-xs text-gray-400">Sudah termasuk {{ strtolower($feeLabel) }}</p>
-
-                            <dl class="mt-3 space-y-1.5 text-sm">
-                                <div class="flex justify-between text-gray-600">
-                                    <dt>Harga kursus</dt>
-                                    <dd>Rp {{ number_format($breakdown['base'], 0, ',', '.') }}</dd>
-                                </div>
-                                <div class="flex justify-between text-gray-600">
-                                    <dt>{{ $feeLabel }}</dt>
-                                    <dd>Rp {{ number_format($breakdown['fee'], 0, ',', '.') }}</dd>
-                                </div>
-                                <div class="flex justify-between pt-1.5 border-t border-gray-100 font-semibold text-gray-900">
-                                    <dt>Total</dt>
-                                    <dd>Rp {{ number_format($breakdown['total'], 0, ',', '.') }}</dd>
-                                </div>
-                            </dl>
-                        </div>
-                    @else
-                        <p class="text-3xl font-bold {{ $course->isFree() ? 'text-success' : 'text-navy' }}">
-                            {{ $course->price_label }}
-                        </p>
-                    @endif
-
-                    @if (! Auth::check())
-                        <a href="{{ route('login') }}"
-                           class="w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors">
-                            Masuk untuk {{ $course->isFree() ? 'mendaftar' : 'membeli' }}
-                        </a>
-                        <p class="text-center text-xs text-gray-500">
-                            Belum punya akun?
-                            <a href="{{ route('register') }}" class="text-bass-red font-medium hover:underline">Daftar gratis</a>
-                        </p>
-
-                    @elseif ($isEnrolled)
-                        <a href="{{ route('courses.show', $course) }}"
-                           class="w-full inline-flex items-center justify-center gap-2 min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                            Lanjutkan Belajar
-                        </a>
-                        <p class="text-center text-xs text-gray-500">Anda sudah terdaftar di kursus ini.</p>
-
-                    @elseif ($isManager)
-                        <a href="{{ route('courses.show', $course) }}"
-                           class="w-full inline-flex items-center justify-center gap-2 min-h-[48px] rounded-lg bg-navy text-white font-semibold hover:bg-navy-light transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                            Kelola Kursus
-                        </a>
-                        <p class="text-center text-xs text-gray-500">
-                            Anda pengelola kursus ini — semua materi bisa langsung dibuka, tak perlu membeli.
-                        </p>
-
-                    @elseif ($course->isFree())
-                        <form method="POST" action="{{ route('shop.enroll-free', $course) }}">
-                            @csrf
-                            <button type="submit"
-                                    class="w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors">
-                                Daftar Gratis
-                            </button>
-                        </form>
-                        <p class="text-center text-xs text-gray-500">Langsung bisa diakses setelah mendaftar.</p>
-
-                    @else
-                        <a href="{{ route('checkout.choose', $course) }}"
-                           class="w-full inline-flex items-center justify-center gap-2 min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                            Beli Sekarang
-                        </a>
-                        <p class="text-center text-xs text-gray-500">
-                            Pilih metode: QRIS, e-wallet, transfer bank, atau kartu.
-                        </p>
-                    @endif
-
-                    <div class="pt-4 border-t border-gray-100 space-y-2 text-sm text-gray-600">
-                        <p class="flex items-center gap-2">
-                            <svg class="w-4 h-4 text-success flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                            Akses selamanya
-                        </p>
-                        <p class="flex items-center gap-2">
-                            <svg class="w-4 h-4 text-success flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                            Bisa dibuka di aplikasi mobile
-                        </p>
-                        <p class="flex items-center gap-2">
-                            <svg class="w-4 h-4 text-success flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                            Sertifikat setelah lulus
-                        </p>
-                    </div>
-                </div>
-            </div>
+<header class="relative overflow-hidden bg-navy pb-32 pt-10 text-white">
+    <div class="pointer-events-none absolute -right-8 -top-20 text-[20rem] font-extrabold leading-none text-white/[0.04] [font-family:Fraunces,serif]">B</div>
+    <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <nav class="text-xs font-semibold text-white/60"><a href="{{ route('welcome') }}" class="hover:text-white">Beranda</a> <span class="mx-1">/</span> <a href="{{ route('shop.index') }}" class="hover:text-white">Katalog</a> <span class="mx-1">/</span> {{ $course->title }}</nav>
+        <p class="mt-8 text-xs font-bold uppercase tracking-[0.2em] text-bass-gold">Course BASS</p>
+        <h1 class="mt-3 max-w-4xl text-4xl font-extrabold leading-[1.03] tracking-[-0.035em] [font-family:Fraunces,serif] sm:text-6xl">{{ $course->title }}</h1>
+        @if ($course->short_description)<p class="mt-5 max-w-3xl text-lg leading-8 text-white/75">{{ $course->short_description }}</p>@endif
+        <div class="mt-6 flex flex-wrap gap-2 text-xs font-semibold">
+            <span class="rounded-full border-2 border-bass-gold bg-bass-gold px-3 py-1.5 text-navy">{{ $course->price_label }}</span>
+            <span class="rounded-full border border-white/60 px-3 py-1.5">{{ $course->lessons->count() }} pelajaran</span>
+            <span class="rounded-full border border-white/60 px-3 py-1.5">{{ $totalContents }} materi</span>
+            <span class="rounded-full border border-white/60 px-3 py-1.5">{{ $course->instructors->pluck('name')->join(', ') ?: 'Instruktur BASS' }}</span>
         </div>
     </div>
+</header>
+
+<div class="relative mx-auto -mt-24 grid max-w-7xl items-start gap-10 px-4 pb-16 sm:px-6 lg:grid-cols-[1fr_350px] lg:px-8">
+    <main class="order-2 space-y-9 pt-4 lg:order-1 lg:pt-28">
+        @if ($errors->has('shop'))<div class="rounded-xl border-2 border-error bg-error-soft px-4 py-3 text-sm font-semibold text-error" role="alert">{{ $errors->first('shop') }}</div>@endif
+
+        @if ($course->objectives)
+            <section><h2 class="text-3xl font-extrabold [font-family:Fraunces,serif]">Yang akan Anda pelajari</h2><div class="prose prose-sm mt-4 max-w-none text-slate-700 prose-li:marker:text-bass-red">{!! $course->objectives !!}</div></section>
+        @endif
+
+        @if ($course->description)
+            <section><h2 class="text-3xl font-extrabold [font-family:Fraunces,serif]">Tentang course ini</h2><div class="prose prose-sm mt-4 max-w-none text-slate-700">{!! $course->description !!}</div></section>
+        @endif
+
+        @if ($learningPaths->isNotEmpty())
+            <section class="rounded-2xl border-2 border-navy bg-navy p-6 text-white shadow-[6px_6px_0_#F6C945]">
+                <p class="text-xs font-bold uppercase tracking-[0.16em] text-bass-gold">Bagian dari Learning Path</p>
+                <div class="mt-4 space-y-3">@foreach ($learningPaths as $learningPath)@php($position = $learningPath->courses->search(fn ($pathCourse) => $pathCourse->is($course)) + 1)<a href="{{ route('learning-paths.show', $learningPath) }}" class="flex items-center justify-between gap-4 rounded-xl border border-white/20 bg-white/10 p-4 hover:bg-white/15"><div><h3 class="font-bold">{{ $learningPath->title }}</h3><p class="mt-1 text-xs text-white/60">Langkah {{ $position }} dari {{ $learningPath->courses->count() }}</p></div><span class="text-bass-gold">&rarr;</span></a>@endforeach</div>
+            </section>
+        @endif
+
+        <section>
+            <div class="flex flex-col justify-between gap-2 sm:flex-row sm:items-end"><h2 class="text-3xl font-extrabold [font-family:Fraunces,serif]">Kurikulum</h2>@unless ($isEnrolled)<p class="text-xs text-slate-500">Isi materi terbuka setelah Anda terdaftar.</p>@endunless</div>
+            <div class="mt-5 space-y-3">
+                @forelse ($course->lessons as $i => $lesson)
+                    <details class="group rounded-xl border-2 border-navy bg-[#fffdf7] px-5" @if ($i === 0) open @endif>
+                        <summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-4"><span class="flex min-w-0 items-center gap-3"><span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-navy text-xs font-bold">{{ $i + 1 }}</span><strong class="truncate text-lg [font-family:Fraunces,serif]">{{ $lesson->title }}</strong></span><span class="text-xs text-slate-500">{{ $lesson->contents->count() }} materi</span></summary>
+                        <div class="border-t border-dashed border-navy/20 pb-3 pt-2">@foreach ($lesson->contents as $content)<div class="flex items-center gap-3 py-2 pl-11 text-sm text-slate-600"><span class="h-2 w-2 shrink-0 rounded-full bg-bass-red"></span><span class="truncate">{{ $content->title }}</span><span class="ml-auto shrink-0 text-xs capitalize text-slate-400">{{ $content->type }}</span></div>@endforeach</div>
+                    </details>
+                @empty
+                    <div class="rounded-xl border-2 border-dashed border-navy bg-[#fffdf7] px-6 py-10 text-center text-sm text-slate-500">Kurikulum belum tersedia.</div>
+                @endforelse
+            </div>
+        </section>
+    </main>
+
+    <aside class="order-1 lg:order-2">
+        <div class="sticky top-24 overflow-hidden rounded-2xl border-2 border-navy bg-[#fffdf7] shadow-[8px_8px_0_#F6C945]">
+            <div class="aspect-video bg-navy">@if ($course->thumbnail)<img src="{{ asset('storage/'.$course->thumbnail) }}" alt="{{ $course->title }}" class="h-full w-full object-cover">@else<div class="flex h-full items-center justify-center text-7xl font-extrabold text-white/20 [font-family:Fraunces,serif]">BASS</div>@endif</div>
+            <div class="space-y-4 p-6">
+                @if ($breakdown && $breakdown['fee'] > 0 && ($methodsEnabled ?? false))
+                    <p class="text-4xl font-extrabold [font-family:Fraunces,serif]">Rp {{ number_format($breakdown['base'], 0, ',', '.') }}</p>
+                @elseif ($breakdown && $breakdown['fee'] > 0)
+                    <div><p class="text-4xl font-extrabold [font-family:Fraunces,serif]">Rp {{ number_format($breakdown['total'], 0, ',', '.') }}</p><p class="mt-1 text-xs text-slate-500">Sudah termasuk {{ strtolower($feeLabel) }}</p><dl class="mt-4 space-y-2 border-t border-dashed border-navy/20 pt-3 text-sm"><div class="flex justify-between"><dt>Harga course</dt><dd>Rp {{ number_format($breakdown['base'], 0, ',', '.') }}</dd></div><div class="flex justify-between"><dt>{{ $feeLabel }}</dt><dd>Rp {{ number_format($breakdown['fee'], 0, ',', '.') }}</dd></div></dl></div>
+                @else
+                    <p class="text-4xl font-extrabold {{ $course->isFree() ? 'text-success' : '' }} [font-family:Fraunces,serif]">{{ $course->price_label }}</p>
+                @endif
+
+                @guest
+                    <a href="{{ route('login') }}" class="inline-flex min-h-12 w-full items-center justify-center rounded-xl border-2 border-navy bg-bass-red px-5 font-bold text-white shadow-[4px_4px_0_#17243A]">Masuk untuk {{ $course->isFree() ? 'Mendaftar' : 'Membeli' }}</a><p class="text-center text-xs text-slate-500">Belum punya akun? <a href="{{ route('register') }}" class="font-bold text-bass-red">Daftar gratis</a></p>
+                @elseif ($isEnrolled)
+                    <a href="{{ route('courses.show', $course) }}" class="inline-flex min-h-12 w-full items-center justify-center rounded-xl border-2 border-navy bg-bass-red px-5 font-bold text-white shadow-[4px_4px_0_#17243A]">Lanjutkan Belajar</a><p class="text-center text-xs text-slate-500">Anda sudah terdaftar di course ini.</p>
+                @elseif ($isManager)
+                    <a href="{{ route('courses.show', $course) }}" class="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-navy px-5 font-bold text-white">Kelola Course</a><p class="text-center text-xs text-slate-500">Pengelola dapat membuka seluruh materi tanpa membeli.</p>
+                @elseif ($course->isFree())
+                    <form method="POST" action="{{ route('shop.enroll-free', $course) }}">@csrf<button class="inline-flex min-h-12 w-full items-center justify-center rounded-xl border-2 border-navy bg-bass-red px-5 font-bold text-white shadow-[4px_4px_0_#17243A]">Daftar Gratis</button></form><p class="text-center text-xs text-slate-500">Langsung bisa diakses setelah mendaftar.</p>
+                @else
+                    <a href="{{ route('checkout.choose', $course) }}" class="inline-flex min-h-12 w-full items-center justify-center rounded-xl border-2 border-navy bg-bass-red px-5 font-bold text-white shadow-[4px_4px_0_#17243A]">Beli Sekarang</a><p class="text-center text-xs text-slate-500">Pilih QRIS, e-wallet, transfer bank, atau kartu.</p>
+                @endguest
+
+                <ul class="border-t border-dashed border-navy/20 pt-3 text-sm"><li class="py-1.5">Akses pembelajaran setelah terdaftar</li><li class="py-1.5">Dapat dibuka melalui web dan mobile</li><li class="py-1.5">Sertifikat sesuai persyaratan course</li></ul>
+            </div>
+        </div>
+    </aside>
 </div>
 @endsection

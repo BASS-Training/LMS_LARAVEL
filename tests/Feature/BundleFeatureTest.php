@@ -44,6 +44,56 @@ class BundleFeatureTest extends TestCase
             ->assertSee('Rp 50.000');
     }
 
+    public function test_bundle_has_its_own_menu_and_listing_outside_course_catalog(): void
+    {
+        [$bundle] = $this->bundle();
+        $inactive = Bundle::factory()->create([
+            'title' => 'Bundle Nonaktif',
+            'is_active' => false,
+        ]);
+
+        $this->get(route('shop.index'))
+            ->assertOk()
+            ->assertDontSeeText($bundle->title)
+            ->assertDontSeeText($inactive->title)
+            ->assertSee(route('bundles.index'), false);
+
+        $this->get(route('bundles.index'))
+            ->assertOk()
+            ->assertSeeText($bundle->title)
+            ->assertDontSeeText($inactive->title);
+    }
+
+    public function test_avpn_bundle_is_only_visible_and_purchasable_by_approved_users(): void
+    {
+        [$bundle, $courses] = $this->bundle();
+        $courses->each->update(['program_type' => 'avpn_ai']);
+        $pending = User::factory()->create(['avpn_verification_status' => 'pending']);
+        $approved = User::factory()->create(['avpn_verification_status' => 'approved']);
+
+        $this->get(route('welcome'))->assertDontSeeText($bundle->title);
+        $this->get(route('bundles.index'))->assertDontSeeText($bundle->title);
+        $this->get(route('bundles.show', $bundle))->assertNotFound();
+
+        $this->actingAs($pending)
+            ->get(route('welcome'))
+            ->assertDontSeeText($bundle->title);
+        $this
+            ->get(route('bundles.index'))
+            ->assertDontSeeText($bundle->title);
+        $this->get(route('bundles.show', $bundle))->assertNotFound();
+        $this->get(route('checkout.bundle.choose', $bundle))->assertNotFound();
+        $this->post(route('checkout.bundle.store', $bundle))->assertNotFound();
+
+        $this->actingAs($approved)
+            ->get(route('welcome'))
+            ->assertSeeText($bundle->title);
+        $this
+            ->get(route('bundles.index'))
+            ->assertSeeText($bundle->title);
+        $this->get(route('bundles.show', $bundle))->assertOk();
+    }
+
     public function test_bundle_checkout_snapshots_membership_price_and_global_coupon(): void
     {
         [$bundle, $courses] = $this->bundle(price: 150000);

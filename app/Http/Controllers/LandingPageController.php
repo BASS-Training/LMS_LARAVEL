@@ -20,6 +20,7 @@ class LandingPageController extends Controller
             ->get();
 
         $bundles = Bundle::inCatalog()
+            ->visibleTo(Auth::user())
             ->with('courses:id,title,thumbnail,price')
             ->latest()
             ->limit(3)

@@ -109,7 +109,7 @@ class LearningPathFeatureTest extends TestCase
         $this->assertDatabaseCount('orders', 0);
     }
 
-    public function test_landing_and_catalog_only_show_eligible_learning_paths(): void
+    public function test_learning_path_has_its_own_menu_and_listing_outside_course_catalog(): void
     {
         $courses = Course::factory()->count(2)->create([
             'status' => 'published',
@@ -126,6 +126,12 @@ class LearningPathFeatureTest extends TestCase
             ->assertDontSeeText('Jalur Nonaktif');
 
         $this->get(route('shop.index'))
+            ->assertOk()
+            ->assertDontSeeText('Jalur Publik')
+            ->assertDontSeeText('Jalur Nonaktif')
+            ->assertSee(route('learning-paths.index'), false);
+
+        $this->get(route('learning-paths.index'))
             ->assertOk()
             ->assertSeeText('Jalur Publik')
             ->assertDontSeeText('Jalur Nonaktif');

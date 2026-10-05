@@ -100,7 +100,7 @@ class CheckoutController extends Controller
 
     public function chooseBundle(Bundle $bundle)
     {
-        abort_unless($bundle->isInCatalog(), 404);
+        abort_unless($bundle->isVisibleInCatalog(Auth::user()), 404);
         $bundle->load('courses');
         $user = Auth::user();
         $pricing = $this->orders->bundlePricing($bundle, $user);
@@ -167,7 +167,7 @@ class CheckoutController extends Controller
 
     public function applyBundleCoupon(Request $request, Bundle $bundle)
     {
-        abort_unless($bundle->isInCatalog(), 404);
+        abort_unless($bundle->isVisibleInCatalog(Auth::user()), 404);
         $validated = $request->validate(['coupon_code' => ['required', 'string', 'max:50']]);
         $pricing = $this->orders->bundlePricing($bundle, Auth::user());
 
@@ -190,6 +190,7 @@ class CheckoutController extends Controller
 
     public function removeBundleCoupon(Bundle $bundle)
     {
+        abort_unless($bundle->isVisibleInCatalog(Auth::user()), 404);
         session()->forget($this->bundleCouponSessionKey($bundle));
 
         return redirect()->route('checkout.bundle.choose', $bundle)
@@ -261,7 +262,7 @@ class CheckoutController extends Controller
 
     public function storeBundle(Bundle $bundle, Request $request)
     {
-        abort_unless($bundle->isInCatalog(), 404);
+        abort_unless($bundle->isVisibleInCatalog(Auth::user()), 404);
         $methodKey = null;
 
         if ($this->fee->methodsEnabled()) {

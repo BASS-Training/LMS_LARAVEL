@@ -9,11 +9,22 @@ use Illuminate\Support\Facades\Auth;
 
 class BundleController extends Controller
 {
+    public function index()
+    {
+        return view('bundles.index', [
+            'bundles' => Bundle::inCatalog()
+                ->visibleTo(Auth::user())
+                ->with('courses:id,title,thumbnail,price')
+                ->latest()
+                ->paginate(12),
+        ]);
+    }
+
     public function show(Bundle $bundle, OrderService $orders, ServiceFee $fee)
     {
-        abort_unless($bundle->isInCatalog(), 404);
-        $bundle->load('courses.instructors');
         $user = Auth::user();
+        abort_unless($bundle->isVisibleInCatalog($user), 404);
+        $bundle->load('courses.instructors');
         $pricing = $user ? $orders->bundlePricing($bundle, $user) : [
             'bundle_discount' => 0,
             'payable_base' => (int) $bundle->price,

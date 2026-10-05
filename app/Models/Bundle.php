@@ -54,9 +54,23 @@ class Bundle extends Model
             }));
     }
 
+    public function scopeVisibleTo(Builder $query, ?User $user): Builder
+    {
+        if (! $user?->canAccessProgram('avpn_ai')) {
+            $query->whereDoesntHave('courses', fn (Builder $query) => $query->where('program_type', 'avpn_ai'));
+        }
+
+        return $query;
+    }
+
     public function isInCatalog(): bool
     {
         return self::query()->inCatalog()->whereKey($this->getKey())->exists();
+    }
+
+    public function isVisibleInCatalog(?User $user): bool
+    {
+        return self::query()->inCatalog()->visibleTo($user)->whereKey($this->getKey())->exists();
     }
 
     public function originalPrice(): int

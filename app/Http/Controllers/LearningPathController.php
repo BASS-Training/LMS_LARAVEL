@@ -8,6 +8,17 @@ use Illuminate\Support\Facades\Auth;
 
 class LearningPathController extends Controller
 {
+    public function index()
+    {
+        return view('learning-paths.index', [
+            'learningPaths' => LearningPath::inCatalog()
+                ->visibleTo(Auth::user())
+                ->with('courses:id,title,thumbnail,price')
+                ->latest()
+                ->paginate(12),
+        ]);
+    }
+
     public function show(LearningPath $learningPath, LearningPathProgressService $progressService)
     {
         $user = Auth::user();

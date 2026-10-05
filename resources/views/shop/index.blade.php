@@ -1,185 +1,87 @@
-@extends('layouts.app')
+@extends('layouts.public')
 
-@section('title', 'Katalog Kursus')
+@section('title', 'Katalog Course')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div x-data="{ filtersOpen: false }" class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <header class="pb-8">
+        <nav class="text-xs font-semibold text-slate-500"><a href="{{ route('welcome') }}" class="hover:text-bass-red">Beranda</a> <span class="mx-1">/</span> Katalog Course</nav>
+        <p class="mt-8 text-xs font-bold uppercase tracking-[0.2em] text-bass-red">Katalog BASS</p>
+        <h1 class="mt-3 text-4xl font-extrabold tracking-[-0.035em] [font-family:Fraunces,serif] sm:text-6xl">Semua <em class="font-medium text-bass-red">course</em></h1>
+        <p class="mt-4 max-w-2xl text-lg text-slate-600">Pilih course sesuai kebutuhan. Untuk paket lebih hemat atau urutan belajar terarah, kunjungi Bundle dan Learning Path.</p>
+    </header>
 
-    {{-- Hero --}}
-    <div class="mb-8">
-        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Katalog Kursus</h1>
-        <p class="mt-1 text-sm text-gray-500">
-            Jelajahi kursus yang tersedia. Pilih, daftar, dan mulai belajar hari ini.
-        </p>
-    </div>
+    <form method="GET" action="{{ route('shop.index') }}" class="grid gap-8 lg:grid-cols-[240px_1fr]">
+        <aside :class="filtersOpen ? 'block' : 'hidden'" class="h-fit rounded-2xl border-2 border-navy bg-[#fffdf7] p-5 lg:sticky lg:top-24 lg:block">
+            <div class="flex items-center justify-between border-b border-dashed border-navy/20 pb-4"><h2 class="font-extrabold [font-family:Fraunces,serif]">Filter Course</h2><a href="{{ route('shop.index') }}" class="text-xs font-bold text-bass-red">Reset</a></div>
 
-    {{-- Filter --}}
-    <form method="GET" action="{{ route('shop.index') }}" class="mb-6 grid grid-cols-1 gap-3 lg:grid-cols-12">
-        <div class="relative lg:col-span-4">
-            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-            <input type="search" name="q" value="{{ $search }}" placeholder="Cari kursus…"
-                   class="w-full pl-10 pr-4 py-2.5 rounded-lg border-gray-300 focus:border-bass-red focus:ring-bass-red text-sm">
-        </div>
+            <fieldset class="border-b border-dashed border-navy/20 py-5">
+                <legend class="text-xs font-bold uppercase tracking-[0.15em] text-bass-red">Harga</legend>
+                <div class="mt-3 space-y-2 text-sm">
+                    @foreach (['' => 'Semua harga', 'free' => 'Gratis', 'paid' => 'Berbayar'] as $value => $label)
+                        <label class="flex cursor-pointer items-center gap-2"><input type="radio" name="harga" value="{{ $value }}" @checked($priceFilter === ($value ?: null)) class="border-navy text-bass-red focus:ring-bass-red"> {{ $label }}</label>
+                    @endforeach
+                </div>
+            </fieldset>
 
-        <select name="category" class="rounded-lg border-gray-300 text-sm focus:border-bass-red focus:ring-bass-red lg:col-span-2">
-            <option value="">Semua kategori</option>
-            @foreach ($categories as $category)
-                <option value="{{ $category->slug }}" @selected($categoryFilter === $category->slug)>{{ $category->name }}</option>
-            @endforeach
-        </select>
+            @if ($categories->isNotEmpty())
+                <div class="border-b border-dashed border-navy/20 py-5">
+                    <label for="catalog-category" class="text-xs font-bold uppercase tracking-[0.15em] text-bass-red">Kategori</label>
+                    <select id="catalog-category" name="category" class="mt-3 min-h-11 w-full rounded-lg border-2 border-navy bg-white text-sm focus:border-bass-red focus:ring-bass-red"><option value="">Semua kategori</option>@foreach ($categories as $category)<option value="{{ $category->slug }}" @selected($categoryFilter === $category->slug)>{{ $category->name }}</option>@endforeach</select>
+                </div>
+            @endif
 
-        <select name="tag" class="rounded-lg border-gray-300 text-sm focus:border-bass-red focus:ring-bass-red lg:col-span-2">
-            <option value="">Semua tag</option>
-            @foreach ($tags as $tag)
-                <option value="{{ $tag->slug }}" @selected($tagFilter === $tag->slug)>{{ $tag->name }}</option>
-            @endforeach
-        </select>
+            @if ($tags->isNotEmpty())
+                <div class="py-5">
+                    <label for="catalog-tag" class="text-xs font-bold uppercase tracking-[0.15em] text-bass-red">Tag</label>
+                    <select id="catalog-tag" name="tag" class="mt-3 min-h-11 w-full rounded-lg border-2 border-navy bg-white text-sm focus:border-bass-red focus:ring-bass-red"><option value="">Semua tag</option>@foreach ($tags as $tag)<option value="{{ $tag->slug }}" @selected($tagFilter === $tag->slug)>{{ $tag->name }}</option>@endforeach</select>
+                </div>
+            @endif
 
-        <div class="flex gap-2 lg:col-span-4">
-            @foreach (['' => 'Semua', 'free' => 'Gratis', 'paid' => 'Berbayar'] as $value => $label)
-                <button type="submit" name="harga" value="{{ $value }}"
-                        class="flex-1 px-3 py-2.5 rounded-lg text-sm font-medium border transition-colors
-                               {{ $priceFilter === ($value ?: null)
-                                   ? 'bg-bass-red text-white border-bass-red'
-                                   : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50' }}">
-                    {{ $label }}
-                </button>
-            @endforeach
+            <button class="mt-1 inline-flex min-h-11 w-full items-center justify-center rounded-lg border-2 border-navy bg-bass-red px-4 text-sm font-bold text-white shadow-[3px_3px_0_#17243A]">Terapkan Filter</button>
+        </aside>
+
+        <div class="min-w-0">
+            <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <button type="button" @click="filtersOpen = !filtersOpen" class="inline-flex min-h-11 items-center justify-center rounded-full border-2 border-navy bg-[#fffdf7] px-4 text-sm font-bold lg:hidden">Filter</button>
+                <p class="font-bold">{{ $courses->total() }} course ditemukan</p>
+                <div class="flex flex-1 flex-col gap-2 sm:ml-auto sm:max-w-xl sm:flex-row">
+                    <input type="search" name="q" value="{{ $search }}" placeholder="Cari course..." class="min-h-11 min-w-0 flex-1 rounded-full border-2 border-navy bg-[#fffdf7] px-4 text-sm focus:border-bass-red focus:ring-bass-red">
+                    <select name="sort" class="min-h-11 rounded-full border-2 border-navy bg-[#fffdf7] px-4 text-sm focus:border-bass-red focus:ring-bass-red"><option value="latest" @selected($sort === 'latest')>Terbaru</option><option value="price_asc" @selected($sort === 'price_asc')>Harga terendah</option><option value="price_desc" @selected($sort === 'price_desc')>Harga tertinggi</option></select>
+                    <button class="min-h-11 rounded-full bg-navy px-5 text-sm font-bold text-white">Cari</button>
+                </div>
+            </div>
+
+            @if ($courses->isEmpty())
+                <div class="rounded-2xl border-2 border-dashed border-navy bg-[#fffdf7] px-6 py-16 text-center"><h2 class="text-xl font-extrabold [font-family:Fraunces,serif]">Belum ada kursus di katalog</h2><p class="mt-2 text-sm text-slate-500">{{ $search ? 'Coba kata kunci atau filter lain.' : 'Kursus yang tersedia akan muncul di sini.' }}</p></div>
+            @else
+                <div class="space-y-4">
+                    @foreach ($courses as $course)
+                        @php
+                            $owned = in_array($course->id, $enrolledIds, true);
+                            $managed = in_array($course->id, $managedIds, true);
+                        @endphp
+                        <article class="group overflow-hidden rounded-xl border-2 border-navy bg-[#fffdf7] transition hover:translate-x-1 hover:shadow-[-6px_6px_0_#DA1E1E] sm:flex">
+                            <a href="{{ route('shop.show', $course) }}" class="relative flex h-28 shrink-0 items-end overflow-hidden bg-navy p-3 text-white sm:h-auto sm:w-40">
+                                @if ($course->thumbnail)<img src="{{ asset('storage/'.$course->thumbnail) }}" alt="{{ $course->title }}" class="absolute inset-0 h-full w-full object-cover" loading="lazy"><span class="absolute inset-0 bg-navy/45"></span>@endif
+                                <span class="relative rounded bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-navy">Course</span>
+                            </a>
+                            <a href="{{ route('shop.show', $course) }}" class="min-w-0 flex-1 p-4 sm:p-5">
+                                <div class="flex flex-wrap gap-2">@if ($managed)<span class="rounded-md bg-navy px-2 py-1 text-xs font-bold text-white">Dikelola</span>@elseif ($owned)<span class="rounded-md bg-success-soft px-2 py-1 text-xs font-bold text-success">Sudah dimiliki</span>@endif @foreach ($course->categories->take(1) as $category)<span class="rounded-md border border-navy/20 px-2 py-1 text-xs font-semibold">{{ $category->name }}</span>@endforeach</div>
+                                <h2 class="mt-3 text-xl font-extrabold leading-tight group-hover:text-bass-red [font-family:Fraunces,serif]">{{ $course->title }}</h2>
+                                @if ($course->short_description)<p class="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{{ $course->short_description }}</p>@endif
+                                <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500"><span>{{ $course->instructors->pluck('name')->join(', ') ?: 'Instruktur BASS' }}</span><span>{{ $course->lessons_count }} pelajaran</span>@foreach ($course->tags->take(2) as $tag)<span>#{{ $tag->name }}</span>@endforeach</div>
+                            </a>
+                            <div class="flex items-center justify-between gap-4 border-t-2 border-dashed border-navy/20 p-4 sm:w-48 sm:flex-col sm:items-end sm:justify-center sm:border-l-2 sm:border-t-0">
+                                <strong class="text-xl font-extrabold {{ $course->isFree() ? 'text-success' : 'text-navy' }} [font-family:Fraunces,serif]">{{ $course->price_label }}</strong>
+                                <a href="{{ route('shop.show', $course) }}" class="rounded-lg bg-navy px-4 py-2 text-xs font-bold text-white">Lihat Detail</a>
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+                <div class="mt-8">{{ $courses->links() }}</div>
+            @endif
         </div>
     </form>
-
-    @if ($bundles->isNotEmpty())
-        <section id="paket-kursus" class="mb-10 scroll-mt-24">
-            <div class="mb-4 flex items-end justify-between gap-4">
-                <div>
-                    <p class="text-xs font-bold uppercase tracking-[0.2em] text-bass-red">Lebih hemat</p>
-                    <h2 class="mt-1 text-xl font-bold text-gray-900">Paket Kursus</h2>
-                </div>
-                <p class="hidden text-sm text-gray-500 sm:block">Beberapa kursus dalam satu transaksi</p>
-            </div>
-            <div class="grid gap-4 md:grid-cols-2">
-                @foreach ($bundles as $bundle)
-                    <a href="{{ route('bundles.show', $bundle) }}" class="group rounded-2xl border border-navy/15 bg-navy p-5 text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
-                        <div class="flex items-start justify-between gap-4">
-                            <div>
-                                <span class="rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold">{{ $bundle->courses->count() }} kursus</span>
-                                <h3 class="mt-4 text-xl font-bold group-hover:text-red-100">{{ $bundle->title }}</h3>
-                            </div>
-                            <span class="text-2xl text-white/60" aria-hidden="true">&rarr;</span>
-                        </div>
-                        <div class="mt-6 flex items-end justify-between gap-4 border-t border-white/10 pt-4">
-                            <div>
-                                <p class="text-xs text-white/60 line-through">{{ $bundle->original_price_label }}</p>
-                                <p class="text-lg font-bold">{{ $bundle->price_label }}</p>
-                            </div>
-                            @if ($bundle->savings() > 0)
-                                <span class="rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-navy">Hemat {{ $bundle->savings_label }}</span>
-                            @endif
-                        </div>
-                    </a>
-                @endforeach
-            </div>
-        </section>
-    @endif
-
-    @if ($learningPaths->isNotEmpty())
-        <section id="jalur-belajar" class="mb-10 scroll-mt-24">
-            <div class="mb-4"><p class="text-xs font-bold uppercase tracking-[0.2em] text-bass-red">Belajar terarah</p><h2 class="mt-1 text-xl font-bold text-gray-900">Jalur Belajar</h2><p class="mt-1 text-sm text-gray-500">Ikuti urutan course yang disarankan. Pendaftaran setiap course tetap terpisah.</p></div>
-            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                @foreach ($learningPaths as $learningPath)
-                    <a href="{{ route('learning-paths.show', $learningPath) }}" class="group rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-bass-red/30 hover:shadow-lg"><div class="flex items-center justify-between"><span class="rounded-full bg-bass-red-soft px-2.5 py-1 text-xs font-bold text-bass-red">{{ $learningPath->courses->count() }} langkah</span><span class="text-xl text-gray-300 group-hover:text-bass-red">&rarr;</span></div><h3 class="mt-4 text-lg font-bold text-navy group-hover:text-bass-red">{{ $learningPath->title }}</h3>@if ($learningPath->short_description)<p class="mt-2 line-clamp-2 text-sm text-gray-500">{{ $learningPath->short_description }}</p>@endif<p class="mt-4 line-clamp-1 text-xs font-medium text-gray-400">{{ $learningPath->courses->pluck('title')->join(' · ') }}</p></a>
-                @endforeach
-            </div>
-        </section>
-    @endif
-
-    @if ($courses->isEmpty())
-        <div class="text-center py-20 bg-white rounded-xl border border-gray-200">
-            <svg class="mx-auto w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-            </svg>
-            <p class="mt-4 text-sm font-medium text-gray-900">Belum ada kursus di katalog</p>
-            <p class="mt-1 text-sm text-gray-500">
-                {{ $search ? 'Coba kata kunci lain.' : 'Kursus yang dijual akan muncul di sini.' }}
-            </p>
-        </div>
-    @else
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            @foreach ($courses as $course)
-                @php
-                    $owned = in_array($course->id, $enrolledIds, true);
-                    $managed = in_array($course->id, $managedIds, true);
-                @endphp
-
-                <a href="{{ route('shop.show', $course) }}"
-                   class="group flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-gray-300 transition-all">
-
-                    {{-- Thumbnail --}}
-                    <div class="relative aspect-video bg-gray-100 overflow-hidden">
-                        @if ($course->thumbnail)
-                            <img src="{{ asset('storage/' . $course->thumbnail) }}" alt="{{ $course->title }}"
-                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                 loading="lazy">
-                        @else
-                            <div class="w-full h-full flex items-center justify-center bg-gray-200">
-                                <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                                </svg>
-                            </div>
-                        @endif
-
-                        @if ($managed)
-                            <span class="absolute top-2 left-2 px-2 py-1 rounded-md bg-navy text-white text-xs font-semibold shadow">
-                                Dikelola
-                            </span>
-                        @elseif ($owned)
-                            <span class="absolute top-2 left-2 px-2 py-1 rounded-md bg-success text-white text-xs font-semibold shadow">
-                                Sudah dimiliki
-                            </span>
-                        @endif
-                    </div>
-
-                    {{-- Body --}}
-                    <div class="flex-1 flex flex-col p-4">
-                        <h2 class="font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-bass-red transition-colors">
-                            {{ $course->title }}
-                        </h2>
-
-                        @if ($course->short_description)
-                            <p class="mt-1.5 text-sm text-gray-500 line-clamp-2">{{ $course->short_description }}</p>
-                        @endif
-
-                        @if ($course->categories->isNotEmpty() || $course->tags->isNotEmpty())
-                            <div class="mt-3 flex flex-wrap gap-1.5">
-                                @foreach ($course->categories->take(1) as $category)
-                                    <span class="rounded-full bg-navy/10 px-2 py-0.5 text-xs font-medium text-navy">{{ $category->name }}</span>
-                                @endforeach
-                                @foreach ($course->tags->take(2) as $tag)
-                                    <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">#{{ $tag->name }}</span>
-                                @endforeach
-                            </div>
-                        @endif
-
-                        <p class="mt-2 text-xs text-gray-400">
-                            {{ $course->instructors->pluck('name')->join(', ') ?: 'Instruktur BASS' }}
-                        </p>
-
-                        <div class="mt-auto pt-3 flex items-center justify-between">
-                            <span class="text-xs text-gray-500">{{ $course->lessons_count }} pelajaran</span>
-                            <span class="font-bold {{ $course->isFree() ? 'text-success' : 'text-navy' }}">
-                                {{ $course->price_label }}
-                            </span>
-                        </div>
-                    </div>
-                </a>
-            @endforeach
-        </div>
-
-        <div class="mt-8">
-            {{ $courses->links() }}
-        </div>
-    @endif
 </div>
 @endsection
