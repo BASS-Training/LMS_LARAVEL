@@ -201,6 +201,9 @@
                         Batalkan Pesanan
                     </button>
                 </form>
+                <p class="mt-1 text-center text-xs text-gray-400">
+                    Tagihan ini akan dinonaktifkan dan Anda dapat membuat pesanan baru kapan saja.
+                </p>
             </div>
 
         @elseif ($order->isCancellationPending())

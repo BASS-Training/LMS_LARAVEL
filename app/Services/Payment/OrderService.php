@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use RuntimeException;
+use Throwable;
 
 /**
  * Aturan bisnis pembelian kursus.
@@ -736,6 +737,26 @@ class OrderService
 
     public function expirePending(Order $order): bool
     {
+        $fresh = $order->fresh();
+
+        if (! $fresh?->isPending() || ! $fresh->expires_at?->isPast()) {
+            return false;
+        }
+
+        if ($this->gateway->isConfigured()) {
+            $identifier = $fresh->transaction_id ?: $fresh->order_code;
+
+            try {
+                $this->gateway->cancelTransaction($identifier);
+            } catch (Throwable $exception) {
+                Log::warning('Gagal membatalkan tagihan Midtrans yang kedaluwarsa', [
+                    'order_code' => $fresh->order_code,
+                    'transaction_id' => $fresh->transaction_id,
+                    'message' => $exception->getMessage(),
+                ]);
+            }
+        }
+
         return DB::transaction(function () use ($order) {
             $locked = Order::query()->lockForUpdate()->find($order->id);
 
