@@ -1,7 +1,16 @@
 # Rencana: Sistem Kupon (Voucher)
 
-Status: **RENCANA — belum diimplementasikan.**
-Dokumen ini disiapkan agar implementasi bisa langsung dijalankan kapan pun diperlukan.
+Status: **MVP DIIMPLEMENTASIKAN — checkout default NONAKTIF.**
+
+Implementasi tersedia untuk checkout web course tunggal, kupon global/per-course,
+reservasi kuota, admin CRUD, invoice, dan lifecycle order. Aktivasi memerlukan dua lapis kontrol:
+
+```text
+COUPONS_FEATURE_ENABLED=true
+Admin > Manajemen Kupon > Aktifkan Checkout
+```
+
+Default environment dan database sama-sama `false`, sehingga deployment tidak langsung menampilkan kupon.
 
 Referensi riset: `docs/system/COURSE-COMMERCE-ROADMAP.md`
 - §6.2 Kupon — rancangan tabel asli.
@@ -11,24 +20,26 @@ Referensi riset: `docs/system/COURSE-COMMERCE-ROADMAP.md`
 
 ---
 
-## 1. Keputusan yang Masih Perlu Dikonfirmasi
+## 1. Keputusan MVP yang Diterapkan
 
-Sebelum eksekusi, putuskan dulu:
+Keputusan implementasi:
 
-1. **Kapan limit pemakaian dihitung — saat order dibuat atau saat paid?**
+1. **Limit direservasi saat order dibuat.**
    - Roadmap (§6.2): validasi + pembuatan order dalam satu transaksi → limit di-reserve saat order dibuat.
    - Risiko: order pending yang dibatalkan/kedaluwarsa tetap menghabiskan limit → perlu aturan rilis (mis. `coupon_redemptions` dihapus saat `OrderService::abandon()` / order expired, atau hanya hitung redemption yang order-nya paid).
    - **Saran**: reserve saat order dibuat + rilis saat abandon/expired → limit akurat tanpa menunggu bayar.
-2. **Kupon global dulu atau langsung per-course (`coupon_course`)?**
-   - **Saran MVP**: global (tanpa pivot `coupon_course`) — pivot ditambahkan hanya kalau ada kebutuhan kupon khusus course.
-   - Jika langsung pakai `coupon_course`, ikuti skema roadmap §6.2 persis.
-3. **Menumpuk dengan promosi terjadwal (`course_promotions` §6.1)?**
-   - **Saran MVP**: promosi terjadwal TIDAK dibuat dulu — kupon saja. Kalau nanti keduanya ada, putuskan apakah boleh stack (saran: tidak boleh, cukup pakai yang paling menguntungkan).
+2. **Kupon mendukung global dan course tertentu** melalui `coupon_course`.
+3. **Promosi terjadwal belum dibuat**, sehingga stacking belum didukung.
+4. **Diskon yang menghasilkan Rp0 ditolak**; tidak ada enrollment gratis melalui kupon.
+5. **Redemption dilepas** hanya untuk order unpaid `failed`, `cancelled`, atau `expired`.
+6. **Redemption dipertahankan** untuk paid, awaiting verification, rejected setelah uang diterima, dan refunded.
+7. **Order pending yang sudah memiliki redemption tetap memakai snapshot** walau kupon kemudian dinonaktifkan/kedaluwarsa.
 
 Aturan yang sudah bisa diasumsikan (konsisten dengan keputusan bundle):
 - **Fee dihitung dari harga SETELAH diskon** (fee % mengikuti yang benar-benar ditagih ke Midtrans).
-- Kupon bisa dipakai untuk order course tunggal DAN order bundle (diskon dihitung dari `base_amount` sebelum fee).
-- Berlaku di web checkout; mobile tetap lewat Website (tidak ada in-app purchase).
+- MVP mendukung order course tunggal dan bundle.
+- Order bundle hanya menerima kupon global (`applies_to_all_courses = true`); kupon course-specific ditolak.
+- Berlaku di web checkout; mobile tidak memiliki checkout atau tautan pembelian.
 
 ---
 
@@ -58,22 +69,29 @@ coupon_redemptions
 - unique(coupon_id, order_id)
 - index(coupon_id, user_id)
 
+coupon_settings
+- checkout_enabled bool default false
+- updated_by nullable -> users.id
+
 -- opsional (jika kupon per-course, lihat §1 butir 2):
 coupon_course
 - coupon_id -> coupons.id
 - course_id -> courses.id
 - unique(coupon_id, course_id)
 
+coupons
+- + applies_to_all_courses bool default true
+
 orders (ALTER)
 - + coupon_code nullable string      -- snapshot kode saat checkout
-- + discount_amount unsigned int     -- SHARED dengan plan bundle!
+- + discount_amount unsigned int     -- diskon kupon saja
 ```
 
-> **PENTING — jangan dobel migration:**
-> - `orders.discount_amount` dibuat oleh **`docs/future/COURSE-BUNDLE-PLAN.md`** (untuk potongan kepemilikan course dalam bundle).
-> - Kupon hanya menambah **`orders.coupon_code`** dan MENGISI `discount_amount` untuk transaksi ber-kupon.
-> - Jika kupon dieksekusi PERTAMA, kupon yang membuat `discount_amount` + `coupon_code`, bundle hanya menambah `bundle_id` dan mengisi `discount_amount` yang sudah ada.
-> - Kolom `orders.discount_amount` menyimpan SATU angka final yang mengurangi `base_amount`. Untuk MVP tidak ada stacking bundle+kupon dalam satu order (kupon pada order bundle boleh, hasilnya satu angka gabungan yang disimpan).
+> **Kontrak dengan fitur bundle:**
+> - Migration kupon sudah membuat `orders.discount_amount` dan `orders.coupon_code`; migration bundle tidak boleh membuatnya lagi.
+> - `orders.discount_amount` selalu menyimpan diskon kupon.
+> - Potongan karena course dalam bundle sudah dimiliki disimpan terpisah di `orders.bundle_discount_amount`.
+> - Urutan bundle: harga bundle → `bundle_discount_amount` → kupon global (`discount_amount`) → `base_amount` → biaya layanan.
 
 ---
 
@@ -86,7 +104,7 @@ orders (ALTER)
   - `computeDiscount(int $amount): int` — fixed → min(value, amount); percentage → `amount * value / 100` (bulatkan ke atas ke rupiah utuh), selalu `min(discount, amount)` (harga tidak negatif).
   - `remainingGlobalUsage(): ?int`, `redeemedCountBy(User): int`.
 - **`app/Models/CouponRedemption.php` (baru)**.
-- **`app/Models/Order.php`**: tambah `coupon_code` ke fillable (sudah ada `discount_amount` dari plan bundle).
+- **`app/Models/Order.php`**: `coupon_code` dan `discount_amount` sudah ditambahkan oleh implementasi kupon; bundle hanya menambah field miliknya sendiri.
 
 ### 3.2 Layanan Validasi + Penerapan
 
@@ -110,6 +128,7 @@ public function validateAndApply(Coupon $coupon, int $amount, User $user): int
 - **`OrderService::checkout()` dan `checkoutBundle()`**:
   - Parameter baru `?string $couponCode = null`.
   - Urutan hitung: `base awal` (harga course / harga bundle setelah potongan kepemilikan) → `discount = CouponService::validateAndApply(...)` → `base = base awal − discount` → `ServiceFee::forMethod(base, methodKey)` → `amount = base + fee`.
+  - Untuk bundle, tolak kupon course-specific dan hanya izinkan kupon global.
   - Simpan `coupon_code`, `discount_amount` di order. Buat `coupon_redemptions` dalam transaksi yang sama.
   - Reuse order pending (dedupe): cocokkan juga `coupon_code` — order lama dengan kode berbeda tidak di-reuse, buat order baru.
 - **`OrderService::abandon()`**: sesuai keputusan §1 butir 1 — bila memakai reserve-at-order, hapus `coupon_redemptions` order ini saat abandon (dan saat order berstatus `expired`).
@@ -135,14 +154,14 @@ public function validateAndApply(Coupon $coupon, int $amount, User $user): int
 
 ### 3.6 Invoice / Tampilan Order
 
-- `invoices/pdf.blade.php` + `checkout/finish.blade.php`: tampilkan baris "Diskon (KODE)" −Rp … bila `discount_amount > 0 && coupon_code` (bundle juga menampilkan diskonnya — bedakan label: bundle = "Potongan bundle", kupon = "Kupon {kode}").
+- `invoices/pdf.blade.php` + `checkout/finish.blade.php`: tampilkan baris "Kupon {KODE}" −Rp … bila `discount_amount > 0 && coupon_code`. Saat bundle diimplementasikan, `bundle_discount_amount` ditampilkan pada baris "Potongan kepemilikan course" yang terpisah.
   - Opsional MVP: cukup satu baris "Diskon" dengan catatan `coupon_code` di metadata.
 
 ---
 
 ## 4. Mobile API
 
-- **Tidak ada endpoint kupon khusus** — kupon dimasukkan saat checkout di WEBSITE (mobile tetap lewat tombol Website, konsisten dengan arsitektur tanpa in-app purchase).
+- **Tidak ada endpoint kupon mobile** — kupon hanya tersedia jika pengguna secara mandiri membuka checkout web. Aplikasi mobile tidak menampilkan tombol/link pembelian.
 - Opsional (nanti): `GET /api/mobile/coupons/validate?code=...` hanya bila mobile kelak punya halaman checkout sendiri — TIDAK termasuk scope MVP.
 
 ---
@@ -172,19 +191,19 @@ public function validateAndApply(Coupon $coupon, int $amount, User $user): int
 
 ## 7. Tahapan Eksekusi
 
-1. **Fase 1 — Inti**: migration (cek dulu `discount_amount` sudah ada dari plan bundle atau belum) → `Coupon`/`CouponRedemption` model → `CouponService` → integrasi `OrderService::checkout()`/`checkoutBundle()` + `abandon()`.
+1. **Fase 1 — Inti**: migration kupon membuat `discount_amount` → `Coupon`/`CouponRedemption` model → `CouponService` → integrasi `OrderService::checkout()` + `abandon()`. Integrasi `checkoutBundle()` dilakukan saat fitur bundle dibangun.
 2. **Fase 2 — UI**: input kupon di `checkout/choose.blade.php` + estimasi hitung-ulang + session saat `changeMethod` → invoice/finish baris diskon.
 3. **Fase 3 — Admin**: permission → route → controller → view → test permission.
 4. **Fase 4 — Test + docs** (lihat §5, §6). Gate: `./vendor/bin/pint` + `php artisan test` lulus.
 
-> Estimasi urutan relatif plan bundle: **setelah Fase A bundle** (karena berbagi kolom `discount_amount` dan menyentuh `OrderService` yang sama) — tapi bisa berdiri sendiri lebih dulu asal migration-nya yang membuat `discount_amount`.
+> Kupon diimplementasikan lebih dahulu. Bundle memakai kolom kupon yang sudah ada dan menyimpan potongan kepemilikan secara terpisah pada `bundle_discount_amount`.
 
 ---
 
 ## 8. Catatan Edge (Ditetapkan)
 
-- Kupon 100% diskon → `base = 0` → **tolak** (Midtrans butuh amount > 0) atau otomatis enroll gratis tanpa lewat Midtrans? **Saran MVP: tolak dengan pesan "Kupon tidak berlaku untuk transaksi ini"** — putuskan saat eksekusi.
-- Kupon untuk order bundle: diskon dihitung dari `base_amount` order bundle (setelah potongan kepemilikan), bukan dari harga course individual.
+- Kupon yang menghasilkan `base <= 0` ditolak karena Midtrans membutuhkan nominal positif.
+- Kupon untuk order bundle: hanya kupon global yang diizinkan dan diskon dihitung dari harga bundle setelah potongan kepemilikan, bukan dari harga course individual.
 - Pembeli menyetujui verifikasi manual (`approve()`) — redemption sudah tercatat sejak order dibuat; tidak diubah saat approve.
-- Kupon dipakai lalu order-nya `failed`/`rejected` → tergantung keputusan §1 butir 1 (riil: rilis saat status non-pending yang bukan paid).
+- Kupon pada order unpaid `failed` dilepas; `rejected` setelah dana dikonfirmasi tetap dianggap terpakai.
 - Kode kupon case-insensitive: normalisasi `strtoupper()` di controller + service.

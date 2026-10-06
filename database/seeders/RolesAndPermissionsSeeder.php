@@ -22,6 +22,9 @@ class RolesAndPermissionsSeeder extends Seeder
             // Users & Roles
             'manage users',
             'manage roles',
+            'manage coupons',
+            'manage bundles',
+            'manage learning paths',
 
             // Courses (global dan milik sendiri)
             'view courses',

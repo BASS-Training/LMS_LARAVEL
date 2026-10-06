@@ -28,12 +28,12 @@ class PaymentVerificationController extends Controller
     /** Antrian pesanan yang menunggu verifikasi + riwayat keputusan terbaru. */
     public function index()
     {
-        $orders = Order::with(['user', 'course'])
+        $orders = Order::with(['user', 'course', 'bundle', 'items'])
             ->where('status', 'awaiting_verification')
             ->latest('payment_confirmed_at')
             ->paginate(15);
 
-        $recent = Order::with(['user', 'course', 'verifiedBy'])
+        $recent = Order::with(['user', 'course', 'bundle', 'items', 'verifiedBy'])
             ->whereIn('status', ['paid', 'rejected'])
             ->whereNotNull('verified_at')
             ->latest('verified_at')
@@ -46,7 +46,7 @@ class PaymentVerificationController extends Controller
     /** Detail satu pesanan + bukti pembayaran dari Midtrans. */
     public function show(Order $order)
     {
-        $order->load(['user', 'course', 'verifiedBy']);
+        $order->load(['user', 'course', 'bundle', 'items.course', 'verifiedBy']);
 
         return view('admin.payment-verifications.show', compact('order'));
     }
@@ -60,11 +60,12 @@ class PaymentVerificationController extends Controller
         $this->orders->approve($order, Auth::user());
 
         ActivityLog::log('payment_verified', [
-            'description' => "Menyetujui pembayaran {$order->order_code} ({$order->course->title})",
+            'description' => "Menyetujui pembayaran {$order->order_code} ({$order->order_title})",
             'metadata' => [
                 'order_code' => $order->order_code,
                 'user_id' => $order->user_id,
                 'course_id' => $order->course_id,
+                'bundle_id' => $order->bundle_id,
                 'amount' => $order->amount,
             ],
         ]);
@@ -91,7 +92,7 @@ class PaymentVerificationController extends Controller
         );
 
         ActivityLog::log('payment_rejected', [
-            'description' => "Menolak pembayaran {$order->order_code} ({$order->course->title})",
+            'description' => "Menolak pembayaran {$order->order_code} ({$order->order_title})",
             'metadata' => [
                 'order_code' => $order->order_code,
                 'reason' => $validated['reason'],

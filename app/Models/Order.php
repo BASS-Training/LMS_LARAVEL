@@ -30,11 +30,17 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'course_id',
+        'bundle_id',
+        'product_title',
+        'requires_payment_verification',
         'order_code',
         'invoice_number',
         'amount',
         'base_amount',
         'fee_amount',
+        'coupon_code',
+        'discount_amount',
+        'bundle_discount_amount',
         'status',
         'payment_type',
         'payment_method_key',
@@ -57,6 +63,9 @@ class Order extends Model
         'amount' => 'integer',
         'base_amount' => 'integer',
         'fee_amount' => 'integer',
+        'discount_amount' => 'integer',
+        'bundle_discount_amount' => 'integer',
+        'requires_payment_verification' => 'boolean',
         'paid_at' => 'datetime',
         'payment_confirmed_at' => 'datetime',
         'verified_at' => 'datetime',
@@ -73,6 +82,16 @@ class Order extends Model
     public function course()
     {
         return $this->belongsTo(Course::class);
+    }
+
+    public function bundle()
+    {
+        return $this->belongsTo(Bundle::class);
+    }
+
+    public function items()
+    {
+        return $this->hasMany(OrderItem::class)->orderBy('sort_order');
     }
 
     /** Super-admin yang menyetujui akses (mode verifikasi manual). */
@@ -94,6 +113,11 @@ class Order extends Model
     public function refund()
     {
         return $this->hasOne(Refund::class);
+    }
+
+    public function couponRedemption()
+    {
+        return $this->hasOne(CouponRedemption::class);
     }
 
     public function isPending(): bool
@@ -163,9 +187,46 @@ class Order extends Model
         return $this->rupiah($this->fee_amount);
     }
 
+    public function getDiscountAmountLabelAttribute(): string
+    {
+        return $this->rupiah($this->discount_amount);
+    }
+
+    public function getOriginalBaseAmountAttribute(): int
+    {
+        return (int) $this->base_amount
+            + (int) $this->discount_amount
+            + (int) $this->bundle_discount_amount;
+    }
+
+    public function getOriginalBaseAmountLabelAttribute(): string
+    {
+        return $this->rupiah($this->original_base_amount);
+    }
+
+    public function hasDiscount(): bool
+    {
+        return (int) $this->discount_amount > 0;
+    }
+
+    public function hasBundleDiscount(): bool
+    {
+        return (int) $this->bundle_discount_amount > 0;
+    }
+
+    public function getBundleDiscountAmountLabelAttribute(): string
+    {
+        return $this->rupiah($this->bundle_discount_amount);
+    }
+
+    public function isBundleOrder(): bool
+    {
+        return $this->bundle_id !== null;
+    }
+
     public function getOrderTitleAttribute(): string
     {
-        return (string) ($this->course?->title ?: 'Pesanan');
+        return (string) ($this->product_title ?: $this->bundle?->title ?: $this->course?->title ?: 'Pesanan');
     }
 
     /** Ada biaya layanan yang dirinci pada pesanan ini. */

@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Verifikasi Pembayaran')
 
@@ -41,7 +41,7 @@
         @forelse ($orders as $order)
             <div class="px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center gap-3">
                 <div class="flex-1 min-w-0">
-                    <div class="font-semibold text-gray-900 truncate">{{ $order->course->title }}</div>
+                    <div class="font-semibold text-gray-900 truncate">{{ $order->order_title }}</div>
                     <div class="text-sm text-gray-500">
                         {{ $order->user->name }} &middot; {{ $order->user->email }}
                     </div>
@@ -84,7 +84,7 @@
                         {{ $order->status_label }}
                     </span>
                     <span class="flex-1 min-w-0 truncate text-gray-700">
-                        {{ $order->course->title }} — {{ $order->user->name }}
+                        {{ $order->order_title }} — {{ $order->user->name }}
                     </span>
                     <span class="text-xs text-gray-400 whitespace-nowrap">
                         oleh {{ optional($order->verifiedBy)->name ?? 'sistem' }} &middot;

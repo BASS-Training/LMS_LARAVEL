@@ -82,7 +82,7 @@
                 <tr>
                     <td class="muted" style="text-align:left;">Metode pembayaran</td>
                     <td style="text-align:right; text-transform:capitalize;">
-                        {{ str_replace('_', ' ', (string) ($order->payment_type ?: '-')) }}
+                        {{ $order->payment_method_label }}
                     </td>
                 </tr>
                 @if ($order->transaction_id)
@@ -105,11 +105,29 @@
         <tbody>
             <tr>
                 <td>
-                    <div style="font-weight:bold;">{{ $order->course->title }}</div>
-                    <div class="muted" style="font-size:11px;">Akses kursus — selamanya</div>
+                    <div style="font-weight:bold;">{{ $order->order_title }}</div>
+                    <div class="muted" style="font-size:11px;">{{ $order->isBundleOrder() ? 'Akses paket kursus' : 'Akses kursus' }} — selamanya</div>
+                    @if ($order->isBundleOrder())
+                        <div class="muted" style="font-size:10px; margin-top:4px;">Termasuk: {{ $order->items->pluck('course_title')->join(', ') }}</div>
+                    @endif
                 </td>
-                <td class="num">{{ $order->base_amount_label }}</td>
+                <td class="num">{{ $order->original_base_amount_label }}</td>
             </tr>
+            @if ($order->hasDiscount())
+            <tr>
+                <td>
+                    <div style="font-weight:bold;">Kupon {{ $order->coupon_code }}</div>
+                    <div class="muted" style="font-size:11px;">Potongan harga</div>
+                </td>
+                <td class="num">-{{ $order->discount_amount_label }}</td>
+            </tr>
+            @endif
+            @if ($order->hasBundleDiscount())
+            <tr>
+                <td><div style="font-weight:bold;">Potongan kursus dimiliki</div></td>
+                <td class="num">-{{ $order->bundle_discount_amount_label }}</td>
+            </tr>
+            @endif
             @if ($order->hasFee())
             <tr>
                 <td>
@@ -125,8 +143,20 @@
     <table class="totals">
         <tr>
             <td class="muted">Subtotal</td>
-            <td style="text-align:right;">{{ $order->base_amount_label }}</td>
+            <td style="text-align:right;">{{ $order->original_base_amount_label }}</td>
         </tr>
+        @if ($order->hasDiscount())
+        <tr>
+            <td class="muted">Diskon ({{ $order->coupon_code }})</td>
+            <td style="text-align:right;">-{{ $order->discount_amount_label }}</td>
+        </tr>
+        @endif
+        @if ($order->hasBundleDiscount())
+        <tr>
+            <td class="muted">Potongan kepemilikan</td>
+            <td style="text-align:right;">-{{ $order->bundle_discount_amount_label }}</td>
+        </tr>
+        @endif
         @if ($order->hasFee())
         <tr>
             <td class="muted">{{ config('midtrans.fee.label', 'Biaya layanan') }}</td>

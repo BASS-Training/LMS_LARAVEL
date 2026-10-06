@@ -2,8 +2,11 @@
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AnnouncementController as AdminAnnouncementController;
+use App\Http\Controllers\Admin\BundleController as AdminBundleController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CertificateTemplateController;
+use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\LearningPathController as AdminLearningPathController;
 use App\Http\Controllers\Admin\PaymentVerificationController;
 use App\Http\Controllers\Admin\RefundController as AdminRefundController;
 use App\Http\Controllers\Admin\RoleController;
@@ -13,6 +16,7 @@ use App\Http\Controllers\Admin\UserImportController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\BundleController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContentController;
@@ -27,6 +31,7 @@ use App\Http\Controllers\FileControlController;
 use App\Http\Controllers\GradebookController;
 use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\LearningPathController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgressController;
@@ -55,6 +60,10 @@ Route::get('/certificates/download/{code}', [CertificateController::class, 'publ
 | dan hanya judul kurikulum yang dibuka — isi konten tetap terkunci.
 */
 Route::get('/katalog', [ShopController::class, 'index'])->name('shop.index');
+Route::get('/bundles', [BundleController::class, 'index'])->name('bundles.index');
+Route::get('/bundles/{bundle}', [BundleController::class, 'show'])->name('bundles.show');
+Route::get('/learning-paths', [LearningPathController::class, 'index'])->name('learning-paths.index');
+Route::get('/learning-paths/{learningPath}', [LearningPathController::class, 'show'])->name('learning-paths.show');
 Route::get('/katalog/{course}', [ShopController::class, 'show'])->name('shop.show');
 Route::post('/katalog/{course}/daftar-gratis', [ShopController::class, 'enrollFree'])->name('shop.enroll-free');
 
@@ -68,8 +77,15 @@ Route::post('/katalog/{course}/daftar-gratis', [ShopController::class, 'enrollFr
 */
 Route::post('/webhooks/midtrans', [CheckoutController::class, 'notification'])->name('checkout.notification');
 
+Route::get('/bundles/{bundle}/beli', [CheckoutController::class, 'chooseBundle'])->name('checkout.bundle.choose');
+Route::post('/bundles/{bundle}/beli', [CheckoutController::class, 'storeBundle'])->name('checkout.bundle.store');
+Route::post('/bundles/{bundle}/beli/kupon', [CheckoutController::class, 'applyBundleCoupon'])->name('checkout.bundle.coupon.apply');
+Route::delete('/bundles/{bundle}/beli/kupon', [CheckoutController::class, 'removeBundleCoupon'])->name('checkout.bundle.coupon.remove');
+
 Route::get('/katalog/{course}/beli', [CheckoutController::class, 'choose'])->name('checkout.choose');
 Route::post('/katalog/{course}/beli', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::post('/katalog/{course}/beli/kupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.coupon.apply');
+Route::delete('/katalog/{course}/beli/kupon', [CheckoutController::class, 'removeCoupon'])->name('checkout.coupon.remove');
 Route::get('/pesanan', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::get('/pesanan/{order}', [CheckoutController::class, 'finish'])->name('checkout.finish');
 Route::get('/pesanan/{order}/invoice', [CheckoutController::class, 'invoice'])->name('checkout.invoice');
@@ -90,6 +106,45 @@ Route::middleware(['auth', 'role:super-admin'])
         Route::get('/{order}', [PaymentVerificationController::class, 'show'])->name('show');
         Route::post('/{order}/setujui', [PaymentVerificationController::class, 'approve'])->name('approve');
         Route::post('/{order}/tolak', [PaymentVerificationController::class, 'reject'])->name('reject');
+    });
+
+Route::middleware(['auth', 'permission:manage coupons'])
+    ->prefix('admin/coupons')
+    ->name('admin.coupons.')
+    ->group(function () {
+        Route::patch('/checkout', [CouponController::class, 'updateCheckout'])->name('checkout.update');
+        Route::get('/', [CouponController::class, 'index'])->name('index');
+        Route::get('/create', [CouponController::class, 'create'])->name('create');
+        Route::post('/', [CouponController::class, 'store'])->name('store');
+        Route::get('/{coupon}/edit', [CouponController::class, 'edit'])->name('edit');
+        Route::put('/{coupon}', [CouponController::class, 'update'])->name('update');
+        Route::delete('/{coupon}', [CouponController::class, 'destroy'])->name('destroy');
+    });
+
+Route::middleware(['auth', 'permission:manage bundles'])
+    ->prefix('admin/bundles')
+    ->name('admin.bundles.')
+    ->group(function () {
+        Route::get('/course-options', [AdminBundleController::class, 'courseOptions'])->name('course-options');
+        Route::get('/', [AdminBundleController::class, 'index'])->name('index');
+        Route::get('/create', [AdminBundleController::class, 'create'])->name('create');
+        Route::post('/', [AdminBundleController::class, 'store'])->name('store');
+        Route::get('/{bundle}/edit', [AdminBundleController::class, 'edit'])->name('edit');
+        Route::put('/{bundle}', [AdminBundleController::class, 'update'])->name('update');
+        Route::delete('/{bundle}', [AdminBundleController::class, 'destroy'])->name('destroy');
+    });
+
+Route::middleware(['auth', 'permission:manage learning paths'])
+    ->prefix('admin/learning-paths')
+    ->name('admin.learning-paths.')
+    ->group(function () {
+        Route::get('/course-options', [AdminLearningPathController::class, 'courseOptions'])->name('course-options');
+        Route::get('/', [AdminLearningPathController::class, 'index'])->name('index');
+        Route::get('/create', [AdminLearningPathController::class, 'create'])->name('create');
+        Route::post('/', [AdminLearningPathController::class, 'store'])->name('store');
+        Route::get('/{learningPath}/edit', [AdminLearningPathController::class, 'edit'])->name('edit');
+        Route::put('/{learningPath}', [AdminLearningPathController::class, 'update'])->name('update');
+        Route::delete('/{learningPath}', [AdminLearningPathController::class, 'destroy'])->name('destroy');
     });
 
 Route::middleware(['auth', 'role:super-admin'])

@@ -3,6 +3,7 @@
 namespace App\Services\Payment;
 
 use App\Enums\RefundStatus;
+use App\Models\Course;
 use App\Models\Order;
 use App\Models\Refund;
 use App\Models\RefundSetting;
@@ -24,11 +25,13 @@ class RefundService
      */
     public function eligibility(Order $order, User $user): array
     {
-        $order->loadMissing('course');
+        $order->loadMissing(['course', 'items.course']);
         $settings = RefundSetting::current();
-        $progress = (float) $user->courseProgress($order->course);
+        $courses = $this->coursesForOrder($order);
+        $progress = (float) $courses->max(fn (Course $course) => $user->courseProgress($course));
         $deadline = $order->paid_at?->copy()->addDays($settings->request_window_days);
         $message = null;
+        $certificateCourse = $courses->first(fn (Course $course) => $user->hasCertificateForCourse($course));
 
         if ($order->user_id !== $user->id) {
             $message = 'Anda tidak dapat mengajukan refund untuk pesanan ini.';
@@ -40,8 +43,8 @@ class RefundService
             $message = "Batas pengajuan refund {$settings->request_window_days} hari setelah akses kursus telah berakhir.";
         } elseif ($progress > $settings->max_progress_percentage) {
             $message = "Progres kursus Anda {$progress}% dan telah melebihi batas refund {$settings->max_progress_percentage}%.";
-        } elseif ($user->hasCertificateForCourse($order->course)) {
-            $message = "Refund tidak dapat diajukan karena sertifikat kursus sudah diterbitkan: {$order->course->title}.";
+        } elseif ($certificateCourse) {
+            $message = "Refund tidak dapat diajukan karena sertifikat kursus sudah diterbitkan: {$certificateCourse->title}.";
         }
 
         return [
@@ -118,14 +121,16 @@ class RefundService
     public function approve(Refund $refund, User $admin, ?string $note = null): Refund
     {
         $approved = DB::transaction(function () use ($refund, $admin, $note) {
-            $locked = Refund::query()->with(['order.user', 'order.course'])->lockForUpdate()->findOrFail($refund->id);
+            $locked = Refund::query()->with(['order.user', 'order.course', 'order.items.course'])->lockForUpdate()->findOrFail($refund->id);
 
             if (! $locked->isRequested()) {
                 throw new RuntimeException('Pengajuan refund ini sudah diproses.');
             }
 
-            if ($locked->order->user->hasCertificateForCourse($locked->order->course)) {
-                throw new RuntimeException("Refund tidak dapat disetujui karena sertifikat kursus sudah diterbitkan: {$locked->order->course->title}.");
+            $certificateCourse = $this->coursesForOrder($locked->order)
+                ->first(fn (Course $course) => $locked->order->user->hasCertificateForCourse($course));
+            if ($certificateCourse) {
+                throw new RuntimeException("Refund tidak dapat disetujui karena sertifikat kursus sudah diterbitkan: {$certificateCourse->title}.");
             }
 
             $locked->update([
@@ -378,16 +383,42 @@ class RefundService
 
             $locked->order()->update(['status' => Order::STATUS_REFUNDED]);
 
-            $enrollment = DB::table('course_user')
-                ->where('course_id', $locked->order->course_id)
-                ->where('user_id', $locked->order->user_id)
+            $courseIds = DB::table('order_items')
                 ->where('order_id', $locked->order_id)
-                ->first();
+                ->whereNotNull('course_id')
+                ->pluck('course_id');
+            if ($courseIds->isEmpty() && $locked->order->course_id) {
+                $courseIds = collect([$locked->order->course_id]);
+            }
 
-            if ($enrollment && $enrollment->has_independent_access) {
-                DB::table('course_user')->where('id', $enrollment->id)->update(['order_id' => null]);
-            } elseif ($enrollment) {
-                DB::table('course_user')->where('id', $enrollment->id)->delete();
+            foreach ($courseIds as $courseId) {
+                $enrollment = DB::table('course_user')
+                    ->where('course_id', $courseId)
+                    ->where('user_id', $locked->order->user_id)
+                    ->first();
+                if (! $enrollment || (int) $enrollment->order_id !== (int) $locked->order_id) {
+                    continue;
+                }
+
+                if ($enrollment->has_independent_access) {
+                    DB::table('course_user')->where('id', $enrollment->id)->update(['order_id' => null]);
+
+                    continue;
+                }
+
+                $alternateOrderId = DB::table('order_items')
+                    ->join('orders', 'orders.id', '=', 'order_items.order_id')
+                    ->where('order_items.course_id', $courseId)
+                    ->where('orders.user_id', $locked->order->user_id)
+                    ->where('orders.id', '!=', $locked->order_id)
+                    ->whereIn('orders.status', [Order::STATUS_PAID, Order::STATUS_AWAITING_VERIFICATION])
+                    ->value('orders.id');
+
+                if ($alternateOrderId) {
+                    DB::table('course_user')->where('id', $enrollment->id)->update(['order_id' => $alternateOrderId]);
+                } else {
+                    DB::table('course_user')->where('id', $enrollment->id)->delete();
+                }
             }
 
             return $locked->refresh();
@@ -407,5 +438,17 @@ class RefundService
     {
         $refund->loadMissing('order.user');
         $refund->order->user->notify(new RefundStatusNotification($refund));
+    }
+
+    /** @return \Illuminate\Support\Collection<int, Course> */
+    private function coursesForOrder(Order $order)
+    {
+        $courses = $order->items->pluck('course')->filter()->values();
+
+        if ($courses->isEmpty() && $order->course) {
+            $courses->push($order->course);
+        }
+
+        return $courses;
     }
 }

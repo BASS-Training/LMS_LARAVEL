@@ -246,6 +246,11 @@ Aturan:
 
 ### 6.2 Kupon
 
+**Status MVP: diimplementasikan untuk checkout web course tunggal.** Mendukung kill switch
+environment, toggle admin, kupon global/per-course, reservasi kuota saat order dibuat,
+serta pelepasan untuk order unpaid yang cancelled/expired/failed. Bundle dan promosi
+terjadwal tetap berada pada fase berikutnya.
+
 ```text
 coupons
 - id
@@ -436,7 +441,7 @@ Keputusan bisnis yang harus ditetapkan sebelum implementasi:
 Fitur berikut tidak termasuk MVP:
 
 - Subscription bulanan.
-- Bundle beberapa course.
+- Bundle beberapa course. **Laravel MVP direalisasikan 3 Oktober 2026**; Flutter tetap ditunda.
 - Affiliate atau referral commission.
 - Revenue sharing instructor.
 - Loyalty point.

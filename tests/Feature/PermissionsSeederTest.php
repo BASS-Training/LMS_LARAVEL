@@ -21,6 +21,9 @@ class PermissionsSeederTest extends TestCase
             'remove chat participants',
             'create course chats',
             'manage course taxonomy',
+            'manage coupons',
+            'manage bundles',
+            'manage learning paths',
         ];
 
         foreach ($expected as $name) {

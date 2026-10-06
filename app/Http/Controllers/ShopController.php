@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Course;
+use App\Models\LearningPath;
 use App\Models\Tag;
 use App\Services\Payment\ServiceFee;
 use Illuminate\Http\Request;
@@ -36,6 +37,7 @@ class ShopController extends Controller
             'harga' => ['nullable', Rule::in(['free', 'paid'])],
             'category' => ['nullable', 'string', Rule::exists('categories', 'slug')->where('is_active', true)],
             'tag' => ['nullable', 'string', Rule::exists('tags', 'slug')->where('is_active', true)],
+            'sort' => ['nullable', Rule::in(['latest', 'price_asc', 'price_desc'])],
         ]);
         $search = $validated['q'] ?? null;
         $query = Course::inCatalog()->with([
@@ -70,8 +72,14 @@ class ShopController extends Controller
             $query->whereHas('tags', fn ($query) => $query->active()->where('slug', $tagFilter));
         }
 
+        $sort = $validated['sort'] ?? 'latest';
+        match ($sort) {
+            'price_asc' => $query->orderByRaw('COALESCE(price, 0) asc')->orderBy('id'),
+            'price_desc' => $query->orderByDesc('price')->orderBy('id'),
+            default => $query->latest()->orderByDesc('id'),
+        };
+
         $courses = $query->withCount('lessons')
-            ->latest()
             ->paginate(8)
             ->withQueryString();
 
@@ -81,6 +89,7 @@ class ShopController extends Controller
             'priceFilter' => $priceFilter,
             'categoryFilter' => $categoryFilter,
             'tagFilter' => $tagFilter,
+            'sort' => $sort,
             'categories' => Category::active()->ordered()->get(['id', 'name', 'slug']),
             'tags' => Tag::active()->orderBy('name')->get(['id', 'name', 'slug']),
             'enrolledIds' => $this->enrolledIds($courses->pluck('id')->all()),
@@ -102,6 +111,12 @@ class ShopController extends Controller
         ]);
 
         $user = Auth::user();
+        $learningPaths = LearningPath::query()
+            ->inCatalog()
+            ->visibleTo($user)
+            ->whereHas('courses', fn ($query) => $query->whereKey($course->id))
+            ->with('courses:id,title')
+            ->get();
 
         // Rincian harga hanya relevan untuk kursus berbayar. Saat pemilihan
         // metode aktif, biaya layanan berbeda per metode → tampilkan estimasi
@@ -119,6 +134,7 @@ class ShopController extends Controller
             'breakdown' => $breakdown,
             'methodsEnabled' => $methodsEnabled,
             'feeLabel' => $fee->label(),
+            'learningPaths' => $learningPaths,
         ]);
     }
 

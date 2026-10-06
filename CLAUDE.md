@@ -45,6 +45,7 @@ All routes use Spatie Laravel Permission middleware (`middleware('permission:...
 ```
 Course → Lesson → Content (type: text|video|quiz|essay|document|image|zoom)
        → CourseClass (batch/period with separate enrollment tokens)
+Bundle → bundle_course → Course
 ```
 
 Enrollment is token-based: both `Course` and `CourseClass` have their own `enrollment_token`, `token_enabled`, `token_expires_at`, `token_type` fields.

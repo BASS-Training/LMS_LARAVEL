@@ -65,6 +65,14 @@
                            class="nav-link-custom {{ request()->routeIs('shop.*') ? 'active' : '' }}">
                             Katalog
                         </a>
+                        <a href="{{ route('bundles.index') }}"
+                           class="nav-link-custom {{ request()->routeIs('bundles.*') ? 'active' : '' }}">
+                            Bundle
+                        </a>
+                        <a href="{{ route('learning-paths.index') }}"
+                           class="nav-link-custom {{ request()->routeIs('learning-paths.*') ? 'active' : '' }}">
+                            Learning Path
+                        </a>
 
                         @can('view progress reports')
                         <a href="{{ route('eo.courses.index') }}"
@@ -78,7 +86,7 @@
                         @endcan
 
                         {{-- Admin dropdown --}}
-                        @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage course taxonomy'])
+                        @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage course taxonomy','manage coupons','manage bundles','manage learning paths'])
                         <div x-data="{ adminOpen: false }" class="relative">
                             <button @click="adminOpen = !adminOpen"
                                     @keydown.escape.window="adminOpen = false"
@@ -107,7 +115,7 @@
                                  class="absolute left-0 mt-2 w-64 rounded-xl bg-white shadow-xl ring-1 ring-black/5 divide-y divide-gray-100 z-50"
                                  style="display:none"
                                  role="menu">
-                                @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management'])
+                                @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage coupons'])
                                 <div class="py-1" role="none">
                                     <a href="{{ route('admin.users.index') }}"    class="dropdown-item-custom" role="menuitem">Manajemen Pengguna</a>
                                     <a href="{{ route('admin.roles.index') }}"    class="dropdown-item-custom" role="menuitem">Manajemen Peran</a>
@@ -121,6 +129,9 @@
                                 <div class="py-1" role="none">
                                     <a href="{{ route('admin.auto-grade.index') }}"    class="dropdown-item-custom" role="menuitem">Penilaian Otomatis</a>
                                     <a href="{{ route('admin.force-complete.index') }}" class="dropdown-item-custom" role="menuitem">Force Complete Konten</a>
+                                    @can('manage coupons')
+                                    <a href="{{ route('admin.coupons.index') }}" class="dropdown-item-custom" role="menuitem">Manajemen Kupon</a>
+                                    @endcan
                                 </div>
                                 @role('super-admin')
                                 <div class="py-1" role="none">
@@ -145,6 +156,16 @@
                                     <a href="{{ route('activity-logs.index') }}"   class="dropdown-item-custom" role="menuitem">Log Aktivitas</a>
                                 </div>
                                 @endcanany
+                                @can('manage bundles')
+                                <div class="py-1" role="none">
+                                    <a href="{{ route('admin.bundles.index') }}" class="dropdown-item-custom" role="menuitem">Manajemen Bundle</a>
+                                </div>
+                                @endcan
+                                @can('manage learning paths')
+                                <div class="py-1" role="none">
+                                    <a href="{{ route('admin.learning-paths.index') }}" class="dropdown-item-custom" role="menuitem">Manajemen Learning Path</a>
+                                </div>
+                                @endcan
                                 @can('manage course taxonomy')
                                 <div class="py-1" role="none">
                                     <a href="{{ route('admin.categories.index') }}" class="dropdown-item-custom" role="menuitem">Kategori Course</a>
@@ -281,6 +302,14 @@
                     <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                     Katalog Kursus
                 </a>
+                <a href="{{ route('bundles.index') }}"
+                   class="responsive-nav-link-custom {{ request()->routeIs('bundles.*') ? 'active' : '' }}">
+                    Bundle
+                </a>
+                <a href="{{ route('learning-paths.index') }}"
+                   class="responsive-nav-link-custom {{ request()->routeIs('learning-paths.*') ? 'active' : '' }}">
+                    Learning Path
+                </a>
 
                 @can('view progress reports')
                 <a href="{{ route('eo.courses.index') }}"
@@ -295,10 +324,10 @@
                 </a>
                 @endcan
 
-                @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage course taxonomy'])
+                @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage course taxonomy','manage coupons','manage bundles','manage learning paths'])
                 <div class="pt-2 mt-1 border-t border-gray-100">
                     <p class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Admin</p>
-                    @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management'])
+                    @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage coupons'])
                     <a href="{{ route('admin.users.index') }}"    class="responsive-nav-link-custom {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">Manajemen Pengguna</a>
                     <a href="{{ route('admin.roles.index') }}"    class="responsive-nav-link-custom {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">Manajemen Peran</a>
                     <a href="{{ route('admin.announcements.index') }}" class="responsive-nav-link-custom">Manajemen Pengumuman</a>
@@ -307,6 +336,9 @@
                     <a href="{{ route('certificate-management.index') }}"  class="responsive-nav-link-custom">Manajemen Sertifikat</a>
                     <a href="{{ route('admin.auto-grade.index') }}"   class="responsive-nav-link-custom">Penilaian Otomatis</a>
                     <a href="{{ route('admin.force-complete.index') }}" class="responsive-nav-link-custom">Force Complete Konten</a>
+                    @can('manage coupons')
+                    <a href="{{ route('admin.coupons.index') }}" class="responsive-nav-link-custom {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">Manajemen Kupon</a>
+                    @endcan
                     @role('super-admin')
                     <a href="{{ route('admin.payment-verifications.index') }}" class="responsive-nav-link-custom">Verifikasi Pembayaran</a>
                     <a href="{{ route('admin.refunds.index') }}" class="responsive-nav-link-custom">Manajemen Refund</a>
@@ -314,6 +346,12 @@
                     <a href="{{ route('file-control.index') }}"   class="responsive-nav-link-custom">File Manager</a>
                     <a href="{{ route('activity-logs.index') }}"  class="responsive-nav-link-custom">Log Aktivitas</a>
                     @endcanany
+                    @can('manage bundles')
+                    <a href="{{ route('admin.bundles.index') }}" class="responsive-nav-link-custom {{ request()->routeIs('admin.bundles.*') ? 'active' : '' }}">Manajemen Bundle</a>
+                    @endcan
+                    @can('manage learning paths')
+                    <a href="{{ route('admin.learning-paths.index') }}" class="responsive-nav-link-custom {{ request()->routeIs('admin.learning-paths.*') ? 'active' : '' }}">Manajemen Learning Path</a>
+                    @endcan
                     @can('manage course taxonomy')
                     <a href="{{ route('admin.categories.index') }}" class="responsive-nav-link-custom {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">Kategori Course</a>
                     <a href="{{ route('admin.tags.index') }}" class="responsive-nav-link-custom {{ request()->routeIs('admin.tags.*') ? 'active' : '' }}">Tag Course</a>
