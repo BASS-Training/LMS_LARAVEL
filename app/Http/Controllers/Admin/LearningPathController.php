@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\LearningPathRequest;
 use App\Models\ActivityLog;
 use App\Models\Course;
+use App\Models\FeatureSetting;
 use App\Models\LearningPath;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,7 +26,25 @@ class LearningPathController extends Controller
         return view('admin.learning-paths.index', [
             'learningPaths' => $query->paginate(15)->withQueryString(),
             'search' => $search,
+            'featureSettings' => FeatureSetting::current(),
         ]);
+    }
+
+    public function updateAvailability(Request $request)
+    {
+        $validated = $request->validate([
+            'enabled' => ['required', 'boolean'],
+        ]);
+        $settings = FeatureSetting::current();
+        $previous = $settings->learning_paths_enabled;
+        $settings->update(['learning_paths_enabled' => $validated['enabled']]);
+
+        ActivityLog::log('learning_path_availability_updated', [
+            'description' => 'Memperbarui ketersediaan publik Learning Path',
+            'metadata' => ['before' => $previous, 'after' => $settings->learning_paths_enabled],
+        ]);
+
+        return back()->with('success', 'Ketersediaan Learning Path berhasil diperbarui.');
     }
 
     public function create()

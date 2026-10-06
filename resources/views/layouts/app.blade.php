@@ -1,3 +1,4 @@
+@inject('features', 'App\Services\FeatureAvailability')
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
@@ -65,14 +66,18 @@
                            class="nav-link-custom {{ request()->routeIs('shop.*') ? 'active' : '' }}">
                             Katalog
                         </a>
+                        @if ($features->bundlesEnabled())
                         <a href="{{ route('bundles.index') }}"
                            class="nav-link-custom {{ request()->routeIs('bundles.*') ? 'active' : '' }}">
                             Bundle
                         </a>
+                        @endif
+                        @if ($features->learningPathsEnabled())
                         <a href="{{ route('learning-paths.index') }}"
                            class="nav-link-custom {{ request()->routeIs('learning-paths.*') ? 'active' : '' }}">
                             Learning Path
                         </a>
+                        @endif
 
                         @can('view progress reports')
                         <a href="{{ route('eo.courses.index') }}"
@@ -302,14 +307,18 @@
                     <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                     Katalog Kursus
                 </a>
+                @if ($features->bundlesEnabled())
                 <a href="{{ route('bundles.index') }}"
                    class="responsive-nav-link-custom {{ request()->routeIs('bundles.*') ? 'active' : '' }}">
                     Bundle
                 </a>
+                @endif
+                @if ($features->learningPathsEnabled())
                 <a href="{{ route('learning-paths.index') }}"
                    class="responsive-nav-link-custom {{ request()->routeIs('learning-paths.*') ? 'active' : '' }}">
                     Learning Path
                 </a>
+                @endif
 
                 @can('view progress reports')
                 <a href="{{ route('eo.courses.index') }}"

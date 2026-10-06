@@ -7,6 +7,7 @@ use App\Models\Bundle;
 use App\Models\Course;
 use App\Models\Order;
 use App\Models\User;
+use App\Services\FeatureAvailability;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -28,6 +29,7 @@ class OrderService
         private MidtransGateway $gateway,
         private ServiceFee $fee,
         private CouponService $coupons,
+        private FeatureAvailability $features,
     ) {}
 
     /**
@@ -185,6 +187,10 @@ class OrderService
 
     public function checkoutBundle(Bundle $bundle, User $user, ?string $methodKey = null, ?string $couponCode = null): Order
     {
+        if (! $this->features->bundlesEnabled()) {
+            throw new RuntimeException('Pembelian bundle sedang dinonaktifkan.');
+        }
+
         if (! $this->gateway->isConfigured()) {
             throw new RuntimeException('Pembayaran belum dikonfigurasi. Hubungi admin.');
         }

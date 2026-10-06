@@ -93,7 +93,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="grid gap-4 p-5 sm:grid-cols-2 lg:min-w-[550px] lg:grid-cols-[1fr_1fr_auto] lg:items-end lg:p-6">
+                <div class="grid gap-4 p-5 sm:grid-cols-2 lg:min-w-[720px] lg:grid-cols-[1fr_1fr_1.2fr_auto] lg:items-end lg:p-6">
                     <div>
                         <label for="request_window_days" class="block text-xs font-semibold uppercase tracking-wide text-gray-500">Batas pengajuan</label>
                         <div class="relative mt-1.5">
@@ -112,6 +112,11 @@
                             <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs text-gray-400">%</span>
                         </div>
                     </div>
+                    <label class="flex min-h-[42px] cursor-pointer items-center gap-3 rounded-xl border border-gray-200 px-4 py-2">
+                        <input type="hidden" name="requests_enabled" value="0">
+                        <input type="checkbox" name="requests_enabled" value="1" @checked(old('requests_enabled', $featureSettings->refund_requests_enabled)) class="rounded border-gray-300 text-bass-red focus:ring-bass-red">
+                        <span><span class="block text-sm font-semibold text-gray-800">Pengajuan baru</span><span class="block text-xs text-gray-500">Tampilkan form refund peserta</span></span>
+                    </label>
                     <button class="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-bass-red px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-bass-red-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bass-red/40 sm:col-span-2 lg:col-span-1">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                         Simpan

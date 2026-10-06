@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Course;
+use App\Models\FeatureSetting;
 use App\Models\LearningPath;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -139,5 +140,40 @@ class LearningPathFeatureTest extends TestCase
         $this->get(route('shop.show', $courses[0]))
             ->assertOk()
             ->assertSeeText('Langkah 1 dari 2');
+    }
+
+    public function test_global_learning_path_toggle_hides_public_surfaces_and_keeps_admin_available(): void
+    {
+        $courses = Course::factory()->count(2)->create([
+            'status' => 'published',
+            'visibility' => 'catalog',
+        ]);
+        $path = LearningPath::factory()->create(['title' => 'Jalur Rahasia', 'is_active' => true]);
+        $path->courses()->attach($courses->pluck('id'));
+        FeatureSetting::current()->update(['learning_paths_enabled' => false]);
+
+        $this->get(route('welcome'))
+            ->assertOk()
+            ->assertDontSee(route('learning-paths.index'), false)
+            ->assertDontSeeText($path->title);
+        $this->get(route('shop.show', $courses[0]))
+            ->assertOk()
+            ->assertDontSeeText('Bagian dari Learning Path');
+        $this->get(route('learning-paths.index'))->assertNotFound();
+        $this->get(route('learning-paths.show', $path))->assertNotFound();
+
+        Permission::findOrCreate('manage learning paths', 'web');
+        $manager = User::factory()->create();
+        $manager->givePermissionTo('manage learning paths');
+
+        $this->actingAs($manager)
+            ->get(route('admin.learning-paths.index'))
+            ->assertOk()
+            ->assertSeeText($path->title)
+            ->assertSeeText('Aktifkan Learning Path');
+
+        $this->patch(route('admin.learning-paths.availability.update'), ['enabled' => 1])
+            ->assertRedirect();
+        $this->assertTrue(FeatureSetting::current()->fresh()->learning_paths_enabled);
     }
 }

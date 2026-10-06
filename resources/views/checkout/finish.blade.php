@@ -1,3 +1,4 @@
+@inject('features', 'App\Services\FeatureAvailability')
 @extends('layouts.app')
 
 @section('title', 'Status Pembayaran')
@@ -57,7 +58,7 @@
                     </a>
                 @endif
 
-                @if (! $order->refund)
+                @if (! $order->refund && $features->refundRequestsEnabled())
                     <div class="mt-5 pt-5 border-t border-gray-100 text-left"
                          x-data="{ open: @js($errors->has('reason_type') || $errors->has('reason_other')), reasonType: @js(old('reason_type', '')) }">
                         @if ($refundEligibility['eligible'])
@@ -208,10 +209,12 @@
                     </p>
                 @endif
 
-                <a href="{{ $order->isBundleOrder() ? route('bundles.show', $order->bundle) : route('shop.show', $order->course) }}"
-                   class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors">
-                    Pesan Ulang
-                </a>
+                @if (! $order->isBundleOrder() || $features->bundlesEnabled())
+                    <a href="{{ $order->isBundleOrder() ? route('bundles.show', $order->bundle) : route('shop.show', $order->course) }}"
+                       class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors">
+                         Pesan Ulang
+                    </a>
+                @endif
             </div>
         @endif
 

@@ -60,10 +60,14 @@ Route::get('/certificates/download/{code}', [CertificateController::class, 'publ
 | dan hanya judul kurikulum yang dibuka — isi konten tetap terkunci.
 */
 Route::get('/katalog', [ShopController::class, 'index'])->name('shop.index');
-Route::get('/bundles', [BundleController::class, 'index'])->name('bundles.index');
-Route::get('/bundles/{bundle}', [BundleController::class, 'show'])->name('bundles.show');
-Route::get('/learning-paths', [LearningPathController::class, 'index'])->name('learning-paths.index');
-Route::get('/learning-paths/{learningPath}', [LearningPathController::class, 'show'])->name('learning-paths.show');
+Route::middleware('feature:bundles')->group(function () {
+    Route::get('/bundles', [BundleController::class, 'index'])->name('bundles.index');
+    Route::get('/bundles/{bundle}', [BundleController::class, 'show'])->name('bundles.show');
+});
+Route::middleware('feature:learning-paths')->group(function () {
+    Route::get('/learning-paths', [LearningPathController::class, 'index'])->name('learning-paths.index');
+    Route::get('/learning-paths/{learningPath}', [LearningPathController::class, 'show'])->name('learning-paths.show');
+});
 Route::get('/katalog/{course}', [ShopController::class, 'show'])->name('shop.show');
 Route::post('/katalog/{course}/daftar-gratis', [ShopController::class, 'enrollFree'])->name('shop.enroll-free');
 
@@ -77,10 +81,12 @@ Route::post('/katalog/{course}/daftar-gratis', [ShopController::class, 'enrollFr
 */
 Route::post('/webhooks/midtrans', [CheckoutController::class, 'notification'])->name('checkout.notification');
 
-Route::get('/bundles/{bundle}/beli', [CheckoutController::class, 'chooseBundle'])->name('checkout.bundle.choose');
-Route::post('/bundles/{bundle}/beli', [CheckoutController::class, 'storeBundle'])->name('checkout.bundle.store');
-Route::post('/bundles/{bundle}/beli/kupon', [CheckoutController::class, 'applyBundleCoupon'])->name('checkout.bundle.coupon.apply');
-Route::delete('/bundles/{bundle}/beli/kupon', [CheckoutController::class, 'removeBundleCoupon'])->name('checkout.bundle.coupon.remove');
+Route::middleware('feature:bundles')->group(function () {
+    Route::get('/bundles/{bundle}/beli', [CheckoutController::class, 'chooseBundle'])->name('checkout.bundle.choose');
+    Route::post('/bundles/{bundle}/beli', [CheckoutController::class, 'storeBundle'])->name('checkout.bundle.store');
+    Route::post('/bundles/{bundle}/beli/kupon', [CheckoutController::class, 'applyBundleCoupon'])->name('checkout.bundle.coupon.apply');
+    Route::delete('/bundles/{bundle}/beli/kupon', [CheckoutController::class, 'removeBundleCoupon'])->name('checkout.bundle.coupon.remove');
+});
 
 Route::get('/katalog/{course}/beli', [CheckoutController::class, 'choose'])->name('checkout.choose');
 Route::post('/katalog/{course}/beli', [CheckoutController::class, 'store'])->name('checkout.store');
@@ -91,7 +97,9 @@ Route::get('/pesanan/{order}', [CheckoutController::class, 'finish'])->name('che
 Route::get('/pesanan/{order}/invoice', [CheckoutController::class, 'invoice'])->name('checkout.invoice');
 Route::post('/pesanan/{order}/ganti-metode', [CheckoutController::class, 'changeMethod'])->name('checkout.change-method');
 Route::post('/pesanan/{order}/batalkan', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
-Route::post('/pesanan/{order}/refund', [RefundController::class, 'store'])->name('refunds.store');
+Route::post('/pesanan/{order}/refund', [RefundController::class, 'store'])
+    ->middleware('feature:refund-requests')
+    ->name('refunds.store');
 
 /*
 | Verifikasi pembayaran manual — KHUSUS super-admin.
@@ -125,6 +133,7 @@ Route::middleware(['auth', 'permission:manage bundles'])
     ->prefix('admin/bundles')
     ->name('admin.bundles.')
     ->group(function () {
+        Route::patch('/availability', [AdminBundleController::class, 'updateAvailability'])->name('availability.update');
         Route::get('/course-options', [AdminBundleController::class, 'courseOptions'])->name('course-options');
         Route::get('/', [AdminBundleController::class, 'index'])->name('index');
         Route::get('/create', [AdminBundleController::class, 'create'])->name('create');
@@ -138,6 +147,7 @@ Route::middleware(['auth', 'permission:manage learning paths'])
     ->prefix('admin/learning-paths')
     ->name('admin.learning-paths.')
     ->group(function () {
+        Route::patch('/availability', [AdminLearningPathController::class, 'updateAvailability'])->name('availability.update');
         Route::get('/course-options', [AdminLearningPathController::class, 'courseOptions'])->name('course-options');
         Route::get('/', [AdminLearningPathController::class, 'index'])->name('index');
         Route::get('/create', [AdminLearningPathController::class, 'create'])->name('create');

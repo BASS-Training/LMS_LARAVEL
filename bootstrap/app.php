@@ -33,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'force.json' => ForceJsonResponse::class,
             'mobile.api.user' => \App\Http\Middleware\ResolveMobileApiUser::class,
+            'feature' => \App\Http\Middleware\EnsureFeatureEnabled::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
