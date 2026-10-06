@@ -49,6 +49,10 @@ class Order extends Model
         'snap_redirect_url',
         'snap_status',
         'snap_error',
+        'refund_policy_mode',
+        'refund_window_days',
+        'refund_max_progress',
+        'refund_policy_accepted_at',
         'paid_at',
         'payment_confirmed_at',
         'verified_by',
@@ -74,6 +78,9 @@ class Order extends Model
         'cancelled_at' => 'datetime',
         'expires_at' => 'datetime',
         'raw_response' => 'array',
+        'refund_window_days' => 'integer',
+        'refund_max_progress' => 'integer',
+        'refund_policy_accepted_at' => 'datetime',
     ];
 
     public function user()

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Course;
 use App\Models\LearningPath;
+use App\Models\RefundSetting;
 use App\Models\Tag;
 use App\Services\Payment\ServiceFee;
 use Illuminate\Http\Request;
@@ -24,6 +25,11 @@ use Illuminate\Validation\Rule;
  */
 class ShopController extends Controller
 {
+    public function refundPolicy()
+    {
+        return view('shop.refund-policy', ['settings' => RefundSetting::current()]);
+    }
+
     public function __construct()
     {
         // Hanya aksi yang mengubah data yang butuh login.

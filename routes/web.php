@@ -60,6 +60,7 @@ Route::get('/certificates/download/{code}', [CertificateController::class, 'publ
 | dan hanya judul kurikulum yang dibuka — isi konten tetap terkunci.
 */
 Route::get('/katalog', [ShopController::class, 'index'])->name('shop.index');
+Route::get('/kebijakan-refund', [ShopController::class, 'refundPolicy'])->name('shop.refund-policy');
 Route::middleware('feature:bundles')->group(function () {
     Route::get('/bundles', [BundleController::class, 'index'])->name('bundles.index');
     Route::get('/bundles/{bundle}', [BundleController::class, 'show'])->name('bundles.show');

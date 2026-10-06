@@ -31,9 +31,12 @@ class RefundService
     {
         $order->loadMissing(['course', 'items.course']);
         $settings = RefundSetting::current();
+        $companyIssue = $order->refund_policy_mode === 'company_issue';
+        $windowDays = $order->refund_window_days ?? ($companyIssue ? 7 : $settings->request_window_days);
+        $maxProgress = $order->refund_max_progress ?? $settings->max_progress_percentage;
         $courses = $this->coursesForOrder($order);
         $progress = (float) $courses->max(fn (Course $course) => $user->courseProgress($course));
-        $deadline = $order->paid_at?->copy()->addDays($settings->request_window_days);
+        $deadline = ($companyIssue ? $order->payment_confirmed_at : $order->paid_at)?->copy()->addDays($windowDays);
         $message = null;
         $certificateCourse = $courses->first(fn (Course $course) => $user->hasCertificateForCourse($course));
 
@@ -46,9 +49,11 @@ class RefundService
         } elseif ($order->refund()->exists()) {
             $message = 'Refund untuk pesanan ini sudah pernah diajukan.';
         } elseif (! $deadline || now()->isAfter($deadline)) {
-            $message = "Batas pengajuan refund {$settings->request_window_days} hari setelah akses kursus telah berakhir.";
-        } elseif ($progress > $settings->max_progress_percentage) {
-            $message = "Progres kursus Anda {$progress}% dan telah melebihi batas refund {$settings->max_progress_percentage}%.";
+            $message = $companyIssue
+                ? "Batas pengajuan refund {$windowDays} hari kalender setelah pembayaran berhasil telah berakhir."
+                : "Batas pengajuan refund {$windowDays} hari setelah akses kursus telah berakhir.";
+        } elseif (! $companyIssue && $progress > $maxProgress) {
+            $message = "Progres kursus Anda {$progress}% dan telah melebihi batas refund {$maxProgress}%.";
         } elseif ($certificateCourse) {
             $message = "Refund tidak dapat diajukan karena sertifikat kursus sudah diterbitkan: {$certificateCourse->title}.";
         }
@@ -59,6 +64,9 @@ class RefundService
             'progress' => $progress,
             'deadline' => $deadline,
             'settings' => $settings,
+            'policy_mode' => $companyIssue ? 'company_issue' : 'seven_day',
+            'window_days' => $windowDays,
+            'max_progress' => $maxProgress,
         ];
     }
 

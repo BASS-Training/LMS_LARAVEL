@@ -59,7 +59,11 @@ class PaymentQueueTest extends TestCase
         $course = Course::factory()->create(['status' => 'published', 'visibility' => 'catalog', 'price' => 99000]);
         Http::fake();
 
-        $response = $this->actingAs($buyer)->post(route('checkout.store', $course), ['method' => 'bank_transfer']);
+        $response = $this->actingAs($buyer)->post(route('checkout.store', $course), [
+            'method' => 'bank_transfer',
+            'refund_consent' => '1',
+            'refund_policy_mode' => 'company_issue',
+        ]);
         $order = Order::query()->firstOrFail();
 
         $response->assertRedirect(route('checkout.finish', $order));

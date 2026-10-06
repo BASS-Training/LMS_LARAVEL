@@ -64,7 +64,7 @@
                         @if ($refundEligibility['eligible'])
                             <button type="button" @click="open = !open"
                                     class="text-sm font-medium text-gray-500 hover:text-bass-red">
-                                Ajukan refund penuh
+                                {{ $refundEligibility['policy_mode'] === 'company_issue' ? 'Laporkan kendala layanan' : 'Ajukan refund penuh' }}
                             </button>
                             <form x-show="open" x-cloak method="POST" action="{{ route('refunds.store', $order) }}" class="mt-3">
                                 @csrf
@@ -73,20 +73,27 @@
                                         class="mt-1 w-full rounded-lg border-gray-300 focus:border-bass-red focus:ring-bass-red text-sm">
                                     <option value="">Pilih alasan</option>
                                     @foreach (\App\Enums\RefundReason::cases() as $reasonOption)
+                                        @if ($refundEligibility['policy_mode'] === 'company_issue' && ! in_array($reasonOption, [\App\Enums\RefundReason::TechnicalIssue, \App\Enums\RefundReason::Other], true))
+                                            @continue
+                                        @endif
                                         <option value="{{ $reasonOption->value }}">{{ $reasonOption->label() }}</option>
                                     @endforeach
                                 </select>
-                                <div x-show="reasonType === 'other'" x-cloak class="mt-3">
+                                <div x-show="{{ $refundEligibility['policy_mode'] === 'company_issue' ? 'true' : "reasonType === 'other'" }}" x-cloak class="mt-3">
                                     <label for="reason_other" class="block text-sm font-medium text-gray-700">Jelaskan alasan lainnya</label>
                                     <textarea id="reason_other" name="reason_other" rows="3" minlength="10" maxlength="1000"
-                                              :required="reasonType === 'other'"
+                                              :required="{{ $refundEligibility['policy_mode'] === 'company_issue' ? 'true' : "reasonType === 'other'" }}"
                                               class="mt-1 w-full rounded-lg border-gray-300 focus:border-bass-red focus:ring-bass-red text-sm"
-                                              placeholder="Jelaskan alasan refund untuk ditinjau admin.">{{ old('reason_other') }}</textarea>
+                                              placeholder="Jelaskan kendala agar tim kami dapat meninjaunya.">{{ old('reason_other') }}</textarea>
                                 </div>
-                                <p class="mt-2 text-xs text-gray-500">
-                                    Maksimal {{ $refundEligibility['settings']->request_window_days }} hari setelah akses diberikan dan progres maksimal {{ $refundEligibility['settings']->max_progress_percentage }}%.
-                                    Batas pesanan ini {{ $refundEligibility['deadline']->translatedFormat('d F Y H:i') }}.
-                                </p>
+                                @if ($refundEligibility['policy_mode'] === 'company_issue')
+                                    <p class="mt-2 text-xs text-gray-500">Hanya untuk kendala dari pihak kami. Ajukan paling lambat {{ $refundEligibility['window_days'] }} hari kalender setelah pembayaran berhasil. Laporan ditinjau admin dan tidak otomatis disetujui.</p>
+                                @else
+                                    <p class="mt-2 text-xs text-gray-500">
+                                        Maksimal {{ $refundEligibility['window_days'] }} hari setelah akses diberikan dan progres maksimal {{ $refundEligibility['max_progress'] }}%.
+                                        Batas pesanan ini {{ $refundEligibility['deadline']->translatedFormat('d F Y H:i') }}.
+                                    </p>
+                                @endif
                                 <p class="mt-1 text-xs text-gray-500">Nominal refund penuh: {{ $order->amount_label }}. Akses tetap aktif sampai refund berhasil.</p>
                                 <button type="submit" class="mt-3 w-full min-h-[44px] rounded-lg border border-bass-red text-bass-red text-sm font-semibold hover:bg-red-50"
                                         onclick="return confirm('Ajukan refund penuh untuk pesanan ini?');">

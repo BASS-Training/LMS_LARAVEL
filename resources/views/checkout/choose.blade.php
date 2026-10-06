@@ -83,6 +83,7 @@
 
     <form method="POST" action="{{ $checkoutAction }}" class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         @csrf
+        <input type="hidden" name="refund_policy_mode" value="{{ $refundSettings->policy_mode }}">
 
         {{-- ─────────── KIRI: daftar metode ─────────── --}}
         <div class="lg:col-span-2 space-y-3">
@@ -167,6 +168,10 @@
                             <dd class="text-lg font-bold text-bass-red" x-text="'Rp ' + Number(options[selected]?.total ?? base).toLocaleString('id-ID')">{{ $rupiah($options[0]['total'] ?? $base) }}</dd>
                         </div>
                     </dl>
+
+                    @include('shop.partials.refund-consent')
+                    @error('refund_consent')<p class="text-sm text-error">{{ $message }}</p>@enderror
+                    @error('refund_policy_mode')<p class="text-sm text-error">{{ $message }}</p>@enderror
 
                     <button type="submit" @disabled(empty($options))
                             class="w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed">

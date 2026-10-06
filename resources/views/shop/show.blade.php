@@ -74,7 +74,12 @@
                 @elseif ($course->isFree())
                     <form method="POST" action="{{ route('shop.enroll-free', $course) }}">@csrf<button class="inline-flex min-h-12 w-full items-center justify-center rounded-xl border-2 border-navy bg-bass-red px-5 font-bold text-white shadow-[4px_4px_0_#17243A]">Daftar Gratis</button></form><p class="text-center text-xs text-slate-500">Langsung bisa diakses setelah mendaftar.</p>
                 @else
-                    <a href="{{ route('checkout.choose', $course) }}" class="inline-flex min-h-12 w-full items-center justify-center rounded-xl border-2 border-navy bg-bass-red px-5 font-bold text-white shadow-[4px_4px_0_#17243A]">Beli Sekarang</a><p class="text-center text-xs text-slate-500">Pilih QRIS, e-wallet, transfer bank, atau kartu.</p>
+                    @php($refundSettings = \App\Models\RefundSetting::current())
+                    <form method="GET" action="{{ route('checkout.choose', $course) }}" class="space-y-3">
+                        @include('shop.partials.refund-consent')
+                        <button type="submit" class="inline-flex min-h-12 w-full items-center justify-center rounded-xl border-2 border-navy bg-bass-red px-5 font-bold text-white shadow-[4px_4px_0_#17243A]">Beli Sekarang</button>
+                    </form>
+                    <p class="text-center text-xs text-slate-500">Pilih QRIS, e-wallet, transfer bank, atau kartu.</p>
                 @endguest
 
                 <ul class="border-t border-dashed border-navy/20 pt-3 text-sm"><li class="py-1.5">Akses pembelajaran setelah terdaftar</li><li class="py-1.5">Dapat dibuka melalui web dan mobile</li><li class="py-1.5">Sertifikat sesuai persyaratan course</li></ul>
