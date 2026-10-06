@@ -1,12 +1,12 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
-        <div class="bg-gradient-to-r from-green-600 to-teal-600 -mx-4 -my-2 px-4 py-8 sm:px-6 lg:px-8 rounded-2xl shadow-lg">
+        <div class="bg-navy -mx-4 -my-2 px-4 py-8 sm:px-6 lg:px-8 rounded-2xl shadow-lg">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h2 class="text-white text-3xl font-bold leading-tight">
                         {{ __('Analytics Keaktifan Instruktur') }}
                     </h2>
-                    <p class="text-green-100 mt-2">
+                    <p class="text-white/80 mt-2">
                         {{ __('Monitor aktivitas dan performa instruktur dalam memberikan feedback dan menilai essay') }}
                     </p>
                 </div>
@@ -25,22 +25,22 @@
                     <div class="flex-1 min-w-48">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Dari Tanggal</label>
                         <input type="date" name="date_from" value="{{ $dateFrom }}" 
-                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red">
                     </div>
                     
                     <div class="flex-1 min-w-48">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Sampai Tanggal</label>
                         <input type="date" name="date_to" value="{{ $dateTo }}" 
-                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red">
                     </div>
                     
                     <div class="flex items-end gap-2">
                         <button type="submit" 
-                                class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
+                                class="bg-bass-red hover:bg-bass-red-hover text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
                             Filter
                         </button>
                         <a href="{{ route('instructor-analytics.compare') }}" 
-                           class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
+                           class="bg-navy hover:bg-navy-light text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
                             Bandingkan Instruktur
                         </a>
                     </div>
@@ -54,8 +54,8 @@
                 <div class="p-5">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
-                                <span class="text-white font-bold">👥</span>
+                            <div class="w-8 h-8 bg-navy rounded-md flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                             </div>
                         </div>
                         <div class="ml-5 w-0 flex-1">
@@ -72,8 +72,8 @@
                 <div class="p-5">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
-                                <span class="text-white font-bold">✅</span>
+                            <div class="w-8 h-8 bg-success rounded-md flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             </div>
                         </div>
                         <div class="ml-5 w-0 flex-1">
@@ -90,8 +90,8 @@
                 <div class="p-5">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
-                                <span class="text-white font-bold">💬</span>
+                            <div class="w-8 h-8 bg-bass-red rounded-md flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                             </div>
                         </div>
                         <div class="ml-5 w-0 flex-1">
@@ -108,8 +108,8 @@
                 <div class="p-5">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
-                                <span class="text-white font-bold">📝</span>
+                            <div class="w-8 h-8 bg-gray-600 rounded-md flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                             </div>
                         </div>
                         <div class="ml-5 w-0 flex-1">
@@ -126,8 +126,8 @@
                 <div class="p-5">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-red-500 rounded-md flex items-center justify-center">
-                                <span class="text-white font-bold">⏳</span>
+                            <div class="w-8 h-8 bg-error rounded-md flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             </div>
                         </div>
                         <div class="ml-5 w-0 flex-1">
@@ -185,7 +185,7 @@
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center">
+                                            <div class="flex-shrink-0 h-10 w-10 bg-navy rounded-full flex items-center justify-center">
                                                 <span class="text-white font-semibold">
                                                     {{ strtoupper(substr($stat['instructor']->name, 0, 1)) }}
                                                 </span>
@@ -205,17 +205,17 @@
                                             @if(!empty($stat['period_breakdown']) && is_array($stat['period_breakdown']) && count($stat['period_breakdown']) > 0)
                                                 @foreach($stat['period_breakdown'] as $index => $breakdown)
                                                     @if($index < 2)
-                                                        <div class="text-xs mb-2 p-2 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-2 border-blue-400 rounded">
-                                                            <div class="font-medium text-blue-800">
-                                                                {{ Str::limit($breakdown['course']->title, 20) }}
-                                                            </div>
-                                                            <div class="text-blue-600 font-semibold">
-                                                                {{ $breakdown['period']->name }}
-                                                            </div>
-                                                            <div class="text-xs text-gray-600 mt-1">
-                                                                👥 {{ $breakdown['participants_count'] }} peserta | 
-                                                                ⚡ {{ $breakdown['activity_score'] }} aktivitas
-                                                            </div>
+                                                        <div class="text-xs mb-2 p-2 bg-info-soft border-l-2 border-navy rounded">
+                                                             <div class="font-medium text-navy">
+                                                                 {{ Str::limit($breakdown['course']->title, 20) }}
+                                                             </div>
+                                                             <div class="text-navy font-semibold">
+                                                                 {{ $breakdown['period']->name }}
+                                                             </div>
+                                                             <div class="text-xs text-gray-600 mt-1">
+                                                                 {{ $breakdown['participants_count'] }} peserta |
+                                                                 {{ $breakdown['activity_score'] }} aktivitas
+                                                             </div>
                                                         </div>
                                                     @endif
                                                 @endforeach
@@ -232,18 +232,18 @@
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm font-medium text-gray-900">{{ number_format($stat['discussion_replies'] ?? 0) }}</div>
                                         @if(isset($stat['recent_discussions']) && $stat['recent_discussions'] > 0)
-                                            <div class="text-xs text-green-600">+{{ $stat['recent_discussions'] }} minggu ini</div>
+                                            <div class="text-xs text-success">+{{ $stat['recent_discussions'] }} minggu ini</div>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm font-medium text-gray-900">{{ number_format($stat['essay_graded'] ?? 0) }}</div>
                                         @if(isset($stat['recent_grading']) && $stat['recent_grading'] > 0)
-                                            <div class="text-xs text-green-600">+{{ $stat['recent_grading'] }} minggu ini</div>
+                                            <div class="text-xs text-success">+{{ $stat['recent_grading'] }} minggu ini</div>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if(isset($stat['essay_pending']) && $stat['essay_pending'] > 0)
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-error-soft text-error">
                                                 {{ number_format($stat['essay_pending']) }} pending
                                             </span>
                                         @else
@@ -252,7 +252,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if(isset($stat['recent_activity']) && $stat['recent_activity'] > 0)
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-soft text-success">
                                                 {{ number_format($stat['recent_activity']) }} aktivitas
                                             </span>
                                         @else
@@ -270,13 +270,13 @@
                                                     $totalActivity = $stat['total_activity'] ?? 0;
                                                     $percentage = $maxActivity > 0 ? ($totalActivity / $maxActivity) * 100 : 0;
                                                 @endphp
-                                                <div class="bg-green-600 h-2 rounded-full" style="width: {{ $percentage }}%"></div>
+                                                <div class="bg-bass-red h-2 rounded-full" style="width: {{ $percentage }}%"></div>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <a href="{{ route('instructor-analytics.detail', $stat['instructor']) }}?date_from={{ $dateFrom }}&date_to={{ $dateTo }}" 
-                                           class="text-green-600 hover:text-green-900">
+                                           class="text-navy hover:text-bass-red">
                                             Detail
                                         </a>
                                     </td>
@@ -288,7 +288,7 @@
             @else
                 <div class="px-6 py-12 text-center">
                     <div class="text-gray-500">
-                        <div class="text-6xl mb-4">👨‍🏫</div>
+                        <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak ada data instruktur</h3>
                         <p class="text-sm text-gray-500">Belum ada instruktur yang terdaftar dalam sistem.</p>
                     </div>
@@ -302,15 +302,15 @@
                 <h4 class="text-lg font-medium text-gray-900 mb-4">Keterangan Tingkat Aktivitas</h4>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="flex items-center">
-                        <div class="w-4 h-4 bg-green-500 rounded-full mr-2"></div>
+                        <div class="w-4 h-4 bg-success rounded-full mr-2"></div>
                         <span class="text-sm text-gray-700">Sangat Aktif (>20 aktivitas)</span>
                     </div>
                     <div class="flex items-center">
-                        <div class="w-4 h-4 bg-yellow-500 rounded-full mr-2"></div>
+                        <div class="w-4 h-4 bg-warning rounded-full mr-2"></div>
                         <span class="text-sm text-gray-700">Cukup Aktif (5-20 aktivitas)</span>
                     </div>
                     <div class="flex items-center">
-                        <div class="w-4 h-4 bg-red-500 rounded-full mr-2"></div>
+                        <div class="w-4 h-4 bg-error rounded-full mr-2"></div>
                         <span class="text-sm text-gray-700">Kurang Aktif (<5 aktivitas)</span>
                     </div>
                 </div>

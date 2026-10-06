@@ -1,34 +1,45 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CourseController;
-use App\Http\Controllers\LessonController;
-use App\Http\Controllers\Api\ChatController;
-use App\Http\Controllers\CourseClassController;
-use App\Http\Controllers\EnrollmentCodeController;
-use App\Http\Controllers\TokenEnrollmentController;
-use App\Http\Controllers\Api\MessageController;
-use App\Http\Controllers\ContentController;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\Admin\AnnouncementController as AdminAnnouncementController;
+use App\Http\Controllers\Admin\BundleController as AdminBundleController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CertificateTemplateController;
+use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\LearningPathController as AdminLearningPathController;
+use App\Http\Controllers\Admin\PaymentVerificationController;
+use App\Http\Controllers\Admin\RefundController as AdminRefundController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UserImportController;
-use App\Http\Controllers\Admin\AnnouncementController as AdminAnnouncementController;
-use App\Http\Controllers\Admin\CertificateTemplateController;
 use App\Http\Controllers\AnnouncementController;
-use App\Http\Controllers\QuizController;
-use App\Http\Controllers\GradebookController;
-use App\Http\Controllers\DiscussionController;
-use App\Http\Controllers\EventOrganizerController;
-use App\Http\Controllers\ProgressController;
-use App\Http\Controllers\EssaySubmissionController;
-use App\Http\Controllers\CertificateController;
-use App\Http\Controllers\ImageUploadController;
-use App\Http\Controllers\EssayQuestionController;
-use App\Http\Controllers\FileControlController;
-use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\BundleController;
+use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ContentController;
+use App\Http\Controllers\CourseClassController;
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EnrollmentCodeController;
+use App\Http\Controllers\EssayQuestionController;
+use App\Http\Controllers\EssaySubmissionController;
+use App\Http\Controllers\EventOrganizerController;
+use App\Http\Controllers\FileControlController;
+use App\Http\Controllers\GradebookController;
+use App\Http\Controllers\ImageUploadController;
+use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\LearningPathController;
+use App\Http\Controllers\LessonController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProgressController;
+use App\Http\Controllers\QuizController;
+use App\Http\Controllers\RefundController;
+use App\Http\Controllers\ShopController;
+use App\Http\Controllers\TokenEnrollmentController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,14 +47,119 @@ use App\Http\Controllers\AttendanceController;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('welcome');
+Route::get('/', LandingPageController::class)->name('welcome');
 
 Route::get('/certificates/verify/{code}', [CertificateController::class, 'verify'])->name('certificates.verify');
 
 // Ini adalah route untuk download dari halaman verifikasi
 Route::get('/certificates/download/{code}', [CertificateController::class, 'publicDownload'])->name('certificates.public-download');
+
+/*
+| Etalase kursus (katalog) — sengaja PUBLIK supaya link-nya bisa dibagikan
+| dan terindeks mesin pencari. Hanya course published+catalog yang tampil,
+| dan hanya judul kurikulum yang dibuka — isi konten tetap terkunci.
+*/
+Route::get('/katalog', [ShopController::class, 'index'])->name('shop.index');
+Route::get('/bundles', [BundleController::class, 'index'])->name('bundles.index');
+Route::get('/bundles/{bundle}', [BundleController::class, 'show'])->name('bundles.show');
+Route::get('/learning-paths', [LearningPathController::class, 'index'])->name('learning-paths.index');
+Route::get('/learning-paths/{learningPath}', [LearningPathController::class, 'show'])->name('learning-paths.show');
+Route::get('/katalog/{course}', [ShopController::class, 'show'])->name('shop.show');
+Route::post('/katalog/{course}/daftar-gratis', [ShopController::class, 'enrollFree'])->name('shop.enroll-free');
+
+/*
+| Pembelian kursus.
+|
+| Webhook Midtrans sengaja PUBLIK & tanpa CSRF (dipanggil server Midtrans,
+| bukan browser). Keasliannya diverifikasi lewat signature_key — lihat
+| CheckoutController::notification(). Ini satu-satunya jalur yang memberi
+| akses kursus; halaman "selesai" hanya menampilkan status.
+*/
+Route::post('/webhooks/midtrans', [CheckoutController::class, 'notification'])->name('checkout.notification');
+
+Route::get('/bundles/{bundle}/beli', [CheckoutController::class, 'chooseBundle'])->name('checkout.bundle.choose');
+Route::post('/bundles/{bundle}/beli', [CheckoutController::class, 'storeBundle'])->name('checkout.bundle.store');
+Route::post('/bundles/{bundle}/beli/kupon', [CheckoutController::class, 'applyBundleCoupon'])->name('checkout.bundle.coupon.apply');
+Route::delete('/bundles/{bundle}/beli/kupon', [CheckoutController::class, 'removeBundleCoupon'])->name('checkout.bundle.coupon.remove');
+
+Route::get('/katalog/{course}/beli', [CheckoutController::class, 'choose'])->name('checkout.choose');
+Route::post('/katalog/{course}/beli', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::post('/katalog/{course}/beli/kupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.coupon.apply');
+Route::delete('/katalog/{course}/beli/kupon', [CheckoutController::class, 'removeCoupon'])->name('checkout.coupon.remove');
+Route::get('/pesanan', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::get('/pesanan/{order}', [CheckoutController::class, 'finish'])->name('checkout.finish');
+Route::get('/pesanan/{order}/invoice', [CheckoutController::class, 'invoice'])->name('checkout.invoice');
+Route::post('/pesanan/{order}/ganti-metode', [CheckoutController::class, 'changeMethod'])->name('checkout.change-method');
+Route::post('/pesanan/{order}/batalkan', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
+Route::post('/pesanan/{order}/refund', [RefundController::class, 'store'])->name('refunds.store');
+
+/*
+| Verifikasi pembayaran manual — KHUSUS super-admin.
+| Untuk course dengan requires_payment_verification=true: uang sudah masuk,
+| akses ditahan sampai disetujui di sini.
+*/
+Route::middleware(['auth', 'role:super-admin'])
+    ->prefix('admin/verifikasi-pembayaran')
+    ->name('admin.payment-verifications.')
+    ->group(function () {
+        Route::get('/', [PaymentVerificationController::class, 'index'])->name('index');
+        Route::get('/{order}', [PaymentVerificationController::class, 'show'])->name('show');
+        Route::post('/{order}/setujui', [PaymentVerificationController::class, 'approve'])->name('approve');
+        Route::post('/{order}/tolak', [PaymentVerificationController::class, 'reject'])->name('reject');
+    });
+
+Route::middleware(['auth', 'permission:manage coupons'])
+    ->prefix('admin/coupons')
+    ->name('admin.coupons.')
+    ->group(function () {
+        Route::patch('/checkout', [CouponController::class, 'updateCheckout'])->name('checkout.update');
+        Route::get('/', [CouponController::class, 'index'])->name('index');
+        Route::get('/create', [CouponController::class, 'create'])->name('create');
+        Route::post('/', [CouponController::class, 'store'])->name('store');
+        Route::get('/{coupon}/edit', [CouponController::class, 'edit'])->name('edit');
+        Route::put('/{coupon}', [CouponController::class, 'update'])->name('update');
+        Route::delete('/{coupon}', [CouponController::class, 'destroy'])->name('destroy');
+    });
+
+Route::middleware(['auth', 'permission:manage bundles'])
+    ->prefix('admin/bundles')
+    ->name('admin.bundles.')
+    ->group(function () {
+        Route::get('/course-options', [AdminBundleController::class, 'courseOptions'])->name('course-options');
+        Route::get('/', [AdminBundleController::class, 'index'])->name('index');
+        Route::get('/create', [AdminBundleController::class, 'create'])->name('create');
+        Route::post('/', [AdminBundleController::class, 'store'])->name('store');
+        Route::get('/{bundle}/edit', [AdminBundleController::class, 'edit'])->name('edit');
+        Route::put('/{bundle}', [AdminBundleController::class, 'update'])->name('update');
+        Route::delete('/{bundle}', [AdminBundleController::class, 'destroy'])->name('destroy');
+    });
+
+Route::middleware(['auth', 'permission:manage learning paths'])
+    ->prefix('admin/learning-paths')
+    ->name('admin.learning-paths.')
+    ->group(function () {
+        Route::get('/course-options', [AdminLearningPathController::class, 'courseOptions'])->name('course-options');
+        Route::get('/', [AdminLearningPathController::class, 'index'])->name('index');
+        Route::get('/create', [AdminLearningPathController::class, 'create'])->name('create');
+        Route::post('/', [AdminLearningPathController::class, 'store'])->name('store');
+        Route::get('/{learningPath}/edit', [AdminLearningPathController::class, 'edit'])->name('edit');
+        Route::put('/{learningPath}', [AdminLearningPathController::class, 'update'])->name('update');
+        Route::delete('/{learningPath}', [AdminLearningPathController::class, 'destroy'])->name('destroy');
+    });
+
+Route::middleware(['auth', 'role:super-admin'])
+    ->prefix('admin/refund')
+    ->name('admin.refunds.')
+    ->group(function () {
+        Route::get('/', [AdminRefundController::class, 'index'])->name('index');
+        Route::patch('/pengaturan', [AdminRefundController::class, 'updateSettings'])->name('settings.update');
+        Route::get('/{refund}', [AdminRefundController::class, 'show'])->name('show');
+        Route::post('/{refund}/setujui', [AdminRefundController::class, 'approve'])->name('approve');
+        Route::post('/{refund}/tolak', [AdminRefundController::class, 'reject'])->name('reject');
+        Route::post('/{refund}/coba-lagi', [AdminRefundController::class, 'retry'])->name('retry');
+        Route::post('/{refund}/selesaikan-manual', [AdminRefundController::class, 'completeManual'])->name('complete-manual');
+        Route::post('/{refund}/rekonsiliasi', [AdminRefundController::class, 'reconcile'])->name('reconcile');
+    });
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -128,8 +244,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('permission:duplicate contents');
 
     // ✅ PERBAIKAN: Mengubah URL rute AJAX agar tidak konflik
-    Route::get('/ajax/quizzes/get-full-quiz-form-partial', fn() => view('quizzes.partials.full-quiz-form')->render())->name('quiz-full-form-partial');
-    Route::get('/ajax/quizzes/get-question-form-partial', fn(Illuminate\Http\Request $request) => view('quizzes.partials.question-form-fields', ['question_loop_index' => $request->query('index'), 'question' => null])->render())->name('quiz-question-partial');
+    Route::get('/ajax/quizzes/get-full-quiz-form-partial', fn () => view('quizzes.partials.full-quiz-form')->render())->name('quiz-full-form-partial');
+    Route::get('/ajax/quizzes/get-question-form-partial', fn (Illuminate\Http\Request $request) => view('quizzes.partials.question-form-fields', ['question_loop_index' => $request->query('index'), 'question' => null])->render())->name('quiz-question-partial');
 
     // Pengumuman
     Route::prefix('notifications')->name('notifications.')->group(function () {
@@ -390,7 +506,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/contents/{content}/complete-and-continue', [ContentController::class, 'completeAndContinue'])->name('contents.complete_and_continue')->middleware('auth');
 
     // Grup Route untuk Admin, Instruktur, dan EO
-    Route::middleware(['permission:manage users|manage roles|view certificate templates|view activity logs|view announcements|view certificate analytics|view certificate management'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['permission:manage users|manage roles|view certificate templates|view activity logs|view announcements|view certificate analytics|view certificate management|manage course taxonomy'])->prefix('admin')->name('admin.')->group(function () {
         // Add explicit permission middleware so these can be opened to admin-like roles later safely
         Route::resource('roles', RoleController::class)->except(['show'])->middleware('permission:manage roles');
 
@@ -449,6 +565,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('announcements.toggle-status')
             ->middleware('permission:publish announcements|update announcements');
 
+        Route::resource('categories', CategoryController::class)
+            ->except(['show'])
+            ->middleware('permission:manage course taxonomy');
+        Route::resource('tags', TagController::class)
+            ->except(['show'])
+            ->middleware('permission:manage course taxonomy');
+
         // Automatic Grading Completion
         Route::get('/auto-grade', [\App\Http\Controllers\Admin\AutoGradeController::class, 'index'])->name('auto-grade.index')->middleware('permission:grade essays|grade quizzes');
         Route::post('/auto-grade/complete', [\App\Http\Controllers\Admin\AutoGradeController::class, 'processAutoGrade'])->name('auto-grade.complete')->middleware('permission:grade essays|grade quizzes');
@@ -484,7 +607,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/essay-submissions/{submission}/detail', [GradebookController::class, 'showEssayDetail'])
             ->name('gradebook.essay-detail');
-        
+
         Route::post('/essay-submissions/{submission}/grade-overall', [GradebookController::class, 'storeOverallGrade'])
             ->name('gradebook.store-overall-grade');
         Route::post('/essay-submissions/{submission}/feedback-overall', [GradebookController::class, 'storeOverallFeedback'])
@@ -602,14 +725,14 @@ Route::middleware('auth:sanctum')->prefix('api')->group(function () {
     Route::get('/course-classes/available', [App\Http\Controllers\Api\ChatController::class, 'availableCourseClasses']);
 });
 
-require __DIR__ . '/auth.php';
-        // Tools (Admin Utilities)
-        Route::get('/tools', [\App\Http\Controllers\Admin\ToolsController::class, 'index'])
-            ->name('tools.index')
-            ->middleware('permission:manage users|manage roles');
-        Route::post('/tools/permissions/refresh', [\App\Http\Controllers\Admin\ToolsController::class, 'refreshPermissionCache'])
-            ->name('tools.permissions.refresh')
-            ->middleware('permission:manage users|manage roles');
-        Route::get('/tools/roles/export', [\App\Http\Controllers\Admin\ToolsController::class, 'exportRoleMatrix'])
-            ->name('tools.roles.export')
-            ->middleware('permission:manage users|manage roles');
+require __DIR__.'/auth.php';
+// Tools (Admin Utilities)
+Route::get('/tools', [\App\Http\Controllers\Admin\ToolsController::class, 'index'])
+    ->name('tools.index')
+    ->middleware('permission:manage users|manage roles');
+Route::post('/tools/permissions/refresh', [\App\Http\Controllers\Admin\ToolsController::class, 'refreshPermissionCache'])
+    ->name('tools.permissions.refresh')
+    ->middleware('permission:manage users|manage roles');
+Route::get('/tools/roles/export', [\App\Http\Controllers\Admin\ToolsController::class, 'exportRoleMatrix'])
+    ->name('tools.roles.export')
+    ->middleware('permission:manage users|manage roles');

@@ -3,7 +3,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="font-semibold text-2xl text-gray-800 leading-tight flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-red-900 to-red-700 rounded-lg flex items-center justify-center">
+                    <div class="w-10 h-10 bg-bass-red rounded-lg flex items-center justify-center">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"></path>
                         </svg>
@@ -32,7 +32,7 @@
                 <div class="p-6">
                     <form id="uploadForm" enctype="multipart/form-data">
                         @csrf
-                        <div id="dropZone" class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center transition-all duration-200 hover:border-red-500 hover:bg-red-50 cursor-pointer">
+                        <div id="dropZone" class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center transition-all duration-200 hover:border-bass-red hover:bg-bass-red-soft cursor-pointer">
                             <input type="file" id="fileInput" name="file" class="hidden" multiple>
 
                             <div id="dropZoneContent">
@@ -41,7 +41,7 @@
                                 </svg>
                                 <h3 class="text-lg font-semibold text-gray-900 mb-2">Drop files here or click to upload</h3>
                                 <p class="text-sm text-gray-500 mb-4">Support all file types • Maximum 20MB per file</p>
-                                <button type="button" onclick="document.getElementById('fileInput').click()" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-900 to-red-700 text-white font-medium rounded-lg hover:from-red-800 hover:to-red-600 transition-all duration-200 shadow-md hover:shadow-lg">
+                                <button type="button" onclick="document.getElementById('fileInput').click()" class="inline-flex items-center px-6 py-3 bg-bass-red text-white font-medium rounded-lg hover:bg-bass-red-hover transition-all duration-200 shadow-md hover:shadow-lg">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                     </svg>
@@ -51,7 +51,7 @@
 
                             <div id="uploadProgress" class="hidden">
                                 <div class="mb-3">
-                                    <svg class="animate-spin mx-auto h-12 w-12 text-red-900" fill="none" viewBox="0 0 24 24">
+                                    <svg class="animate-spin mx-auto h-12 w-12 text-bass-red" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
@@ -75,11 +75,11 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                     </svg>
                                 </div>
-                                <input type="text" id="searchInput" placeholder="Search files by name..." class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-150 ease-in-out sm:text-sm">
+                                <input type="text" id="searchInput" placeholder="Search files by name..." class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-bass-red focus:border-transparent transition duration-150 ease-in-out sm:text-sm">
                             </div>
                         </div>
                         <div class="grid grid-cols-2 lg:grid-cols-2 gap-4 lg:w-auto">
-                            <select id="typeFilter" class="block w-full px-4 py-3 pr-8 border border-gray-300 bg-white rounded-lg leading-tight focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-150 ease-in-out">
+                            <select id="typeFilter" class="block w-full px-4 py-3 pr-8 border border-gray-300 bg-white rounded-lg leading-tight focus:outline-none focus:ring-2 focus:ring-bass-red focus:border-transparent transition duration-150 ease-in-out">
                                 <option value="">All Types</option>
                                 <option value="image">📷 Images</option>
                                 <option value="document">📄 Documents</option>
@@ -87,7 +87,7 @@
                                 <option value="video">🎬 Videos</option>
                                 <option value="other">📎 Others</option>
                             </select>
-                            <select id="sortBy" class="block w-full px-4 py-3 pr-8 border border-gray-300 bg-white rounded-lg leading-tight focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-150 ease-in-out">
+                            <select id="sortBy" class="block w-full px-4 py-3 pr-8 border border-gray-300 bg-white rounded-lg leading-tight focus:outline-none focus:ring-2 focus:ring-bass-red focus:border-transparent transition duration-150 ease-in-out">
                                 <option value="date-desc">🕒 Newest First</option>
                                 <option value="date-asc">🕐 Oldest First</option>
                                 <option value="name-asc">🔤 Name (A-Z)</option>
@@ -113,7 +113,7 @@
                     </svg>
                     <h3 class="text-xl font-semibold text-gray-900 mb-2">No files found</h3>
                     <p class="text-gray-500 mb-6">Upload your first file to get started</p>
-                    <button onclick="document.getElementById('fileInput').click()" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-900 to-red-700 text-white font-medium rounded-lg hover:from-red-800 hover:to-red-600 transition-all duration-200 shadow-md hover:shadow-lg">
+                    <button onclick="document.getElementById('fileInput').click()" class="inline-flex items-center px-6 py-3 bg-bass-red text-white font-medium rounded-lg hover:bg-bass-red-hover transition-all duration-200 shadow-md hover:shadow-lg">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
@@ -226,7 +226,7 @@
             emptyState.classList.add('hidden');
 
             grid.innerHTML = files.map(file => `
-                <div class="file-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:border-red-300" data-file-id="${file.path}">
+                <div class="file-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:border-bass-red/40" data-file-id="${file.path}">
                     <div class="file-preview aspect-w-16 aspect-h-12 flex items-center justify-center p-6">
                         ${getFilePreview(file)}
                     </div>
@@ -247,13 +247,13 @@
                             </span>
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="copyLink('${file.url}', '${file.name}')" class="flex-1 group relative px-3 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 text-xs font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow">
+                            <button onclick="copyLink('${file.url}', '${file.name}')" class="flex-1 group relative px-3 py-2.5 bg-white border border-navy text-navy rounded-lg hover:bg-navy/10 transition-all duration-200 text-xs font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                 </svg>
                                 Copy Link
                             </button>
-                            <button onclick="deleteFile('${file.path}', '${file.name}')" class="flex-shrink-0 px-3 py-2.5 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 flex items-center justify-center shadow-sm hover:shadow">
+                            <button onclick="deleteFile('${file.path}', '${file.name}')" class="flex-shrink-0 px-3 py-2.5 bg-neutral-900 text-white rounded-lg hover:bg-black transition-all duration-200 flex items-center justify-center shadow-sm hover:shadow">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                 </svg>
@@ -271,9 +271,9 @@
             }
 
             const icons = {
-                'document': `<div class="text-blue-600"><svg class="w-20 h-20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path></svg></div>`,
-                'archive': `<div class="text-yellow-600"><svg class="w-20 h-20" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"></path><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg></div>`,
-                'video': `<div class="text-purple-600"><svg class="w-20 h-20" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"></path></svg></div>`,
+                'document': `<div class="text-navy"><svg class="w-20 h-20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path></svg></div>`,
+                'archive': `<div class="text-warning"><svg class="w-20 h-20" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"></path><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg></div>`,
+                'video': `<div class="text-navy"><svg class="w-20 h-20" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"></path></svg></div>`,
                 'other': `<div class="text-gray-500"><svg class="w-20 h-20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path></svg></div>`
             };
 
@@ -358,7 +358,7 @@
                         <span class="text-xs text-gray-500" id="fileSize-${index}">${formatFileSize(file.size)}</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-1.5">
-                        <div class="bg-gradient-to-r from-red-900 to-red-700 h-1.5 rounded-full transition-all duration-300" style="width: 0%" id="progress-${index}"></div>
+                        <div class="bg-bass-red h-1.5 rounded-full transition-all duration-300" style="width: 0%" id="progress-${index}"></div>
                     </div>
                     <div class="text-xs text-gray-500 mt-1" id="status-${index}">Waiting...</div>
                 `;
@@ -379,7 +379,7 @@
 
                 try {
                     status.textContent = 'Uploading...';
-                    status.className = 'text-xs text-blue-600 mt-1 font-medium';
+                    status.className = 'text-xs text-navy mt-1 font-medium';
 
                     // Simulate progress
                     let progress = 0;
@@ -406,23 +406,23 @@
                     if (data.success) {
                         successCount++;
                         status.textContent = '✓ Uploaded';
-                        status.className = 'text-xs text-green-600 mt-1 font-medium';
-                        progressBar.classList.remove('from-red-900', 'to-red-700');
-                        progressBar.classList.add('from-green-600', 'to-green-700');
+status.className = 'text-xs text-success mt-1 font-medium';
+                            progressBar.classList.remove('bg-bass-red');
+                            progressBar.classList.add('bg-success');
                     } else {
                         failCount++;
                         status.textContent = '✗ Failed: ' + (data.message || 'Unknown error');
-                        status.className = 'text-xs text-red-600 mt-1 font-medium';
-                        progressBar.classList.remove('from-red-900', 'to-red-700');
-                        progressBar.classList.add('from-red-600', 'to-red-700');
+status.className = 'text-xs text-error mt-1 font-medium';
+                            progressBar.classList.remove('bg-bass-red');
+                            progressBar.classList.add('bg-error');
                     }
                 } catch (error) {
                     failCount++;
                     console.error('Error uploading file:', file.name, error);
                     status.textContent = '✗ Upload failed';
-                    status.className = 'text-xs text-red-600 mt-1 font-medium';
-                    progressBar.classList.remove('from-red-900', 'to-red-700');
-                    progressBar.classList.add('from-red-600', 'to-red-700');
+                    status.className = 'text-xs text-error mt-1 font-medium';
+                    progressBar.classList.remove('bg-bass-red');
+                    progressBar.classList.add('bg-error');
                 }
 
                 // Update count
@@ -533,9 +533,9 @@
             const toastIcon = document.getElementById('toastIcon');
 
             const icons = {
-                success: '<svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>',
-                error: '<svg class="w-6 h-6 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>',
-                info: '<svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>'
+success: '<svg class="w-6 h-6 text-success" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>',
+                            error: '<svg class="w-6 h-6 text-error" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L10 10l-1.293 1.293a1 1 0 101.414 1.414L11 11.414l1.293 1.293a1 1 0 001.414-1.414L11 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>',
+                            info: '<svg class="w-6 h-6 text-info" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>'
             };
 
             toastIcon.innerHTML = icons[type] || icons.info;

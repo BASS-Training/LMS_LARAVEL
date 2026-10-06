@@ -23,10 +23,10 @@
                             <h3 class="text-gray-900 font-semibold">Rata-rata Kuis</h3>
                             <p class="text-sm text-gray-500">Persentase dari attempt terbaru per kuis</p>
                         </div>
-                        <div class="text-3xl font-bold text-blue-600">{{ number_format($quizAverage, 2) }}%</div>
+                        <div class="text-3xl font-bold text-bass-red">{{ number_format($quizAverage, 2) }}%</div>
                     </div>
                     <div class="mt-4 w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-blue-600 h-2 rounded-full" style="width: {{ min(100, max(0, $quizAverage)) }}%"></div>
+                        <div class="bg-bass-red h-2 rounded-full" style="width: {{ min(100, max(0, $quizAverage)) }}%"></div>
                     </div>
                 </div>
                 <div class="bg-white rounded-xl shadow p-6">
@@ -35,10 +35,10 @@
                             <h3 class="text-gray-900 font-semibold">Rata-rata Esai</h3>
                             <p class="text-sm text-gray-500">Esai yang memiliki penilaian (skoring)</p>
                         </div>
-                        <div class="text-3xl font-bold text-emerald-600">{{ number_format($essayAverage, 2) }}%</div>
+                        <div class="text-3xl font-bold text-success">{{ number_format($essayAverage, 2) }}%</div>
                     </div>
                     <div class="mt-4 w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-emerald-600 h-2 rounded-full" style="width: {{ min(100, max(0, $essayAverage)) }}%"></div>
+                        <div class="bg-success h-2 rounded-full" style="width: {{ min(100, max(0, $essayAverage)) }}%"></div>
                     </div>
                 </div>
             </div>
@@ -58,7 +58,7 @@
                                         <p class="text-gray-900 font-semibold truncate">{{ $quiz['title'] }}</p>
                                         <p class="text-xs text-gray-500 mt-0.5">Rata-rata (attempt terakhir): {{ number_format($quiz['latest_percentage'], 2) }}%</p>
                                     </div>
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-info-soft text-navy">
                                         {{ count($quiz['attempts']) }} attempt
                                     </span>
                                 </div>
@@ -74,7 +74,7 @@
                                                         <span>•</span>
                                                         <span>{{ $attempt['percentage'] }}%</span>
                                                         <span>•</span>
-                                                        <span class="font-medium {{ $attempt['passed'] ? 'text-green-600' : 'text-red-600' }}">{{ $attempt['passed'] ? 'Lulus' : 'Tidak Lulus' }}</span>
+                                                        <span class="font-medium {{ $attempt['passed'] ? 'text-success' : 'text-error' }}">{{ $attempt['passed'] ? 'Lulus' : 'Tidak Lulus' }}</span>
                                                     </div>
                                                     <div class="text-xs text-gray-400">
                                                         @if($attempt['completed_at'])
@@ -85,7 +85,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <a href="{{ route('quizzes.result', ['quiz' => $quiz['quiz_id'], 'attempt' => $attempt['attempt_id']]) }}" class="px-3 py-1.5 text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg shrink-0">Lihat Hasil</a>
+                                            <a href="{{ route('quizzes.result', ['quiz' => $quiz['quiz_id'], 'attempt' => $attempt['attempt_id']]) }}" class="px-3 py-1.5 text-xs bg-info-soft text-navy hover:bg-info-soft/80 rounded-lg shrink-0">Lihat Hasil</a>
                                         </div>
                                     @endforeach
                                 </div>
@@ -116,14 +116,14 @@
                                             <span>Tanpa skoring</span>
                                         @endif
                                         <span>•</span>
-                                        <span class="font-medium {{ $essay['graded'] ? 'text-green-600' : 'text-yellow-600' }}">{{ $essay['graded'] ? 'Sudah Dinilai' : 'Menunggu Penilaian' }}</span>
+                                        <span class="font-medium {{ $essay['graded'] ? 'text-success' : 'text-warning' }}">{{ $essay['graded'] ? 'Sudah Dinilai' : 'Menunggu Penilaian' }}</span>
                                     </div>
                                     @if($essay['graded_at'])
                                         <p class="text-xs text-gray-400 mt-1">Dinilai: {{ $essay['graded_at']->format('d M Y, H:i') }}</p>
                                     @endif
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <a href="{{ route('essays.result', ['submission' => $essay['submission_id']]) }}" class="px-3 py-2 text-sm bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg">Lihat Detail</a>
+                                    <a href="{{ route('essays.result', ['submission' => $essay['submission_id']]) }}" class="px-3 py-2 text-sm bg-success-soft text-success hover:bg-success-soft/80 rounded-lg">Lihat Detail</a>
                                 </div>
                             </div>
                         @empty

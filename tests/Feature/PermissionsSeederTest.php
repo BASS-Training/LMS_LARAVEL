@@ -3,8 +3,8 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use Spatie\Permission\Models\Permission;
+use Tests\TestCase;
 
 class PermissionsSeederTest extends TestCase
 {
@@ -20,6 +20,10 @@ class PermissionsSeederTest extends TestCase
             'add chat participants',
             'remove chat participants',
             'create course chats',
+            'manage course taxonomy',
+            'manage coupons',
+            'manage bundles',
+            'manage learning paths',
         ];
 
         foreach ($expected as $name) {
@@ -27,4 +31,3 @@ class PermissionsSeederTest extends TestCase
         }
     }
 }
-

@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use App\Models\Traits\Duplicateable; // Import Trait
+use App\Models\Traits\Duplicateable;
 use App\Services\TokenGenerator;
+use Illuminate\Database\Eloquent\Factories\HasFactory; // Import Trait
+use Illuminate\Database\Eloquent\Model;
 
 class Course extends Model
 {
-    use HasFactory, Duplicateable; // Gunakan Trait
+    use Duplicateable, HasFactory; // Gunakan Trait
 
     protected $fillable = [
         'title',
@@ -17,6 +17,10 @@ class Course extends Model
         'objectives',
         'thumbnail',
         'status',
+        'visibility',
+        'price',
+        'requires_payment_verification',
+        'short_description',
         'certificate_template_id',
         'enrollment_token',
         'token_enabled',
@@ -32,6 +36,8 @@ class Course extends Model
         'token_expires_at' => 'datetime',
         'training_start_date' => 'date',
         'training_end_date' => 'date',
+        'price' => 'integer',
+        'requires_payment_verification' => 'boolean',
     ];
 
     /**
@@ -39,21 +45,45 @@ class Course extends Model
      * PERBAIKAN: Hanya duplikasi lessons, TIDAK duplikasi users (instructors, eventOrganizers, participants)
      * agar course duplikat tidak membawa data user dari course asli.
      * Ini untuk kelas/batch baru dengan peserta baru.
+     *
      * @var array
      */
-    protected $duplicateRelations = ['lessons'];
+    protected $duplicateRelations = ['lessons', 'categories', 'tags'];
 
     /**
      * Define which attribute contains a file to be duplicated.
+     *
      * @var string
      */
     protected $replicateFile = 'thumbnail';
-
 
     // Relasi ke User (instruktur yang membuat kursus)
     public function instructors()
     {
         return $this->belongsToMany(User::class, 'course_instructor');
+    }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class);
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
+    }
+
+    public function bundles()
+    {
+        return $this->belongsToMany(Bundle::class)
+            ->withPivot('sort_order');
+    }
+
+    public function learningPaths()
+    {
+        return $this->belongsToMany(LearningPath::class, 'course_learning_path')
+            ->withPivot('sort_order')
+            ->orderByPivot('sort_order');
     }
 
     // Relasi ke Lesson (satu kursus punya banyak pelajaran)
@@ -75,7 +105,9 @@ class Course extends Model
 
     public function enrolledUsers()
     {
-        return $this->belongsToMany(User::class, 'course_user')->withPivot('feedback')->withTimestamps();
+        return $this->belongsToMany(User::class, 'course_user')
+            ->withPivot('feedback', 'order_id', 'has_independent_access')
+            ->withTimestamps();
     }
 
     public function feedback()
@@ -85,7 +117,7 @@ class Course extends Model
 
     public function eventOrganizers()
     {
-        return $this->belongsToMany(User::class, 'course_event_organizer');
+        return $this->belongsToMany(User::class, 'course_event_organizer')->withTimestamps();
     }
 
     public function contents()
@@ -192,7 +224,7 @@ class Course extends Model
      */
     public function hasUser($userId): bool
     {
-        return  $this->enrolledUsers()->where('users.id', $userId)->exists() ||
+        return $this->enrolledUsers()->where('users.id', $userId)->exists() ||
             $this->instructors()->where('users.id', $userId)->exists() ||
             $this->eventOrganizers()->where('users.id', $userId)->exists();
     }
@@ -204,7 +236,7 @@ class Course extends Model
     {
         return $this->periods()->whereHas('participants', function ($query) use ($userId) {
             $query->where('users.id', $userId);
-        })->exists() || 
+        })->exists() ||
         $this->periods()->whereHas('instructors', function ($query) use ($userId) {
             $query->where('users.id', $userId);
         })->exists() ||
@@ -226,9 +258,11 @@ class Course extends Model
      */
     public function getUserInstructorPeriods($userId)
     {
-        return $this->periods()->whereHas('instructors', function ($query) use ($userId) {
-            $query->where('users.id', $userId);
-        })->get();
+        return $this->periods()
+            ->select('id', 'course_id', 'name', 'start_date', 'end_date', 'status', 'description')
+            ->whereHas('instructors', function ($query) use ($userId) {
+                $query->where('users.id', $userId);
+            })->get();
     }
 
     /**
@@ -237,11 +271,11 @@ class Course extends Model
     public function getAllPeriodParticipants()
     {
         $userIds = collect();
-        
+
         foreach ($this->periods as $period) {
             $userIds = $userIds->merge($period->participants()->pluck('users.id'));
         }
-        
+
         return User::whereIn('id', $userIds->unique())->get();
     }
 
@@ -261,7 +295,7 @@ class Course extends Model
         if ($this->usesPeriodEnrollment()) {
             return $this->getAllPeriodParticipants();
         }
-        
+
         return $this->participants;
     }
 
@@ -306,7 +340,7 @@ class Course extends Model
      */
     public function hasCertificateTemplate(): bool
     {
-        return !is_null($this->certificate_template_id);
+        return ! is_null($this->certificate_template_id);
     }
 
     /**
@@ -331,6 +365,7 @@ class Course extends Model
                 $count++;
             }
         }
+
         return $count;
     }
 
@@ -341,10 +376,10 @@ class Course extends Model
     /**
      * Generate enrollment token (random or custom)
      *
-     * @param string $type 'random' or 'custom'
-     * @param string|null $customToken Token kustom jika type = 'custom'
-     * @param int $length Panjang token jika type = 'random'
-     * @param string $format Format token: 'alphanumeric', 'numeric', 'alpha'
+     * @param  string  $type  'random' or 'custom'
+     * @param  string|null  $customToken  Token kustom jika type = 'custom'
+     * @param  int  $length  Panjang token jika type = 'random'
+     * @param  string  $format  Format token: 'alphanumeric', 'numeric', 'alpha'
      * @return array ['success' => bool, 'token' => string, 'message' => string]
      */
     public function generateEnrollmentToken(
@@ -359,7 +394,7 @@ class Course extends Model
                     return [
                         'success' => false,
                         'token' => '',
-                        'message' => 'Custom token tidak boleh kosong'
+                        'message' => 'Custom token tidak boleh kosong',
                     ];
                 }
 
@@ -370,11 +405,11 @@ class Course extends Model
                     $this->id
                 );
 
-                if (!$validation['valid']) {
+                if (! $validation['valid']) {
                     return [
                         'success' => false,
                         'token' => $validation['token'],
-                        'message' => $validation['message']
+                        'message' => $validation['message'],
                     ];
                 }
 
@@ -397,13 +432,13 @@ class Course extends Model
             return [
                 'success' => true,
                 'token' => $token,
-                'message' => 'Token berhasil dibuat'
+                'message' => 'Token berhasil dibuat',
             ];
         } catch (\Exception $e) {
             return [
                 'success' => false,
                 'token' => '',
-                'message' => 'Gagal membuat token: ' . $e->getMessage()
+                'message' => 'Gagal membuat token: '.$e->getMessage(),
             ];
         }
     }
@@ -416,7 +451,7 @@ class Course extends Model
 
     public function isTokenValid(): bool
     {
-        if (!$this->token_enabled || !$this->enrollment_token) {
+        if (! $this->token_enabled || ! $this->enrollment_token) {
             return false;
         }
 
@@ -437,10 +472,86 @@ class Course extends Model
      */
     public function getTokenTypeLabel(): string
     {
-        return match($this->token_type) {
+        return match ($this->token_type) {
             'custom' => 'Custom',
             'random' => 'Random',
             default => 'Random',
         };
+    }
+
+    // ========================================
+    // ETALASE / KATALOG (SHOP)
+    // ========================================
+
+    /**
+     * Course yang boleh tampil di etalase publik: sudah published DAN
+     * sengaja ditandai untuk dikatalogkan. Draft tidak pernah bocor.
+     */
+    public function scopeInCatalog($query)
+    {
+        return $query->where('status', 'published')->where('visibility', 'catalog');
+    }
+
+    public function isInCatalog(): bool
+    {
+        return $this->status === 'published' && $this->visibility === 'catalog';
+    }
+
+    public function isFree(): bool
+    {
+        return (int) ($this->price ?? 0) <= 0;
+    }
+
+    public function isPaid(): bool
+    {
+        return ! $this->isFree();
+    }
+
+    /**
+     * Pembelian course ini harus ditinjau/diverifikasi manusia dulu sebelum
+     * peserta mendapat akses (mode manual). Default false = akses otomatis.
+     */
+    public function requiresPaymentVerification(): bool
+    {
+        return (bool) $this->requires_payment_verification;
+    }
+
+    /**
+     * "Gratis" atau "Rp 250.000".
+     */
+    public function getPriceLabelAttribute(): string
+    {
+        return $this->isFree()
+            ? 'Gratis'
+            : 'Rp '.number_format((int) $this->price, 0, ',', '.');
+    }
+
+    public function isEnrolledBy(?User $user): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        return $this->enrolledUsers()->whereKey($user->id)->exists();
+    }
+
+    /**
+     * User adalah PENGELOLA course ini (bukan calon pembeli): super-admin
+     * (akses ke semua course) atau instruktur yang ditugaskan di course ini.
+     * Pengelola sudah punya akses penuh, jadi tidak boleh/ perlu membeli.
+     */
+    public function isManagedBy(?User $user): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        if ($user->hasRole('super-admin')) {
+            return true;
+        }
+
+        return $this->relationLoaded('instructors')
+            ? $this->instructors->contains('id', $user->id)
+            : $this->instructors()->whereKey($user->id)->exists();
     }
 }

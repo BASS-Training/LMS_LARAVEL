@@ -6,13 +6,13 @@
     </div>
 
     @if (session('success'))
-        <div class="mb-4 font-medium text-sm text-green-600">
+        <div class="mb-4 font-medium text-sm text-success">
             {{ session('success') }}
         </div>
     @endif
 
     @if (session('warning'))
-        <div class="mb-4 font-medium text-sm text-amber-600">
+        <div class="mb-4 font-medium text-sm text-warning">
             {{ session('warning') }}
         </div>
     @endif

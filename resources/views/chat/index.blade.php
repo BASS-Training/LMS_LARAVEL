@@ -19,7 +19,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.5-1.5A2 2 0 0118 14v-3a6 6 0 10-12 0v3a2 2 0 01-.5 1.5L4 17h5m6 0v1a3 3 0 11-6 0v-1" />
                         </svg>
                         @if(isset($chatNotificationCount) && $chatNotificationCount > 0)
-                            <span class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-500 rounded-full">{{ $chatNotificationCount }}</span>
+                            <span class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-bass-red rounded-full">{{ $chatNotificationCount }}</span>
                         @endif
                     </a>
                 </div>
@@ -34,7 +34,7 @@
                 @endcan
                 @can('create', App\Models\Chat::class)
                     <button id="newChatBtn" 
-                            class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md">
+                            class="inline-flex min-h-[44px] items-center px-4 py-2 bg-bass-red hover:bg-bass-red-hover text-white text-sm font-medium rounded-lg transition-colors duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-bass-red focus:ring-offset-2">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                         </svg>
@@ -51,44 +51,44 @@
         <div class="w-80 bg-white border-r border-gray-200 flex flex-col">
             {{-- Filter Tabs --}}
             <div class="flex border-b border-gray-200 bg-gray-50">
-                <div class="flex-1 px-4 py-3 text-sm text-center font-medium text-blue-600 border-b-2 border-blue-600 bg-white">
+                <div class="flex-1 px-4 py-3 text-sm text-center font-medium text-bass-red border-b-2 border-bass-red bg-white">
                     All Chats
-                    <span class="ml-2 px-2 py-0.5 bg-blue-100 text-blue-600 rounded-full text-xs">{{ $chats->count() }}</span>
+                    <span class="ml-2 px-2 py-0.5 bg-bass-red-soft text-bass-red rounded-full text-xs">{{ $chats->count() }}</span>
                 </div>
             </div>
 
             {{-- Chat List --}}
             <div class="flex-1 overflow-y-auto chat-scroll" id="chatList">
                 @forelse($chats as $chat)
-                    <div class="chat-item p-4 cursor-pointer hover:bg-gray-50 transition-all duration-200 {{ $loop->first ? 'active bg-gradient-to-r from-blue-500 to-purple-600 text-white' : '' }}" 
+                    <div class="chat-item p-4 cursor-pointer border-l-4 transition-all duration-200 {{ $loop->first ? 'active bg-bass-red-soft border-bass-red' : 'border-transparent hover:bg-gray-50' }}"
                          data-chat-id="{{ $chat->id }}" 
                          onclick="selectChat({{ $chat->id }})">
                         
                         <div class="flex items-start space-x-3">
                             {{-- Avatar --}}
                             <div class="flex-shrink-0 relative">
-                                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-sm">
+                                <div class="w-12 h-12 rounded-full bg-navy flex items-center justify-center shadow-sm">
                                     <span class="text-white font-semibold text-sm">
                                         {{ strtoupper(substr($chat->getDisplayName(), 0, 1)) }}
                                     </span>
                                 </div>
                                 {{-- Status indicator --}}
-                                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-success border-2 border-white rounded-full"></div>
                             </div>
                             
                             {{-- Chat Info --}}
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center justify-between">
-                                    <p class="text-sm font-semibold truncate {{ $loop->first ? 'text-white' : 'text-gray-900' }}">
+                                    <p class="text-sm font-semibold text-gray-900 truncate">
                                         {{ $chat->getDisplayName() }}
                                     </p>
-                                    <span class="text-xs {{ $loop->first ? 'text-white opacity-75' : 'text-gray-500' }}">
+                                    <span class="text-xs text-gray-500">
                                         {{ $chat->updated_at->format('H:i') }}
                                     </span>
                                 </div>
                                 
                                 {{-- Last message preview --}}
-                                <p class="text-sm truncate {{ $loop->first ? 'text-white opacity-75' : 'text-gray-600' }}">
+                                <p class="text-sm text-gray-600 truncate">
                                     @if($chat->lastMessage)
                                         {{ Str::limit($chat->lastMessage->content, 40) }}
                                     @else
@@ -99,13 +99,13 @@
                                 {{-- Chat meta info --}}
                                 <div class="flex items-center mt-1">
                                     @if($chat->type === 'group')
-                                        <span class="text-xs {{ $loop->first ? 'text-white opacity-75' : 'text-gray-500' }}">
+                                        <span class="text-xs text-gray-500">
                                             {{ $chat->activeParticipants->count() }} members
                                         </span>
                                     @else
                                         {{-- Unread count indicator --}}
-                                        <span class="w-2 h-2 bg-red-500 rounded-full mr-2 hidden unread-indicator"></span>
-                                        <span class="text-xs {{ $loop->first ? 'text-white opacity-75' : 'text-gray-500' }}">Direct message</span>
+                                        <span class="w-2 h-2 bg-bass-red rounded-full mr-2 hidden unread-indicator"></span>
+                                        <span class="text-xs text-gray-500">Direct message</span>
                                     @endif
                                 </div>
                             </div>
@@ -125,7 +125,7 @@
                         <p class="text-gray-600 mb-4">Start a conversation to begin chatting.</p>
                         @can('create', App\Models\Chat::class)
                             <button id="newChatBtnEmpty" 
-                                    class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200">
+                                    class="min-h-[44px] bg-bass-red hover:bg-bass-red-hover text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-bass-red focus:ring-offset-2">
                                 Start Your First Chat
                             </button>
                         @endcan
@@ -141,7 +141,7 @@
                 <div class="p-4 border-b border-gray-200 bg-white" id="chatHeader">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                            <div class="w-10 h-10 rounded-full bg-navy flex items-center justify-center">
                                 <span class="text-white font-semibold text-sm" id="chatHeaderAvatar">
                                     {{ strtoupper(substr($chats->first()->getDisplayName(), 0, 1)) }}
                                 </span>
@@ -151,7 +151,7 @@
                                     {{ $chats->first()->getDisplayName() }}
                                 </h2>
                                 <div class="flex items-center space-x-2">
-                                    <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                    <div class="w-2 h-2 bg-success rounded-full"></div>
                                     <span class="text-sm text-gray-500" id="chatHeaderStatus">
                                         @if($chats->first()->type === 'group')
                                             {{ $chats->first()->activeParticipants->count() }} members
@@ -172,7 +172,7 @@
                 <div class="flex-1 overflow-y-auto chat-scroll p-4 bg-gray-50" id="messagesContainer" data-chat-id="{{ $chats->first()->id }}">
                     {{-- Messages will be loaded here --}}
                     <div class="text-center py-8">
-                        <div class="animate-spin inline-block w-8 h-8 border-[3px] border-current border-t-transparent text-blue-600 rounded-full" role="status">
+                        <div class="animate-spin inline-block w-8 h-8 border-[3px] border-current border-t-transparent text-navy rounded-full" role="status">
                             <span class="sr-only">Loading...</span>
                         </div>
                         <p class="text-gray-500 mt-2">Loading messages...</p>
@@ -185,10 +185,10 @@
                         <div class="flex-1">
                             <textarea id="messageTextarea" 
                                       placeholder="Type your message..." 
-                                      class="w-full resize-none border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm max-h-32"
+                                      class="w-full resize-none border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-bass-red focus:border-bass-red text-sm max-h-32"
                                       rows="1"></textarea>
                         </div>
-                        <button id="sendBtn" class="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button id="sendBtn" class="flex h-11 w-11 items-center justify-center bg-bass-red hover:bg-bass-red-hover text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-bass-red focus:ring-offset-2 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                             </svg>
@@ -197,10 +197,10 @@
                 </div>
             @else
                 {{-- Empty state when no chats --}}
-                <div class="flex-1 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+                <div class="flex-1 bg-gray-50 flex items-center justify-center">
                     <div class="text-center max-w-md">
-                        <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center shadow-lg">
-                            <svg class="w-12 h-12 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-24 h-24 mx-auto mb-6 bg-info-soft rounded-full flex items-center justify-center shadow-sm">
+                            <svg class="w-12 h-12 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                       d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
                                 </path>
@@ -212,7 +212,7 @@
                         </p>
                         @can('create', App\Models\Chat::class)
                             <button id="newChatBtnWelcome" 
-                                    class="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 shadow-lg hover:shadow-xl">
+                                    class="min-h-[44px] bg-bass-red hover:bg-bass-red-hover text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-bass-red focus:ring-offset-2">
                                 Start Your First Chat
                             </button>
                         @endcan
@@ -223,7 +223,7 @@
     </div>
 
     {{-- New Chat Modal --}}
-    <div id="newChatModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div id="newChatModal" class="hidden fixed inset-0 bg-gray-900/50 overflow-y-auto h-full w-full z-50">
         <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
             <div class="mt-3">
                 <div class="flex items-center justify-between mb-4">
@@ -242,11 +242,11 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Chat Type</label>
                             <div class="space-y-2">
                                 <label class="flex items-center">
-                                    <input type="radio" name="type" value="direct" checked class="text-indigo-600 focus:ring-indigo-500">
+                                    <input type="radio" name="type" value="direct" checked class="text-bass-red focus:ring-bass-red">
                                     <span class="ml-2 text-sm text-gray-700">Direct Message</span>
                                 </label>
                                 <label class="flex items-center">
-                                    <input type="radio" name="type" value="group" class="text-indigo-600 focus:ring-indigo-500">
+                                    <input type="radio" name="type" value="group" class="text-bass-red focus:ring-bass-red">
                                     <span class="ml-2 text-sm text-gray-700">Group Chat</span>
                                 </label>
                             </div>
@@ -259,7 +259,7 @@
                                 Course <span class="text-gray-500">(Optional)</span>
                             </label>
                             <select name="course_class_id" id="courseClassSelect" 
-                                    class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-bass-red focus:border-bass-red">
                                 <option value="">Select a course...</option>
                             </select>
                             <p class="mt-1 text-xs text-gray-500">
@@ -269,9 +269,12 @@
                         @elsecan('create', App\Models\Chat::class)
                         {{-- Participants don't see course selection --}}
                         <input type="hidden" name="course_class_id" value="">
-                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                            <p class="text-sm text-blue-700">
-                                💬 You can chat with instructors, organizers, and other participants from your courses.
+                        <div class="flex gap-3 bg-info-soft border border-info rounded-lg p-3">
+                            <svg class="mt-0.5 h-5 w-5 flex-none text-info" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.9 9.9 0 01-4.255-.949L3 20l1.395-3.72A7.2 7.2 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            <p class="text-sm text-gray-700">
+                                You can chat with instructors, organizers, and other participants from your courses.
                             </p>
                         </div>
                         @endcan
@@ -282,7 +285,7 @@
                             <div class="border border-gray-300 rounded-lg max-h-48 overflow-y-auto p-2" id="participantsContainer">
                                 <p class="text-gray-500 text-sm p-2">Loading participants...</p>
                             </div>
-                            <p id="participantsError" class="mt-2 text-sm text-red-600 hidden"></p>
+                            <p id="participantsError" class="mt-2 text-sm text-error hidden"></p>
                             <p class="mt-1 text-xs text-gray-500">
                                 @can('create course chats')
                                     Participants will be filtered based on the selected course.
@@ -296,7 +299,7 @@
                         <div id="chatTitleField" class="hidden">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Group Chat Name</label>
                             <input type="text" name="title" 
-                                   class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                   class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-bass-red focus:border-bass-red"
                                    placeholder="Enter group chat name...">
                             <p class="mt-1 text-xs text-gray-500">
                                 Leave empty to auto-generate name based on participants.
@@ -308,7 +311,7 @@
                         <button type="button" id="cancelBtn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
                             Cancel
                         </button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors">
+                        <button type="submit" class="min-h-[44px] px-4 py-2 text-sm font-medium text-white bg-bass-red hover:bg-bass-red-hover rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-bass-red focus:ring-offset-2">
                             Create Chat
                         </button>
                     </div>
@@ -400,61 +403,15 @@
         function selectChat(chatId) {
         // Update UI - Reset semua chat items ke state normal
         document.querySelectorAll('.chat-item').forEach(item => {
-            item.classList.remove('active', 'bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'text-white');
-            item.classList.add('hover:bg-gray-50');
-            
-            // ✅ FIXED: Reset text colors ke default
-            const nameElement = item.querySelector('p.text-sm.font-semibold');
-            const timeElement = item.querySelector('span.text-xs');
-            const messageElement = item.querySelector('p.text-sm:not(.font-semibold)');
-            const metaElement = item.querySelector('span.text-xs:not(:first-child)');
-            
-            if (nameElement) {
-                nameElement.classList.remove('text-white');
-                nameElement.classList.add('text-gray-900');
-            }
-            if (timeElement) {
-                timeElement.classList.remove('text-white', 'opacity-75');
-                timeElement.classList.add('text-gray-500');
-            }
-            if (messageElement) {
-                messageElement.classList.remove('text-white', 'opacity-75');
-                messageElement.classList.add('text-gray-600');
-            }
-            if (metaElement) {
-                metaElement.classList.remove('text-white', 'opacity-75');
-                metaElement.classList.add('text-gray-500');
-            }
+            item.classList.remove('active', 'bg-bass-red-soft', 'border-bass-red');
+            item.classList.add('border-transparent', 'hover:bg-gray-50');
         });
     
     // Apply active state ke chat yang dipilih
     const selectedItem = document.querySelector(`[data-chat-id="${chatId}"]`);
     if (selectedItem) {
-        selectedItem.classList.add('active', 'bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'text-white');
-        selectedItem.classList.remove('hover:bg-gray-50');
-        
-        // ✅ FIXED: Set text colors untuk active state
-        const nameElement = selectedItem.querySelector('p.text-sm.font-semibold');
-        const timeElement = selectedItem.querySelector('span.text-xs');
-        const messageElement = selectedItem.querySelector('p.text-sm:not(.font-semibold)');
-        const metaElement = selectedItem.querySelector('span.text-xs:not(:first-child)');
-        
-        if (nameElement) {
-            nameElement.classList.remove('text-gray-900');
-            nameElement.classList.add('text-white');
-        }
-        if (timeElement) {
-            timeElement.classList.remove('text-gray-500');
-            timeElement.classList.add('text-white', 'opacity-75');
-        }
-        if (messageElement) {
-            messageElement.classList.remove('text-gray-600');
-            messageElement.classList.add('text-white', 'opacity-75');
-        }
-        if (metaElement) {
-            metaElement.classList.remove('text-gray-500');
-            metaElement.classList.add('text-white', 'opacity-75');
-        }
+        selectedItem.classList.add('active', 'bg-bass-red-soft', 'border-bass-red');
+        selectedItem.classList.remove('border-transparent', 'hover:bg-gray-50');
     }
     
     currentChatId = chatId;
@@ -477,7 +434,7 @@
                 // Update messages container
                 messagesContainer.innerHTML = `
                     <div class="text-center py-8">
-                        <div class="animate-spin inline-block w-8 h-8 border-[3px] border-current border-t-transparent text-blue-600 rounded-full"></div>
+                        <div class="animate-spin inline-block w-8 h-8 border-[3px] border-current border-t-transparent text-navy rounded-full"></div>
                         <p class="text-gray-500 mt-2">Loading messages...</p>
                     </div>
                 `;
@@ -507,7 +464,7 @@
                 console.error('Error loading chat:', error);
                 messagesContainer.innerHTML = `
                     <div class="text-center py-8">
-                        <p class="text-red-500">Error loading messages. Please try again.</p>
+                        <p class="text-error">Error loading messages. Please try again.</p>
                     </div>
                 `;
             }
@@ -560,11 +517,11 @@
                                 <span class="text-xs text-gray-500">${timeFormatted}</span>
                                 <span class="text-sm font-semibold text-gray-800">You</span>
                             </div>
-                            <div class="bg-blue-500 text-white rounded-2xl rounded-tr-md px-4 py-2 shadow-sm max-w-xs">
+                            <div class="bg-navy text-white rounded-2xl rounded-tr-md px-4 py-2 shadow-sm max-w-xs">
                                 <p class="text-sm">${escapeHtml(message.content)}</p>
                             </div>
                         </div>
-                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center flex-shrink-0">
+                        <div class="w-8 h-8 rounded-full bg-navy flex items-center justify-center flex-shrink-0">
                             <span class="text-white font-semibold text-xs">Me</span>
                         </div>
                     </div>
@@ -576,7 +533,7 @@
                     
                 messageDiv.innerHTML = `
                     <div class="flex items-start space-x-3">
-                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center flex-shrink-0">
+                        <div class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0">
                             <span class="text-white font-semibold text-xs">${avatarText}</span>
                         </div>
                         <div class="flex flex-col">
@@ -707,7 +664,7 @@
                         const roleLabel = user.role_in_course ? ` (${user.role_in_course})` : '';
                         return `
                             <label class="flex items-center p-2 hover:bg-gray-50 rounded">
-                                <input type="checkbox" name="participants[]" value="${user.id}" class="text-indigo-600 focus:ring-indigo-500">
+                                <input type="checkbox" name="participants[]" value="${user.id}" class="text-bass-red focus:ring-bass-red">
                                 <div class="ml-2">
                                     <span class="text-sm text-gray-700">${escapeHtml(user.name)}${roleLabel}</span>
                                     <div class="text-xs text-gray-500">${escapeHtml(user.email)}</div>
@@ -720,7 +677,7 @@
                 }
             } catch (error) {
                 console.error('Error loading users:', error);
-                document.getElementById('participantsContainer').innerHTML = '<p class="text-red-500 text-sm p-2">Error loading users</p>';
+                document.getElementById('participantsContainer').innerHTML = '<p class="text-error text-sm p-2">Error loading users</p>';
             }
         }
 

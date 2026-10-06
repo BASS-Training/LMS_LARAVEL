@@ -4,7 +4,7 @@
       title      — label above the number
       value      — main metric (number or string)
       icon       — SVG path string for the icon
-      color      — Tailwind color key: indigo|emerald|purple|orange|blue|rose|amber
+      color      — BASS color key: navy|brand|success|warning|error|info
       subtitle   — (optional) small text below value
       delay      — (optional) animation delay in ms for stagger
 --}}
@@ -12,23 +12,21 @@
     'title'    => '',
     'value'    => '0',
     'icon'     => '',
-    'color'    => 'indigo',
+    'color'    => 'navy',
     'subtitle' => null,
     'delay'    => 0,
 ])
 
 @php
 $colorMap = [
-    'indigo'  => ['border' => 'border-indigo-500',  'bg' => 'bg-indigo-50',  'icon' => 'text-indigo-600'],
-    'emerald' => ['border' => 'border-emerald-500', 'bg' => 'bg-emerald-50', 'icon' => 'text-emerald-600'],
-    'purple'  => ['border' => 'border-purple-500',  'bg' => 'bg-purple-50',  'icon' => 'text-purple-600'],
-    'orange'  => ['border' => 'border-orange-500',  'bg' => 'bg-orange-50',  'icon' => 'text-orange-600'],
-    'blue'    => ['border' => 'border-blue-500',    'bg' => 'bg-blue-50',    'icon' => 'text-blue-600'],
-    'rose'    => ['border' => 'border-rose-500',    'bg' => 'bg-rose-50',    'icon' => 'text-rose-600'],
-    'amber'   => ['border' => 'border-amber-500',   'bg' => 'bg-amber-50',   'icon' => 'text-amber-600'],
-    'teal'    => ['border' => 'border-teal-500',    'bg' => 'bg-teal-50',    'icon' => 'text-teal-600'],
+    'navy'    => ['border' => 'border-navy',     'bg' => 'bg-info-soft',     'icon' => 'text-navy'],
+    'brand'   => ['border' => 'border-bass-red', 'bg' => 'bg-bass-red-soft', 'icon' => 'text-bass-red'],
+    'success' => ['border' => 'border-success',  'bg' => 'bg-success-soft',  'icon' => 'text-success'],
+    'warning' => ['border' => 'border-warning',  'bg' => 'bg-warning-soft',  'icon' => 'text-warning'],
+    'error'   => ['border' => 'border-error',    'bg' => 'bg-error-soft',    'icon' => 'text-error'],
+    'info'    => ['border' => 'border-info',     'bg' => 'bg-info-soft',     'icon' => 'text-info'],
 ];
-$c = $colorMap[$color] ?? $colorMap['indigo'];
+$c = $colorMap[$color] ?? $colorMap['navy'];
 @endphp
 
 <div {{ $attributes->merge(['class' => "kpi-card border-l-4 {$c['border']} animate-fade-in-up"]) }}

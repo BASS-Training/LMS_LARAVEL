@@ -18,6 +18,11 @@
     img {
         @apply max-w-full;
     }
+
+    input[type='checkbox'],
+    input[type='radio'] {
+        @apply text-bass-red focus:ring-bass-red;
+    }
 }
 
 @layer components {
@@ -26,38 +31,38 @@
         @apply inline-flex items-center px-2 py-1 border-b-2 border-transparent
                text-[1.0625rem] font-semibold leading-snug text-gray-800
                transition-colors duration-150 no-underline
-               hover:text-red-900 hover:border-red-300
+               hover:text-bass-red hover:border-bass-red-soft
                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bass-red;
     }
 
     .nav-link-custom.active {
-        @apply text-red-900 border-red-800;
+        @apply text-bass-red border-bass-red;
     }
 
     .dropdown-trigger-custom {
         @apply inline-flex items-center gap-1 px-3 py-2 rounded-md
                text-base font-semibold text-gray-800 bg-white border border-transparent
                transition-colors duration-150
-               hover:text-red-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bass-red;
+               hover:text-bass-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bass-red;
     }
 
     .dropdown-item-custom {
         @apply block px-4 py-2 text-sm text-gray-700 no-underline
                transition-colors duration-100
-               hover:bg-red-50 hover:text-red-900
-               focus-visible:outline-none focus-visible:bg-red-50;
+               hover:bg-bass-red-soft hover:text-bass-red
+               focus-visible:outline-none focus-visible:bg-bass-red-soft;
     }
 
     .responsive-nav-link-custom {
         @apply block min-h-[44px] flex items-center pl-3 pr-4 py-2.5
                border-l-4 border-transparent text-[0.9375rem] font-semibold text-gray-800
                transition-colors duration-150 no-underline
-               hover:text-red-900 hover:bg-red-50 hover:border-red-300
+               hover:text-bass-red hover:bg-bass-red-soft hover:border-bass-red-soft
                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-bass-red;
     }
 
     .responsive-nav-link-custom.active {
-        @apply text-red-900 bg-red-50 border-red-800;
+        @apply text-bass-red bg-bass-red-soft border-bass-red;
     }
 
     /* ── KPI / Stat Cards ── */
@@ -87,7 +92,7 @@
     }
 
     .btn-primary {
-        @apply btn bg-bass-red text-white hover:bg-red-700 focus-visible:ring-bass-red;
+        @apply btn bg-bass-red text-white hover:bg-bass-red-hover focus-visible:ring-bass-red;
     }
 
     .btn-secondary {
@@ -95,13 +100,42 @@
     }
 
     .btn-danger {
-        @apply btn bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500;
+        @apply btn bg-error text-white hover:bg-error-dark focus-visible:ring-error;
+    }
+
+    .btn-outline {
+        @apply btn bg-white text-bass-red border border-bass-red hover:bg-bass-red-soft focus-visible:ring-bass-red;
     }
 
     /* ── Form inputs — minimum 44px touch target ── */
     .form-input-base {
         @apply min-h-[44px] w-full rounded-lg border-gray-300 shadow-sm text-sm
                focus:border-bass-red focus:ring-bass-red;
+    }
+
+    .required-indicator {
+        @apply text-bass-red;
+    }
+
+    /* ── Semantic alerts ── */
+    .alert {
+        @apply rounded-lg border px-4 py-3 text-sm;
+    }
+
+    .alert-success {
+        @apply alert bg-success-soft border-success text-success;
+    }
+
+    .alert-warning {
+        @apply alert bg-warning-soft border-warning text-warning;
+    }
+
+    .alert-error {
+        @apply alert bg-error-soft border-error text-error;
+    }
+
+    .alert-info {
+        @apply alert bg-info-soft border-info text-info;
     }
 
     /* ── Page container ── */

@@ -14,12 +14,12 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Enhanced Success Message Display -->
             @if (session('success'))
-                <div class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4" id="success-alert">
+                <div class="mb-6 bg-success-soft border border-success/30 rounded-lg p-4" id="success-alert">
                     <div class="flex items-center">
-                        <svg class="w-5 h-5 text-green-600 dark:text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 text-success mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        <div class="text-green-800 dark:text-green-200">
+                        <div class="text-success">
                             {!! session('success') !!}
                         </div>
                     </div>
@@ -31,11 +31,11 @@
                     @if($certificates->count() > 0)
                         <div class="space-y-6">
                             @foreach($certificates as $certificate)
-                                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 rounded-lg border border-blue-200 dark:border-gray-600 p-6 hover:shadow-md transition-shadow duration-200">
+                                <div class="bg-info-soft dark:bg-gray-700 rounded-lg border border-navy/20 dark:border-gray-600 p-6 hover:shadow-md transition-shadow duration-200">
                                     <div class="flex flex-col md:flex-row md:items-center justify-between">
                                         <div class="flex-1">
                                             <div class="flex items-center mb-2">
-                                                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="w-6 h-6 text-navy mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
                                                 </svg>
                                                 <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
@@ -87,7 +87,7 @@
                                         <div class="mt-4 md:mt-0 md:ml-6 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
                                             <!-- Download Button -->
                                             <a href="{{ route('certificates.download', $certificate) }}" 
-                                               class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors duration-200">
+                                               class="inline-flex items-center px-4 py-2 bg-navy hover:bg-navy-light text-white text-sm font-medium rounded-lg shadow-sm transition-colors duration-200">
                                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                                 </svg>
@@ -106,7 +106,7 @@
                                             
                                             <!-- Copy Verify Link -->
                                             <button onclick="copyToClipboard('{{ route('certificates.verify', $certificate->certificate_code) }}')"
-                                                    class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors duration-200">
+                                                    class="inline-flex items-center px-4 py-2 bg-bass-red hover:bg-bass-red-hover text-white text-sm font-medium rounded-lg shadow-sm transition-colors duration-200">
                                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
                                                 </svg>
@@ -135,7 +135,7 @@
                                 Anda belum memiliki sertifikat. Selesaikan kursus untuk mendapatkan sertifikat.
                             </p>
                             <a href="javascript:void(0)" onclick="window.history.back()"
-                               class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors duration-200">
+                               class="inline-flex items-center px-4 py-2 bg-navy hover:bg-navy-light text-white text-sm font-medium rounded-lg shadow-sm transition-colors duration-200">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2h14a2 2 0 012 2v2"></path>
                                 </svg>

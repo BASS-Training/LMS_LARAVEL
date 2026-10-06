@@ -7,10 +7,10 @@
 
     <div class="py-8 max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-4">
         @if(session('success'))
-            <div class="p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg">{{ session('success') }}</div>
+            <div class="p-4 bg-success-soft border border-success/40 text-success rounded-lg">{{ session('success') }}</div>
         @endif
         @if(session('error'))
-            <div class="p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg">{{ session('error') }}</div>
+            <div class="p-4 bg-error-soft border border-error/40 text-error rounded-lg">{{ session('error') }}</div>
         @endif
 
         @php $byUser = $submissions->groupBy('user_id'); @endphp
@@ -26,7 +26,7 @@
             <div class="bg-white shadow rounded-2xl overflow-hidden" x-data="{ open: false }">
                 <div class="flex items-center justify-between gap-3 p-5">
                     <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-11 h-11 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-semibold flex-shrink-0">
+                        <div class="w-11 h-11 rounded-full bg-navy/10 text-navy flex items-center justify-center font-semibold flex-shrink-0">
                             {{ strtoupper(mb_substr($participant->name ?? '?', 0, 1)) }}
                         </div>
                         <div class="min-w-0">
@@ -36,9 +36,9 @@
                     </div>
                     @php
                         $badge = match($latest->status) {
-                            'passed' => ['Lulus', 'bg-green-100 text-green-700'],
-                            'failed' => ['Belum lulus', 'bg-red-100 text-red-700'],
-                            'submitted' => ['Perlu dinilai', 'bg-amber-100 text-amber-700'],
+                            'passed' => ['Lulus', 'bg-success-soft text-success'],
+                            'failed' => ['Belum lulus', 'bg-error-soft text-error'],
+                            'submitted' => ['Perlu dinilai', 'bg-warning-soft text-warning'],
                             default => ['Draft', 'bg-gray-100 text-gray-600'],
                         };
                     @endphp
@@ -50,9 +50,9 @@
                     @foreach($attempts as $sub)
                         @php
                             $b = match($sub->status) {
-                                'passed' => ['Lulus', 'bg-green-100 text-green-700'],
-                                'failed' => ['Belum lulus', 'bg-red-100 text-red-700'],
-                                'submitted' => ['Menunggu', 'bg-amber-100 text-amber-700'],
+                                'passed' => ['Lulus', 'bg-success-soft text-success'],
+                                'failed' => ['Belum lulus', 'bg-error-soft text-error'],
+                                'submitted' => ['Menunggu', 'bg-warning-soft text-warning'],
                                 default => ['Draft', 'bg-gray-100 text-gray-600'],
                             };
                         @endphp
@@ -82,7 +82,7 @@
                 @if($gradable)
                     <div class="border-t border-gray-100 bg-gray-50 p-5">
                         <button type="button" @click="open = !open"
-                                class="text-sm font-semibold text-indigo-600 hover:text-indigo-800">
+                                class="text-sm font-semibold text-navy hover:text-navy-light">
                             {{ $gradable->isGraded() ? 'Ubah Penilaian' : 'Nilai Percobaan #' . $gradable->attempt }}
                             <span x-show="!open">▾</span><span x-show="open" x-cloak>▴</span>
                         </button>
@@ -95,13 +95,13 @@
                                 <div class="flex gap-3">
                                     <label class="flex-1 cursor-pointer">
                                         <input type="radio" name="result" value="passed" class="peer sr-only" {{ $gradable->status === 'passed' ? 'checked' : '' }} required>
-                                        <div class="p-3 text-center rounded-xl border-2 border-gray-200 peer-checked:border-green-500 peer-checked:bg-green-50">
+                                        <div class="p-3 text-center rounded-xl border-2 border-gray-200 peer-checked:border-success peer-checked:bg-success-soft">
                                             <div class="text-xl">✅</div><div class="text-sm font-medium text-gray-800">Lulus</div>
                                         </div>
                                     </label>
                                     <label class="flex-1 cursor-pointer">
                                         <input type="radio" name="result" value="failed" class="peer sr-only" {{ $gradable->status === 'failed' ? 'checked' : '' }}>
-                                        <div class="p-3 text-center rounded-xl border-2 border-gray-200 peer-checked:border-red-500 peer-checked:bg-red-50">
+                                        <div class="p-3 text-center rounded-xl border-2 border-gray-200 peer-checked:border-error peer-checked:bg-error-soft">
                                             <div class="text-xl">🔁</div><div class="text-sm font-medium text-gray-800">Belum lulus</div>
                                         </div>
                                     </label>
@@ -113,18 +113,18 @@
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">Nilai (opsional, 0–100)</label>
                                     <input type="number" name="score" min="0" max="100" value="{{ $gradable->score }}"
-                                           class="w-32 rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                           class="w-32 rounded-lg border-gray-300 text-sm focus:border-bass-red focus:ring-bass-red/50">
                                 </div>
                             @endif
 
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1">Feedback / Catatan Revisi</label>
                                 <textarea name="feedback" rows="3"
-                                          class="w-full rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                          class="w-full rounded-lg border-gray-300 text-sm focus:border-bass-red focus:ring-bass-red/50"
                                           placeholder="Catatan untuk peserta...">{{ $gradable->feedback }}</textarea>
                             </div>
 
-                            <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700">
+                            <button type="submit" class="px-5 py-2.5 rounded-xl bg-bass-red text-white text-sm font-semibold hover:bg-bass-red-hover">
                                 Simpan Penilaian
                             </button>
                         </form>

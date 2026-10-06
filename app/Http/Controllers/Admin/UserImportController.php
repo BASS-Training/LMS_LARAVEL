@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Models\User;
 use App\Models\Course;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Log;
+use App\Models\User;
 use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class UserImportController extends Controller
@@ -20,8 +20,9 @@ class UserImportController extends Controller
      */
     public function show()
     {
-        $this->authorize('create', User::class); 
+        $this->authorize('create', User::class);
         $courses = Course::orderBy('title')->get();
+
         return view('admin.users.import', compact('courses'));
     }
 
@@ -41,7 +42,7 @@ class UserImportController extends Controller
         $file = $request->file('user_file');
 
         try {
-            $data = Excel::toArray(new \stdClass(), $file)[0];
+            $data = Excel::toArray(new \stdClass, $file)[0];
             $importedCount = 0;
             $errors = [];
 
@@ -60,7 +61,8 @@ class UserImportController extends Controller
                 );
 
                 if ($validator->fails()) {
-                    $errors[] = "Baris " . ($rowIndex + 2) . ": " . implode(', ', $validator->errors()->all());
+                    $errors[] = 'Baris '.($rowIndex + 2).': '.implode(', ', $validator->errors()->all());
+
                     continue;
                 }
 
@@ -71,20 +73,24 @@ class UserImportController extends Controller
                 ]);
 
                 $user->assignRole('participant');
-                $course->enrolledUsers()->syncWithoutDetaching($user->id);
+                $course->enrolledUsers()->syncWithoutDetaching([
+                    $user->id => ['has_independent_access' => true],
+                ]);
                 $importedCount++;
             }
 
             $message = "Berhasil mengimpor {$importedCount} pengguna.";
-            if (!empty($errors)) {
-                $message .= " Gagal mengimpor " . count($errors) . " baris.";
+            if (! empty($errors)) {
+                $message .= ' Gagal mengimpor '.count($errors).' baris.';
+
                 return redirect()->back()->with('success', $message)->with('import_errors', $errors);
             }
 
             return redirect()->route('admin.users.index')->with('success', $message);
 
         } catch (Exception $e) {
-            Log::error('Bulk User Import Failed: ' . $e->getMessage());
+            Log::error('Bulk User Import Failed: '.$e->getMessage());
+
             return redirect()->back()->with('error', 'Terjadi kesalahan saat memproses file. Pastikan format file sudah benar.');
         }
     }
@@ -99,7 +105,7 @@ class UserImportController extends Controller
             'Content-Disposition' => 'attachment; filename="user_import_template.csv"',
         ];
 
-        $callback = function() {
+        $callback = function () {
             $file = fopen('php://output', 'w');
             // Menulis baris header
             fputcsv($file, ['name', 'email', 'password']);

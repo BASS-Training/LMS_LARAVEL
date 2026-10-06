@@ -30,7 +30,7 @@
         }
 
         .gradient-bg {
-            background: linear-gradient(135deg, #DA1E1E 0%, #B01818 100%);
+            background: #DA1E1E;
         }
 
         .card-hover:hover {
@@ -102,7 +102,7 @@
             <div class="flex items-center justify-between relative">
                 <!-- Progress Line Background -->
                 <div class="absolute top-5 left-0 right-0 h-1 bg-gray-200 -z-10"></div>
-                <div class="absolute top-5 left-0 h-1 bg-gradient-to-r from-[#DA1E1E] to-[#B01818] transition-all duration-500 -z-10"
+                <div class="absolute top-5 left-0 h-1 bg-bass-red transition-all duration-500 -z-10"
                     :style="`width: ${((step - 1) / 2) * 100}%`"></div>
 
                 <!-- Step 1 -->
@@ -114,7 +114,7 @@
                         </svg>
                         <span x-show="step <= 1" class="font-bold">1</span>
                     </div>
-                    <p class="text-xs font-semibold text-center" :class="step >= 1 ? 'text-[#DA1E1E]' : 'text-gray-500'">
+                    <p class="text-xs font-semibold text-center" :class="step >= 1 ? 'text-bass-red' : 'text-gray-500'">
                         Program & Akun
                     </p>
                 </div>
@@ -128,7 +128,7 @@
                         </svg>
                         <span x-show="step <= 2" class="font-bold">2</span>
                     </div>
-                    <p class="text-xs font-semibold text-center" :class="step >= 2 ? 'text-[#DA1E1E]' : 'text-gray-500'">
+                    <p class="text-xs font-semibold text-center" :class="step >= 2 ? 'text-bass-red' : 'text-gray-500'">
                         Data Diri
                     </p>
                 </div>
@@ -139,7 +139,7 @@
                         :class="step >= 3 ? 'gradient-bg text-white scale-110' : 'bg-white border-2 border-gray-300 text-gray-500'">
                         <span class="font-bold">3</span>
                     </div>
-                    <p class="text-xs font-semibold text-center" :class="step >= 3 ? 'text-[#DA1E1E]' : 'text-gray-500'">
+                    <p class="text-xs font-semibold text-center" :class="step >= 3 ? 'text-bass-red' : 'text-gray-500'">
                         Pekerjaan
                     </p>
                 </div>
@@ -155,31 +155,31 @@
                     <x-input-label :value="__('Pilih Jalur Kelas')" class="text-gray-700 font-semibold" />
                     <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <label class="relative flex items-center justify-center p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 card-hover"
-                            :class="formData.class_interest === 'regular' ? 'border-[#DA1E1E] bg-red-50 ring-2 ring-[#DA1E1E] ring-opacity-20' : 'border-gray-300 hover:border-[#DA1E1E] hover:bg-red-50'">
+                            :class="formData.class_interest === 'regular' ? 'border-bass-red bg-bass-red-soft ring-2 ring-bass-red ring-opacity-20' : 'border-gray-300 hover:border-bass-red hover:bg-bass-red-soft'">
                             <input type="radio" name="class_interest" value="regular" x-model="formData.class_interest" class="sr-only" required>
                             <div class="text-center">
                                 <div class="w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center transition-all duration-300"
-                                     :class="formData.class_interest === 'regular' ? 'bg-[#DA1E1E]' : 'bg-gray-200'">
+                                     :class="formData.class_interest === 'regular' ? 'bg-bass-red' : 'bg-gray-200'">
                                     <svg class="w-6 h-6" :class="formData.class_interest === 'regular' ? 'text-white' : 'text-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253"></path>
                                     </svg>
                                 </div>
-                                <span class="font-semibold text-sm" :class="formData.class_interest === 'regular' ? 'text-[#DA1E1E]' : 'text-gray-700'">Kelas Reguler BASS</span>
+                                <span class="font-semibold text-sm" :class="formData.class_interest === 'regular' ? 'text-bass-red' : 'text-gray-700'">Kelas Reguler BASS</span>
                                 <p class="text-xs mt-2 text-gray-500">Langsung daftar di website</p>
                             </div>
                         </label>
 
                         <label class="relative flex items-center justify-center p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 card-hover"
-                            :class="formData.class_interest === 'avpn_ai' ? 'border-[#DA1E1E] bg-red-50 ring-2 ring-[#DA1E1E] ring-opacity-20' : 'border-gray-300 hover:border-[#DA1E1E] hover:bg-red-50'">
+                            :class="formData.class_interest === 'avpn_ai' ? 'border-bass-red bg-bass-red-soft ring-2 ring-bass-red ring-opacity-20' : 'border-gray-300 hover:border-bass-red hover:bg-bass-red-soft'">
                             <input type="radio" name="class_interest" value="avpn_ai" x-model="formData.class_interest" class="sr-only" required>
                             <div class="text-center">
                                 <div class="w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center transition-all duration-300"
-                                     :class="formData.class_interest === 'avpn_ai' ? 'bg-[#DA1E1E]' : 'bg-gray-200'">
+                                     :class="formData.class_interest === 'avpn_ai' ? 'bg-bass-red' : 'bg-gray-200'">
                                     <svg class="w-6 h-6" :class="formData.class_interest === 'avpn_ai' ? 'text-white' : 'text-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1.5-3H4l2.25-2.25L5.5 11l3 .75L10 9l1.5 2.75 3-.75-.75 3.75L16 17h-3.5L11 20l-.75-3z"></path>
                                     </svg>
                                 </div>
-                                <span class="font-semibold text-sm" :class="formData.class_interest === 'avpn_ai' ? 'text-[#DA1E1E]' : 'text-gray-700'">Literasi AI (AVPN)</span>
+                                <span class="font-semibold text-sm" :class="formData.class_interest === 'avpn_ai' ? 'text-bass-red' : 'text-gray-700'">Literasi AI (AVPN)</span>
                                 <p class="text-xs mt-2 text-gray-500">Wajib isi Google Form AVPN dahulu</p>
                             </div>
                         </label>
@@ -187,19 +187,19 @@
                     <x-input-error :messages="$errors->get('class_interest')" class="mt-2" />
                 </div>
 
-                <div x-show="formData.class_interest === 'avpn_ai'" x-transition class="rounded-xl border border-amber-200 bg-amber-50 p-4">
-                    <p class="text-sm font-semibold text-amber-800 mb-2">Langkah wajib untuk pendaftar AVPN</p>
-                    <ol class="text-sm text-amber-700 list-decimal pl-5 space-y-1">
+                <div x-show="formData.class_interest === 'avpn_ai'" x-transition class="rounded-xl border border-warning/40 bg-warning-soft p-4">
+                    <p class="text-sm font-semibold text-warning mb-2">Langkah wajib untuk pendaftar AVPN</p>
+                    <ol class="text-sm text-warning list-decimal pl-5 space-y-1">
                         <li>Isi Google Form AVPN terlebih dahulu.</li>
                         <li>Setelah isi form, lanjut daftar akun di LMS ini.</li>
                         <li>Setelah akun dibuat, tunggu approval admin AVPN.</li>
                         <li>Token kelas AVPN baru bisa diinput setelah admin menyetujui.</li>
                     </ol>
                     <a href="{{ $avpnGoogleFormUrl ?: '#' }}" target="_blank" rel="noopener noreferrer"
-                       class="inline-flex items-center mt-3 px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-700">
+                       class="inline-flex items-center mt-3 px-4 py-2 bg-navy text-white rounded-lg text-sm font-medium hover:bg-navy-light">
                         Buka Google Form AVPN
                     </a>
-                    <p class="mt-3 text-xs text-amber-700">
+                    <p class="mt-3 text-xs text-warning">
                         Approval akses kelas AVPN dilakukan oleh admin (bukan otomatis oleh sistem).
                     </p>
                 </div>
@@ -285,29 +285,29 @@
                     <x-input-label for="gender" :value="__('Jenis Kelamin')" class="text-gray-700 font-semibold" />
                     <div class="mt-3 grid grid-cols-2 gap-4">
                         <label class="relative flex items-center justify-center p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 card-hover"
-                            :class="formData.gender === 'male' ? 'border-[#DA1E1E] bg-red-50 ring-2 ring-[#DA1E1E] ring-opacity-20' : 'border-gray-300 hover:border-[#DA1E1E] hover:bg-red-50'">
+                            :class="formData.gender === 'male' ? 'border-bass-red bg-bass-red-soft ring-2 ring-bass-red ring-opacity-20' : 'border-gray-300 hover:border-bass-red hover:bg-bass-red-soft'">
                             <input type="radio" name="gender" value="male" x-model="formData.gender" class="sr-only" required>
                             <div class="text-center">
                                 <div class="w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center transition-all duration-300"
-                                    :class="formData.gender === 'male' ? 'bg-[#DA1E1E]' : 'bg-gray-200'">
+                                    :class="formData.gender === 'male' ? 'bg-bass-red' : 'bg-gray-200'">
                                     <svg class="w-6 h-6" :class="formData.gender === 'male' ? 'text-white' : 'text-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                     </svg>
                                 </div>
-                                <span class="font-semibold text-sm" :class="formData.gender === 'male' ? 'text-[#DA1E1E]' : 'text-gray-700'">Laki-laki</span>
+                                <span class="font-semibold text-sm" :class="formData.gender === 'male' ? 'text-bass-red' : 'text-gray-700'">Laki-laki</span>
                             </div>
                         </label>
                         <label class="relative flex items-center justify-center p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 card-hover"
-                            :class="formData.gender === 'female' ? 'border-[#DA1E1E] bg-red-50 ring-2 ring-[#DA1E1E] ring-opacity-20' : 'border-gray-300 hover:border-[#DA1E1E] hover:bg-red-50'">
+                            :class="formData.gender === 'female' ? 'border-bass-red bg-bass-red-soft ring-2 ring-bass-red ring-opacity-20' : 'border-gray-300 hover:border-bass-red hover:bg-bass-red-soft'">
                             <input type="radio" name="gender" value="female" x-model="formData.gender" class="sr-only" required>
                             <div class="text-center">
                                 <div class="w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center transition-all duration-300"
-                                    :class="formData.gender === 'female' ? 'bg-[#DA1E1E]' : 'bg-gray-200'">
+                                    :class="formData.gender === 'female' ? 'bg-bass-red' : 'bg-gray-200'">
                                     <svg class="w-6 h-6" :class="formData.gender === 'female' ? 'text-white' : 'text-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                     </svg>
                                 </div>
-                                <span class="font-semibold text-sm" :class="formData.gender === 'female' ? 'text-[#DA1E1E]' : 'text-gray-700'">Perempuan</span>
+                                <span class="font-semibold text-sm" :class="formData.gender === 'female' ? 'text-bass-red' : 'text-gray-700'">Perempuan</span>
                             </div>
                         </label>
                     </div>
@@ -352,15 +352,15 @@
                             'Lainnya'
                         ] as $job)
                             <label class="relative flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 card-hover"
-                                :class="formData.occupation === '{{ $job }}' ? 'border-[#DA1E1E] bg-red-50 ring-2 ring-[#DA1E1E] ring-opacity-20' : 'border-gray-300 hover:border-[#DA1E1E] hover:bg-red-50'">
+                                :class="formData.occupation === '{{ $job }}' ? 'border-bass-red bg-bass-red-soft ring-2 ring-bass-red ring-opacity-20' : 'border-gray-300 hover:border-bass-red hover:bg-bass-red-soft'">
                                 <input type="radio" name="occupation" value="{{ $job }}" x-model="formData.occupation" class="sr-only" {{ $occ === $job ? 'checked' : '' }} required>
                                 <div class="flex items-center w-full">
                                     <div class="flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300"
-                                        :class="formData.occupation === '{{ $job }}' ? 'border-[#DA1E1E]' : 'border-gray-400'">
+                                        :class="formData.occupation === '{{ $job }}' ? 'border-bass-red' : 'border-gray-400'">
                                         <div class="w-2.5 h-2.5 rounded-full transition-all duration-300"
-                                            :class="formData.occupation === '{{ $job }}' ? 'bg-[#DA1E1E]' : 'bg-transparent'"></div>
+                                            :class="formData.occupation === '{{ $job }}' ? 'bg-bass-red' : 'bg-transparent'"></div>
                                     </div>
-                                    <span class="ml-3 text-sm font-medium" :class="formData.occupation === '{{ $job }}' ? 'text-[#DA1E1E]' : 'text-gray-700'">{{ $job }}</span>
+                                    <span class="ml-3 text-sm font-medium" :class="formData.occupation === '{{ $job }}' ? 'text-bass-red' : 'text-gray-700'">{{ $job }}</span>
                                 </div>
                             </label>
                         @endforeach
@@ -380,7 +380,7 @@
                 </button>
 
                 <div class="flex items-center gap-4" :class="step === 1 ? 'w-full justify-end' : ''">
-                    <a x-show="step === 1" class="text-sm text-gray-600 hover:text-[#DA1E1E] rounded-md transition-colors duration-300 font-medium" href="{{ route('login') }}">
+                    <a x-show="step === 1" class="text-sm text-gray-600 hover:text-bass-red rounded-md transition-colors duration-300 font-medium" href="{{ route('login') }}">
                         Sudah punya akun? <span class="underline">Masuk di sini</span>
                     </a>
 
@@ -407,9 +407,9 @@
         <div class="mt-8 text-center">
             <p class="text-sm text-gray-500">
                 Dengan mendaftar, Anda menyetujui
-                <a href="#" class="text-[#DA1E1E] hover:underline font-medium">Syarat & Ketentuan</a>
+                <a href="#" class="text-bass-red hover:underline font-medium">Syarat & Ketentuan</a>
                 dan
-                <a href="#" class="text-[#DA1E1E] hover:underline font-medium">Kebijakan Privasi</a>
+                <a href="#" class="text-bass-red hover:underline font-medium">Kebijakan Privasi</a>
             </p>
         </div>
     </div>

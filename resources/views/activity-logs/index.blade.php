@@ -17,13 +17,13 @@
                             <p class="text-gray-600 text-sm mt-1">Track all system activities including file management, attendance, courses, and more</p>
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="exportLogs()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition flex items-center gap-2">
+                            <button onclick="exportLogs()" class="bg-navy hover:bg-navy-light text-white px-4 py-2 rounded-lg transition flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
                                 Export CSV
                             </button>
-                            <button onclick="showClearModal()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition flex items-center gap-2">
+                            <button onclick="showClearModal()" class="bg-neutral-900 hover:bg-black text-white px-4 py-2 rounded-lg transition flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                 </svg>
@@ -53,13 +53,13 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
                                 <input type="text" name="search" value="{{ request('search') }}"
                                     placeholder="Search description, file name, or participant..."
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bass-red focus:border-transparent">
                             </div>
 
                             <!-- Action Filter -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Action</label>
-                                <select name="action" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                                <select name="action" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bass-red focus:border-transparent">
                                     <option value="">All Actions</option>
                                     @foreach($actions as $action)
                                         <option value="{{ $action }}" {{ request('action') == $action ? 'selected' : '' }}>
@@ -72,7 +72,7 @@
                             <!-- User Filter -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">User</label>
-                                <select name="user_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                                <select name="user_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bass-red focus:border-transparent">
                                     <option value="">All Users</option>
                                     @foreach($users as $user)
                                         <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>
@@ -85,7 +85,7 @@
                             <!-- Status Filter -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                                <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                                <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bass-red focus:border-transparent">
                                     <option value="">All Status</option>
                                     <option value="success" {{ request('status') == 'success' ? 'selected' : '' }}>Success</option>
                                     <option value="failed" {{ request('status') == 'failed' ? 'selected' : '' }}>Failed</option>
@@ -96,19 +96,19 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
                                 <input type="date" name="start_date" value="{{ request('start_date') }}"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bass-red focus:border-transparent">
                             </div>
 
                             <!-- End Date -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
                                 <input type="date" name="end_date" value="{{ request('end_date') }}"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bass-red focus:border-transparent">
                             </div>
 
                             <!-- Filter Buttons -->
                             <div class="flex items-end gap-2 lg:col-span-2">
-                                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition flex-1">
+                                <button type="submit" class="bg-bass-red hover:bg-bass-red-hover text-white px-6 py-2 rounded-lg transition flex-1">
                                     Apply Filters
                                 </button>
                                 <a href="{{ route('activity-logs.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition flex-1 text-center">
@@ -120,19 +120,19 @@
 
                     <!-- Statistics -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white">
+                        <div class="bg-navy rounded-lg p-4 text-white">
                             <div class="text-sm opacity-90">Total Logs</div>
                             <div class="text-3xl font-bold mt-1">{{ $logs->total() }}</div>
                         </div>
-                        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 text-white">
+                        <div class="bg-success rounded-lg p-4 text-white">
                             <div class="text-sm opacity-90">Success</div>
                             <div class="text-3xl font-bold mt-1">{{ $logs->where('status', 'success')->count() }}</div>
                         </div>
-                        <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-lg p-4 text-white">
+                        <div class="bg-error rounded-lg p-4 text-white">
                             <div class="text-sm opacity-90">Failed</div>
                             <div class="text-3xl font-bold mt-1">{{ $logs->where('status', 'failed')->count() }}</div>
                         </div>
-                        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-4 text-white">
+                        <div class="bg-bass-red rounded-lg p-4 text-white">
                             <div class="text-sm opacity-90">This Page</div>
                             <div class="text-3xl font-bold mt-1">{{ $logs->count() }}</div>
                         </div>
@@ -171,12 +171,12 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
-                                                    @if($log->action == 'upload') bg-blue-100 text-blue-800
-                                                    @elseif($log->action == 'delete') bg-red-100 text-red-800
-                                                    @elseif($log->action == 'copy_link') bg-purple-100 text-purple-800
-                                                    @elseif(str_contains($log->action, 'attendance')) bg-green-100 text-green-800
-                                                    @elseif(str_contains($log->action, 'course')) bg-indigo-100 text-indigo-800
-                                                    @elseif(str_contains($log->action, 'content')) bg-yellow-100 text-yellow-800
+                                                    @if($log->action == 'upload') bg-info-soft text-navy
+                                                    @elseif($log->action == 'delete') bg-error-soft text-error
+                                                    @elseif($log->action == 'copy_link') bg-bass-red-soft text-bass-red
+                                                    @elseif(str_contains($log->action, 'attendance')) bg-success-soft text-success
+                                                    @elseif(str_contains($log->action, 'course')) bg-info-soft text-navy
+                                                    @elseif(str_contains($log->action, 'content')) bg-warning-soft text-warning
                                                     @else bg-gray-100 text-gray-800
                                                     @endif">
                                                     {{ ucfirst(str_replace('_', ' ', $log->action)) }}
@@ -209,15 +209,15 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
-                                                    @if($log->status == 'success') bg-green-100 text-green-800
-                                                    @else bg-red-100 text-red-800
+                                                    @if($log->status == 'success') bg-success-soft text-success
+                                                    @else bg-error-soft text-error
                                                     @endif">
                                                     {{ ucfirst($log->status) }}
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm">
                                                 <button onclick="showLogDetails({{ $log->id }})"
-                                                    class="text-red-600 hover:text-red-900 font-medium">
+                                                    class="text-navy hover:text-bass-red font-medium">
                                                     Details
                                                 </button>
                                             </td>
@@ -287,7 +287,7 @@
                     </select>
                 </div>
                 <div class="flex gap-2">
-                    <button type="button" onclick="clearOldLogs()" class="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
+                    <button type="button" onclick="clearOldLogs()" class="flex-1 bg-neutral-900 hover:bg-black text-white px-4 py-2 rounded-lg transition">
                         Clear Logs
                     </button>
                     <button type="button" onclick="closeClearModal()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">
@@ -343,7 +343,7 @@
                             ${data.error_message ? `
                                 <div class="col-span-2">
                                     <label class="block text-sm font-medium text-gray-700">Error Message</label>
-                                    <p class="mt-1 text-sm text-red-600">${data.error_message}</p>
+                                    <p class="mt-1 text-sm text-error">${data.error_message}</p>
                                 </div>
                             ` : ''}
                             <div class="col-span-2">
@@ -364,11 +364,11 @@
                     if (changedFields.length) {
                         content += `
                             <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="bg-red-50 p-3 rounded">
+                                <div class="bg-error-soft p-3 rounded">
                                     <div class="font-semibold mb-2">Before</div>
                                     ${changedFields.map(k => `<div class=\"text-sm\"><span class=\"text-gray-500\">${k}:</span> ${escapeHtml(before[k])}</div>`).join('')}
                                 </div>
-                                <div class="bg-green-50 p-3 rounded">
+                                <div class="bg-success-soft p-3 rounded">
                                     <div class="font-semibold mb-2">After</div>
                                     ${changedFields.map(k => `<div class=\"text-sm\"><span class=\"text-gray-500\">${k}:</span> ${escapeHtml(after[k])}</div>`).join('')}
                                 </div>
@@ -388,8 +388,8 @@
                                         <span class=\"font-semibold\">${m.model}</span> #${m.id} <span class=\"ml-2 text-xs px-2 py-0.5 rounded bg-gray-100\">${m.state}</span>
                                     </div>
                                     <div class=\"grid grid-cols-1 md:grid-cols-2 gap-3 p-3\">
-                                        <div class=\"bg-red-50 p-2 rounded\"><div class=\"font-semibold mb-1\">Before</div>${fields.map(k => `<div class=\"text-xs\"><span class=\"text-gray-500\">${k}:</span> ${escapeHtml((m.before||{})[k])}</div>`).join('')}</div>
-                                        <div class=\"bg-green-50 p-2 rounded\"><div class=\"font-semibold mb-1\">After</div>${fields.map(k => `<div class=\"text-xs\"><span class=\"text-gray-500\">${k}:</span> ${escapeHtml((m.after||{})[k])}</div>`).join('')}</div>
+                                        <div class=\"bg-error-soft p-2 rounded\"><div class=\"font-semibold mb-1\">Before</div>${fields.map(k => `<div class=\"text-xs\"><span class=\"text-gray-500\">${k}:</span> ${escapeHtml((m.before||{})[k])}</div>`).join('')}</div>
+                                        <div class=\"bg-success-soft p-2 rounded\"><div class=\"font-semibold mb-1\">After</div>${fields.map(k => `<div class=\"text-xs\"><span class=\"text-gray-500\">${k}:</span> ${escapeHtml((m.after||{})[k])}</div>`).join('')}</div>
                                     </div>
                                 </div>
                             `;
@@ -413,15 +413,15 @@
                 .catch(error => {
                     console.error('Error loading log details:', error);
                     document.getElementById('detailsContent').innerHTML = `
-                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div class="bg-error-soft border border-error/40 rounded-lg p-4">
                             <div class="flex items-start">
-                                <svg class="w-5 h-5 text-red-400 mt-0.5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 text-error mt-0.5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                                 <div>
-                                    <h3 class="text-sm font-medium text-red-800">Failed to load log details</h3>
-                                    <p class="mt-1 text-sm text-red-700">Error: ${error.message}</p>
-                                    <p class="mt-1 text-xs text-red-600">Please check your network connection or try again later.</p>
+                                    <h3 class="text-sm font-medium text-error">Failed to load log details</h3>
+                                    <p class="mt-1 text-sm text-error">Error: ${error.message}</p>
+                                    <p class="mt-1 text-xs text-error">Please check your network connection or try again later.</p>
                                 </div>
                             </div>
                         </div>

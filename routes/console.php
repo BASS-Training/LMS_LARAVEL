@@ -11,6 +11,8 @@ Artisan::command('inspire', function () {
 
 // Schedule cleanup command to run every hour
 Schedule::command('certificates:cleanup-downloads')->hourly();
+Schedule::command('orders:expire-pending')->everyFifteenMinutes()->withoutOverlapping();
+Schedule::command('orders:reconcile-cancellations')->everyMinute()->withoutOverlapping();
 
 // Audit permission middleware coverage across named routes
 Artisan::command('permissions:audit {--format=table : Output format: table|csv|json} {--missing-only : Show only routes without permission middleware} {--name= : Filter by route name contains} {--method= : Filter by HTTP method} {--path= : Filter by URI contains}', function () {
@@ -27,7 +29,9 @@ Artisan::command('permissions:audit {--format=table : Output format: table|csv|j
     foreach ($routes as $route) {
         $name = $route->getName();
         // Focus on named routes to keep output relevant
-        if (!$name) continue;
+        if (! $name) {
+            continue;
+        }
 
         $uri = $route->uri();
         $methods = implode('|', array_diff($route->methods(), ['HEAD']));
@@ -35,21 +39,34 @@ Artisan::command('permissions:audit {--format=table : Output format: table|csv|j
 
         $perms = collect($middleware)
             ->filter(function ($m) {
-                if (!is_string($m)) return false;
-                if (str_starts_with($m, 'permission:')) return true;
-                $fqcn = \Spatie\Permission\Middlewares\PermissionMiddleware::class . ':';
+                if (! is_string($m)) {
+                    return false;
+                }
+                if (str_starts_with($m, 'permission:')) {
+                    return true;
+                }
+                $fqcn = \Spatie\Permission\Middlewares\PermissionMiddleware::class.':';
+
                 return str_starts_with($m, $fqcn);
             })
             ->values()
             ->all();
 
-        $protected = !empty($perms);
+        $protected = ! empty($perms);
 
         // Filters
-        if ($filterName && !str_contains(strtolower($name), $filterName)) continue;
-        if ($filterMethod && $filterMethod !== '' && !str_contains($methods, $filterMethod)) continue;
-        if ($filterPath && !str_contains(strtolower($uri), $filterPath)) continue;
-        if ($missingOnly && $protected) continue;
+        if ($filterName && ! str_contains(strtolower($name), $filterName)) {
+            continue;
+        }
+        if ($filterMethod && $filterMethod !== '' && ! str_contains($methods, $filterMethod)) {
+            continue;
+        }
+        if ($filterPath && ! str_contains(strtolower($uri), $filterPath)) {
+            continue;
+        }
+        if ($missingOnly && $protected) {
+            continue;
+        }
 
         $rows[] = [
             'name' => $name,
@@ -61,25 +78,30 @@ Artisan::command('permissions:audit {--format=table : Output format: table|csv|j
     }
 
     // Sort by name for stable output
-    usort($rows, fn($a, $b) => strcmp($a['name'], $b['name']));
+    usort($rows, fn ($a, $b) => strcmp($a['name'], $b['name']));
 
     if ($format === 'json') {
         $this->line(json_encode($rows, JSON_PRETTY_PRINT));
+
         return 0;
     }
 
     if ($format === 'csv') {
         $out = fopen('php://output', 'w');
         fputcsv($out, ['name', 'methods', 'uri', 'protected', 'permission_middleware']);
-        foreach ($rows as $r) fputcsv($out, $r);
+        foreach ($rows as $r) {
+            fputcsv($out, $r);
+        }
         fclose($out);
+
         return 0;
     }
 
     $this->table(['name', 'methods', 'uri', 'protected', 'permission_middleware'], $rows);
-    $this->info('Total: ' . count($rows));
+    $this->info('Total: '.count($rows));
     if ($missingOnly) {
         $this->warn('Showing only routes without permission middleware.');
     }
+
     return 0;
 })->purpose('Audit permission middleware coverage for routes');

@@ -925,12 +925,15 @@ class QuizController extends Controller
     {
         $this->authorize('create', Quiz::class);
 
-        $lessons = Lesson::whereHas('course', function ($query) {
-            $query->where('user_id', Auth::id())
-                  ->orWhereHas('instructors', function ($q) {
-                      $q->where('user_id', Auth::id());
-                  });
-        })->get();
+        $user = Auth::user();
+        $lessons = Lesson::query()
+            ->with('course')
+            ->when(!$user->can('manage all courses'), function ($query) use ($user) {
+                $query->whereHas('course.instructors', function ($instructors) use ($user) {
+                    $instructors->where('users.id', $user->id);
+                });
+            })
+            ->get();
 
         return view('quizzes.import', compact('lessons'));
     }

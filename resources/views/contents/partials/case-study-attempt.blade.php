@@ -41,7 +41,7 @@
 <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 lg:p-8">
     <div class="flex items-start justify-between flex-wrap gap-3 mb-6">
         <div>
-            <h2 class="text-xl font-bold text-gray-900">📋 {{ $content->title }}</h2>
+            <h2 class="text-xl font-bold text-gray-900">{{ $content->title }}</h2>
             @if($content->description)
                 <p class="text-gray-600 mt-1" style="white-space: pre-line;">{{ $content->description }}</p>
             @endif
@@ -49,31 +49,33 @@
         <div class="flex items-center gap-2">
             @if($isManager)
                 <a href="{{ route('case-studies.submissions', $content) }}"
-                   class="inline-flex items-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold rounded-lg shadow">
-                    📥 Lihat Pengumpulan
+                   class="inline-flex items-center gap-2 px-4 py-2 bg-bass-red hover:bg-bass-red-hover text-white text-sm font-semibold rounded-lg shadow">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-3-3v6m7 5H5a2 2 0 01-2-2V6a2 2 0 012-2h4l2 2h8a2 2 0 012 2v10a2 2 0 01-2 2z"/></svg>
+                    Lihat Pengumpulan
                 </a>
             @endif
             @if($isSubmitted)
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-success-soft text-success">
                     ✓ {{ $csSubmission->status === 'graded' ? 'Sudah dinilai' : 'Sudah dikumpulkan' }}
                 </span>
             @endif
             @if($isSubmitted && $content->allow_answer_download)
                 <a href="{{ route('case-studies.download', $content) }}"
-                   class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow">
-                    ⬇ Unduh PDF
+                   class="inline-flex items-center gap-2 px-4 py-2 bg-bass-red hover:bg-bass-red-hover text-white text-sm font-semibold rounded-lg shadow">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h10l4 4v12a2 2 0 01-2 2z"/></svg>
+                    Unduh PDF
                 </a>
             @endif
         </div>
     </div>
 
     @if($csSubmission && $csSubmission->status === 'graded')
-        <div class="mb-6 p-4 rounded-xl bg-blue-50 border border-blue-200">
+        <div class="mb-6 p-4 rounded-xl bg-navy/5 border border-navy/10">
             @if($content->scoring_enabled && !is_null($csSubmission->score))
-                <p class="text-sm font-semibold text-blue-900">Nilai: {{ $csSubmission->score }}</p>
+                <p class="text-sm font-semibold text-navy">Nilai: {{ $csSubmission->score }}</p>
             @endif
             @if($csSubmission->feedback)
-                <p class="text-sm text-blue-800 mt-1"><span class="font-semibold">Feedback:</span> {{ $csSubmission->feedback }}</p>
+                <p class="text-sm text-gray-700 mt-1"><span class="font-semibold">Feedback:</span> {{ $csSubmission->feedback }}</p>
             @endif
         </div>
     @endif
@@ -86,7 +88,7 @@
             <div class="space-y-8">
                 @foreach($sections as $section)
                     @php $sid = $section['id']; $level = $section['level'] ?? 1; @endphp
-                    <section class="{{ $level === 2 ? 'ml-4 pl-4 border-l-2 border-amber-200' : '' }}">
+                    <section class="{{ $level === 2 ? 'ml-4 pl-4 border-l-2 border-gray-200' : '' }}">
                         <h3 class="{{ $level === 1 ? 'text-lg font-bold text-gray-900' : 'text-base font-semibold text-gray-800' }}">
                             {{ $section['title'] ?: ($level === 1 ? 'Bab' : 'Subbab') }}
                         </h3>
@@ -143,7 +145,7 @@
                                                                                name="answers[{{ $sid }}][{{ $bid }}][{{ $rc }}]"
                                                                                rows="1"
                                                                                placeholder="{{ $cell['text'] ?? '' }}"
-                                                                               class="cs-cell-input px-2 py-1 border border-gray-200 rounded text-sm leading-snug resize-none overflow-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-200">{{ $answerFor($sid, $bid, $rc) }}</textarea>
+                                                                               class="cs-cell-input px-2 py-1 border border-gray-200 rounded text-sm leading-snug resize-none overflow-hidden focus:border-bass-red focus:ring-1 focus:ring-bass-red focus:ring-opacity-50">{{ $answerFor($sid, $bid, $rc) }}</textarea>
                                                                     @endif
                                                                 @else
                                                                     <span class="text-sm text-gray-800">{{ $cell['text'] ?? '' }}</span>
@@ -166,7 +168,7 @@
                 <div class="mt-8 flex items-center justify-between border-t border-gray-200 pt-6">
                     <span id="cs-autosave-status" class="text-xs text-gray-400"></span>
                     <button type="submit"
-                            class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl hover:from-indigo-700 hover:to-purple-700 shadow-lg">
+                            class="inline-flex items-center px-6 py-3 bg-bass-red text-white font-semibold rounded-xl hover:bg-bass-red-hover shadow-lg">
                         Kumpulkan Jawaban
                     </button>
                 </div>

@@ -1,9 +1,9 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
-        <div class="bg-gradient-to-r from-orange-600 to-red-600 -mx-4 -my-2 px-4 py-8 sm:px-6 lg:px-8 rounded-2xl shadow-lg">
+        <div class="bg-navy -mx-4 -my-2 px-4 py-8 sm:px-6 lg:px-8 rounded-2xl shadow-lg">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <nav class="flex text-sm text-orange-100 mb-2" aria-label="Breadcrumb">
+                    <nav class="flex text-sm text-white/80 mb-2" aria-label="Breadcrumb">
                         <a href="{{ route('instructor-analytics.index') }}" class="hover:text-white">Analytics Instruktur</a>
                         <span class="mx-2">›</span>
                         <span class="text-white">Bandingkan Instruktur</span>
@@ -11,7 +11,7 @@
                     <h2 class="text-white text-3xl font-bold leading-tight">
                         Perbandingan Aktivitas Instruktur
                     </h2>
-                    <p class="text-orange-100 mt-2">
+                    <p class="text-white/80 mt-2">
                         {{ __('Bandingkan performa dan aktivitas beberapa instruktur') }}
                     </p>
                 </div>
@@ -39,12 +39,12 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Dari Tanggal</label>
                             <input type="date" name="date_from" value="{{ $dateFrom }}" 
-                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Sampai Tanggal</label>
                             <input type="date" name="date_to" value="{{ $dateTo }}" 
-                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red">
                         </div>
                     </div>
                     
@@ -59,7 +59,7 @@
                                            name="instructors[]" 
                                            value="{{ $instructor->id }}"
                                            {{ in_array($instructor->id, $instructorIds ?? []) ? 'checked' : '' }}
-                                           class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                                           class="h-4 w-4 text-bass-red focus:ring-bass-red border-gray-300 rounded">
                                     <label for="instructor_{{ $instructor->id }}" class="ml-2 block text-sm text-gray-900">
                                         {{ $instructor->name }}
                                     </label>
@@ -74,7 +74,7 @@
                             Reset
                         </button>
                         <button type="submit" 
-                                class="bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
+                                class="bg-bass-red hover:bg-bass-red-hover text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
                             Bandingkan
                         </button>
                     </div>
@@ -109,7 +109,7 @@
                                             <span class="font-medium">{{ $data['discussions'] }}</span>
                                         </div>
                                         <div class="w-full bg-gray-200 rounded-full h-2">
-                                            <div class="bg-purple-600 h-2 rounded-full" 
+                                            <div class="bg-bass-red h-2 rounded-full"
                                                  style="width: {{ $maxDiscussions > 0 ? ($data['discussions'] / $maxDiscussions) * 100 : 0 }}%">
                                             </div>
                                         </div>
@@ -132,7 +132,7 @@
                                             <span class="font-medium">{{ $data['grading'] }}</span>
                                         </div>
                                         <div class="w-full bg-gray-200 rounded-full h-2">
-                                            <div class="bg-green-600 h-2 rounded-full" 
+                                            <div class="bg-success h-2 rounded-full"
                                                  style="width: {{ $maxGrading > 0 ? ($data['grading'] / $maxGrading) * 100 : 0 }}%">
                                             </div>
                                         </div>
@@ -155,7 +155,7 @@
                                             <span class="font-medium">{{ $data['total'] }}</span>
                                         </div>
                                         <div class="w-full bg-gray-200 rounded-full h-2">
-                                            <div class="bg-blue-600 h-2 rounded-full" 
+                                            <div class="bg-navy h-2 rounded-full"
                                                  style="width: {{ $maxTotal > 0 ? ($data['total'] / $maxTotal) * 100 : 0 }}%">
                                             </div>
                                         </div>
@@ -205,15 +205,15 @@
                                 $sortedData = collect($compareData)->sortByDesc('total')->values();
                             @endphp
                             @foreach($sortedData as $index => $data)
-                                <tr class="{{ $index === 0 ? 'bg-yellow-50' : 'hover:bg-gray-50' }}">
+                                <tr class="{{ $index === 0 ? 'bg-warning-soft' : 'hover:bg-gray-50' }}">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             @if($index === 0)
-                                                <div class="flex-shrink-0 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center mr-3">
-                                                    <span class="text-yellow-900 text-xs font-bold">👑</span>
+                                                <div class="flex-shrink-0 w-6 h-6 bg-warning rounded-full flex items-center justify-center mr-3">
+                                                    <span class="text-warning text-xs font-bold"></span>
                                                 </div>
                                             @endif
-                                            <div class="flex-shrink-0 h-10 w-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center">
+                                            <div class="flex-shrink-0 h-10 w-10 bg-navy rounded-full flex items-center justify-center">
                                                 <span class="text-white font-semibold">
                                                     {{ strtoupper(substr($data['instructor']->name, 0, 1)) }}
                                                 </span>
@@ -232,17 +232,17 @@
                                         {{ $data['courses_count'] }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-bass-red-soft text-bass-red">
                                             {{ $data['discussions'] }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-soft text-success">
                                             {{ $data['grading'] }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-info-soft text-navy">
                                             {{ $data['total'] }}
                                         </span>
                                     </td>
@@ -251,8 +251,8 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
                                         @if($index === 0)
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                #1 🏆
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-bass-gold/20 text-warning">
+                                                 #1
                                             </span>
                                         @else
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
@@ -281,20 +281,20 @@
                     @endphp
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <div class="text-center">
-                            <div class="text-2xl font-bold text-yellow-600">🏆</div>
+                            <div class="text-2xl font-bold text-navy"><svg class="w-8 h-8 mx-auto text-bass-gold" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 2a2 2 0 00-2 2v1a2 2 0 002 2h1l2 10h6l2-10h1a2 2 0 002-2V4a2 2 0 00-2-2H5zm3.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 00-1.414-1.414L11 12.586l-1.293-1.293z" clip-rule="evenodd"></path></svg></div>
                             <div class="text-sm text-gray-600 mt-1">Top Performer</div>
                             <div class="font-medium text-gray-900">{{ $topPerformer['instructor']->name ?? 'N/A' }}</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-2xl font-bold text-blue-600">{{ number_format($avgTotal, 1) }}</div>
+                            <div class="text-2xl font-bold text-navy">{{ number_format($avgTotal, 1) }}</div>
                             <div class="text-sm text-gray-600 mt-1">Rata-rata Total Aktivitas</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-2xl font-bold text-purple-600">{{ number_format($avgDiscussions, 1) }}</div>
+                            <div class="text-2xl font-bold text-bass-red">{{ number_format($avgDiscussions, 1) }}</div>
                             <div class="text-sm text-gray-600 mt-1">Rata-rata Diskusi</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-2xl font-bold text-green-600">{{ number_format($avgGrading, 1) }}</div>
+                            <div class="text-2xl font-bold text-success">{{ number_format($avgGrading, 1) }}</div>
                             <div class="text-sm text-gray-600 mt-1">Rata-rata Penilaian</div>
                         </div>
                     </div>
@@ -306,7 +306,7 @@
             <div class="bg-white shadow rounded-lg">
                 <div class="px-6 py-12 text-center">
                     <div class="text-gray-500">
-                        <div class="text-6xl mb-4">📊</div>
+                        <div class="mb-4"><svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg></div>
                         <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak ada data untuk dibandingkan</h3>
                         <p class="text-sm text-gray-500">Pilih minimal 2 instruktur untuk melakukan perbandingan.</p>
                     </div>

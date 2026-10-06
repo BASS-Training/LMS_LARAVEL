@@ -3,14 +3,14 @@
         <div class="flex flex-wrap justify-between items-center gap-4">
             <div>
                 <div class="flex items-center space-x-3 mb-2">
-                    <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <div class="w-12 h-12 bg-navy rounded-xl flex items-center justify-center shadow-lg">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                         </svg>
                     </div>
                     <div>
                         <h2 class="font-bold text-2xl text-gray-900 leading-tight">Analytics Peserta</h2>
-                        <p class="text-purple-600 font-medium text-sm">Laporan dan visualisasi data peserta</p>
+                        <p class="text-navy font-medium text-sm">Laporan dan visualisasi data peserta</p>
                     </div>
                 </div>
             </div>
@@ -29,8 +29,8 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
                     <div class="flex items-center">
-                        <div class="flex-shrink-0 bg-blue-100 rounded-lg p-3">
-                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex-shrink-0 bg-navy/10 rounded-lg p-3">
+                            <svg class="w-6 h-6 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                             </svg>
                         </div>
@@ -43,8 +43,8 @@
 
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
                     <div class="flex items-center">
-                        <div class="flex-shrink-0 bg-blue-100 rounded-lg p-3">
-                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex-shrink-0 bg-navy/10 rounded-lg p-3">
+                            <svg class="w-6 h-6 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
                         </div>
@@ -57,8 +57,8 @@
 
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
                     <div class="flex items-center">
-                        <div class="flex-shrink-0 bg-pink-100 rounded-lg p-3">
-                            <svg class="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex-shrink-0 bg-navy/10 rounded-lg p-3">
+                            <svg class="w-6 h-6 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
                         </div>
@@ -71,8 +71,8 @@
 
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
                     <div class="flex items-center">
-                        <div class="flex-shrink-0 bg-green-100 rounded-lg p-3">
-                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex-shrink-0 bg-bass-red-soft rounded-lg p-3">
+                            <svg class="w-6 h-6 text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                         </div>
@@ -135,18 +135,14 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
-        // Color Palette
+        // Canonical BASS chart palette for non-semantic data series.
         const colors = {
-            blue: 'rgb(59, 130, 246)',
-            pink: 'rgb(236, 72, 153)',
-            purple: 'rgb(168, 85, 247)',
-            green: 'rgb(34, 197, 94)',
-            orange: 'rgb(251, 146, 60)',
-            teal: 'rgb(20, 184, 166)',
-            indigo: 'rgb(99, 102, 241)',
-            red: 'rgb(239, 68, 68)',
-            yellow: 'rgb(234, 179, 8)',
-            cyan: 'rgb(6, 182, 212)',
+            navy: '#17243A',
+            navyLight: '#334155',
+            bassRed: '#DA1E1E',
+            bassRedSoft: 'rgba(218, 30, 30, 0.1)',
+            info: '#64748B',
+            gold: '#F6C945',
         };
 
         // Gender Chart (Doughnut)
@@ -157,7 +153,7 @@
                 labels: ['Laki-laki', 'Perempuan'],
                 datasets: [{
                     data: [{{ $genderData['male'] }}, {{ $genderData['female'] }}],
-                    backgroundColor: [colors.blue, colors.pink],
+                    backgroundColor: [colors.navy, colors.info],
                     borderWidth: 2,
                     borderColor: '#fff'
                 }]
@@ -200,7 +196,7 @@
                 datasets: [{
                     label: 'Jumlah Peserta',
                     data: {!! json_encode(array_values($ageGroups)) !!},
-                    backgroundColor: colors.purple,
+                    backgroundColor: colors.navyLight,
                     borderRadius: 8,
                     borderSkipped: false,
                 }]
@@ -241,13 +237,13 @@
                 datasets: [{
                     label: 'Pendaftaran',
                     data: {!! json_encode(array_values($registrationTrend)) !!},
-                    borderColor: colors.green,
-                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    borderColor: colors.bassRed,
+                    backgroundColor: colors.bassRedSoft,
                     borderWidth: 3,
                     fill: true,
                     tension: 0.4,
                     pointRadius: 4,
-                    pointBackgroundColor: colors.green,
+                    pointBackgroundColor: colors.bassRed,
                     pointBorderColor: '#fff',
                     pointBorderWidth: 2,
                     pointHoverRadius: 6
@@ -289,7 +285,7 @@
                 datasets: [{
                     label: 'Jumlah Peserta',
                     data: {!! json_encode($institutionData->values()->toArray()) !!},
-                    backgroundColor: colors.teal,
+                    backgroundColor: colors.info,
                     borderRadius: 8,
                     borderSkipped: false,
                 }]
@@ -331,7 +327,7 @@
                 datasets: [{
                     label: 'Jumlah Peserta',
                     data: {!! json_encode($occupationData->values()->toArray()) !!},
-                    backgroundColor: colors.orange,
+                    backgroundColor: colors.gold,
                     borderRadius: 8,
                     borderSkipped: false,
                 }]

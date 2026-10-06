@@ -1,9 +1,9 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
-        <div class="bg-gradient-to-r from-purple-600 to-pink-600 -mx-4 -my-2 px-4 py-8 sm:px-6 lg:px-8 rounded-2xl shadow-lg">
+        <div class="bg-navy -mx-4 -my-2 px-4 py-8 sm:px-6 lg:px-8 rounded-2xl shadow-lg">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <nav class="flex text-sm text-purple-100 mb-2" aria-label="Breadcrumb">
+                    <nav class="flex text-sm text-white/80 mb-2" aria-label="Breadcrumb">
                         <a href="{{ route('certificate-management.index') }}" class="hover:text-white">Manajemen Sertifikat</a>
                         <span class="mx-2">›</span>
                         <span class="text-white">{{ $course->title }}</span>
@@ -11,7 +11,7 @@
                     <h2 class="text-white text-3xl font-bold leading-tight">
                         {{ $course->title }}
                     </h2>
-                    <p class="text-purple-100 mt-2">
+                    <p class="text-white/80 mt-2">
                         {{ __('Kelola sertifikat untuk kursus ini') }}
                     </p>
                 </div>
@@ -32,15 +32,15 @@
             <div class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="text-center">
-                        <div class="text-2xl font-bold text-blue-600">{{ $certificates->total() }}</div>
+                        <div class="text-2xl font-bold text-navy">{{ $certificates->total() }}</div>
                         <div class="text-sm text-gray-500">Total Sertifikat</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-2xl font-bold text-green-600">{{ $course->enrolledUsers->count() }}</div>
+                        <div class="text-2xl font-bold text-success">{{ $course->enrolledUsers->count() }}</div>
                         <div class="text-sm text-gray-500">Total Peserta</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-2xl font-bold text-purple-600">
+                        <div class="text-2xl font-bold text-bass-red">
                             {{ $certificates->total() > 0 ? number_format(($certificates->total() / $course->enrolledUsers->count()) * 100, 1) : 0 }}%
                         </div>
                         <div class="text-sm text-gray-500">Tingkat Penyelesaian</div>
@@ -57,13 +57,13 @@
                     <div class="flex-1 min-w-64">
                         <input type="text" name="search" value="{{ request('search') }}" 
                                placeholder="Cari nama peserta..." 
-                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red">
                     </div>
                     
                     <!-- Submit Button -->
                     <div class="flex gap-2">
                         <button type="submit" 
-                                class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
+                                class="bg-bass-red hover:bg-bass-red-hover text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
                             Cari
                         </button>
                         <a href="{{ route('certificate-management.by-course', $course) }}" 
@@ -88,13 +88,15 @@
                     </span>
                 </div>
                 <div class="flex gap-4">
-                    <button onclick="bulkAction('delete')" 
-                            class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
-                        🗑️ Hapus Terpilih
+                    <button onclick="bulkAction('delete')"
+                            class="bg-neutral-900 hover:bg-black text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        Hapus Terpilih
                     </button>
                     <button onclick="openBulkUpdateTemplateModal()" 
-                            class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
-                        🔄 Update Template
+                            class="bg-navy hover:bg-navy-light text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        Update Template
                     </button>
                 </div>
             </div>
@@ -102,18 +104,18 @@
 
         <!-- Bulk Update Progress Indicator -->
         <div id="bulk-update-progress" style="display: none;" class="mb-6">
-            <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+            <div class="bg-warning-soft border border-warning/40 rounded-md p-4">
                 <div class="flex items-center">
-                    <svg class="animate-spin h-5 w-5 text-yellow-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg class="animate-spin h-5 w-5 text-warning mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <span class="text-yellow-800 font-medium" id="bulk-update-text">Memproses update template...</span>
+                    <span class="text-warning font-medium" id="bulk-update-text">Memproses update template...</span>
                 </div>
-                <div class="mt-2 w-full bg-yellow-200 rounded-full h-2">
-                    <div id="bulk-update-bar" class="bg-yellow-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                <div class="mt-2 w-full bg-warning-soft rounded-full h-2">
+                    <div id="bulk-update-bar" class="bg-warning h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
                 </div>
-                <p class="text-xs text-yellow-700 mt-2">
+                <p class="text-xs text-warning mt-2">
                     Proses berjalan di background. Anda bisa menunggu di halaman ini.
                 </p>
             </div>
@@ -136,7 +138,7 @@
                         @endif
                     </h3>
                     <div class="flex items-center">
-                        <input type="checkbox" id="select-all" class="rounded border-gray-300 text-red-600 shadow-sm focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
+                        <input type="checkbox" id="select-all" class="rounded border-gray-300 text-bass-red shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red/50 focus:ring-opacity-50">
                         <label for="select-all" class="ml-2 text-sm text-gray-600">
                             Pilih Semua
                             <span class="text-xs text-gray-400">(semua halaman)</span>
@@ -152,10 +154,10 @@
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
                                     <input type="checkbox" name="certificate_ids[]" value="{{ $certificate->id }}" 
-                                           class="certificate-checkbox rounded border-gray-300 text-red-600 shadow-sm focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
+                                           class="certificate-checkbox rounded border-gray-300 text-bass-red shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red/50 focus:ring-opacity-50">
                                     <div class="ml-4 flex items-center">
                                         <!-- Avatar/Initial -->
-                                        <div class="flex-shrink-0 h-10 w-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                                        <div class="flex-shrink-0 h-10 w-10 bg-navy rounded-full flex items-center justify-center">
                                             <span class="text-white font-semibold">
                                                 {{ strtoupper(substr($certificate->user->name, 0, 1)) }}
                                             </span>
@@ -168,28 +170,34 @@
                                                 </div>
                                                 <div class="ml-2 flex-shrink-0">
                                                     @if($certificate->fileExists())
-                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                            ✅ Tersedia
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-soft text-success">
+                                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                            Tersedia
                                                         </span>
                                                     @else
-                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                            ❌ File Hilang
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-error-soft text-error">
+                                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                            File Hilang
                                                         </span>
                                                     @endif
                                                 </div>
                                             </div>
                                             <div class="text-sm text-gray-500">
-                                                📧 {{ $certificate->user->email }}
+                                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                                {{ $certificate->user->email }}
                                             </div>
                                             <div class="text-sm text-gray-500">
-                                                📅 Diterbitkan: {{ $certificate->issued_at->format('d M Y H:i') }}
+                                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                                Diterbitkan: {{ $certificate->issued_at->format('d M Y H:i') }}
                                             </div>
                                             <div class="text-sm text-gray-500">
-                                                🔗 Kode: {{ $certificate->certificate_code }}
+                                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                                                Kode: {{ $certificate->certificate_code }}
                                             </div>
                                             @if($certificate->certificateTemplate)
                                                 <div class="text-sm text-gray-500">
-                                                    📋 Template: {{ $certificate->certificateTemplate->name }}
+                                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path></svg>
+                                                    Template: {{ $certificate->certificateTemplate->name }}
                                                 </div>
                                             @endif
                                         </div>
@@ -199,7 +207,7 @@
                                 <div class="flex items-center space-x-2">
                                     @if($certificate->fileExists())
                                         <a href="{{ route('certificates.download', $certificate) }}" 
-                                           class="bg-green-100 hover:bg-green-200 text-green-800 font-medium py-1 px-3 rounded text-sm transition duration-150 ease-in-out"
+                                           class="bg-success-soft hover:bg-success/20 text-success font-medium py-1 px-3 rounded text-sm transition duration-150 ease-in-out"
                                            title="Lihat Sertifikat">
                                             Download
                                         </a>
@@ -207,21 +215,20 @@
                                     
                                     <a href="{{ route('certificates.verify', $certificate->certificate_code) }}" 
                                        target="_blank"
-                                       class="bg-blue-100 hover:bg-blue-200 text-blue-800 font-medium py-1 px-3 rounded text-sm transition duration-150 ease-in-out"
+                                       class="bg-info-soft hover:bg-gray-200 text-navy font-medium py-1 px-3 rounded text-sm transition duration-150 ease-in-out"
                                        title="Verifikasi Publik">
                                         Lihat
                                     </a>
                                     
                                     <button onclick="showUpdateTemplateModal({{ $certificate->id }}, '{{ $certificate->user->name }}', '{{ $certificate->certificateTemplate->name ?? 'Template Tidak Ada' }}')" 
-                                            class="bg-orange-100 hover:bg-orange-200 text-orange-800 font-medium py-1 px-3 rounded text-sm transition duration-150 ease-in-out"
+                                            class="bg-warning-soft hover:bg-warning/20 text-warning font-medium py-1 px-3 rounded text-sm transition duration-150 ease-in-out"
                                             title="Update Template">
                                         Update
                                     </button>
                                     
                                     <button onclick="deleteCertificate({{ $certificate->id }})" 
-                                            class="bg-red-100 hover:bg-red-200 text-red-800 font-medium py-1 px-3 rounded text-sm transition duration-150 ease-in-out"
-                                            title="Hapus Sertifikat">
-                                        Hapus
+                                            class="bg-error-soft hover:bg-error/20 text-error font-medium py-1 px-3 rounded text-sm transition duration-150 ease-in-out"
+                                            title="Hapus Sertifikat">Hapus
                                     </button>
                                 </div>
                             </div>
@@ -236,7 +243,7 @@
             @else
                 <div class="px-6 py-12 text-center">
                     <div class="text-gray-500">
-                        <div class="text-6xl mb-4">📜</div>
+                        <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         <h3 class="text-lg font-medium text-gray-900 mb-2">
                             @if(request('search'))
                                 Tidak ada sertifikat yang cocok dengan pencarian
@@ -290,7 +297,7 @@
                         Pilih Template Baru (Opsional)
                     </label>
                     <select name="certificate_template_id" id="certificate_template_id" 
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red">
                         <option value="">-- Gunakan template yang sama --</option>
                         @foreach($templates as $template)
                             <option value="{{ $template->id }}">{{ $template->name }}</option>
@@ -307,7 +314,7 @@
                         Batal
                     </button>
                     <button type="submit" 
-                            class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+                            class="bg-bass-red hover:bg-bass-red-hover text-white font-medium py-2 px-4 rounded">
                         Update Template
                     </button>
                 </div>
@@ -342,7 +349,7 @@
                     Pilih Template Baru (Opsional)
                 </label>
                 <select id="bulk_certificate_template_id"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red">
                     <option value="">-- Gunakan template yang sama --</option>
                     @foreach($templates as $template)
                         <option value="{{ $template->id }}">{{ $template->name }}</option>
@@ -359,7 +366,7 @@
                     Batal
                 </button>
                 <button type="button" onclick="submitBulkUpdateTemplate()"
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+                        class="bg-bass-red hover:bg-bass-red-hover text-white font-medium py-2 px-4 rounded">
                     Update Template
                 </button>
             </div>

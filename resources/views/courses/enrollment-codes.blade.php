@@ -1,9 +1,9 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
                 <a href="{{ route('courses.show', $course) }}"
-                   class="inline-flex items-center text-indigo-600 hover:text-indigo-800 text-sm font-medium mb-2 transition-colors duration-200">
+                   class="inline-flex items-center text-navy hover:text-bass-red text-sm font-medium mb-2 transition-colors duration-200">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
@@ -15,7 +15,7 @@
                 <p class="text-sm text-gray-600 mt-1">{{ $course->title }}</p>
             </div>
             <a href="{{ route('courses.tokens', $course) }}"
-               class="hidden md:inline-flex items-center px-3 py-2 text-sm font-medium text-purple-700 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+               class="hidden md:inline-flex items-center px-3 py-2 text-sm font-medium text-navy bg-info-soft hover:bg-gray-200 rounded-lg transition-colors">
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
                 </svg>
@@ -28,8 +28,8 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
             {{-- Penjelasan singkat --}}
-            <div class="mb-6 bg-blue-50 border-l-4 border-blue-400 p-4 rounded-lg">
-                <p class="text-sm text-blue-800">
+            <div class="mb-6 bg-info-soft border-l-4 border-navy p-4 rounded-lg">
+                <p class="text-sm text-navy">
                     Kode di sini bersifat <strong>sekali-pakai</strong> (1 kode = 1 peserta). Opsional bisa
                     di-<strong>bind ke email</strong> pembeli agar hanya email itu yang dapat memakainya.
                     Berbeda dari token bersama lama yang bisa dipakai berkali-kali.
@@ -38,14 +38,14 @@
 
             {{-- Flash --}}
             @if (session('success'))
-                <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">
-                    <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+                <div class="mb-6 bg-success-soft border-l-4 border-success p-4 rounded-lg">
+                    <p class="text-sm font-medium text-success">{{ session('success') }}</p>
                 </div>
             @endif
             @if ($errors->any())
-                <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                <div class="mb-6 bg-error-soft border-l-4 border-error p-4 rounded-lg">
                     @foreach ($errors->all() as $error)
-                        <p class="text-sm font-medium text-red-800">{{ $error }}</p>
+                        <p class="text-sm font-medium text-error">{{ $error }}</p>
                     @endforeach
                 </div>
             @endif
@@ -64,21 +64,21 @@
                 </div>
                 <div class="bg-white rounded-xl shadow p-4">
                     <p class="text-xs text-gray-500">Tersedia</p>
-                    <p class="text-2xl font-bold text-green-600">{{ $available }}</p>
+                    <p class="text-2xl font-bold text-success">{{ $available }}</p>
                 </div>
                 <div class="bg-white rounded-xl shadow p-4">
                     <p class="text-xs text-gray-500">Sudah dipakai</p>
-                    <p class="text-2xl font-bold text-blue-600">{{ $redeemed }}</p>
+                    <p class="text-2xl font-bold text-navy">{{ $redeemed }}</p>
                 </div>
                 <div class="bg-white rounded-xl shadow p-4">
                     <p class="text-xs text-gray-500">Dibatalkan</p>
-                    <p class="text-2xl font-bold text-red-500">{{ $revoked }}</p>
+                    <p class="text-2xl font-bold text-error">{{ $revoked }}</p>
                 </div>
             </div>
 
             {{-- Form generate --}}
             <div class="bg-white overflow-hidden shadow-lg sm:rounded-xl mb-6">
-                <div class="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-4">
+                <div class="bg-navy px-6 py-4">
                     <h3 class="text-lg font-semibold text-white flex items-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -91,7 +91,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Berlaku untuk</label>
-                            <select name="target" class="w-full border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500">
+                            <select name="target" class="w-full border-gray-300 rounded-lg focus:ring-bass-red focus:border-bass-red">
                                 <option value="course">Course (umum): {{ $course->title }}</option>
                                 @foreach ($course->classes as $class)
                                     <option value="class:{{ $class->id }}">Kelas: {{ $class->name }}</option>
@@ -101,14 +101,14 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah kode</label>
                             <input type="number" name="count" value="1" min="1" max="500"
-                                   class="w-full border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500">
+                                   class="w-full border-gray-300 rounded-lg focus:ring-bass-red focus:border-bass-red">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 Bind ke email <span class="text-gray-400 font-normal">(opsional)</span>
                             </label>
                             <input type="email" name="issued_to_email" placeholder="email pembeli, kosongkan jika tanpa bind"
-                                   class="w-full border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500">
+                                   class="w-full border-gray-300 rounded-lg focus:ring-bass-red focus:border-bass-red">
                             <p class="text-xs text-gray-500 mt-1">Jika diisi: hanya email ini yang bisa memakai kode. Disarankan saat 1 kode untuk 1 pembeli.</p>
                         </div>
                         <div>
@@ -116,18 +116,18 @@
                                 Kadaluarsa <span class="text-gray-400 font-normal">(opsional)</span>
                             </label>
                             <input type="date" name="expires_at"
-                                   class="w-full border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500">
+                                   class="w-full border-gray-300 rounded-lg focus:ring-bass-red focus:border-bass-red">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 Prefix <span class="text-gray-400 font-normal">(opsional)</span>
                             </label>
                             <input type="text" name="prefix" placeholder="mis. BASS" maxlength="10"
-                                   class="w-full border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 uppercase">
+                                   class="w-full border-gray-300 rounded-lg focus:ring-bass-red focus:border-bass-red uppercase">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Panjang kode acak</label>
-                            <select name="length" class="w-full border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500">
+                            <select name="length" class="w-full border-gray-300 rounded-lg focus:ring-bass-red focus:border-bass-red">
                                 <option value="8">8 karakter</option>
                                 <option value="10" selected>10 karakter</option>
                                 <option value="12">12 karakter</option>
@@ -136,7 +136,7 @@
                         </div>
                     </div>
                     <div class="mt-6 flex justify-end">
-                        <button type="submit" class="px-5 py-2.5 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors shadow-sm">
+                        <button type="submit" class="px-5 py-2.5 bg-bass-red text-white font-medium rounded-lg hover:bg-bass-red-hover transition-colors shadow-sm">
                             Generate Kode
                         </button>
                     </div>
@@ -153,7 +153,7 @@
                     <button type="button"
                             x-show="availableCodes.length > 0"
                             @click="navigator.clipboard.writeText(availableCodes.join('\n'))"
-                            class="inline-flex items-center px-3 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors">
+                            class="inline-flex items-center px-3 py-2 text-sm font-medium text-bass-red bg-bass-red-soft rounded-lg hover:bg-error-soft transition-colors">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                         </svg>
@@ -188,7 +188,7 @@
                                                 <button type="button"
                                                         x-data
                                                         @click="navigator.clipboard.writeText('{{ $code->code }}')"
-                                                        class="text-gray-400 hover:text-emerald-600" title="Salin">
+                                                        class="text-gray-400 hover:text-bass-red" title="Salin">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                                                     </svg>
@@ -197,11 +197,11 @@
                                         </td>
                                         <td class="px-4 py-3 text-sm text-gray-700">
                                             @if ($code->course_class_id)
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-indigo-50 text-indigo-700">
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-info-soft text-navy">
                                                     Kelas: {{ $code->courseClass->name ?? '-' }}
                                                 </span>
                                             @else
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-purple-50 text-purple-700">
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-navy">
                                                     Course (umum)
                                                 </span>
                                             @endif
@@ -211,14 +211,14 @@
                                         </td>
                                         <td class="px-4 py-3">
                                             @if ($code->status === \App\Models\EnrollmentCode::STATUS_AVAILABLE)
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Tersedia</span>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-success-soft text-success">Tersedia</span>
                                                 @if ($code->expires_at && $code->expires_at->isPast())
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 ml-1">Kadaluarsa</span>
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-warning-soft text-warning ml-1">Kadaluarsa</span>
                                                 @endif
                                             @elseif ($code->status === \App\Models\EnrollmentCode::STATUS_REDEEMED)
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Sudah dipakai</span>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-info-soft text-navy">Sudah dipakai</span>
                                             @else
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Dibatalkan</span>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-error-soft text-error">Dibatalkan</span>
                                             @endif
                                         </td>
                                         <td class="px-4 py-3 text-sm text-gray-700">
@@ -239,14 +239,14 @@
                                                         <form action="{{ route('courses.enrollment-codes.revoke', [$course, $code]) }}" method="POST"
                                                               onsubmit="return confirm('Batalkan kode ini? Setelah dibatalkan tidak bisa dipakai.')">
                                                             @csrf
-                                                            <button type="submit" class="text-xs font-medium text-amber-700 hover:text-amber-900">Batalkan</button>
+                                                            <button type="submit" class="text-xs font-medium text-warning hover:opacity-80">Batalkan</button>
                                                         </form>
                                                     @endif
                                                     <form action="{{ route('courses.enrollment-codes.destroy', [$course, $code]) }}" method="POST"
                                                           onsubmit="return confirm('Hapus kode ini permanen?')">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="text-xs font-medium text-red-600 hover:text-red-800">Hapus</button>
+                                                        <button type="submit" class="text-xs font-medium text-neutral-900 hover:underline">Hapus</button>
                                                     </form>
                                                 </div>
                                             @else

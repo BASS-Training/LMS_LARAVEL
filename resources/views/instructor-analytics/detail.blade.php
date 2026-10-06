@@ -1,9 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 -mx-4 -my-2 px-4 py-8 sm:px-6 lg:px-8 rounded-2xl shadow-lg">
+        <div class="bg-navy -mx-4 -my-2 px-4 py-8 sm:px-6 lg:px-8 rounded-2xl shadow-lg">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <nav class="flex text-sm text-blue-100 mb-2" aria-label="Breadcrumb">
+                    <nav class="flex text-sm text-white/80 mb-2" aria-label="Breadcrumb">
                         <a href="{{ route('instructor-analytics.index') }}" class="hover:text-white">Analytics Instruktur</a>
                         <span class="mx-2">›</span>
                         <span class="text-white">{{ $user->name }}</span>
@@ -11,7 +11,7 @@
                     <h2 class="text-white text-3xl font-bold leading-tight">
                         Detail Aktivitas: {{ $user->name }}
                     </h2>
-                    <p class="text-blue-100 mt-2">
+                    <p class="text-white/80 mt-2">
                         {{ __('Laporan lengkap aktivitas diskusi dan penilaian essay') }}
                     </p>
                 </div>
@@ -36,19 +36,19 @@
                     <div class="flex-1 min-w-48">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Dari Tanggal</label>
                         <input type="date" name="date_from" value="{{ $dateFrom }}" 
-                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red">
                     </div>
                     
                     <div class="flex-1 min-w-48">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Sampai Tanggal</label>
                         <input type="date" name="date_to" value="{{ $dateTo }}" 
-                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red">
                     </div>
 
                     <div class="flex-1 min-w-48">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Filter Kursus</label>
                         <select name="course_id" 
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red">
                             <option value="">Semua Kursus</option>
                             @foreach($courses as $course)
                                 <option value="{{ $course->id }}" {{ $courseId == $course->id ? 'selected' : '' }}>
@@ -60,7 +60,7 @@
                     
                     <div class="flex items-end">
                         <button type="submit" 
-                                class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
+                                class="bg-bass-red hover:bg-bass-red-hover text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
                             Filter
                         </button>
                     </div>
@@ -74,8 +74,8 @@
                 <div class="p-5">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
-                                <span class="text-white font-bold">💬</span>
+                            <div class="w-8 h-8 bg-bass-red rounded-md flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                             </div>
                         </div>
                         <div class="ml-5 w-0 flex-1">
@@ -92,8 +92,8 @@
                 <div class="p-5">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
-                                <span class="text-white font-bold">📝</span>
+                            <div class="w-8 h-8 bg-success rounded-md flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                             </div>
                         </div>
                         <div class="ml-5 w-0 flex-1">
@@ -110,8 +110,8 @@
                 <div class="p-5">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
-                                <span class="text-white font-bold">🎯</span>
+                            <div class="w-8 h-8 bg-navy rounded-md flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                             </div>
                         </div>
                         <div class="ml-5 w-0 flex-1">
@@ -144,12 +144,12 @@
                                                     $maxMonthly = collect($monthlyStats)->max('total');
                                                     $percentage = $maxMonthly > 0 ? ($stat['total'] / $maxMonthly) * 100 : 0;
                                                 @endphp
-                                                <div class="bg-blue-600 h-2 rounded-full" style="width: {{ $percentage }}%"></div>
+                                                <div class="bg-navy h-2 rounded-full" style="width: {{ $percentage }}%"></div>
                                             </div>
                                             <span class="text-sm text-gray-600">{{ $stat['total'] }}</span>
                                         </div>
                                         <div class="text-xs text-gray-500">
-                                            💬{{ $stat['discussions'] }} 📝{{ $stat['grading'] }}
+                                            {{ $stat['discussions'] }} {{ $stat['grading'] }}
                                         </div>
                                     </div>
                                 </div>
@@ -176,15 +176,15 @@
                                     <div class="font-medium text-gray-900 mb-2">{{ $stat['course']->title }}</div>
                                     <div class="grid grid-cols-3 gap-4 text-sm">
                                         <div class="text-center">
-                                            <div class="font-semibold text-purple-600">{{ $stat['discussions'] }}</div>
+                                            <div class="font-semibold text-bass-red">{{ $stat['discussions'] }}</div>
                                             <div class="text-gray-500">Diskusi</div>
                                         </div>
                                         <div class="text-center">
-                                            <div class="font-semibold text-green-600">{{ $stat['grading'] }}</div>
+                                            <div class="font-semibold text-success">{{ $stat['grading'] }}</div>
                                             <div class="text-gray-500">Dinilai</div>
                                         </div>
                                         <div class="text-center">
-                                            <div class="font-semibold text-blue-600">{{ $stat['total'] }}</div>
+                                            <div class="font-semibold text-navy">{{ $stat['total'] }}</div>
                                             <div class="text-gray-500">Total</div>
                                         </div>
                                     </div>
@@ -236,7 +236,7 @@
                     @else
                         <div class="px-6 py-12 text-center">
                             <div class="text-gray-500">
-                                <div class="text-4xl mb-2">💬</div>
+                                <svg class="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                                 <p class="text-sm">Tidak ada aktivitas diskusi dalam periode ini</p>
                             </div>
                         </div>
@@ -274,12 +274,12 @@
                                                 </div>
                                                 <div class="flex items-center space-x-2">
                                                     @if($grading->score !== null)
-                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-success-soft text-success">
                                                             Skor: {{ $grading->score }}
                                                         </span>
                                                     @endif
                                                     @if($grading->feedback)
-                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-info-soft text-navy">
                                                             Ada Feedback
                                                         </span>
                                                     @endif
@@ -298,7 +298,7 @@
                     @else
                         <div class="px-6 py-12 text-center">
                             <div class="text-gray-500">
-                                <div class="text-4xl mb-2">📝</div>
+                                <svg class="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                 <p class="text-sm">Tidak ada aktivitas penilaian dalam periode ini</p>
                             </div>
                         </div>

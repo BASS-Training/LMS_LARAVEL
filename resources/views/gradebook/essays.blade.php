@@ -19,12 +19,12 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             @if (session('success'))
-                <div class="mb-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
+                <div class="mb-4 p-4 text-sm text-success bg-success-soft rounded-lg" role="alert">
                     {{ session('success') }}
                 </div>
             @endif
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
                 <div class="p-6 text-gray-900">
                     @if ($submissions->isEmpty())
                         <div class="text-center py-10">

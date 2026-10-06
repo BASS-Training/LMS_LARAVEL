@@ -11,7 +11,7 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     
                     <a href="javascript:void(0)" onclick="window.history.back()"
-                       class="text-indigo-600 dark:text-indigo-400 hover:underline mb-6 inline-block">
+                       class="text-navy dark:text-navy-light hover:underline mb-6 inline-block">
                         &larr; Kembali
                     </a>
 
@@ -21,7 +21,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-{{ $submission->content->scoring_enabled ? '3' : '2' }} gap-4 text-sm">
                             <div>
                                 <span class="font-medium">Mode Penilaian:</span><br>
-                                <span class="text-sm {{ $submission->content->grading_mode === 'overall' ? 'text-purple-600' : 'text-blue-600' }}">
+                                <span class="text-sm {{ $submission->content->grading_mode === 'overall' ? 'text-navy' : 'text-info' }}">
                                     {{ $submission->content->grading_mode === 'overall' ? 'Keseluruhan Essay' : 'Per Soal Individual' }}
                                 </span>
                             </div>
@@ -59,18 +59,18 @@
                                 @endphp
                                 
                                 @if(!($submission->content->requires_review ?? true))
-                                    <span class="text-green-600">✅ Latihan Selesai</span>
+                                    <span class="text-success">✅ Latihan Selesai</span>
                                 @elseif($submission->content->scoring_enabled)
                                     @if($isFullyProcessed)
-                                        <span class="text-green-600">Sudah Dinilai</span>
+                                        <span class="text-success">Sudah Dinilai</span>
                                     @else
-                                        <span class="text-yellow-600">Menunggu Penilaian</span>
+                                        <span class="text-warning">Menunggu Penilaian</span>
                                     @endif
                                 @else
                                     @if($isFullyProcessed)
-                                        <span class="text-green-600">Sudah Ditinjau</span>
+                                        <span class="text-success">Sudah Ditinjau</span>
                                     @else
-                                        <span class="text-blue-600">Berhasil Dikumpulkan</span>
+                                        <span class="text-navy">Berhasil Dikumpulkan</span>
                                     @endif
                                 @endif
                             </div>
@@ -78,7 +78,7 @@
                                 <div>
                                     <span class="font-medium">Total Nilai:</span><br>
                                     @if($isFullyProcessed)
-                                        <span class="text-2xl font-bold text-blue-600">
+                                        <span class="text-2xl font-bold text-bass-red">
                                             @if($submission->content->grading_mode === 'overall')
                                                 {{ $submission->answers()->whereNotNull('score')->first()->score ?? 0 }}/{{ $submission->max_total_score }}
                                             @else
@@ -106,7 +106,7 @@
                                         @endif
                                     </h3>
                                     @if($answer->question && $submission->content->scoring_enabled)
-                                        <span class="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs font-medium px-2.5 py-0.5 rounded">
+                                        <span class="bg-info-soft text-navy dark:bg-info-soft dark:text-navy text-xs font-medium px-2.5 py-0.5 rounded">
                                             {{ $answer->question->max_score }} poin
                                         </span>
                                     @endif
@@ -145,9 +145,9 @@
                                     @if($isGraded)
                                         <div class="border-t border-gray-200 dark:border-gray-600 pt-6">
                                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                                <div class="bg-green-100 dark:bg-green-900 p-4 rounded-lg">
-                                                    <p class="text-sm text-green-800 dark:text-green-200">Nilai:</p>
-                                                    <p class="text-3xl font-bold text-green-900 dark:text-green-100">
+                                                <div class="bg-success-soft dark:bg-success-soft p-4 rounded-lg">
+                                                    <p class="text-sm text-success dark:text-success">Nilai:</p>
+                                                    <p class="text-3xl font-bold text-success dark:text-success">
                                                         @if($submission->content->grading_mode === 'overall')
                                                             @if($loop->first)
                                                                 {{ $answer->score }}/{{ $submission->content->essayQuestions->sum('max_score') }}
@@ -209,8 +209,8 @@
                                     
                                     @if($hasFeedback)
                                         <div class="border-t border-gray-200 dark:border-gray-600 pt-6">
-                                            <div class="bg-blue-100 dark:bg-blue-900 p-4 rounded-lg">
-                                                <p class="text-sm text-blue-800 dark:text-blue-200 font-medium">
+                                            <div class="bg-info-soft dark:bg-info-soft p-4 rounded-lg">
+                                                <p class="text-sm text-navy dark:text-navy font-medium">
                                                     @if($submission->content->grading_mode === 'overall')
                                                         @if($loop->first)
                                                             Catatan Keseluruhan dari Instruktur:
@@ -221,7 +221,7 @@
                                                         Catatan dari Instruktur:
                                                     @endif
                                                 </p>
-                                                <p class="mt-2 text-blue-900 dark:text-blue-100">
+                                                <p class="mt-2 text-navy dark:text-navy">
                                                     @if($submission->content->grading_mode === 'overall')
                                                         @if($loop->first)
                                                             {{ $answer->feedback ?: 'Tidak ada catatan khusus.' }}
@@ -236,11 +236,11 @@
                                         </div>
                                     @else
                                         <div class="border-t border-gray-200 dark:border-gray-600 pt-6">
-                                            <div class="bg-green-100 dark:bg-green-900 p-4 rounded-lg text-center">
-                                                <p class="text-green-800 dark:text-green-200 font-medium">
+                                            <div class="bg-success-soft dark:bg-success-soft p-4 rounded-lg text-center">
+                                                <p class="text-success dark:text-success font-medium">
                                                     Essay berhasil dikumpulkan
                                                 </p>
-                                                <p class="text-sm text-green-600 dark:text-green-300 mt-1">
+                                                <p class="text-sm text-success dark:text-success mt-1">
                                                     Essay ini tidak memerlukan penilaian
                                                 </p>
                                             </div>
@@ -253,8 +253,8 @@
 
                     {{-- Overall Grade Summary - hanya tampil jika scoring enabled --}}
                     @if($submission->content->scoring_enabled && $submission->is_fully_graded && $submission->answers->count() > 1)
-                        <div class="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
-                            <h3 class="text-lg font-bold mb-4 text-blue-900 dark:text-blue-100">
+                        <div class="mt-8 p-6 bg-navy/5 dark:bg-navy/5 rounded-lg border border-navy/10 dark:border-navy/10">
+                            <h3 class="text-lg font-bold mb-4 text-navy dark:text-navy">
                                 Ringkasan Nilai
                             </h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -268,9 +268,9 @@
                                 @endforeach
                                 <div class="border-t pt-2 mt-2 flex justify-between font-bold text-lg">
                                     <span>Total:</span>
-                                    <span class="text-blue-600">{{ $submission->total_score }}/{{ $submission->max_total_score }}</span>
+                                    <span class="text-bass-red">{{ $submission->total_score }}/{{ $submission->max_total_score }}</span>
                                 </div>
-                                <div class="flex justify-between text-blue-700 dark:text-blue-300">
+                                <div class="flex justify-between text-navy dark:text-navy">
                                     <span>Persentase:</span>
                                     <span>{{ $submission->max_total_score > 0 ? number_format(($submission->total_score / $submission->max_total_score) * 100, 1) : 0 }}%</span>
                                 </div>

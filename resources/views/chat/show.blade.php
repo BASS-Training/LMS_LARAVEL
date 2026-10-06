@@ -28,7 +28,7 @@
                             </span>
                         </div>
                         {{-- Konten Pesan --}}
-                        <div class="px-4 py-2 mt-1 break-words rounded-2xl {{ $message->user_id === auth()->id() ? 'bg-blue-500 text-white rounded-br-lg' : 'bg-gray-200 text-gray-800 rounded-bl-lg' }}">
+                        <div class="px-4 py-2 mt-1 break-words rounded-2xl {{ $message->user_id === auth()->id() ? 'bg-navy text-white rounded-br-lg' : 'bg-gray-200 text-gray-800 rounded-bl-lg' }}">
                             {{ $message->content }}
                         </div>
                     </div>
@@ -41,8 +41,8 @@
 
         {{-- Input Pesan --}}
         <div class="flex items-center p-3 bg-white border-t border-gray-200">
-            <textarea id="message-input" placeholder="Ketik pesan..." rows="1" class="flex-grow block w-full px-4 py-2 text-gray-700 bg-gray-100 border border-transparent rounded-full resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"></textarea>
-            <button id="send-button" class="flex items-center justify-center flex-shrink-0 w-10 h-10 ml-3 text-white bg-blue-500 rounded-full hover:bg-blue-600 focus:outline-none">
+            <textarea id="message-input" placeholder="Ketik pesan..." rows="1" class="flex-grow block min-h-[44px] w-full px-4 py-2 text-gray-700 bg-gray-100 border border-transparent rounded-full resize-none focus:outline-none focus:ring-2 focus:ring-bass-red focus:bg-white"></textarea>
+            <button id="send-button" class="flex items-center justify-center flex-shrink-0 w-11 h-11 ml-3 text-white bg-bass-red rounded-full hover:bg-bass-red-hover focus:outline-none focus:ring-2 focus:ring-bass-red focus:ring-offset-2">
                 {{-- pointer-events-none ditambahkan ke SVG --}}
                 <svg class="w-6 h-6 transform rotate-90 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
             </button>
@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </span>
                     <span class="text-gray-400">${timestamp}</span>
                 </div>
-                <div class="px-4 py-2 mt-1 break-words rounded-2xl ${isOwnMessage ? 'bg-blue-500 text-white rounded-br-lg' : 'bg-gray-200 text-gray-800 rounded-bl-lg'}">
+                <div class="px-4 py-2 mt-1 break-words rounded-2xl ${isOwnMessage ? 'bg-navy text-white rounded-br-lg' : 'bg-gray-200 text-gray-800 rounded-bl-lg'}">
                     ${message.content}
                 </div>
             </div>

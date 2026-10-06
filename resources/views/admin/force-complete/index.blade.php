@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
-    <div class="bg-white rounded-lg shadow-md p-6">
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
         <h1 class="text-2xl font-bold text-gray-800 mb-6">Force Complete Contents</h1>
 
         <!-- Course Selection Form -->
@@ -12,7 +12,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label for="course_id" class="block text-sm font-medium text-gray-700 mb-2">Pilih Kursus</label>
-                    <select id="course_id" name="course_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    <select id="course_id" name="course_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red/50 focus:ring-opacity-50">
                         <option value="">-- Pilih Kursus --</option>
                         @foreach($courses as $course)
                             <option value="{{ $course->id }}" {{ (isset($selectedCourse) && $selectedCourse && $selectedCourse->id == $course->id) ? 'selected' : '' }}>
@@ -23,7 +23,7 @@
                 </div>
                 <div>
                     <label for="per_page" class="block text-sm font-medium text-gray-700 mb-2">Jumlah peserta per halaman</label>
-                    <select id="per_page" name="per_page" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    <select id="per_page" name="per_page" class="w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red/50 focus:ring-opacity-50">
                         @foreach([25, 50, 100, 200] as $size)
                             <option value="{{ $size }}" {{ ($perPage ?? 50) == $size ? 'selected' : '' }}>{{ $size }} peserta</option>
                         @endforeach
@@ -32,7 +32,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            <button type="submit" class="bg-bass-red hover:bg-bass-red-hover text-white font-bold py-2 px-4 rounded-lg transition-colors">
                 Tampilkan Peserta
             </button>
         </form>
@@ -47,10 +47,10 @@
                             @csrf
                             <input type="hidden" name="course_id" value="{{ $selectedCourse->id }}">
                             <label class="inline-flex items-center text-sm">
-                                <input type="checkbox" name="generate_certificate" value="1" class="mr-2">
+                                <input type="checkbox" name="generate_certificate" value="1" class="mr-2 rounded border-gray-300 text-bass-red focus:ring-bass-red">
                                 Generate sertifikat untuk peserta yang eligible
                             </label>
-                            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-sm" onclick="return confirm('Yakin ingin menandai SELESAI semua konten untuk SEMUA peserta di kursus ini?')">
+                            <button type="submit" class="bg-error hover:bg-error-dark text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors" onclick="return confirm('Yakin ingin menandai SELESAI semua konten untuk SEMUA peserta di kursus ini?')">
                                 Force Complete Semua Peserta
                             </button>
                         </form>
@@ -60,23 +60,23 @@
 
             @if($participants->count() > 0)
                 <!-- Bulk Action Panel -->
-                <div id="bulkActionPanel" class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4 rounded hidden">
+                <div id="bulkActionPanel" class="bg-navy/5 border-l-4 border-navy p-4 mb-4 rounded-lg hidden">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                        <div class="text-blue-800 font-medium">
+                        <div class="text-navy font-medium">
                             <span id="selectedCount">0</span> peserta dipilih
                         </div>
                         <div class="flex flex-wrap gap-2">
-                            <label class="inline-flex items-center text-sm text-blue-800">
-                                <input type="checkbox" id="bulkGenerateCert" class="mr-2">
+                            <label class="inline-flex items-center text-sm text-navy">
+                                <input type="checkbox" id="bulkGenerateCert" class="mr-2 rounded border-gray-300 text-bass-red focus:ring-bass-red">
                                 Generate sertifikat otomatis
                             </label>
-                            <button onclick="bulkForceComplete()" class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm">
+                            <button onclick="bulkForceComplete()" class="bg-error hover:bg-error-dark text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors">
                                 Force Complete Terpilih
                             </button>
-                            <button onclick="bulkGenerateCertificates()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm">
+                            <button onclick="bulkGenerateCertificates()" class="bg-navy hover:bg-navy-light text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors">
                                 Generate Sertifikat Terpilih
                             </button>
-                            <button onclick="clearSelection()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded text-sm">
+                            <button onclick="clearSelection()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold py-2 px-4 rounded-lg text-sm transition-colors">
                                 Batal
                             </button>
                         </div>
@@ -85,7 +85,7 @@
 
                 <div class="mb-3 flex justify-between items-center">
                     <label class="inline-flex items-center">
-                        <input type="checkbox" id="selectAll" class="mr-2">
+                        <input type="checkbox" id="selectAll" class="mr-2 rounded border-gray-300 text-bass-red focus:ring-bass-red">
                         <span class="text-sm font-medium text-gray-700">Pilih Semua</span>
                     </label>
                     <span class="text-sm text-gray-600">
@@ -104,13 +104,13 @@
                         @endphp
                         <div class="border rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                             <div class="flex items-center gap-3 flex-1">
-                                <input type="checkbox" class="participant-checkbox" value="{{ $u->id }}" data-name="{{ $u->name }}">
+                                <input type="checkbox" class="participant-checkbox rounded border-gray-300 text-bass-red focus:ring-bass-red" value="{{ $u->id }}" data-name="{{ $u->name }}">
                                 <div class="flex-1">
                                     <div class="font-semibold text-gray-800">{{ $u->name }}</div>
                                     <div class="text-gray-500 text-sm">{{ $u->email }}</div>
                                     <div class="text-sm mt-1">
                                         Progres:
-                                        <span class="font-medium {{ $progress['progress_percentage'] >= 100 ? 'text-green-600' : 'text-orange-600' }}">
+                                        <span class="font-medium {{ $progress['progress_percentage'] >= 100 ? 'text-success' : 'text-warning' }}">
                                             {{ $progress['progress_percentage'] ?? 0 }}%
                                         </span>
                                         ({{ $progress['completed_count'] ?? 0 }}/{{ $progress['total_count'] ?? 0 }})
@@ -122,10 +122,10 @@
                                 <input type="hidden" name="course_id" value="{{ $selectedCourse->id }}">
                                 <input type="hidden" name="user_id" value="{{ $u->id }}">
                                 <label class="inline-flex items-center text-sm">
-                                    <input type="checkbox" name="generate_certificate" value="1" class="mr-2">
+                                    <input type="checkbox" name="generate_certificate" value="1" class="mr-2 rounded border-gray-300 text-bass-red focus:ring-bass-red">
                                     Generate sertifikat (jika memenuhi syarat)
                                 </label>
-                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-sm whitespace-nowrap" onclick="return confirm('Yakin ingin menandai SELESAI semua konten untuk {{ $u->name }}?')">
+                                <button type="submit" class="bg-error hover:bg-error-dark text-white font-bold py-2 px-4 rounded-lg text-sm whitespace-nowrap transition-colors" onclick="return confirm('Yakin ingin menandai SELESAI semua konten untuk {{ $u->name }}?')">
                                     Force Complete
                                 </button>
                             </form>
@@ -148,7 +148,7 @@
         @endif
     </div>
     <p class="text-xs text-gray-400 mt-4">Catatan: Force Complete akan menandai konten non-quiz sebagai selesai, membuat attempt lulus untuk quiz (jika belum), dan menyelesaikan essay dengan skor 0/feedback default sesuai mode. Opsi generate sertifikat hanya berlaku jika peserta memenuhi syarat.</p>
-    <p class="text-xs text-gray-400 mt-2">💡 Tip: Untuk banyak peserta (>50), proses akan berjalan di background menggunakan queue untuk performa optimal.</p>
+    <p class="text-xs text-gray-400 mt-2">Tip: Untuk banyak peserta (>50), proses akan berjalan di background menggunakan queue untuk performa optimal.</p>
 </div>
 
 <script>

@@ -1,9 +1,9 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div class="flex items-center space-x-4">
                 <div class="flex-shrink-0">
-                    <div class="h-16 w-16 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center shadow-lg">
+                    <div class="h-16 w-16 rounded-full bg-navy flex items-center justify-center shadow-lg">
                         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                         </svg>
@@ -11,9 +11,9 @@
                 </div>
                 <div>
                     <h2 class="font-bold text-2xl text-gray-900 leading-tight flex items-center">
-                        💬 Manajemen Diskusi
+                        Manajemen Diskusi
                     </h2>
-                    <p class="text-lg font-medium text-indigo-600 mt-1">{{ $course->title }}</p>
+                    <p class="text-lg font-medium text-navy mt-1">{{ $course->title }}</p>
                     <p class="text-sm text-gray-600 mt-1">
                         Tinjau dan balas semua diskusi yang ada di kursus ini dari satu tempat
                     </p>
@@ -33,7 +33,7 @@
             @if (!$discussions->isEmpty())
                 <!-- Statistics Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
+                    <div class="bg-navy rounded-xl p-6 text-white shadow-lg">
                         <div class="flex items-center">
                             <div class="p-3 rounded-lg bg-white bg-opacity-20">
                                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,13 +41,13 @@
                                 </svg>
                             </div>
                             <div class="ml-4">
-                                <p class="text-blue-100">Total Diskusi</p>
+                                <p class="text-white/80">Total Diskusi</p>
                                 <p class="text-2xl font-bold">{{ $discussions->total() }}</p>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
+
+                    <div class="bg-bass-red rounded-xl p-6 text-white shadow-lg">
                         <div class="flex items-center">
                             <div class="p-3 rounded-lg bg-white bg-opacity-20">
                                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,13 +55,13 @@
                                 </svg>
                             </div>
                             <div class="ml-4">
-                                <p class="text-green-100">Total Balasan</p>
+                                <p class="text-white/80">Total Balasan</p>
                                 <p class="text-2xl font-bold">{{ $discussions->sum('replies_count') ?? $discussions->sum(fn($d) => $d->replies->count()) }}</p>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
+
+                    <div class="bg-gray-700 rounded-xl p-6 text-white shadow-lg">
                         <div class="flex items-center">
                             <div class="p-3 rounded-lg bg-white bg-opacity-20">
                                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,7 +69,7 @@
                                 </svg>
                             </div>
                             <div class="ml-4">
-                                <p class="text-purple-100">Peserta Aktif</p>
+                                <p class="text-white/80">Peserta Aktif</p>
                                 <p class="text-2xl font-bold">{{ $discussions->pluck('user_id')->unique()->count() }}</p>
                             </div>
                         </div>
@@ -98,7 +98,7 @@
                         <!-- Discussion List -->
                         <div class="space-y-6">
                             @foreach ($discussions as $discussion)
-                                <div class="bg-gradient-to-r from-gray-50 to-white rounded-xl border-2 border-gray-200 hover:border-indigo-300 hover:shadow-lg transition-all duration-300 overflow-hidden" x-data="{ showReplies: false }">
+                                <div class="bg-gray-50 rounded-xl border-2 border-gray-200 hover:border-bass-red/40 hover:shadow-lg transition-all duration-300 overflow-hidden" x-data="{ showReplies: false }">
                                     <!-- Discussion Header -->
                                     <div class="p-6">
                                         <div class="flex items-start justify-between">
@@ -106,7 +106,7 @@
                                                 <!-- User Avatar and Info -->
                                                 <div class="flex items-center space-x-4 mb-4">
                                                     <div class="flex-shrink-0">
-                                                        <div class="h-12 w-12 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+                                                        <div class="h-12 w-12 rounded-full bg-navy flex items-center justify-center shadow-lg">
                                                             <span class="text-white font-bold text-lg">
                                                                 {{ strtoupper(substr($discussion->user->name, 0, 1)) }}
                                                             </span>
@@ -125,13 +125,13 @@
 
                                                 <!-- Discussion Title and Content -->
                                                 <a href="{{ route('contents.show', $discussion->content_id) }}#discussion-{{ $discussion->id }}" class="block group">
-                                                    <h3 class="text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors duration-200 mb-2">
+                                                    <h3 class="text-xl font-bold text-gray-900 group-hover:text-bass-red transition-colors duration-200 mb-2">
                                                         {{ $discussion->title }}
                                                     </h3>
                                                 </a>
-                                                
+
                                                 <!-- Content Info Badge -->
-                                                <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 mb-3">
+                                                <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-bass-red-soft text-bass-red mb-3">
                                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                                                     </svg>
@@ -155,9 +155,9 @@
                                                         {{ $discussion->replies->count() }} balasan
                                                     </div>
                                                 </div>
-                                                
+
                                                 <!-- Main Action Button -->
-                                                <button @click="showReplies = !showReplies" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                                                <button @click="showReplies = !showReplies" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-navy hover:bg-navy-light focus:outline-none focus:ring-2 focus:ring-navy focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
                                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!showReplies">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                                     </svg>
@@ -182,7 +182,7 @@
                                                         </svg>
                                                         Balasan Sebelumnya ({{ $discussion->replies->count() }})
                                                     </h6>
-                                                    
+
                                                     {{-- Tampilkan balasan yang ada --}}
                                                     <div class="space-y-3">
                                                         @foreach($discussion->replies as $reply)
@@ -221,28 +221,28 @@
                                             <div class="border-t border-gray-200 pt-6">
                                                 <form action="{{ route('discussions.replies.store', $discussion) }}" method="POST" class="space-y-4">
                                                     @csrf
-                                                    
+
                                                     <!-- Form header -->
                                                     <div class="flex items-center space-x-2 mb-3">
-                                                        <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
+                                                        <div class="w-8 h-8 bg-navy rounded-full flex items-center justify-center">
                                                             <span class="font-bold text-white text-xs">
                                                                 {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
                                                             </span>
                                                         </div>
                                                         <span class="text-sm font-medium text-gray-700">Tulis balasan Anda</span>
                                                     </div>
-                                                    
+
                                                     <!-- Textarea -->
                                                     <div class="relative">
-                                                        <textarea 
-                                                            name="body" 
-                                                            rows="4" 
-                                                            class="w-full text-sm border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-20 rounded-lg shadow-sm resize-none transition-all duration-200 placeholder-gray-400" 
+                                                        <textarea
+                                                            name="body"
+                                                            rows="4"
+                                                            class="w-full text-sm border-gray-300 focus:border-bass-red focus:ring-2 focus:ring-bass-red/50 rounded-lg shadow-sm resize-none transition-all duration-200 placeholder-gray-400"
                                                             placeholder="Bagikan pemikiran, pertanyaan, atau masukan Anda..."
                                                             required
                                                         ></textarea>
                                                     </div>
-                                                    
+
                                                     <!-- Form actions -->
                                                     <div class="flex items-center justify-between">
                                                         <div class="flex items-center space-x-2 text-xs text-gray-500">
@@ -251,18 +251,18 @@
                                                             </svg>
                                                             <span>Bersikaplah sopan dan konstruktif</span>
                                                         </div>
-                                                        
+
                                                         <div class="flex items-center space-x-3">
-                                                            <button 
-                                                                type="button" 
+                                                            <button
+                                                                type="button"
                                                                 class="text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200"
                                                                 onclick="this.closest('form').querySelector('textarea[name=body]').value = ''"
                                                             >
                                                                 Bersihkan
                                                             </button>
-                                                            <button 
+                                                            <button
                                                                 type="submit"
-                                                                class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                                                                class="inline-flex items-center px-4 py-2 bg-bass-red border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-bass-red-hover focus:bg-bass-red-hover active:bg-bass-red-hover focus:outline-none focus:ring-2 focus:ring-bass-red focus:ring-offset-2 transition ease-in-out duration-150"
                                                             >
                                                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>

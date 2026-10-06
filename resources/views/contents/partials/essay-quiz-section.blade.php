@@ -7,7 +7,7 @@
     <div class="mt-6 border-t pt-6">
         {{-- JIKA SUDAH ADA JAWABAN --}}
         @if ($submission)
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-md dark:bg-green-900 dark:text-green-200 dark:border-green-600" role="alert">
+            <div class="bg-success-soft border-l-4 border-success text-success p-4 rounded-md dark:bg-success/20 dark:text-success dark:border-success/60" role="alert">
                 <p class="font-bold">Anda Sudah Mengumpulkan Jawaban</p>
                 <p>Jawaban Anda dikumpulkan pada: {{ $submission->created_at->format('d F Y, H:i') }}</p>
 
@@ -41,7 +41,7 @@
 
                     @if ($isProcessed)
                         <div class="mt-4">
-                            <a href="{{ route('essays.result', $submission->id) }}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md inline-block">
+                            <a href="{{ route('essays.result', $submission->id) }}" class="bg-navy hover:bg-navy-light text-white font-bold py-2 px-4 rounded-md inline-block">
                                 @if($submission->content->scoring_enabled)
                                     Lihat Nilai dan Feedback
                                 @else
@@ -64,7 +64,7 @@
                         @if(!($submission->content->requires_review ?? true))
                             {{-- Essay latihan mandiri - tidak perlu review --}}
                             <div class="mt-4">
-                                <div class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
+                                <div class="inline-flex items-center px-3 py-1 bg-success-soft text-success text-sm rounded-full">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
@@ -72,7 +72,7 @@
                                 </div>
                                 <p class="mt-2 text-sm text-gray-600">Essay latihan mandiri telah berhasil dikumpulkan dan langsung selesai.</p>
                                 <div class="mt-3">
-                                    <a href="{{ route('essays.result', $submission->id) }}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md inline-block">
+                                    <a href="{{ route('essays.result', $submission->id) }}" class="bg-navy hover:bg-navy-light text-white font-bold py-2 px-4 rounded-md inline-block">
                                         Lihat Jawaban Saya
                                     </a>
                                 </div>
@@ -124,11 +124,11 @@
                                 <textarea 
                                     name="answer_{{ $question->id }}" 
                                     rows="6" 
-                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-bass-red focus:border-bass-red"
                                     placeholder="Tulis jawaban Anda di sini..."
                                     required>{{ old("answer_{$question->id}") }}</textarea>
                                 @error("answer_{$question->id}")
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    <p class="mt-1 text-sm text-error">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
@@ -145,7 +145,7 @@
                                 {{ $questions->count() }} pertanyaan
                             </p>
                         @endif
-                        <button type="submit" class="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors">
+                        <button type="submit" class="inline-flex items-center px-6 py-3 bg-bass-red hover:bg-bass-red-hover text-white font-medium rounded-lg transition-colors">
                             {{ __('Kirim Semua Jawaban') }}
                         </button>
                     </div>
@@ -161,7 +161,7 @@
                     <div class="flex items-center space-x-2">
                         <span class="text-sm text-gray-600">Status Penilaian:</span>
                         @if ($content->scoring_enabled)
-                            <span class="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                            <span class="inline-flex items-center px-2 py-1 bg-success-soft text-success text-xs rounded-full">
                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
@@ -189,7 +189,7 @@
                             id="question"
                             name="question"
                             rows="4"
-                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red sm:text-sm"
                             placeholder="Masukkan pertanyaan essay..."
                             required
                         ></textarea>
@@ -207,7 +207,7 @@
                                 name="max_score"
                                 min="1"
                                 value="100"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red sm:text-sm"
                                 required
                             >
                         </div>
@@ -215,7 +215,7 @@
                         <input type="hidden" name="max_score" value="0">
                     @endif
                     
-                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md transition-colors">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-bass-red hover:bg-bass-red-hover text-white font-medium rounded-md transition-colors">
                         Tambah Pertanyaan
                     </button>
                 </form>
@@ -237,7 +237,7 @@
                                     <form action="{{ route('essay.questions.destroy', $question) }}" method="POST" class="ml-4">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-800" onclick="return confirm('Hapus pertanyaan ini?')">
+                                        <button type="submit" class="text-neutral-900 hover:opacity-75" onclick="return confirm('Hapus pertanyaan ini?')">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                             </svg>

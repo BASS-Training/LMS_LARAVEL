@@ -1,19 +1,19 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="font-semibold text-xl text-navy leading-tight">
                 {{ __('Dashboard Event Organizer') }}
             </h2>
             <div class="flex items-center space-x-4">
-                <!-- ✅ PERBAIKAN: Komponen Notifikasi Fungsional -->
-                <a href="{{ route('announcements.index') }}" class="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <!-- Komponen Notifikasi Fungsional -->
+                <a href="{{ route('announcements.index') }}" class="relative p-2 text-gray-600 hover:text-bass-red hover:bg-error-soft rounded-full">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M15 17h5l-1.5-1.5A2 2 0 0118 14v-3a6 6 0 10-12 0v3a2 2 0 01-.5 1.5L4 17h5m6 0v1a3 3 0 11-6 0v-1" />
                     </svg>
-                    {{-- ✅ PERBAIKAN: Panggil sebagai properti, bukan metode --}}
+                    {{-- Panggil sebagai properti, bukan metode --}}
                     @if(Auth::user()->unread_announcements_count > 0)
-                        <span class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
+                        <span class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-bass-red rounded-full">
                             {{ Auth::user()->unread_announcements_count }}
                         </span>
                     @endif
@@ -28,13 +28,13 @@
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Welcome Section -->
-            <div class="bg-gradient-to-r from-teal-600 to-cyan-600 overflow-hidden shadow-sm sm:rounded-lg mb-6 relative">
+            <div class="bg-navy overflow-hidden shadow-sm sm:rounded-lg mb-6 relative">
                 <div class="absolute inset-0 bg-black opacity-10"></div>
                 <div class="relative p-6 text-white">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h3 class="text-2xl font-bold mb-2">Selamat datang, {{ auth()->user()->name }}! 📈</h3>
-                            <p class="text-teal-100 text-lg">Pantau dan kelola semua kursus Anda dari satu tempat.</p>
+                            <h3 class="text-2xl font-bold mb-2">Selamat datang, {{ auth()->user()->name }}!</h3>
+                            <p class="text-white/80 text-lg">Pantau dan kelola semua kursus Anda dari satu tempat.</p>
                         </div>
                         <div class="hidden md:block">
                             <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
@@ -49,10 +49,10 @@
 
             @if($announcements && $announcements->count() > 0)
             <div class="mb-6">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-blue-500">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-bass-red">
                     <div class="px-6 py-4 border-b border-gray-200">
                         <div class="flex items-center">
-                            <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-bass-red mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
                             </svg>
                             <h3 class="text-lg font-medium text-gray-900">Pengumuman Terbaru</h3>
@@ -61,10 +61,13 @@
                     <div class="p-6">
                         <div class="space-y-4">
                             @foreach($announcements->take(2) as $announcement)
-                            <div class="p-4 rounded-lg border border-{{ $announcement->level_color }}-200 bg-{{ $announcement->level_color }}-50">
+                            @php
+                                $levelColor = $announcement->level === 'info' ? 'gray' : $announcement->level_color;
+                            @endphp
+                            <div class="p-4 rounded-lg border border-{{ $levelColor }}-200 bg-{{ $levelColor }}-50">
                                 <div class="flex">
                                     <div class="flex-shrink-0">
-                                        <svg class="w-5 h-5 text-{{ $announcement->level_color }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-5 h-5 text-{{ $levelColor }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                             @if($announcement->level === 'info')
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                             @elseif($announcement->level === 'success')
@@ -77,9 +80,9 @@
                                         </svg>
                                     </div>
                                     <div class="ml-3">
-                                        <h4 class="text-sm font-medium text-{{ $announcement->level_color }}-800">{{ $announcement->title }}</h4>
-                                        <p class="text-sm text-{{ $announcement->level_color }}-700 mt-1">{{ Str::limit($announcement->content, 120) }}</p>
-                                        <p class="text-xs text-{{ $announcement->level_color }}-600 mt-2">{{ $announcement->created_at->diffForHumans() }}</p>
+                                        <h4 class="text-sm font-medium text-{{ $levelColor }}-800">{{ $announcement->title }}</h4>
+                                        <p class="text-sm text-{{ $levelColor }}-700 mt-1">{{ Str::limit($announcement->content, 120) }}</p>
+                                        <p class="text-xs text-{{ $levelColor }}-600 mt-2">{{ $announcement->created_at->diffForHumans() }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -93,25 +96,25 @@
             <!-- Statistics Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 @foreach($stats['overview'] as $index => $stat)
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 {{ $index == 0 ? 'border-teal-500' : ($index == 1 ? 'border-blue-500' : ($index == 2 ? 'border-green-500' : 'border-purple-500')) }} dashboard-card hover-lift">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-gray-200 dashboard-card hover-lift">
                     <div class="p-6">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
-                                <div class="w-12 h-12 {{ $index == 0 ? 'bg-teal-100' : ($index == 1 ? 'bg-blue-100' : ($index == 2 ? 'bg-green-100' : 'bg-purple-100')) }} rounded-full flex items-center justify-center">
+                                <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
                                     @if($stat['icon'] == 'briefcase')
-                                    <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-6 h-6 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                                     </svg>
                                     @elseif($stat['icon'] == 'users')
-                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-6 h-6 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
                                     </svg>
                                     @elseif($stat['icon'] == 'user-plus')
-                                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-6 h-6 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                                     </svg>
                                     @else
-                                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-6 h-6 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                                     </svg>
                                     @endif
@@ -127,11 +130,11 @@
                         <div class="mt-4">
                             <div class="flex text-xs text-gray-600">
                                 <span class="flex items-center">
-                                    <span class="w-2 h-2 bg-green-400 rounded-full mr-1"></span>
+                                    <span class="w-2 h-2 bg-success rounded-full mr-1"></span>
                                     {{ $stats['course_summary']['published'] }} Published
                                 </span>
                                 <span class="flex items-center ml-3">
-                                    <span class="w-2 h-2 bg-yellow-400 rounded-full mr-1"></span>
+                                    <span class="w-2 h-2 bg-warning rounded-full mr-1"></span>
                                     {{ $stats['course_summary']['draft'] }} Draft
                                 </span>
                             </div>
@@ -152,11 +155,11 @@
                                 <h3 class="text-lg font-medium text-gray-900">Performa Kursus Dikelola</h3>
                                 <div class="flex items-center space-x-2">
                                     <div class="flex items-center">
-                                        <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                                        <div class="w-3 h-3 bg-success rounded-full mr-2"></div>
                                         <span class="text-xs text-gray-600">Published</span>
                                     </div>
                                     <div class="flex items-center">
-                                        <div class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                                        <div class="w-3 h-3 bg-warning rounded-full mr-2"></div>
                                         <span class="text-xs text-gray-600">Draft</span>
                                     </div>
                                 </div>
@@ -178,12 +181,12 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $course['status'] === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $course['status'] === 'published' ? 'bg-success-soft text-success' : 'bg-warning-soft text-warning' }}">
                                             {{ ucfirst($course['status']) }}
                                         </span>
                                     </div>
 
-                                    {{-- ✅ OPTIMIZATION: Progress calculation removed for performance --}}
+                                    {{-- Progress calculation removed for performance --}}
                                     <div class="flex items-center text-xs text-gray-500 mt-3">
                                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -198,7 +201,7 @@
                                     </svg>
                                     <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Kursus</h3>
                                     <p class="text-gray-600 mb-4">Anda belum mengelola kursus apapun.</p>
-                                    <a href="{{ route('courses.create') }}" class="inline-flex items-center px-4 py-2 bg-teal-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-teal-700 transition">
+                                    <a href="{{ route('courses.create') }}" class="inline-flex items-center px-4 py-2 bg-bass-red border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-bass-red-hover transition">
                                         Buat Kursus Pertama
                                     </a>
                                 </div>
@@ -221,8 +224,8 @@
                             <div class="space-y-3">
                                 @forelse($stats['recent_activity']['users'] as $user)
                                 <div class="flex items-center p-3 bg-gray-50 rounded-lg hover-lift">
-                                    <div class="w-10 h-10 bg-gradient-to-r from-teal-100 to-cyan-100 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                                        <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <div class="w-10 h-10 bg-navy rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                             <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
                                         </svg>
                                     </div>
@@ -234,7 +237,7 @@
                                             </div>
                                             <div class="text-right">
                                                 <p class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($user->last_enrolled_at)->diffForHumans() }}</p>
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-success-soft text-success">
                                                     Peserta Baru
                                                 </span>
                                             </div>
@@ -262,32 +265,32 @@
                             <h3 class="text-lg font-medium text-gray-900">Aksi Cepat</h3>
                         </div>
                         <div class="p-6 space-y-3">
-                            <a href="{{ route('courses.index') }}" class="flex items-center w-full px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors hover-lift group">
-                                <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                            <a href="{{ route('courses.index') }}" class="flex items-center w-full px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-error-soft hover:text-bass-red transition-colors hover-lift group">
+                                <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-bass-red" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                     <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path>
                                 </svg>
                                 Kelola Semua Kursus
-                                <svg class="w-4 h-4 ml-auto text-gray-400 group-hover:text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 ml-auto text-gray-400 group-hover:text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                 </svg>
                             </a>
 
-                            <a href="{{ route('courses.create') }}" class="flex items-center w-full px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors hover-lift group">
-                                <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <a href="{{ route('courses.create') }}" class="flex items-center w-full px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-error-soft hover:text-bass-red transition-colors hover-lift group">
+                                <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                 </svg>
                                 Buat Kursus Baru
-                                <svg class="w-4 h-4 ml-auto text-gray-400 group-hover:text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 ml-auto text-gray-400 group-hover:text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                 </svg>
                             </a>
 
-                            <a href="{{ route('admin.users.index') }}" class="flex items-center w-full px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors hover-lift group">
-                                <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                            <a href="{{ route('admin.users.index') }}" class="flex items-center w-full px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-error-soft hover:text-bass-red transition-colors hover-lift group">
+                                <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-bass-red" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                     <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
                                 </svg>
                                 Kelola Pengguna
-                                <svg class="w-4 h-4 ml-auto text-gray-400 group-hover:text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 ml-auto text-gray-400 group-hover:text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                 </svg>
                             </a>
@@ -304,15 +307,15 @@
                                 <div class="flex justify-between items-center">
                                     <span class="text-sm text-gray-600">Kursus Published</span>
                                     <div class="flex items-center">
-                                        <span class="text-sm font-medium text-green-600">{{ $stats['course_summary']['published'] }}</span>
-                                        <div class="w-3 h-3 bg-green-500 rounded-full ml-2"></div>
+                                        <span class="text-sm font-medium text-success">{{ $stats['course_summary']['published'] }}</span>
+                                        <div class="w-3 h-3 bg-success rounded-full ml-2"></div>
                                     </div>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-sm text-gray-600">Kursus Draft</span>
                                     <div class="flex items-center">
-                                        <span class="text-sm font-medium text-yellow-600">{{ $stats['course_summary']['draft'] }}</span>
-                                        <div class="w-3 h-3 bg-yellow-500 rounded-full ml-2"></div>
+                                        <span class="text-sm font-medium text-warning">{{ $stats['course_summary']['draft'] }}</span>
+                                        <div class="w-3 h-3 bg-warning rounded-full ml-2"></div>
                                     </div>
                                 </div>
                                 <div class="pt-4 border-t border-gray-200">
@@ -322,7 +325,7 @@
                                     </div>
                                     <div class="mt-2">
                                         <div class="w-full bg-gray-200 rounded-full h-2">
-                                            <div class="bg-gradient-to-r from-teal-500 to-cyan-500 h-2 rounded-full transition-all duration-500" style="width: {{ $stats['course_summary']['published'] > 0 ? ($stats['course_summary']['published'] / $stats['overview'][0]['value']) * 100 : 0 }}%"></div>
+                                            <div class="bg-bass-red h-2 rounded-full transition-all duration-500" style="width: {{ $stats['course_summary']['published'] > 0 ? ($stats['course_summary']['published'] / $stats['overview'][0]['value']) * 100 : 0 }}%"></div>
                                         </div>
                                         <p class="text-xs text-gray-500 mt-1">{{ $stats['course_summary']['published'] > 0 ? round(($stats['course_summary']['published'] / $stats['overview'][0]['value']) * 100, 1) : 0 }}% kursus telah dipublish</p>
                                     </div>
@@ -337,10 +340,10 @@
                             <h3 class="text-lg font-medium text-gray-900">Metrik Performa</h3>
                         </div>
                         <div class="p-6">
-                            {{-- ✅ OPTIMIZATION: Simplified statistics without progress --}}
+                            {{-- Simplified statistics without progress --}}
                             <div class="space-y-4">
                                 <div class="text-center">
-                                    <div class="text-2xl font-bold text-teal-600 mb-1">
+                                    <div class="text-2xl font-bold text-navy mb-1">
                                         {{ $stats['courses']['total'] ?? 0 }}
                                     </div>
                                     <p class="text-sm text-gray-600">Total Kursus Dikelola</p>
@@ -372,8 +375,8 @@
                         <div class="p-6">
                             <div class="flex items-center justify-between">
                                 <span class="text-sm font-medium text-gray-900">Event Organizer Dashboard</span>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    <div class="w-2 h-2 bg-green-600 rounded-full mr-1 animate-pulse"></div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-soft text-success">
+                                    <div class="w-2 h-2 bg-success rounded-full mr-1 animate-pulse"></div>
                                     Aktif
                                 </span>
                             </div>
@@ -400,10 +403,6 @@
 
         .stat-number {
             font-variant-numeric: tabular-nums;
-        }
-
-        .group:hover .group-hover\:text-teal-600 {
-            color: #0d9488;
         }
 
         @keyframes fadeIn {
@@ -475,8 +474,8 @@
             // Success notification
             setTimeout(() => {
                 const notification = document.createElement('div');
-                notification.className = 'fixed top-4 right-4 bg-teal-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 text-sm transform translate-x-full transition-transform duration-300';
-                notification.innerHTML = '📈 Dashboard Event Organizer berhasil dimuat';
+                notification.className = 'fixed top-4 right-4 bg-navy text-white px-6 py-3 rounded-lg shadow-lg z-50 text-sm transform translate-x-full transition-transform duration-300';
+                notification.innerHTML = 'Dashboard Event Organizer berhasil dimuat';
                 document.body.appendChild(notification);
 
                 setTimeout(() => {

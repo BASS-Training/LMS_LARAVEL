@@ -104,7 +104,9 @@ class User extends Authenticatable
     public function courses()
     {
         // PENYESUAIAN: Menambahkan withPivot('feedback') untuk bisa mengambil data feedback
-        return $this->belongsToMany(Course::class, 'course_user')->withTimestamps()->withPivot('feedback');
+        return $this->belongsToMany(Course::class, 'course_user')
+            ->withTimestamps()
+            ->withPivot('feedback', 'order_id', 'has_independent_access');
     }
 
     /**

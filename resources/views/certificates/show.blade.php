@@ -4,14 +4,14 @@
         $pdfVersion = $certificate->updated_at ? $certificate->updated_at->timestamp : now()->timestamp;
         $pdfUrl = $pdfBaseUrl . '?v=' . $pdfVersion;
     @endphp
-    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
         <!-- Floating Header -->
         <div class="sticky top-0 z-40 backdrop-blur-lg bg-white/70 dark:bg-gray-900/70 border-b border-gray-200/20 dark:border-gray-700/20">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-4">
-                        <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                            <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                        <div class="p-2 bg-navy/10 rounded-lg">
+                            <svg class="w-6 h-6 text-navy" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                             </svg>
                         </div>
@@ -21,7 +21,7 @@
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <div class="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-sm font-medium">
+                        <div class="px-3 py-1 bg-success-soft text-success rounded-full text-sm font-medium">
                             ✓ Verified
                         </div>
                     </div>
@@ -37,7 +37,7 @@
                 <div class="xl:col-span-4 space-y-6">
                     <!-- Status Card -->
                     <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                        <div class="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-5">
+                        <div class="bg-navy px-6 py-5">
                             <div class="flex items-center">
                                 <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mr-4">
                                     <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -46,7 +46,7 @@
                                 </div>
                                 <div>
                                     <h3 class="text-xl font-bold text-white">Verified Certificate</h3>
-                                    <p class="text-emerald-100 text-sm">Authentic and valid</p>
+                                    <p class="text-white/80 text-sm">Authentic and valid</p>
                                 </div>
                             </div>
                         </div>
@@ -56,7 +56,7 @@
                                 <!-- Recipient -->
                                 <div class="group">
                                     <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 block">Certificate Holder</label>
-                                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 rounded-2xl p-4 group-hover:shadow-md transition-all duration-300">
+                                    <div class="bg-info-soft dark:bg-gray-700 rounded-2xl p-4 group-hover:shadow-md transition-all duration-300">
                                         <p class="text-xl font-bold text-gray-900 dark:text-white">{{ $certificate->user->name }}</p>
                                     </div>
                                 </div>
@@ -64,7 +64,7 @@
                                 <!-- Course -->
                                 <div class="group">
                                     <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 block">Course Title</label>
-                                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-gray-700 dark:to-gray-600 rounded-2xl p-4 group-hover:shadow-md transition-all duration-300">
+                                    <div class="bg-bass-red-soft dark:bg-gray-700 rounded-2xl p-4 group-hover:shadow-md transition-all duration-300">
                                         <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ $certificate->course->title }}</p>
                                     </div>
                                 </div>
@@ -72,13 +72,13 @@
                                 <!-- Date & ID Grid -->
                                     <div class="group">
                                         <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 block">Issue Date</label>
-                                        <div class="bg-gradient-to-r from-orange-50 to-red-50 dark:from-gray-700 dark:to-gray-600 rounded-2xl p-4 group-hover:shadow-md transition-all duration-300">
+                                        <div class="bg-warning-soft dark:bg-gray-700 rounded-2xl p-4 group-hover:shadow-md transition-all duration-300">
                                             <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $certificate->issued_at->format('d M Y') }}</p>
                                         </div>
                                     </div>
                                     <div class="group">
                                         <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 block">Cert ID</label>
-                                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-gray-700 dark:to-gray-600 rounded-2xl p-4 group-hover:shadow-md transition-all duration-300">
+                                        <div class="bg-success-soft dark:bg-gray-700 rounded-2xl p-4 group-hover:shadow-md transition-all duration-300">
                                             <p class="text-xs font-mono font-bold text-gray-900 dark:text-white break-all">{{ ($certificate->certificate_code) }}</p>
                                         </div>
                                     </div>
@@ -92,7 +92,7 @@
                         <div class="space-y-3">
                             <a href="{{ $pdfUrl }}" 
                                download 
-                               class="group w-full inline-flex items-center justify-center px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:-translate-y-1">
+                               class="group w-full inline-flex items-center justify-center px-6 py-4 bg-navy hover:bg-navy-light text-white font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:-translate-y-1">
                                 <svg class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
@@ -106,7 +106,7 @@
                                 Share Certificate
                             </button>
 
-                            <button onclick="openInNewTab()" class="group w-full inline-flex items-center justify-center px-6 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:-translate-y-1">
+                            <button onclick="openInNewTab()" class="group w-full inline-flex items-center justify-center px-6 py-4 bg-bass-red hover:bg-bass-red-hover text-white font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:-translate-y-1">
                                 <svg class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                 </svg>
@@ -116,16 +116,16 @@
                     </div>
 
                     <!-- Security Info -->
-                    <div class="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-3xl p-6 border border-blue-200 dark:border-blue-800">
+                    <div class="bg-info-soft dark:bg-navy/10 rounded-3xl p-6 border border-navy/20 dark:border-navy/30">
                         <div class="flex items-start">
-                            <div class="w-12 h-12 bg-blue-500 rounded-2xl flex items-center justify-center mr-4 flex-shrink-0">
+                            <div class="w-12 h-12 bg-navy rounded-2xl flex items-center justify-center mr-4 flex-shrink-0">
                                 <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
                                 </svg>
                             </div>
                             <div>
-                                <h4 class="text-lg font-bold text-blue-900 dark:text-blue-300 mb-2">Secure Verification</h4>
-                                <p class="text-sm text-blue-700 dark:text-blue-400 leading-relaxed">This certificate has been cryptographically verified and stored securely with blockchain-level authenticity.</p>
+                                <h4 class="text-lg font-bold text-navy mb-2">Secure Verification</h4>
+                                <p class="text-sm text-navy leading-relaxed">This certificate has been cryptographically verified and stored securely with blockchain-level authenticity.</p>
                             </div>
                         </div>
                     </div>
@@ -136,12 +136,12 @@
                     <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
                         
                         <!-- PDF Controls Header -->
-                        <div class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+                        <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-4">
                                     <h3 class="text-xl font-bold text-gray-900 dark:text-white">Certificate Preview</h3>
                                     <div class="hidden sm:flex items-center space-x-2">
-                                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                        <div class="w-2 h-2 bg-success rounded-full animate-pulse"></div>
                                         <span class="text-sm text-gray-600 dark:text-gray-400">Live Preview</span>
                                     </div>
                                 </div>
@@ -149,7 +149,7 @@
                                 <!-- PDF Navigation -->
                                 <div id="pdf-controls" class="hidden flex items-center space-x-3">
                                     <div class="flex items-center bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-600 overflow-hidden">
-                                        <button id="prev-page" class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <button id="prev-page" class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-navy/10 dark:hover:bg-navy transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                                             </svg>
@@ -159,7 +159,7 @@
                                                 <span id="page-num">1</span> / <span id="page-count">-</span>
                                             </span>
                                         </div>
-                                        <button id="next-page" class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <button id="next-page" class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-navy/10 dark:hover:bg-navy transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                             </svg>
@@ -168,7 +168,7 @@
                                     
                                     <!-- Zoom Controls -->
                                     <div class="flex items-center bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-600 overflow-hidden">
-                                        <button id="zoom-out" class="px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900 transition-colors">
+                                        <button id="zoom-out" class="px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-bass-red-soft dark:hover:bg-bass-red/30 transition-colors">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
                                             </svg>
@@ -176,7 +176,7 @@
                                         <div class="px-3 py-2 border-x border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
                                             <span id="zoom-level" class="text-sm font-medium text-gray-700 dark:text-gray-300">100%</span>
                                         </div>
-                                        <button id="zoom-in" class="px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900 transition-colors">
+                                        <button id="zoom-in" class="px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-success-soft dark:hover:bg-success/30 transition-colors">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                                             </svg>
@@ -187,11 +187,11 @@
                         </div>
 
                         <!-- Loading State -->
-                        <div id="pdf-loading" class="flex items-center justify-center h-96 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-700">
+                        <div id="pdf-loading" class="flex items-center justify-center h-96 bg-gray-100 dark:bg-gray-800">
                             <div class="text-center">
                                 <div class="relative">
-                                    <div class="w-20 h-20 border-4 border-blue-200 dark:border-blue-700 rounded-full animate-spin border-t-blue-600 dark:border-t-blue-400 mx-auto mb-4"></div>
-                                    <div class="absolute inset-0 w-20 h-20 border-4 border-transparent rounded-full animate-ping border-t-blue-400 mx-auto"></div>
+                                    <div class="w-20 h-20 border-4 border-bass-red/30 dark:border-bass-red/30 rounded-full animate-spin border-t-bass-red dark:border-t-bass-red mx-auto mb-4"></div>
+                                    <div class="absolute inset-0 w-20 h-20 border-4 border-transparent rounded-full animate-ping border-t-bass-red/60 mx-auto"></div>
                                 </div>
                                 <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Loading Certificate</h3>
                                 <p class="text-gray-500 dark:text-gray-400">Preparing secure document viewer...</p>
@@ -200,7 +200,7 @@
 
                         <!-- PDF Viewer Container -->
                         <div id="pdf-viewer" class="hidden">
-                            <div class="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 p-6" style="min-height: 800px;">
+                            <div class="bg-gray-100 dark:bg-gray-800 p-6" style="min-height: 800px;">
                                 <div class="flex justify-center">
                                     <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
                                         <canvas id="pdf-canvas" class="max-w-full h-auto"></canvas>
@@ -210,9 +210,9 @@
                         </div>
 
                         <!-- Fallback State -->
-                        <div id="pdf-fallback" class="hidden flex flex-col items-center justify-center h-96 p-8 text-center bg-gradient-to-br from-red-50 to-pink-50 dark:from-gray-800 dark:to-gray-700">
-                            <div class="w-24 h-24 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mb-6">
-                                <svg class="w-12 h-12 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div id="pdf-fallback" class="hidden flex flex-col items-center justify-center h-96 p-8 text-center bg-error-soft dark:bg-gray-800">
+                            <div class="w-24 h-24 bg-error-soft dark:bg-error-soft rounded-full flex items-center justify-center mb-6">
+                                <svg class="w-12 h-12 text-error dark:text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
                             </div>
@@ -221,7 +221,7 @@
                             <div class="flex flex-col sm:flex-row gap-4">
                                 <a href="{{ $pdfUrl }}" 
                                    target="_blank"
-                                   class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                                   class="inline-flex items-center px-6 py-3 bg-navy hover:bg-navy-light text-white font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                     </svg>
@@ -229,7 +229,7 @@
                                 </a>
                                 <a href="{{ $pdfUrl }}" 
                                    download
-                                   class="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                                   class="inline-flex items-center px-6 py-3 bg-bass-red hover:bg-bass-red-hover text-white font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                     </svg>
@@ -364,7 +364,7 @@
 
         function showToast(message) {
             const toast = document.createElement('div');
-            toast.className = 'fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-2xl shadow-lg transform translate-x-full transition-transform duration-300';
+            toast.className = 'fixed top-4 right-4 z-50 bg-navy text-white px-6 py-3 rounded-2xl shadow-lg transform translate-x-full transition-transform duration-300';
             toast.textContent = message;
             document.body.appendChild(toast);
             
@@ -475,7 +475,7 @@
             });
 
             // Add floating animation to verification badge
-            const badge = document.querySelector('.sticky .bg-green-100');
+            const badge = document.querySelector('.sticky .bg-success-soft');
             if (badge) {
                 badge.style.animation = 'float 3s ease-in-out infinite';
             }
@@ -494,7 +494,7 @@
                 50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.8), 0 0 40px rgba(59, 130, 246, 0.3); }
             }
             
-            .group:hover .bg-gradient-to-r {
+            .group:hover .bg-navy {
                 animation: glow 2s ease-in-out infinite;
             }
             

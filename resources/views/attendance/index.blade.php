@@ -15,14 +15,14 @@
                         <h3 class="text-lg font-bold text-gray-800">{{ $content->title }}</h3>
                         <p class="text-sm text-gray-600">{{ $course->title }}</p>
                         @if($content->min_attendance_minutes)
-                            <span class="text-xs text-blue-600 font-medium">Min Duration: {{ $content->min_attendance_minutes }} min</span>
+                            <span class="text-xs text-navy font-medium">Min Duration: {{ $content->min_attendance_minutes }} min</span>
                         @endif
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="showBulkMarkModal()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition">
+                        <button onclick="showBulkMarkModal()" class="bg-bass-red hover:bg-bass-red-hover text-white px-4 py-2 rounded-lg text-sm transition">
                             Bulk Mark
                         </button>
-                        <a href="{{ route('attendance.export', $content->id) }}" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm transition">
+                        <a href="{{ route('attendance.export', $content->id) }}" class="bg-navy hover:bg-navy-light text-white px-4 py-2 rounded-lg text-sm transition">
                             Export CSV
                         </a>
                         <a href="{{ route('courses.show', $course->id) }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition">
@@ -34,23 +34,23 @@
 
             <!-- Statistics Cards -->
             <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
-                <div class="bg-blue-500 rounded-lg p-3 text-white">
+                <div class="bg-navy rounded-lg p-3 text-white">
                     <div class="text-xs opacity-90">Total</div>
                     <div class="text-2xl font-bold">{{ $participants->total() }}</div>
                 </div>
-                <div class="bg-green-500 rounded-lg p-3 text-white">
+                <div class="bg-success rounded-lg p-3 text-white">
                     <div class="text-xs opacity-90">Present</div>
                     <div class="text-2xl font-bold">{{ $stats['present'] }}</div>
                 </div>
-                <div class="bg-red-500 rounded-lg p-3 text-white">
+                <div class="bg-error rounded-lg p-3 text-white">
                     <div class="text-xs opacity-90">Absent</div>
                     <div class="text-2xl font-bold">{{ $stats['absent'] }}</div>
                 </div>
-                <div class="bg-yellow-500 rounded-lg p-3 text-white">
+                <div class="bg-gray-600 rounded-lg p-3 text-white">
                     <div class="text-xs opacity-90">Late</div>
                     <div class="text-2xl font-bold">{{ $stats['late'] }}</div>
                 </div>
-                <div class="bg-purple-500 rounded-lg p-3 text-white">
+                <div class="bg-bass-red rounded-lg p-3 text-white">
                     <div class="text-xs opacity-90">Excused</div>
                     <div class="text-2xl font-bold">{{ $stats['excused'] }}</div>
                 </div>
@@ -63,8 +63,8 @@
                            name="search"
                            value="{{ $search ?? '' }}"
                            placeholder="Search by name or email..."
-                           class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition">
+                           class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bass-red focus:border-transparent">
+                    <button type="submit" class="bg-bass-red hover:bg-bass-red-hover text-white px-6 py-2 rounded-lg transition">
                         Search
                     </button>
                     @if($search)
@@ -83,10 +83,10 @@
                         @endif
                     </div>
                     <div id="selectionInfo" class="hidden">
-                        <span class="text-sm font-medium text-blue-600">
+                        <span class="text-sm font-medium text-navy">
                             <span id="selectionCount">0</span> participants selected across all pages
                         </span>
-                        <button onclick="clearSelection()" class="ml-2 text-xs text-red-600 hover:text-red-800 underline">
+                        <button onclick="clearSelection()" class="ml-2 text-xs text-bass-red hover:text-bass-red-hover underline">
                             Clear Selection
                         </button>
                     </div>
@@ -113,10 +113,10 @@
                                 @php
                                     $attendance = $participant->attendances->first();
                                     $statusColors = [
-                                        'present' => 'bg-green-100 text-green-800',
-                                        'absent' => 'bg-red-100 text-red-800',
-                                        'late' => 'bg-yellow-100 text-yellow-800',
-                                        'excused' => 'bg-purple-100 text-purple-800',
+                                        'present' => 'bg-success-soft text-success',
+                                        'absent' => 'bg-error-soft text-error',
+                                        'late' => 'bg-warning-soft text-gray-800',
+                                        'excused' => 'bg-info-soft text-navy',
                                     ];
                                     $status = $attendance ? $attendance->status : 'absent';
                                     $colorClass = $statusColors[$status] ?? 'bg-gray-100 text-gray-800';
@@ -139,7 +139,7 @@
                                     </td>
                                     <td class="px-4 py-3">
                                         <button onclick="showMarkModal({{ $participant->id }}, '{{ $participant->name }}', {{ $attendance ? $attendance->id : 'null' }}, '{{ $status }}', {{ $attendance ? $attendance->duration_minutes : 0 }})"
-                                                class="text-red-600 hover:text-red-900 text-sm font-medium">
+                                                class="text-navy hover:text-bass-red text-sm font-medium">
                                             {{ $attendance ? 'Edit' : 'Mark' }}
                                         </button>
                                     </td>
@@ -212,7 +212,7 @@
                 </div>
 
                 <div class="flex gap-2">
-                    <button type="submit" class="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
+                    <button type="submit" class="flex-1 bg-bass-red hover:bg-bass-red-hover text-white px-4 py-2 rounded-lg transition">
                         Save
                     </button>
                     <button type="button" onclick="closeMarkModal()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">
@@ -257,7 +257,7 @@
                 </div>
 
                 <div class="flex gap-2">
-                    <button type="submit" class="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
+                    <button type="submit" class="flex-1 bg-bass-red hover:bg-bass-red-hover text-white px-4 py-2 rounded-lg transition">
                         Mark All
                     </button>
                     <button type="button" onclick="closeBulkMarkModal()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">

@@ -15,13 +15,13 @@
     @endpush
 
     <x-slot name="header">
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 -mx-4 -my-2 px-4 py-8 sm:px-6 lg:px-8 rounded-2xl shadow-lg">
+        <div class="bg-navy -mx-4 -my-2 px-4 py-8 sm:px-6 lg:px-8 rounded-2xl shadow-lg">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h2 class="text-white text-3xl font-bold leading-tight">
                         {{ __('Analytics Sertifikat') }}
                     </h2>
-                    <p class="text-blue-100 mt-2">
+                    <p class="text-white/80 mt-2">
                         {{ __('Dashboard analytics untuk pembuatan dan penggunaan sertifikat') }}
                     </p>
                 </div>
@@ -39,64 +39,64 @@
 
         <!-- Main Analytics Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="bg-gradient-to-r from-blue-500 to-blue-600 overflow-hidden shadow-lg rounded-lg">
+            <div class="bg-navy overflow-hidden shadow-lg rounded-lg">
                 <div class="p-6">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                                <span class="text-white text-xl">📜</span>
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                             </div>
                         </div>
                         <div class="ml-4">
-                            <div class="text-blue-100 text-sm font-medium">Total Sertifikat</div>
+                            <div class="text-white/80 text-sm font-medium">Total Sertifikat</div>
                             <div class="text-white text-2xl font-bold">{{ number_format($analytics['total_certificates']) }}</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-gradient-to-r from-green-500 to-green-600 overflow-hidden shadow-lg rounded-lg">
+            <div class="bg-success overflow-hidden shadow-lg rounded-lg">
                 <div class="p-6">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                                <span class="text-white text-xl">🎓</span>
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                             </div>
                         </div>
                         <div class="ml-4">
-                            <div class="text-green-100 text-sm font-medium">Kursus dengan Sertifikat</div>
+                            <div class="text-white/80 text-sm font-medium">Kursus dengan Sertifikat</div>
                             <div class="text-white text-2xl font-bold">{{ number_format($analytics['total_courses_with_certificates']) }}</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-gradient-to-r from-purple-500 to-purple-600 overflow-hidden shadow-lg rounded-lg">
+            <div class="bg-bass-red overflow-hidden shadow-lg rounded-lg">
                 <div class="p-6">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                                <span class="text-white text-xl">📋</span>
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path></svg>
                             </div>
                         </div>
                         <div class="ml-4">
-                            <div class="text-purple-100 text-sm font-medium">Total Template</div>
+                            <div class="text-white/80 text-sm font-medium">Total Template</div>
                             <div class="text-white text-2xl font-bold">{{ number_format($analytics['total_templates']) }}</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-gradient-to-r from-yellow-500 to-orange-500 overflow-hidden shadow-lg rounded-lg">
+            <div class="bg-gray-600 overflow-hidden shadow-lg rounded-lg">
                 <div class="p-6">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                                <span class="text-white text-xl">📅</span>
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             </div>
                         </div>
                         <div class="ml-4">
-                            <div class="text-yellow-100 text-sm font-medium">Bulan Ini</div>
+                            <div class="text-white/80 text-sm font-medium">Bulan Ini</div>
                             <div class="text-white text-2xl font-bold">{{ number_format($analytics['certificates_this_month']) }}</div>
                         </div>
                     </div>
@@ -110,8 +110,8 @@
                 <div class="p-6">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-emerald-500 rounded-md flex items-center justify-center">
-                                <span class="text-white font-bold">📅</span>
+                            <div class="w-8 h-8 bg-success rounded-md flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             </div>
                         </div>
                         <div class="ml-4">
@@ -126,8 +126,8 @@
                 <div class="p-6">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
-                                <span class="text-white font-bold">📈</span>
+                            <div class="w-8 h-8 bg-navy rounded-md flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             </div>
                         </div>
                         <div class="ml-4">
@@ -142,8 +142,8 @@
                 <div class="p-6">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-indigo-500 rounded-md flex items-center justify-center">
-                                <span class="text-white font-bold">📊</span>
+                            <div class="w-8 h-8 bg-navy rounded-md flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                             </div>
                         </div>
                         <div class="ml-4">
@@ -169,7 +169,7 @@
                         </div>
                     @else
                         <div class="text-center text-gray-500 py-8">
-                            <div class="text-4xl mb-2">📊</div>
+                            <svg class="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                             <p>Belum ada data statistik bulanan</p>
                         </div>
                     @endif
@@ -189,7 +189,7 @@
                         </div>
                     @else
                         <div class="text-center text-gray-500 py-8">
-                            <div class="text-4xl mb-2">🎓</div>
+                            <svg class="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                             <p>Belum ada data kursus</p>
                         </div>
                     @endif
@@ -210,7 +210,7 @@
                     </div>
                 @else
                     <div class="text-center text-gray-500 py-12">
-                        <div class="text-6xl mb-4">📋</div>
+                        <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada template yang digunakan</h3>
                         <p class="text-sm text-gray-500">Template akan muncul di sini setelah digunakan untuk membuat sertifikat</p>
                     </div>

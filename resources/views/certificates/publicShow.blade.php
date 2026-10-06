@@ -4,13 +4,13 @@
         $pdfVersion = $certificate->updated_at ? $certificate->updated_at->timestamp : now()->timestamp;
         $pdfUrl = $pdfBaseUrl . '?v=' . $pdfVersion;
     @endphp
-    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
         <!-- Header Section -->
         <div class="relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-10"></div>
+            <div class="absolute inset-0 bg-navy opacity-10"></div>
             <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                 <div class="text-center">
-                    <div class="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm font-medium mb-4">
+                    <div class="inline-flex items-center px-4 py-2 rounded-full bg-navy/10 text-navy text-sm font-medium mb-4">
                         <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                         </svg>
@@ -34,14 +34,14 @@
                 <div class="lg:col-span-4">
                     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
                         <!-- Status Banner -->
-                        <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4">
+                        <div class="bg-navy px-6 py-4">
                             <div class="flex items-center justify-center text-white">
                                 <svg class="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                 </svg>
                                 <div>
                                     <h3 class="text-xl font-bold">VERIFIED</h3>
-                                    <p class="text-green-100 text-sm">Certificate is authentic</p>
+                                    <p class="text-white/80 text-sm">Certificate is authentic</p>
                                 </div>
                             </div>
                         </div>
@@ -49,7 +49,7 @@
                         <!-- Certificate Information -->
                         <div class="p-6 space-y-6">
                             <div class="text-center border-b border-gray-200 dark:border-gray-700 pb-6">
-                                <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mx-auto flex items-center justify-center mb-4">
+                                <div class="w-20 h-20 bg-navy rounded-full mx-auto flex items-center justify-center mb-4">
                                     <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
@@ -84,7 +84,7 @@
                             <div class="pt-6 space-y-3">
                                 <a href="{{ $pdfUrl }}" 
                                    download 
-                                   class="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                   class="w-full inline-flex items-center justify-center px-6 py-3 bg-navy hover:bg-navy-light text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                     </svg>
@@ -102,14 +102,14 @@
                     </div>
 
                     <!-- Verification Info -->
-                    <div class="mt-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
+                    <div class="mt-6 bg-info-soft dark:bg-navy/10 rounded-xl p-4 border border-navy/20 dark:border-navy/30">
                         <div class="flex items-start">
-                            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-5 h-5 text-navy mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
                             </svg>
                             <div>
-                                <h4 class="text-sm font-semibold text-blue-900 dark:text-blue-300">Secure Verification</h4>
-                                <p class="text-xs text-blue-700 dark:text-blue-400 mt-1">This certificate has been cryptographically verified and is stored securely in our system.</p>
+                                <h4 class="text-sm font-semibold text-navy">Secure Verification</h4>
+                                <p class="text-xs text-navy mt-1">This certificate has been cryptographically verified and is stored securely in our system.</p>
                             </div>
                         </div>
                     </div>

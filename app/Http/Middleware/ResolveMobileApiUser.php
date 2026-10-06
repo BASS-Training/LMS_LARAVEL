@@ -9,11 +9,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ResolveMobileApiUser
 {
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, string $mode = 'required'): Response
     {
         $token = $this->extractBearerToken($request);
 
-        if (!$token) {
+        if (! $token && $mode === 'optional' && ! $request->hasHeader('Authorization')) {
+            return $next($request);
+        }
+
+        if (! $token) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unauthenticated.',
@@ -22,14 +26,14 @@ class ResolveMobileApiUser
 
         $user = User::where('api_token', $token)->first();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unauthenticated.',
             ], 401);
         }
 
-        $request->setUserResolver(fn() => $user);
+        $request->setUserResolver(fn () => $user);
         $request->attributes->set('mobile_api_user', $user);
 
         return $next($request);
@@ -39,11 +43,11 @@ class ResolveMobileApiUser
     {
         $header = $request->header('Authorization');
 
-        if (!is_string($header) || trim($header) === '') {
+        if (! is_string($header) || trim($header) === '') {
             return null;
         }
 
-        if (!preg_match('/Bearer\s+(.*)$/i', $header, $matches)) {
+        if (! preg_match('/Bearer\s+(.*)$/i', $header, $matches)) {
             return null;
         }
 

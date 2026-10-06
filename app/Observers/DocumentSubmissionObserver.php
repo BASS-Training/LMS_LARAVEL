@@ -4,16 +4,32 @@ namespace App\Observers;
 
 use App\Models\DocumentSubmission;
 use App\Notifications\MobileNotification;
+use App\Observers\Concerns\NotifiesInstructors;
 
 /**
- * Memberi tahu peserta ketika pengumpulan dokumennya selesai dinilai.
- * Hook `updated` agar berlaku untuk penilaian dari web maupun mobile.
+ * Memberi tahu peserta ketika pengumpulan dokumennya selesai dinilai, dan
+ * instruktur ketika ada pengumpulan dokumen baru. Hook `created` + `updated`
+ * agar berlaku untuk web maupun mobile.
  */
 class DocumentSubmissionObserver
 {
+    use NotifiesInstructors;
+
+    public function created(DocumentSubmission $submission): void
+    {
+        if ($submission->status === 'submitted') {
+            $this->notifyInstructorsOfSubmission($submission, 'document', 'dokumen');
+        }
+    }
+
     public function updated(DocumentSubmission $submission): void
     {
         if (! $submission->wasChanged('status')) {
+            return;
+        }
+        if ($submission->status === 'submitted') {
+            $this->notifyInstructorsOfSubmission($submission, 'document', 'dokumen');
+
             return;
         }
         // Hanya saat berpindah ke status terisi nilai (lulus / belum lulus).

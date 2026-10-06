@@ -11,7 +11,7 @@ use Illuminate\Notifications\Notification;
  * read back by the mobile NotificationApiController. The `category` inside the
  * payload drives the icon/colour and any deep-link on the client.
  *
- * Categories: discussion_reply | grade | new_content
+ * Categories: discussion_reply | grade | new_content | new_submission
  */
 class MobileNotification extends Notification
 {

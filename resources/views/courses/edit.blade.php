@@ -1,9 +1,9 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
                 <a href="javascript:void(0)" onclick="window.history.back()"
-                   class="inline-flex items-center text-indigo-600 hover:text-indigo-800 text-sm font-medium mb-2 transition-colors duration-200">
+                   class="group inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-xl font-medium text-sm text-gray-700 hover:bg-gray-50 hover:shadow-lg transition-all duration-200 shadow-sm">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
@@ -15,8 +15,17 @@
                 <p class="text-sm text-gray-600 mt-1">{{ $course->title }}</p>
             </div>
             <div class="hidden md:flex items-center space-x-3">
-                <div class="flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $course->status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                    {{ $course->status === 'published' ? '✅ Published' : '📝 Draft' }}
+                <div class="flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $course->status === 'published' ? 'bg-success-soft text-success' : 'bg-warning-soft text-gray-800' }}">
+                    @if ($course->status === 'published')
+                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    @else
+                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6M13 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V9m-5-5 5 5m-5-5v5h5"/>
+                        </svg>
+                    @endif
+                    {{ $course->status === 'published' ? 'Published' : 'Draft' }}
                 </div>
                 <div class="text-sm text-gray-500">
                     <svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,37 +39,9 @@
 
     <div class="py-8">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
-            <!-- Progress Indicator -->
-            <div class="mb-8">
-                <div class="flex items-center">
-                    <div class="flex items-center text-indigo-600">
-                        <div class="flex items-center justify-center w-8 h-8 bg-indigo-600 text-white rounded-full text-sm font-semibold">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <span class="ml-2 text-sm font-medium">Edit Informasi</span>
-                    </div>
-                    <div class="flex-1 h-0.5 bg-gray-200 mx-4"></div>
-                    <div class="flex items-center text-gray-400">
-                        <div class="flex items-center justify-center w-8 h-8 bg-gray-200 text-gray-600 rounded-full text-sm">
-                            2
-                        </div>
-                        <span class="ml-2 text-sm">Kelas & Timeline</span>
-                    </div>
-                    <div class="flex-1 h-0.5 bg-gray-200 mx-4"></div>
-                    <div class="flex items-center text-gray-400">
-                        <div class="flex items-center justify-center w-8 h-8 bg-gray-200 text-gray-600 rounded-full text-sm">
-                            3
-                        </div>
-                        <span class="ml-2 text-sm">Update Konten</span>
-                    </div>
-                </div>
-            </div>
-
             <!-- Token Management Link -->
             <a href="{{ route('courses.tokens', $course) }}" class="block mb-6">
-                <div class="bg-gradient-to-r from-purple-500 to-indigo-600 overflow-hidden shadow-lg sm:rounded-xl hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]">
+                <div class="bg-bass-red overflow-hidden shadow-lg sm:rounded-xl hover:bg-bass-red-hover hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]">
                     <div class="px-6 py-4 flex items-center justify-between">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
@@ -70,7 +51,7 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-lg font-semibold text-white">Kelola Token Enrollment</h3>
-                                <p class="text-purple-100 text-sm mt-1">Generate dan kelola token untuk course dan semua kelas</p>
+                                <p class="text-white/80 text-sm mt-1">Generate dan kelola token untuk course dan semua kelas</p>
                             </div>
                         </div>
                         <div class="flex-shrink-0">
@@ -84,9 +65,9 @@
 
             <div class="bg-white overflow-hidden shadow-lg sm:rounded-xl">
                 <!-- Header Form -->
-                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-4">
+                <div class="bg-navy px-6 py-4">
                     <h3 class="text-lg font-semibold text-white">Update Kursus</h3>
-                    <p class="text-indigo-100 text-sm mt-1">Perbarui informasi kursus dan kelola periode pembelajaran</p>
+                    <p class="text-white/80 text-sm mt-1">Perbarui informasi kursus dan kelola periode pembelajaran</p>
                 </div>
 
                 <div class="p-8" x-data="{
@@ -130,9 +111,9 @@
                     }
                 }">
                     @if ($errors->any())
-                        <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
-                            <div class="mb-2 text-sm font-semibold text-red-700">Gagal memperbarui kursus. Periksa data berikut:</div>
-                            <ul class="list-disc pl-5 text-sm text-red-700 space-y-1">
+                        <div class="mb-6 rounded-lg border border-error/40 bg-error-soft p-4">
+                            <div class="mb-2 text-sm font-semibold text-error">Gagal memperbarui kursus. Periksa data berikut:</div>
+                            <ul class="list-disc pl-5 text-sm text-error space-y-1">
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
                                 @endforeach
@@ -149,7 +130,7 @@
                         <!-- ===================================== -->
                         <div class="border-b border-gray-200 pb-8">
                             <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
-                                <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 mr-2 text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                                 Informasi Dasar Kursus
@@ -162,7 +143,7 @@
                                     <!-- Judul Kursus -->
                                     <div class="group">
                                         <label for="title" class="flex items-center text-sm font-semibold text-gray-700 mb-2">
-                                            <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-4 h-4 mr-2 text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                                             </svg>
                                             Judul Kursus *
@@ -170,13 +151,13 @@
                                         <input type="text"
                                                name="title"
                                                id="title"
-                                               class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400"
+                                               class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-bass-red focus:border-transparent transition-all duration-200 group-hover:border-gray-400"
                                                value="{{ old('title', $course->title) }}"
                                                required
                                                autofocus
                                                placeholder="Masukkan judul kursus yang menarik...">
                                         @error('title')
-                                            <p class="text-red-500 text-sm mt-2 flex items-center">
+                                            <p class="text-error text-sm mt-2 flex items-center">
                                                 <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                                                 </svg>
@@ -188,7 +169,7 @@
                                     <!-- Deskripsi -->
                                     <div class="group">
                                         <label for="description" class="flex items-center text-sm font-semibold text-gray-700 mb-2">
-                                            <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-4 h-4 mr-2 text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
                                             </svg>
                                             Deskripsi
@@ -196,11 +177,11 @@
                                         <textarea name="description"
                                                   id="description"
                                                   rows="5"
-                                                  class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400 resize-none"
+                                                  class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-bass-red focus:border-transparent transition-all duration-200 group-hover:border-gray-400 resize-none"
                                                   placeholder="Jelaskan tentang kursus Anda, apa yang akan dipelajari siswa...">{{ old('description', $course->description) }}</textarea>
                                         <div class="flex justify-between items-center mt-1">
                                             @error('description')
-                                                <p class="text-red-500 text-sm flex items-center">
+                                                <p class="text-error text-sm flex items-center">
                                                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                                                     </svg>
@@ -216,7 +197,7 @@
                                     <!-- Objectives -->
                                     <div class="group">
                                         <label for="objectives" class="flex items-center text-sm font-semibold text-gray-700 mb-2">
-                                            <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-4 h-4 mr-2 text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
                                             </svg>
                                             Tujuan Pembelajaran
@@ -224,10 +205,10 @@
                                         <textarea name="objectives"
                                                   id="objectives"
                                                   rows="3"
-                                                  class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400 resize-none"
+                                                  class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-bass-red focus:border-transparent transition-all duration-200 group-hover:border-gray-400 resize-none"
                                                   placeholder="Setelah menyelesaikan kursus ini, peserta akan mampu...">{{ old('objectives', $course->objectives) }}</textarea>
                                         @error('objectives')
-                                            <p class="text-red-500 text-sm mt-2 flex items-center">
+                                            <p class="text-error text-sm mt-2 flex items-center">
                                                 <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                                                 </svg>
@@ -242,7 +223,7 @@
                                     <!-- Thumbnail Upload dengan Preview -->
                                     <div x-data="{ imagePreview: '{{ $course->thumbnail ? Storage::url($course->thumbnail) : '' }}' }" class="group">
                                         <label for="thumbnail" class="flex items-center text-sm font-semibold text-gray-700 mb-2">
-                                            <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                            <svg class="w-4 h-4 mr-2 text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                             Gambar Sampul
                                         </label>
 
@@ -252,18 +233,18 @@
                                             <div class="flex items-center">
                                                 <input type="checkbox" name="clear_thumbnail" id="clear_thumbnail"
                                                        @change="if ($event.target.checked) imagePreview = ''"
-                                                       class="rounded border-gray-300 text-red-600 shadow-sm focus:ring-red-500">
-                                                <label for="clear_thumbnail" class="ml-2 text-sm text-red-600 hover:text-red-700 cursor-pointer">
-                                                    🗑️ Hapus Gambar Saat Ini
+                                                       class="rounded border-gray-300 text-error shadow-sm focus:ring-bass-red">
+                                                <label for="clear_thumbnail" class="ml-2 text-md font-bold text-error hover:text-error cursor-pointer">
+                                                    Hapus Gambar Saat Ini
                                                 </label>
                                             </div>
                                         </div>
 
-                                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-indigo-400 transition-colors duration-200">
+                                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-bass-red transition-colors duration-200">
                                             <div class="space-y-1 text-center">
                                                 <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
                                                 <div class="flex text-sm text-gray-600">
-                                                    <label for="thumbnail" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500">
+                                                    <label for="thumbnail" class="relative cursor-pointer bg-white rounded-md font-medium text-bass-red hover:text-bass-red-hover">
                                                         <span>Ganti gambar</span>
                                                         <input id="thumbnail" name="thumbnail" type="file" class="sr-only" accept="image/*" @change="imagePreview = URL.createObjectURL($event.target.files[0]); document.getElementById('clear_thumbnail').checked = false;">
                                                     </label>
@@ -273,30 +254,30 @@
                                             </div>
                                         </div>
                                         @error('thumbnail')
-                                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                            <p class="text-error text-sm mt-2">{{ $message }}</p>
                                         @enderror
                                     </div>
 
                                     <!-- Status Kursus -->
                                     <div class="group">
                                         <label for="status" class="flex items-center text-sm font-semibold text-gray-700 mb-2">
-                                            <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-4 h-4 mr-2 text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                             </svg>
                                             Status Publikasi
                                         </label>
                                         <select name="status"
                                                 id="status"
-                                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400">
+                                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-bass-red focus:border-transparent transition-all duration-200 group-hover:border-gray-400">
                                             <option value="draft" {{ old('status', $course->status) == 'draft' ? 'selected' : '' }}>
-                                                📝 Draft
+                                                Draft
                                             </option>
                                             <option value="published" {{ old('status', $course->status) == 'published' ? 'selected' : '' }}>
-                                                ✅ Published
+                                                Published
                                             </option>
                                         </select>
                                         @error('status')
-                                            <p class="text-red-500 text-sm mt-2 flex items-center">
+                                            <p class="text-error text-sm mt-2 flex items-center">
                                                 <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                                                 </svg>
@@ -305,17 +286,19 @@
                                         @enderror
                                     </div>
 
+                                    @include('courses.partials.shop-fields')
+
                                     <!-- Tipe Program -->
                                     <div class="group">
                                         <label for="program_type" class="flex items-center text-sm font-semibold text-gray-700 mb-2">
-                                            <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-4 h-4 mr-2 text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h8M8 12h8m-8 5h8M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z"></path>
                                             </svg>
                                             Tipe Program
                                         </label>
                                         <select name="program_type"
                                                 id="program_type"
-                                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400">
+                                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-bass-red focus:border-transparent transition-all duration-200 group-hover:border-gray-400">
                                             <option value="regular" @selected(old('program_type', $course->program_type ?? 'regular') === 'regular')>
                                                 Reguler BASS
                                             </option>
@@ -324,7 +307,7 @@
                                             </option>
                                         </select>
                                         @error('program_type')
-                                            <p class="text-red-500 text-sm mt-2 flex items-center">
+                                            <p class="text-error text-sm mt-2 flex items-center">
                                                 <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                                                 </svg>
@@ -335,7 +318,7 @@
 
                                     <div class="group mt-4">
                                         <label class="flex items-center text-sm font-semibold text-gray-700 mb-2">
-                                            <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-4 h-4 mr-2 text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                             </svg>
                                             Tanggal Pelatihan (Untuk Sertifikat)
@@ -346,10 +329,10 @@
                                                 <input type="date"
                                                        name="training_start_date"
                                                        id="training_start_date"
-                                                       class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400"
+                                                       class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-bass-red focus:border-transparent transition-all duration-200 group-hover:border-gray-400"
                                                        value="{{ old('training_start_date', optional($course->training_start_date)->format('Y-m-d')) }}">
                                                 @error('training_start_date')
-                                                    <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                                    <p class="text-error text-sm mt-2">{{ $message }}</p>
                                                 @enderror
                                             </div>
                                             <div>
@@ -357,10 +340,10 @@
                                                 <input type="date"
                                                        name="training_end_date"
                                                        id="training_end_date"
-                                                       class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400"
+                                                       class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-bass-red focus:border-transparent transition-all duration-200 group-hover:border-gray-400"
                                                        value="{{ old('training_end_date', optional($course->training_end_date)->format('Y-m-d')) }}">
                                                 @error('training_end_date')
-                                                    <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                                    <p class="text-error text-sm mt-2">{{ $message }}</p>
                                                 @enderror
                                             </div>
                                         </div>
@@ -384,8 +367,8 @@
                                     </div>
 
                                     <!-- Course Stats -->
-                                    <div class="bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100 rounded-lg p-4">
-                                        <h4 class="text-indigo-800 font-medium text-sm mb-3 flex items-center">
+                                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                        <h4 class="text-navy font-medium text-sm mb-3 flex items-center">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                                             </svg>
@@ -406,13 +389,15 @@
                             </div>
                         </div>
 
+                        @include('courses.partials.taxonomy-fields')
+
                         <!-- ===================================== -->
                         <!-- SECTION 2: COURSE PERIODS MANAGEMENT -->
                         <!-- ===================================== -->
                         <div class="border-b border-gray-200 pb-8">
                             <div class="flex items-center justify-between mb-6">
                                 <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-                                    <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 mr-2 text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                     </svg>
                                     Manajemen Kelas Kursus
@@ -429,31 +414,37 @@
                                            value="1"
                                            x-model="enablePeriods"
                                            @change="console.log('Periods enabled:', enablePeriods)"
-                                           class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                           class="rounded border-gray-300 text-bass-red shadow-sm focus:border-bass-red focus:ring-bass-red">
                                     <label for="enable_periods" class="ml-2 text-sm font-medium text-gray-700">
                                         Aktifkan Manajemen Kelas
                                     </label>
-                                    <!-- Debug info -->
-                                    <span x-text="enablePeriods ? ' ✓ AKTIF' : ' ✗ NONAKTIF'"
-                                          class="ml-2 text-xs"
-                                          :class="enablePeriods ? 'text-green-600' : 'text-gray-400'"></span>
+                                    <div class="ml-2 flex items-center gap-1 text-xs"
+                                         :class="enablePeriods ? 'text-success' : 'text-gray-400'">
+                                        <svg x-show="enablePeriods" style="display:none" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        <svg x-show="!enablePeriods" style="display:none" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        <span x-text="enablePeriods ? 'AKTIF' : 'NONAKTIF'"></span>
+                                    </div>
                                 </div>
                             </div>
 
                             <!-- Info Box -->
-                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
                                 <div class="flex items-start">
-                                    <svg class="w-5 h-5 text-blue-400 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 text-navy mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                     <div>
-                                        <h4 class="text-sm font-medium text-blue-800 mb-1">Tentang Kelas Kursus</h4>
-                                        <p class="text-sm text-blue-700">
+                                        <h4 class="text-sm font-medium text-navy mb-1">Tentang Kelas Kursus</h4>
+                                        <p class="text-sm text-gray-600">
                                             Kelas kursus berguna untuk mengelola batch/angkatan yang berbeda dari kursus yang sama.
                                             Setiap kelas memiliki jadwal dan peserta yang terpisah. Fitur chat juga akan terbatas per kelas.
                                         </p>
-                                        <p class="text-xs text-blue-600 mt-2">
-                                            💡 Jika tidak diaktifkan, sistem akan menghapus semua kelas yang ada.
+                                        <p class="text-xs text-gray-500 mt-2">
+                                            Jika tidak diaktifkan, sistem akan menghapus semua kelas yang ada.
                                         </p>
                                     </div>
                                 </div>
@@ -470,7 +461,7 @@
                                         </h4>
                                         <button type="button"
                                                 @click="addPeriod(); console.log('Button clicked!');"
-                                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-bass-red bg-error-soft hover:bg-error-soft focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bass-red">
                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                             </svg>
@@ -488,17 +479,17 @@
                                             <div class="bg-white border border-gray-200 rounded-lg p-4">
                                                 <div class="flex items-center justify-between mb-3">
                                                     <h5 class="text-sm font-medium text-gray-900 flex items-center">
-                                                        <span x-show="period.id" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-2">
+                                                        <span x-show="period.id" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-soft text-success mr-2">
                                                             Tersimpan
                                                         </span>
-                                                        <span x-show="!period.id" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-2">
+                                                        <span x-show="!period.id" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-navy mr-2">
                                                             Baru
                                                         </span>
                                                         Kelas #<span x-text="index + 1"></span>
                                                     </h5>
                                                     <button type="button"
                                                             @click="removePeriod(index)"
-                                                            class="text-red-600 hover:text-red-800">
+                                                            class="text-error hover:text-error">
                                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                         </svg>
@@ -517,7 +508,7 @@
                                                                :name="`periods[${index}][name]`"
                                                                x-model="period.name"
                                                                required
-                                                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red"
                                                                placeholder="Contoh: Batch 1 - Januari 2025">
                                                     </div>
                                                     <div>
@@ -527,7 +518,7 @@
                                                         <input type="date"
                                                                :name="`periods[${index}][start_date]`"
                                                                x-model="period.start_date"
-                                                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red"
                                                                min="{{ date('Y-m-d') }}">
                                                     </div>
                                                     <div>
@@ -537,7 +528,7 @@
                                                         <input type="date"
                                                                :name="`periods[${index}][end_date]`"
                                                                x-model="period.end_date"
-                                                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red">
                                                     </div>
                                                 </div>
 
@@ -549,7 +540,7 @@
                                                         <textarea :name="`periods[${index}][description]`"
                                                                   x-model="period.description"
                                                                   rows="2"
-                                                                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red"
                                                                   placeholder="Deskripsi kelas..."></textarea>
                                                     </div>
                                                     <div>
@@ -560,7 +551,7 @@
                                                                :name="`periods[${index}][max_participants]`"
                                                                x-model="period.max_participants"
                                                                min="1"
-                                                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red"
                                                                placeholder="Contoh: 50">
                                                     </div>
                                                     <div>
@@ -571,16 +562,16 @@
                                                                 x-model="period.status"
                                                                 @change="console.log('Status changed for period', index, 'to:', period.status)"
                                                                 required
-                                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                                            <option value="upcoming">🔵 Akan Datang</option>
-                                                            <option value="active">🟢 Aktif</option>
-                                                            <option value="completed">✅ Selesai</option>
-                                                            <option value="cancelled">❌ Dibatalkan</option>
+                                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red">
+                                                            <option value="upcoming">Akan Datang</option>
+                                                            <option value="active">Aktif</option>
+                                                            <option value="completed">Selesai</option>
+                                                            <option value="cancelled">Dibatalkan</option>
                                                         </select>
-                                                        <!-- ✅ DEBUG: Show current value -->
+                                                        <!-- DEBUG: Show current value -->
                                                         <p x-text="`Selected: ${period.status}`" class="text-xs text-gray-500 mt-1"></p>
 
-                                                        <!-- ✅ BACKUP: Hidden input untuk memastikan data terkirim -->
+                                                        <!-- BACKUP: Hidden input untuk memastikan data terkirim -->
                                                         <input type="hidden" :name="`periods[${index}][status_backup]`" :value="period.status">
                                                     </div>
                                                 </div>
@@ -611,7 +602,7 @@
 
                                 <div class="flex space-x-3">
                                     <button type="submit"
-                                            class="inline-flex items-center px-6 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105">
+                                            class="inline-flex items-center px-6 py-2 bg-bass-red hover:bg-bass-red-hover text-white font-semibold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                         </svg>

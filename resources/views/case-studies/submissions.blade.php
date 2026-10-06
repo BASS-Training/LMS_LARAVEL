@@ -7,7 +7,7 @@
 
     <div class="py-8 max-w-5xl mx-auto sm:px-6 lg:px-8">
         @if(session('success'))
-            <div class="mb-4 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg">
+            <div class="mb-4 p-4 bg-success-soft border border-success/40 text-success rounded-lg">
                 {{ session('success') }}
             </div>
         @endif
@@ -31,8 +31,8 @@
                                 @php
                                     $badge = [
                                         'draft' => 'bg-gray-100 text-gray-600',
-                                        'submitted' => 'bg-amber-100 text-amber-700',
-                                        'graded' => 'bg-green-100 text-green-700',
+                                        'submitted' => 'bg-warning-soft text-warning',
+                                        'graded' => 'bg-success-soft text-success',
                                     ][$sub->status] ?? 'bg-gray-100 text-gray-600';
                                 @endphp
                                 <span class="px-2 py-1 rounded-full text-xs font-medium {{ $badge }}">{{ ucfirst($sub->status) }}</span>
@@ -41,7 +41,7 @@
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $sub->submitted_at?->format('d M Y H:i') ?? '—' }}</td>
                             <td class="px-6 py-4 text-right text-sm space-x-2">
                                 <a href="{{ route('case-studies.review', [$content, $sub]) }}"
-                                   class="inline-flex items-center px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg">Tinjau & Nilai</a>
+                                   class="inline-flex items-center px-3 py-1.5 bg-navy hover:bg-navy-light text-white rounded-lg">Tinjau & Nilai</a>
                                 @if($content->allow_answer_download)
                                     <a href="{{ route('case-studies.download-submission', [$content, $sub]) }}"
                                        class="inline-flex items-center px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg">PDF</a>

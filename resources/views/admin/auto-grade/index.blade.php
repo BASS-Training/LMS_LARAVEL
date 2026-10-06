@@ -1,18 +1,18 @@
 @extends('layouts.app')
 
-@section('title', 'Automatic Grading Completion')
+@section('title', 'Penyelesaian Penilaian Otomatis')
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <h1 class="text-2xl font-bold text-gray-800 mb-6">Automatic Grading Completion</h1>
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">Penyelesaian Penilaian Otomatis</h1>
         
         <!-- Course Selection Form -->
         <form method="GET" action="{{ route('admin.auto-grade.index') }}" class="mb-6">
             <div class="mb-4">
-                <label for="course_id" class="block text-sm font-medium text-gray-700 mb-2">Select Course</label>
-                <select id="course_id" name="course_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                    <option value="">-- Select a Course --</option>
+                <label for="course_id" class="block text-sm font-medium text-gray-700 mb-2">Pilih Kursus</label>
+                <select id="course_id" name="course_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red/50 focus:ring-opacity-50">
+                    <option value="">-- Pilih Kursus --</option>
                     @foreach($courses as $course)
                         <option value="{{ $course->id }}" {{ (isset($selectedCourse) && $selectedCourse && $selectedCourse->id == $course->id) ? 'selected' : '' }}>
                             {{ $course->title }}
@@ -21,8 +21,8 @@
                 </select>
             </div>
             
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Show Participants
+            <button type="submit" class="bg-bass-red hover:bg-bass-red-hover text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                Tampilkan Peserta
             </button>
         </form>
 
@@ -30,15 +30,15 @@
         @if(isset($selectedCourse) && $selectedCourse)
             <div class="border-b border-gray-200 pb-4 mb-6">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-xl font-semibold text-gray-700">Course: {{ $selectedCourse->title }}</h2>
+                    <h2 class="text-xl font-semibold text-gray-700">Kursus: {{ $selectedCourse->title }}</h2>
                     
                     @if($participants->count() > 0)
                         <form method="POST" action="{{ route('admin.auto-grade.complete-all') }}" class="inline">
                             @csrf
                             <input type="hidden" name="course_id" value="{{ $selectedCourse->id }}">
-                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm" 
-                                    onclick="return confirm('Are you sure you want to automatically complete grading for ALL participants in this course?')">
-                                Complete All Grading
+                            <button type="submit" class="bg-bass-red hover:bg-bass-red-hover text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors"
+                                    onclick="return confirm('Yakin ingin menyelesaikan penilaian otomatis untuk semua peserta dalam kursus ini?')">
+                                Selesaikan Semua Penilaian
                             </button>
                         </form>
                     @endif
@@ -47,21 +47,21 @@
                 @if($participants->count() > 0)
                     <!-- Summary Statistics -->
                     <div class="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div class="bg-blue-50 p-3 rounded-lg">
-                            <div class="text-sm text-blue-800">Total Participants</div>
-                            <div class="text-2xl font-bold text-blue-600">{{ $participants->count() }}</div>
+                        <div class="bg-navy/5 border border-navy/10 p-3 rounded-lg">
+                            <div class="text-sm text-navy">Total Peserta</div>
+                            <div class="text-2xl font-bold text-navy">{{ $participants->count() }}</div>
                         </div>
-                        <div class="bg-yellow-50 p-3 rounded-lg">
-                            <div class="text-sm text-yellow-800">With Pending Grades</div>
-                            <div class="text-2xl font-bold text-yellow-600">{{ $participants->filter(function($p) { return $p['pending_submissions']->count() > 0; })->count() }}</div>
+                        <div class="bg-warning-soft border border-warning/20 p-3 rounded-lg">
+                            <div class="text-sm text-warning">Menunggu Penilaian</div>
+                            <div class="text-2xl font-bold text-warning">{{ $participants->filter(function($p) { return $p['pending_submissions']->count() > 0; })->count() }}</div>
                         </div>
-                        <div class="bg-green-50 p-3 rounded-lg">
-                            <div class="text-sm text-green-800">Fully Graded</div>
-                            <div class="text-2xl font-bold text-green-600">{{ $participants->filter(function($p) { return $p['pending_submissions']->count() == 0; })->count() }}</div>
+                        <div class="bg-success-soft border border-success/20 p-3 rounded-lg">
+                            <div class="text-sm text-success">Sudah Dinilai</div>
+                            <div class="text-2xl font-bold text-success">{{ $participants->filter(function($p) { return $p['pending_submissions']->count() == 0; })->count() }}</div>
                         </div>
-                        <div class="bg-purple-50 p-3 rounded-lg">
-                            <div class="text-sm text-purple-800">Avg. Progress</div>
-                            <div class="text-2xl font-bold text-purple-600">
+                        <div class="bg-gray-50 border border-gray-200 p-3 rounded-lg">
+                            <div class="text-sm text-gray-600">Rata-rata Progres</div>
+                            <div class="text-2xl font-bold text-gray-600">
                                 {{ $participants->count() > 0 ? round($participants->avg('progress_percentage')) : 0 }}%
                             </div>
                         </div>
@@ -72,11 +72,11 @@
             @if($participants->count() > 0)
                 <!-- Search and Filter -->
                 <div class="mb-4 flex flex-wrap gap-2">
-                    <input type="text" id="searchInput" placeholder="Search participants..." class="flex-1 min-w-[200px] rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                    <select id="filterSelect" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                        <option value="all">All Participants</option>
-                        <option value="pending">With Pending Grades</option>
-                        <option value="completed">Fully Graded</option>
+                    <input type="text" id="searchInput" placeholder="Cari peserta..." class="flex-1 min-w-[200px] rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red/50 focus:ring-opacity-50">
+                    <select id="filterSelect" class="rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring focus:ring-bass-red/50 focus:ring-opacity-50">
+                        <option value="all">Semua Peserta</option>
+                        <option value="pending">Menunggu Penilaian</option>
+                        <option value="completed">Sudah Dinilai</option>
                     </select>
                 </div>
                 
@@ -96,8 +96,8 @@
                             <!-- Participant Header -->
                             <div class="participant-header p-4 cursor-pointer flex justify-between items-center hover:bg-gray-100 transition-colors">
                                 <div class="flex items-center space-x-4 pointer-events-none">
-                                    <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                                        <span class="text-indigo-800 font-bold">{{ substr($participant->name, 0, 1) }}</span>
+                                    <div class="w-10 h-10 rounded-full bg-navy/10 flex items-center justify-center">
+                                        <span class="text-navy font-bold">{{ substr($participant->name, 0, 1) }}</span>
                                     </div>
                                     <div>
                                         <h3 class="font-semibold">{{ $participant->name }}</h3>
@@ -109,23 +109,23 @@
                                     <!-- Progress Bar -->
                                     <div class="w-32 pointer-events-none">
                                         <div class="flex justify-between text-xs mb-1">
-                                            <span>Progress</span>
+                                            <span>Progres</span>
                                             <span>{{ $participantData['progress_percentage'] }}%</span>
                                         </div>
                                         <div class="w-full bg-gray-200 rounded-full h-2">
-                                            <div class="bg-blue-600 h-2 rounded-full" style="width: {{ $participantData['progress_percentage'] }}%"></div>
+                                            <div class="bg-bass-red h-2 rounded-full" style="width: {{ $participantData['progress_percentage'] }}%"></div>
                                         </div>
                                     </div>
                                     
                                     <!-- Status Indicators -->
                                     <div class="text-center pointer-events-none">
                                         @if($pendingSubmissions->count() > 0)
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                {{ $pendingSubmissions->count() }} Pending
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-soft text-warning">
+                                                {{ $pendingSubmissions->count() }} Menunggu
                                             </span>
                                         @else
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                Completed
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-soft text-success">
+                                                Selesai
                                             </span>
                                         @endif
                                     </div>
@@ -137,14 +137,14 @@
                                                 @csrf
                                                 <input type="hidden" name="course_id" value="{{ $selectedCourse->id }}">
                                                 <input type="hidden" name="user_id" value="{{ $participant->id }}">
-                                                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-1 px-3 rounded"
-                                                        onclick="event.stopPropagation(); return confirm('Are you sure you want to automatically complete grading for {{ $participant->name }}?')">
-                                                    Complete
+                                                <button type="submit" class="bg-bass-red hover:bg-bass-red-hover text-white text-xs font-bold py-1 px-3 rounded-lg transition-colors"
+                                                        onclick="event.stopPropagation(); return confirm('Yakin ingin menyelesaikan penilaian otomatis untuk {{ $participant->name }}?')">
+                                                    Selesaikan
                                                 </button>
                                             </form>
                                         @else
                                             <button class="bg-gray-300 text-gray-500 text-xs font-bold py-1 px-3 rounded cursor-not-allowed" disabled>
-                                                Done
+                                                Selesai
                                             </button>
                                         @endif
                                     </div>
@@ -160,25 +160,25 @@
                             <div class="participant-details hidden border-t border-gray-200 p-4 bg-white">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <h4 class="font-medium text-sm mb-2">Progress Details</h4>
+                                        <h4 class="font-medium text-sm mb-2">Detail Progres</h4>
                                         <div class="text-sm space-y-1">
-                                            <p>Contents Completed: <span class="font-medium">{{ $participantData['completed_contents'] }} / {{ $participantData['total_contents'] }}</span></p>
-                                            <p>Progress Percentage: <span class="font-medium">{{ $participantData['progress_percentage'] }}%</span></p>
+                                            <p>Konten Selesai: <span class="font-medium">{{ $participantData['completed_contents'] }} / {{ $participantData['total_contents'] }}</span></p>
+                                            <p>Persentase Progres: <span class="font-medium">{{ $participantData['progress_percentage'] }}%</span></p>
                                         </div>
                                     </div>
                                     
                                     <div>
-                                        <h4 class="font-medium text-sm mb-2">Submission Status</h4>
+                                        <h4 class="font-medium text-sm mb-2">Status Pengumpulan</h4>
                                         <div class="text-sm space-y-1">
-                                            <p>Pending Submissions: <span class="font-medium text-yellow-600">{{ $pendingSubmissions->count() }}</span></p>
-                                            <p>Completed Submissions: <span class="font-medium text-green-600">{{ $allSubmissions->count() - $pendingSubmissions->count() }}</span></p>
-                                            <p>Total Submissions: <span class="font-medium">{{ $allSubmissions->count() }}</span></p>
+                                            <p>Menunggu Penilaian: <span class="font-medium text-warning">{{ $pendingSubmissions->count() }}</span></p>
+                                            <p>Selesai Dinilai: <span class="font-medium text-success">{{ $allSubmissions->count() - $pendingSubmissions->count() }}</span></p>
+                                            <p>Total Pengumpulan: <span class="font-medium">{{ $allSubmissions->count() }}</span></p>
                                         </div>
                                     </div>
                                 </div>
                                 
                                 <!-- Debug Info (hapus setelah selesai debug) -->
-                                <div class="mt-4 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
+                                <div class="mt-4 p-2 bg-warning-soft border border-warning/30 rounded text-xs">
                                     <strong>Debug Info:</strong><br>
                                     Participant Data Keys: {{ implode(', ', array_keys($participantData)) }}<br>
                                     All Submissions Count: {{ isset($allSubmissions) ? $allSubmissions->count() : 'not set' }}<br>
@@ -191,14 +191,14 @@
 
                                 @if(isset($allSubmissions) && $allSubmissions->count() > 0)
                                     <div class="mt-4">
-                                        <h4 class="font-medium text-sm mb-2">Essay Submissions in This Course</h4>
+                                        <h4 class="font-medium text-sm mb-2">Pengumpulan Esai dalam Kursus Ini</h4>
                                         <div class="max-h-40 overflow-y-auto">
                                             <table class="min-w-full divide-y divide-gray-200 text-sm">
                                                 <thead class="bg-gray-50">
                                                     <tr>
-                                                        <th class="px-2 py-1 text-left">Title</th>
+                                                        <th class="px-2 py-1 text-left">Judul</th>
                                                         <th class="px-2 py-1 text-left">Status</th>
-                                                        <th class="px-2 py-1 text-left">Submitted</th>
+                                                        <th class="px-2 py-1 text-left">Dikumpulkan</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody class="divide-y divide-gray-200">
@@ -208,16 +208,16 @@
                                                         @endphp
                                                         <tr>
                                                             <td class="px-2 py-1">
-                                                                {{ $submission->content ? $submission->content->title : 'Content not found' }}
+                                                                {{ $submission->content ? $submission->content->title : 'Konten tidak ditemukan' }}
                                                             </td>
                                                             <td class="px-2 py-1">
                                                                 @if($isPending)
-                                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                                        Pending
+                                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-warning-soft text-warning">
+                                                                        Menunggu
                                                                     </span>
                                                                 @else
-                                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                                        Completed
+                                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-success-soft text-success">
+                                                                        Selesai
                                                                     </span>
                                                                 @endif
                                                             </td>
@@ -232,12 +232,12 @@
                                     </div>
                                 @else
                                     <div class="mt-4 p-3 bg-gray-100 rounded text-sm text-gray-600">
-                                        <strong>No essay submissions found for this course.</strong><br>
-                                        This might happen if:
+                                        <strong>Tidak ada pengumpulan esai untuk kursus ini.</strong><br>
+                                        Hal ini mungkin terjadi jika:
                                         <ul class="mt-1 ml-4 list-disc text-xs">
-                                            <li>The participant hasn't submitted any essays yet</li>
-                                            <li>All submissions are in other courses</li>
-                                            <li>There's an issue with the data relationship</li>
+                                            <li>Peserta belum mengumpulkan esai</li>
+                                            <li>Semua pengumpulan berada di kursus lain</li>
+                                            <li>Terdapat masalah pada relasi data</li>
                                         </ul>
                                     </div>
                                 @endif
@@ -246,11 +246,11 @@
                     @endforeach
                 </div>
             @else
-                <p class="text-gray-500 text-center py-8">No participants with essay submissions found in this course.</p>
+                <p class="text-gray-500 text-center py-8">Tidak ada peserta dengan pengumpulan esai dalam kursus ini.</p>
             @endif
         @else
             <div class="text-center py-8 text-gray-500">
-                <p>Please select a course to view participants with pending grades.</p>
+                <p>Pilih kursus untuk melihat peserta yang menunggu penilaian.</p>
             </div>
         @endif
     </div>
@@ -312,7 +312,11 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        searchInput.addEventListener('input', filterParticipants);
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(filterParticipants, 300);
+        });
         filterSelect.addEventListener('change', filterParticipants);
     }
 });

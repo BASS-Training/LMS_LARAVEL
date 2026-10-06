@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Permissions;
 
-use Tests\TestCase;
 use Illuminate\Support\Facades\Route;
+use Tests\TestCase;
 
 class RouteMiddlewareCoverageTest extends TestCase
 {
@@ -119,20 +119,62 @@ class RouteMiddlewareCoverageTest extends TestCase
 
             // EO
             'eo.courses.index',
+
+            // Course taxonomy
+            'admin.categories.index',
+            'admin.categories.create',
+            'admin.categories.store',
+            'admin.categories.edit',
+            'admin.categories.update',
+            'admin.categories.destroy',
+            'admin.tags.index',
+            'admin.tags.create',
+            'admin.tags.store',
+            'admin.tags.edit',
+            'admin.tags.update',
+            'admin.tags.destroy',
+
+            // Coupons
+            'admin.coupons.index',
+            'admin.coupons.create',
+            'admin.coupons.store',
+            'admin.coupons.edit',
+            'admin.coupons.update',
+            'admin.coupons.destroy',
+            'admin.coupons.checkout.update',
+            'admin.bundles.index',
+            'admin.bundles.course-options',
+            'admin.bundles.create',
+            'admin.bundles.store',
+            'admin.bundles.edit',
+            'admin.bundles.update',
+            'admin.bundles.destroy',
+            'admin.learning-paths.index',
+            'admin.learning-paths.course-options',
+            'admin.learning-paths.create',
+            'admin.learning-paths.store',
+            'admin.learning-paths.edit',
+            'admin.learning-paths.update',
+            'admin.learning-paths.destroy',
         ];
 
         $routes = collect(Route::getRoutes());
 
         foreach ($mustHavePermission as $name) {
-            $route = $routes->first(fn($r) => $r->getName() === $name);
+            $route = $routes->first(fn ($r) => $r->getName() === $name);
             $this->assertNotNull($route, "Route '{$name}' not found (route name mismatch?)");
 
             $middleware = $route->gatherMiddleware();
             $hasPermission = collect($middleware)->contains(function ($m) {
-                if (!is_string($m)) return false;
-                if (str_starts_with($m, 'permission:')) return true;
+                if (! is_string($m)) {
+                    return false;
+                }
+                if (str_starts_with($m, 'permission:')) {
+                    return true;
+                }
                 // Also accept fully qualified middleware class from Spatie
-                $fqcn = \Spatie\Permission\Middlewares\PermissionMiddleware::class . ':';
+                $fqcn = \Spatie\Permission\Middlewares\PermissionMiddleware::class.':';
+
                 return str_starts_with($m, $fqcn);
             });
             $this->assertTrue($hasPermission, "Route '{$name}' is missing permission middleware");
