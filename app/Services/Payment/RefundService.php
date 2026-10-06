@@ -297,6 +297,10 @@ class RefundService
     {
         $refund = $order->refund;
 
+        if ($refund && $refund->status === RefundStatus::Refunded) {
+            return $refund;
+        }
+
         if (! $refund || $refund->status !== RefundStatus::Processing) {
             throw new RuntimeException('Tidak ada refund aktif untuk notifikasi ini.');
         }

@@ -1,12 +1,12 @@
 # Panduan Update Development dan Production
 
-Dokumen ini digunakan untuk memperbarui LMS ke branch:
+Dokumen ini digunakan untuk memperbarui LMS dari branch pengembangan:
 
 ```text
-dev/course-bundle-coupon
+dev/UI
 ```
 
-Branch ini mencakup taxonomy course, refund, coupon, Bundle, Learning Path, dan pembaruan halaman publik. Commit rilis terbaru saat dokumen ini dibuat adalah `28a17e3`.
+Branch ini mencakup taxonomy course, refund, coupon, Bundle, Learning Path, pembaruan halaman publik, filter manajemen course, email status pembayaran, dan antrean pembayaran Midtrans. Gunakan commit rilis yang benar-benar sudah di-push/merge; perubahan lokal yang belum di-commit tidak akan ikut ketika server menjalankan `git pull`.
 
 ## Catatan Penting
 
@@ -16,6 +16,8 @@ Branch ini mencakup taxonomy course, refund, coupon, Bundle, Learning Path, dan 
 - Pastikan worktree bersih sebelum berpindah branch atau pull: `git status`.
 - File `.env` tidak boleh ditimpa atau dimasukkan ke Git.
 - Coupon tetap nonaktif jika `COUPONS_FEATURE_ENABLED=false`.
+- Antrean pembayaran tetap nonaktif selama `PAYMENT_ASYNC_ENABLED=false`. Jangan aktifkan sebelum migrasi dan worker `payments` berjalan.
+- Akses produksi harus memakai `QUEUE_CONNECTION=database`; koneksi `payment_database` menggunakan database yang sama dengan tabel `orders` dan `jobs`.
 
 ## Update Development
 
@@ -23,14 +25,14 @@ Branch ini mencakup taxonomy course, refund, coupon, Bundle, Learning Path, dan 
 
 ```bash
 git fetch origin
-git switch --track origin/dev/course-bundle-coupon
+git switch --track origin/dev/UI
 ```
 
 Jika branch lokal sudah pernah dibuat:
 
 ```bash
-git switch dev/course-bundle-coupon
-git pull --ff-only origin dev/course-bundle-coupon
+git switch dev/UI
+git pull --ff-only origin dev/UI
 ```
 
 ### Perbarui Dependency dan Database
@@ -82,7 +84,7 @@ php artisan migrate:status
 Backup MySQL sebelum deploy:
 
 ```bash
-mysqldump -u <DB_USERNAME> -p <DB_DATABASE> > backup-sebelum-course-bundle-coupon-$(date +%F-%H%M).sql
+mysqldump -u <DB_USERNAME> -p <DB_DATABASE> > backup-sebelum-update-$(date +%F-%H%M).sql
 ```
 
 Pastikan backup berhasil dibuat dan dapat dibaca sebelum melanjutkan.
@@ -99,18 +101,18 @@ Jika server belum memiliki branch lokal:
 
 ```bash
 git fetch origin
-git switch --track origin/dev/course-bundle-coupon
+git switch --track origin/dev/UI
 ```
 
 Jika server sudah menggunakan branch tersebut:
 
 ```bash
 git fetch origin
-git switch dev/course-bundle-coupon
-git pull --ff-only origin dev/course-bundle-coupon
+git switch dev/UI
+git pull --ff-only origin dev/UI
 ```
 
-Untuk deployment production jangka panjang, opsi yang lebih rapi adalah merge branch ini ke `main` melalui Pull Request, lalu server menjalankan:
+Jika perubahan `dev/UI` sudah di-merge ke `main`, server production dapat menarik `main`:
 
 ```bash
 git switch main
@@ -142,6 +144,7 @@ Migration terkait yang akan dijalankan jika belum tersedia:
 - `2026_10_03_100000_create_coupons_and_coupon_redemptions.php`
 - `2026_10_03_110000_create_bundles_and_extend_orders.php`
 - `2026_10_05_000000_create_learning_paths_tables.php`
+- `2026_10_06_000000_add_payment_queue_tracking.php` (kolom status Snap dan tabel receipt webhook)
 
 `RolesAndPermissionsSeeder` bersifat idempotent dan diperlukan untuk membuat permission `manage coupons`, `manage bundles`, `manage learning paths`, dan `manage course taxonomy` yang belum ada.
 
@@ -153,6 +156,8 @@ Pastikan konfigurasi pembayaran production tetap benar dan rahasia tidak ditulis
 MIDTRANS_IS_PRODUCTION=true
 MIDTRANS_SERVER_KEY=<server-key-production>
 MIDTRANS_CLIENT_KEY=<client-key-production>
+QUEUE_CONNECTION=database
+PAYMENT_ASYNC_ENABLED=false
 ```
 
 Aktifkan fitur coupon hanya setelah konfigurasi dan coupon di panel admin siap:
@@ -167,7 +172,53 @@ Jika coupon belum siap dirilis:
 COUPONS_FEATURE_ENABLED=false
 ```
 
-### 7. Bangun Ulang Cache dan Restart Process
+### 7. Siapkan Worker Pembayaran
+
+Bangun cache konfigurasi dengan flag masih `false` supaya worker mengenali koneksi queue baru:
+
+```bash
+php artisan optimize:clear
+php artisan config:cache
+```
+
+Pastikan worker queue default yang mengirim email tetap berjalan. Tambahkan worker permanen khusus pembayaran melalui Supervisor atau process manager server. Contoh perintah proses:
+
+```bash
+php artisan queue:work database --queue=default --tries=3 --timeout=60
+php artisan queue:work payment_database --queue=payments --tries=5 --timeout=40
+```
+
+Jalankan **dua proses** worker `payment_database` sebagai titik awal. Atur direktori kerja ke root aplikasi, user proses sesuai kepemilikan aplikasi, `autostart=true`, dan `autorestart=true`. Worker default dan worker pembayaran harus memiliki nama proses terpisah. `--timeout=40` berada di bawah `retry_after=90` pada `config/queue.php`. Jangan menjalankan worker ini hanya di sesi SSH karena proses akan berhenti saat sesi ditutup.
+
+Contoh konfigurasi Supervisor untuk worker pembayaran (sesuaikan path, nama user, dan executable PHP di server):
+
+```ini
+[program:lms-payments]
+process_name=%(program_name)s_%(process_num)02d
+command=/usr/bin/php /path/ke/lms/artisan queue:work payment_database --queue=payments --tries=5 --timeout=40 --sleep=1
+directory=/path/ke/lms
+user=www-data
+numprocs=2
+autostart=true
+autorestart=true
+stopwaitsecs=45
+redirect_stderr=true
+stdout_logfile=/path/ke/lms/storage/logs/payments-worker.log
+```
+
+Setelah menyimpan konfigurasi Supervisor, jalankan `sudo supervisorctl reread`, `sudo supervisorctl update`, dan `sudo supervisorctl status lms-payments:*`. Pastikan kedua proses berstatus `RUNNING`.
+
+Pastikan process manager melaporkan kedua worker pembayaran berjalan sebelum mengubah `PAYMENT_ASYNC_ENABLED` menjadi `true`. Jika worker belum siap, biarkan flag `false` agar checkout dan webhook tetap memakai alur lama.
+
+### 8. Aktifkan Antrean dan Bangun Ulang Cache
+
+Setelah migrasi dan worker siap, ubah `.env` server:
+
+```dotenv
+PAYMENT_ASYNC_ENABLED=true
+```
+
+Kemudian jalankan:
 
 ```bash
 php artisan optimize:clear
@@ -177,20 +228,21 @@ php artisan view:cache
 php artisan queue:restart
 ```
 
-Restart worker queue dan Reverb melalui Supervisor atau process manager yang digunakan server. Contoh nama process harus disesuaikan dengan konfigurasi server:
+Restart worker default, worker pembayaran, dan Reverb melalui Supervisor atau process manager yang digunakan server. Ganti nama proses di bawah dengan nama yang benar pada server:
 
 ```bash
 sudo supervisorctl restart <queue-worker-name>
+sudo supervisorctl restart <payments-worker-name>
 sudo supervisorctl restart <reverb-name>
 ```
 
-### 8. Buka Kembali Aplikasi
+### 9. Buka Kembali Aplikasi
 
 ```bash
 php artisan up
 ```
 
-### 9. Verifikasi Production
+### 10. Verifikasi Production
 
 ```bash
 git branch --show-current
@@ -207,8 +259,12 @@ Periksa secara manual:
 - `/learning-paths` menampilkan Learning Path aktif.
 - Login admin dapat membuka pengelolaan coupon, Bundle, taxonomy, dan Learning Path.
 - Checkout course dan Bundle dapat membuka halaman pemilihan metode pembayaran.
+- Satu checkout uji membuat order `pending` dengan `snap_status=queued`, lalu worker mengubahnya menjadi `ready` dan halaman menunggu membuka Snap.
+- Setelah pembayaran uji terkonfirmasi, receipt webhook memiliki `processed_at`, order berubah sesuai status pembayaran, akses course/Bundle diberikan satu kali, dan email status pembayaran masuk melalui worker default.
+- Periksa antrean `payments` dan `failed_jobs`; tidak ada penumpukan atau kegagalan baru. Periksa order `snap_status=needs_review` terhadap dashboard Midtrans sebelum tindakan manual.
+- Jalankan `php artisan queue:failed` dan cek jumlah job `payments` di tabel `jobs`. Periksa log worker jika jumlahnya terus naik.
 - Bundle atau Learning Path AVPN tidak terlihat oleh akun yang belum disetujui.
-- Queue worker dan Reverb berjalan tanpa error.
+- Worker default, dua worker pembayaran, dan Reverb berjalan tanpa error.
 
 ## Jika Pull Ditolak
 
@@ -230,6 +286,8 @@ Jika aplikasi error setelah deploy:
 php artisan down
 php artisan optimize:clear
 ```
+
+Jika gangguan khusus antrean pembayaran terjadi, set `PAYMENT_ASYNC_ENABLED=false` dan jalankan `php artisan config:cache` untuk menghentikan pembuatan job pembayaran baru. **Biarkan worker pembayaran memproses job yang sudah tersimpan**; jangan hapus tabel `jobs` atau receipt webhook. Periksa `failed_jobs`, `storage/logs/laravel.log`, serta status transaksi di Midtrans sebelum mencoba ulang pembayaran yang belum memiliki tautan Snap.
 
 Periksa log:
 

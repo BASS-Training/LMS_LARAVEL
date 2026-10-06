@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ProcessPaymentWebhook;
+use App\Jobs\ReconcilePaymentOrder;
 use App\Models\Bundle;
 use App\Models\Course;
 use App\Models\Order;
+use App\Models\PaymentWebhookReceipt;
 use App\Services\Payment\CouponService;
 use App\Services\Payment\MidtransGateway;
 use App\Services\Payment\OrderService;
@@ -15,8 +18,11 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
+use Throwable;
 
 class CheckoutController extends Controller
 {
@@ -293,7 +299,9 @@ class CheckoutController extends Controller
 
         session()->forget($this->bundleCouponSessionKey($bundle));
 
-        return redirect()->away($order->snap_redirect_url);
+        return config('payment_queue.enabled') && ! $order->snap_redirect_url
+            ? redirect()->route('checkout.finish', $order)
+            : redirect()->away($order->snap_redirect_url);
     }
 
     /**
@@ -321,7 +329,9 @@ class CheckoutController extends Controller
 
         session()->forget($this->couponSessionKey($course));
 
-        return redirect()->away($order->snap_redirect_url);
+        return config('payment_queue.enabled') && ! $order->snap_redirect_url
+            ? redirect()->route('checkout.finish', $order)
+            : redirect()->away($order->snap_redirect_url);
     }
 
     /**
@@ -335,13 +345,29 @@ class CheckoutController extends Controller
     {
         abort_unless($order->user_id === Auth::id(), 403);
 
-        $order = $this->orders->refreshFromGateway($order);
+        $order = config('payment_queue.enabled') ? $order->fresh() : $this->orders->refreshFromGateway($order);
+        if (config('payment_queue.enabled') && $order->isPayable()
+            && Cache::add('payment-reconcile:'.$order->id, true, now()->addSeconds(30))) {
+            ReconcilePaymentOrder::dispatch($order->id);
+        }
         $order->load(['course', 'bundle', 'items.course', 'refund']);
         $refundEligibility = $order->isPaid() && ! $order->refund
             ? $this->refunds->eligibility($order, Auth::user())
             : null;
 
         return view('checkout.finish', compact('order', 'refundEligibility'));
+    }
+
+    public function snapStatus(Order $order): JsonResponse
+    {
+        abort_unless($order->user_id === Auth::id(), 403);
+        $order->refresh();
+
+        return response()->json([
+            'status' => $order->status,
+            'snap_status' => $order->snap_status,
+            'redirect_url' => $order->isPayable() ? $order->snap_redirect_url : null,
+        ]);
     }
 
     /**
@@ -495,7 +521,36 @@ class CheckoutController extends Controller
                 'order_id' => $payload['order_id'] ?? null,
             ]);
 
-            return response()->json(['message' => 'Order not found'], 200);
+            return response()->json(['message' => 'Order not found'], config('payment_queue.enabled') ? 503 : 200);
+        }
+
+        if (config('payment_queue.enabled')) {
+            if (! isset($payload['gross_amount'])
+                || (int) round((float) $payload['gross_amount']) !== $order->amount
+                || (isset($payload['currency']) && strtoupper((string) $payload['currency']) !== 'IDR')) {
+                return response()->json(['message' => 'Invalid amount or currency'], 422);
+            }
+
+            try {
+                DB::transaction(function () use ($order, $payload) {
+                    $receipt = PaymentWebhookReceipt::firstOrCreate(
+                        ['payload_hash' => hash('sha256', json_encode($payload, JSON_THROW_ON_ERROR))],
+                        ['order_id' => $order->id, 'payload' => $payload]
+                    );
+                    if (! $receipt->processed_at) {
+                        ProcessPaymentWebhook::dispatch($receipt->id);
+                    }
+                });
+            } catch (Throwable $exception) {
+                Log::error('Webhook Midtrans gagal disimpan ke antrean', [
+                    'order_id' => $order->id,
+                    'message' => $exception->getMessage(),
+                ]);
+
+                return response()->json(['message' => 'Queue unavailable'], 503);
+            }
+
+            return response()->json(['message' => 'OK']);
         }
 
         if (in_array($payload['transaction_status'] ?? null, ['refund', 'partial_refund'], true)) {

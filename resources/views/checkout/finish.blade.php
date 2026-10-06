@@ -124,6 +124,34 @@
                 </a>
             </div>
 
+        @elseif ($order->isPending() && in_array($order->snap_status, ['queued', 'processing', 'needs_review'], true))
+            <div class="p-8 text-center">
+                <h1 class="text-xl font-bold text-gray-900">Menyiapkan pembayaran</h1>
+                @if ($order->snap_status === 'needs_review')
+                    <p class="mt-2 text-sm text-gray-600">Transaksi perlu diperiksa oleh admin. Jangan buat pembayaran baru untuk pesanan ini.</p>
+                @else
+                    <p class="mt-2 text-sm text-gray-600">Tautan pembayaran sedang dibuat. Halaman ini akan membuka Midtrans secara otomatis.</p>
+                    <p id="snap-waiting" class="mt-3 text-xs text-gray-500">Menunggu pekerja antrean pembayaran...</p>
+                    <script>
+                        (() => {
+                            const url = @json(route('checkout.snap-status', $order));
+                            const check = async () => {
+                                try {
+                                    const response = await fetch(url, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' });
+                                    if (!response.ok) return;
+                                    const result = await response.json();
+                                    if (result.redirect_url) { window.location.assign(result.redirect_url); return; }
+                                    if (result.snap_status === 'needs_review' || result.status !== 'pending') { window.location.reload(); }
+                                } catch (error) { /* Retry on the next poll. */ }
+                            };
+                            check();
+                            setInterval(check, 3000);
+                        })();
+                    </script>
+                @endif
+                <a href="{{ route('checkout.index') }}" class="mt-6 inline-block text-sm text-bass-red">Lihat riwayat pesanan</a>
+            </div>
+
         @elseif ($order->isPending())
             <div class="p-8 text-center">
                 <div class="mx-auto w-16 h-16 rounded-full bg-warning-soft flex items-center justify-center">

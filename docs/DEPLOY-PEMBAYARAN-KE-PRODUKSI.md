@@ -113,11 +113,14 @@ npm run build                 # kompilasi ulang aset (halaman checkout pakai Tai
 ```
 
 ### A6. Pastikan queue worker jalan
-Webhook, notifikasi, dan activity-log memakai queue (`QUEUE_CONNECTION=database`).
-Pastikan ada worker berjalan permanen (Supervisor / systemd), contoh:
+Notifikasi email memakai queue default (`QUEUE_CONNECTION=database`). Jika `PAYMENT_ASYNC_ENABLED=true`, pembuatan Snap, webhook, dan rekonsiliasi pembayaran memakai queue `payment_database` / `payments`.
+
+Jalankan migrasi sebelum mengaktifkan fitur ini. Pastikan queue pembayaran memakai koneksi database yang sama dengan order. Jalankan worker permanen (Supervisor / systemd), contoh:
 ```bash
-php artisan queue:work --tries=3 --timeout=90
+php artisan queue:work database --queue=default --tries=3 --timeout=60
+php artisan queue:work payment_database --queue=payments --tries=5 --timeout=40
 ```
+Mulai dengan dua proses worker `payments`, lalu sesuaikan dengan antrean dan kapasitas database. `--timeout` harus lebih kecil dari `retry_after` (90 detik). Aktifkan `PAYMENT_ASYNC_ENABLED=true` dan jalankan `php artisan config:cache` hanya setelah migrasi serta worker siap. Pantau jumlah job menunggu dan `failed_jobs`; pesanan dengan `snap_status=needs_review` perlu diperiksa terhadap Midtrans sebelum pengguna membuat tagihan baru. Webhook mengirim 200 setelah receipt dan job tersimpan dalam transaksi database; jika penyimpanan gagal, server mengirim 503 agar Midtrans dapat mengirim ulang.
 Jika sebelumnya sudah ada worker, **restart** agar memuat kode baru:
 ```bash
 php artisan queue:restart

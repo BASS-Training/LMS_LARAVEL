@@ -47,6 +47,8 @@ class Order extends Model
         'transaction_id',
         'snap_token',
         'snap_redirect_url',
+        'snap_status',
+        'snap_error',
         'paid_at',
         'payment_confirmed_at',
         'verified_by',

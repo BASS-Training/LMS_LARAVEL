@@ -94,6 +94,7 @@ Route::post('/katalog/{course}/beli/kupon', [CheckoutController::class, 'applyCo
 Route::delete('/katalog/{course}/beli/kupon', [CheckoutController::class, 'removeCoupon'])->name('checkout.coupon.remove');
 Route::get('/pesanan', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::get('/pesanan/{order}', [CheckoutController::class, 'finish'])->name('checkout.finish');
+Route::get('/pesanan/{order}/snap-status', [CheckoutController::class, 'snapStatus'])->name('checkout.snap-status');
 Route::get('/pesanan/{order}/invoice', [CheckoutController::class, 'invoice'])->name('checkout.invoice');
 Route::post('/pesanan/{order}/ganti-metode', [CheckoutController::class, 'changeMethod'])->name('checkout.change-method');
 Route::post('/pesanan/{order}/batalkan', [CheckoutController::class, 'cancel'])->name('checkout.cancel');

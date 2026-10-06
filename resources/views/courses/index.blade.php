@@ -59,10 +59,10 @@
                 </div>
             @endif
 
-            <!-- Search Form -->
+            <!-- Search and sale filter -->
             <form method="GET" action="{{ route('courses.index') }}" class="mb-6">
-                <div class="flex gap-3 items-center">
-                    <div class="relative flex-1 max-w-md">
+                <div class="flex flex-wrap gap-3 items-center">
+                    <div class="relative flex-1 min-w-64 max-w-md">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -76,11 +76,18 @@
                                maxlength="100"
                                class="block w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-bass-red focus:border-bass-red transition">
                     </div>
+                    <label for="penjualan" class="sr-only">Filter penjualan kursus</label>
+                    <select id="penjualan" name="penjualan"
+                            class="min-w-40 px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-bass-red focus:border-bass-red transition">
+                        <option value="" @selected($saleFilter === null)>Semua</option>
+                        <option value="catalog" @selected($saleFilter === 'catalog')>Dijual</option>
+                        <option value="private" @selected($saleFilter === 'private')>Tidak Dijual</option>
+                    </select>
                     <button type="submit"
                             class="inline-flex items-center px-5 py-2.5 bg-bass-red text-white text-sm font-medium rounded-xl hover:bg-bass-red-hover focus:ring-4 focus:ring-bass-red/20 transition-all duration-200 shadow-md">
-                        Cari
+                        Terapkan
                     </button>
-                    @if ($search)
+                    @if ($search || $saleFilter)
                         <a href="{{ route('courses.index') }}"
                            class="inline-flex items-center px-4 py-2.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-200 transition-all duration-200">
                             Reset
@@ -105,9 +112,17 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                                 </svg>
                             </div>
-                            @if ($search)
+                            @if ($search || $saleFilter)
                                 <h3 class="text-2xl font-bold text-gray-900 mb-4">Tidak Ada Hasil</h3>
-                                <p class="text-lg text-gray-500 mb-8 max-w-md mx-auto">Tidak ada kursus yang cocok dengan kata kunci "<strong>{{ $search }}</strong>".</p>
+                                <p class="text-lg text-gray-500 mb-8 max-w-md mx-auto">
+                                    @if ($search && $saleFilter)
+                                        Tidak ada kursus {{ $saleFilter === 'catalog' ? 'dijual' : 'tidak dijual' }} yang cocok dengan kata kunci "<strong>{{ $search }}</strong>".
+                                    @elseif ($search)
+                                        Tidak ada kursus yang cocok dengan kata kunci "<strong>{{ $search }}</strong>".
+                                    @else
+                                        Tidak ada kursus dengan status {{ $saleFilter === 'catalog' ? 'Dijual' : 'Tidak Dijual' }}.
+                                    @endif
+                                </p>
                                 <a href="{{ route('courses.index') }}" class="inline-flex items-center px-8 py-4 bg-bass-red text-white font-semibold rounded-2xl hover:bg-bass-red-hover focus:ring-4 focus:ring-bass-red/20 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105">
                                     Lihat Semua Kursus
                                 </a>
