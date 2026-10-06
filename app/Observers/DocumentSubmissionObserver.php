@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\DocumentSubmission;
+use App\Notifications\FinalAssessmentResultNotification;
 use App\Notifications\MobileNotification;
 use App\Observers\Concerns\NotifiesInstructors;
 
@@ -60,5 +61,14 @@ class DocumentSubmissionObserver
             'courseTitle' => $course?->title,
             'contentId' => $content ? (string) $content->id : null,
         ]));
+        $user->notify(new FinalAssessmentResultNotification(
+            assessmentType: 'document',
+            submissionId: $submission->id,
+            contentId: $content->id,
+            contentTitle: $content->title,
+            courseTitle: $course?->title ?? 'Course BASS Academy',
+            status: $submission->status,
+            attempt: $submission->attempt,
+        ));
     }
 }

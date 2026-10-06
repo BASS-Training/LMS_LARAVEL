@@ -37,6 +37,7 @@ class User extends Authenticatable
         'avatar',
         'phone',
         'monthly_income',
+        'learning_reminder_email_enabled',
     ];
 
     /**
@@ -61,6 +62,7 @@ class User extends Authenticatable
             'email_verification_optional' => 'boolean',
             'avpn_google_form_submitted_at' => 'datetime',
             'avpn_verified_at' => 'datetime',
+            'learning_reminder_email_enabled' => 'boolean',
             'password' => 'hashed',
             'date_of_birth' => 'date',
         ];
@@ -693,12 +695,10 @@ class User extends Authenticatable
      */
     public function getNotificationPreferences(): array
     {
-        // This could be stored in user preferences table
-        // For now, return default preferences
         return [
             'email_notifications' => true,
             'in_app_notifications' => true,
-            'assignment_reminders' => true,
+            'assignment_reminders' => $this->learning_reminder_email_enabled,
             'course_updates' => true,
         ];
     }

@@ -73,6 +73,19 @@ class ProfileController extends Controller
         return back()->with('success', 'Pengajuan verifikasi AVPN berhasil dikirim. Silakan tunggu validasi admin.');
     }
 
+    public function updateEmailPreferences(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'learning_reminder_email_enabled' => ['required', 'boolean'],
+        ]);
+
+        $request->user()->update([
+            'learning_reminder_email_enabled' => (bool) $validated['learning_reminder_email_enabled'],
+        ]);
+
+        return Redirect::route('profile.edit')->with('status', 'email-preferences-updated');
+    }
+
     /**
      * Delete the user's account.
      */

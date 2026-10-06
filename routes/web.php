@@ -240,6 +240,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Profile Pengguna
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/email-preferences', [ProfileController::class, 'updateEmailPreferences'])
+        ->name('profile.email-preferences.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/profile/avpn-verification/request', [ProfileController::class, 'requestAvpnVerification'])
         ->name('profile.avpn.request');

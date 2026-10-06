@@ -142,6 +142,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\EssaySubmission::observe(\App\Observers\EssaySubmissionObserver::class);
         \App\Models\CaseStudySubmission::observe(\App\Observers\CaseStudySubmissionObserver::class);
         \App\Models\DocumentSubmission::observe(\App\Observers\DocumentSubmissionObserver::class);
+        \App\Models\Certificate::observe(\App\Observers\CertificateObserver::class);
     }
 
     private function configureMobileRateLimiters(): void
