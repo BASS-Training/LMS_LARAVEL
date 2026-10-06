@@ -9,6 +9,7 @@ use App\Models\Refund;
 use App\Models\RefundSetting;
 use App\Models\User;
 use App\Notifications\RefundStatusNotification;
+use App\Services\FeatureAvailability;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -18,7 +19,10 @@ use Throwable;
 
 class RefundService
 {
-    public function __construct(private MidtransGateway $gateway) {}
+    public function __construct(
+        private MidtransGateway $gateway,
+        private FeatureAvailability $features,
+    ) {}
 
     /**
      * @return array{eligible: bool, message: ?string, progress: float, deadline: ?\Carbon\CarbonInterface, settings: RefundSetting}
@@ -33,7 +37,9 @@ class RefundService
         $message = null;
         $certificateCourse = $courses->first(fn (Course $course) => $user->hasCertificateForCourse($course));
 
-        if ($order->user_id !== $user->id) {
+        if (! $this->features->refundRequestsEnabled()) {
+            $message = 'Pengajuan refund baru sedang dinonaktifkan.';
+        } elseif ($order->user_id !== $user->id) {
             $message = 'Anda tidak dapat mengajukan refund untuk pesanan ini.';
         } elseif (! $order->isPaid()) {
             $message = 'Refund hanya dapat diajukan untuk pesanan yang sudah lunas.';
@@ -290,6 +296,10 @@ class RefundService
     public function applyProviderNotification(Order $order, array $payload): Refund
     {
         $refund = $order->refund;
+
+        if ($refund && $refund->status === RefundStatus::Refunded) {
+            return $refund;
+        }
 
         if (! $refund || $refund->status !== RefundStatus::Processing) {
             throw new RuntimeException('Tidak ada refund aktif untuk notifikasi ini.');

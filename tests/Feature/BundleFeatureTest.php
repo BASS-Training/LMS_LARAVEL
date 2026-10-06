@@ -8,6 +8,7 @@ use App\Models\Certificate;
 use App\Models\Coupon;
 use App\Models\CouponSetting;
 use App\Models\Course;
+use App\Models\FeatureSetting;
 use App\Models\Order;
 use App\Models\User;
 use App\Services\Payment\CouponService;
@@ -366,6 +367,45 @@ class BundleFeatureTest extends TestCase
         $this->getJson('/api/mobile/bundles/'.$bundle->slug)
             ->assertOk()
             ->assertJsonCount(2, 'data.courses');
+    }
+
+    public function test_global_bundle_toggle_hides_public_surfaces_and_keeps_admin_available(): void
+    {
+        [$bundle] = $this->bundle();
+        FeatureSetting::current()->update(['bundles_enabled' => false]);
+
+        $this->get(route('welcome'))
+            ->assertOk()
+            ->assertDontSee(route('bundles.index'), false)
+            ->assertDontSeeText($bundle->title);
+        $this->get(route('bundles.index'))->assertNotFound();
+        $this->get(route('bundles.show', $bundle))->assertNotFound();
+        $this->getJson('/api/mobile/bundles')->assertNotFound();
+
+        Permission::findOrCreate('manage bundles', 'web');
+        $manager = User::factory()->create();
+        $manager->givePermissionTo('manage bundles');
+
+        $this->actingAs($manager)
+            ->get(route('admin.bundles.index'))
+            ->assertOk()
+            ->assertSeeText($bundle->title)
+            ->assertSeeText('Aktifkan Bundle');
+
+        $this->patch(route('admin.bundles.availability.update'), ['enabled' => 1])
+            ->assertRedirect();
+        $this->assertTrue(FeatureSetting::current()->fresh()->bundles_enabled);
+    }
+
+    public function test_bundle_checkout_service_rejects_new_orders_while_feature_is_disabled(): void
+    {
+        [$bundle] = $this->bundle();
+        FeatureSetting::current()->update(['bundles_enabled' => false]);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Pembelian bundle sedang dinonaktifkan.');
+
+        app(OrderService::class)->checkoutBundle($bundle, User::factory()->create());
     }
 
     private function bundle(int $price = 150000): array

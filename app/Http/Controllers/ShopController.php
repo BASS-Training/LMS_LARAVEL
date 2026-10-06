@@ -97,7 +97,7 @@ class ShopController extends Controller
         ]);
     }
 
-    public function show(Course $course, ServiceFee $fee)
+    public function show(Course $course, ServiceFee $fee, \App\Services\FeatureAvailability $features)
     {
         abort_unless($course->isInCatalog(), 404);
 
@@ -111,12 +111,14 @@ class ShopController extends Controller
         ]);
 
         $user = Auth::user();
-        $learningPaths = LearningPath::query()
-            ->inCatalog()
-            ->visibleTo($user)
-            ->whereHas('courses', fn ($query) => $query->whereKey($course->id))
-            ->with('courses:id,title')
-            ->get();
+        $learningPaths = $features->learningPathsEnabled()
+            ? LearningPath::query()
+                ->inCatalog()
+                ->visibleTo($user)
+                ->whereHas('courses', fn ($query) => $query->whereKey($course->id))
+                ->with('courses:id,title')
+                ->get()
+            : collect();
 
         // Rincian harga hanya relevan untuk kursus berbayar. Saat pemilihan
         // metode aktif, biaya layanan berbeda per metode → tampilkan estimasi

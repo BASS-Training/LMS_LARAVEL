@@ -2,11 +2,14 @@
 
 namespace App\Services\Payment;
 
+use App\Jobs\PrepareSnapTransaction;
 use App\Enums\RefundStatus;
 use App\Models\Bundle;
 use App\Models\Course;
 use App\Models\Order;
 use App\Models\User;
+use App\Notifications\PaymentStatusNotification;
+use App\Services\FeatureAvailability;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -28,6 +31,7 @@ class OrderService
         private MidtransGateway $gateway,
         private ServiceFee $fee,
         private CouponService $coupons,
+        private FeatureAvailability $features,
     ) {}
 
     /**
@@ -39,6 +43,19 @@ class OrderService
      *                                  dan mengunci Snap ke metode itu. null → tarif gabungan + semua metode.
      */
     public function checkout(Course $course, User $user, ?string $methodKey = null, ?string $couponCode = null): Order
+    {
+        if (config('payment_queue.enabled')) {
+            return DB::transaction(function () use ($course, $user, $methodKey, $couponCode) {
+                User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+
+                return $this->checkoutCourseLocked($course, $user, $methodKey, $couponCode);
+            });
+        }
+
+        return $this->checkoutCourseLocked($course, $user, $methodKey, $couponCode);
+    }
+
+    private function checkoutCourseLocked(Course $course, User $user, ?string $methodKey, ?string $couponCode): Order
     {
         if (! $this->gateway->isConfigured()) {
             throw new RuntimeException('Pembayaran belum dikonfigurasi. Hubungi admin.');
@@ -101,7 +118,7 @@ class OrderService
         $breakdown = $this->fee->forMethod((int) $course->price - $discount, $methodKey);
 
         if ($existing
-            && $existing->isPayable()
+            && ($existing->isPayable() || (config('payment_queue.enabled') && in_array($existing->snap_status, ['queued', 'processing', 'needs_review'], true)))
             && $existing->payment_method_key === $methodKey
             && $existing->coupon_code === $normalizedCoupon
             && (int) $existing->discount_amount === $discount
@@ -111,6 +128,9 @@ class OrderService
         }
 
         if ($existing) {
+            if (config('payment_queue.enabled') && in_array($existing->snap_status, ['queued', 'processing', 'needs_review'], true)) {
+                throw new RuntimeException('Tagihan sebelumnya masih disiapkan atau perlu diperiksa. Buka halaman pesanan untuk melihat statusnya.');
+            }
             $cancelled = $this->cancelPending($existing, $user, 'Diganti dengan metode pembayaran atau harga terbaru.');
 
             if ($cancelled->isCancellationPending()) {
@@ -151,12 +171,17 @@ class OrderService
                 $this->coupons->createRedemption($quote, $order, $user);
             }
 
-            $snap = $this->gateway->createSnapTransaction($order);
-
-            $order->update([
-                'snap_token' => $snap['token'],
-                'snap_redirect_url' => $snap['redirect_url'],
-            ]);
+            if (config('payment_queue.enabled')) {
+                $order->update(['snap_status' => 'queued']);
+                PrepareSnapTransaction::dispatch($order->id);
+            } else {
+                $snap = $this->gateway->createSnapTransaction($order);
+                $order->update([
+                    'snap_token' => $snap['token'],
+                    'snap_redirect_url' => $snap['redirect_url'],
+                    'snap_status' => 'ready',
+                ]);
+            }
 
             return $order;
         });
@@ -185,6 +210,23 @@ class OrderService
 
     public function checkoutBundle(Bundle $bundle, User $user, ?string $methodKey = null, ?string $couponCode = null): Order
     {
+        if (config('payment_queue.enabled')) {
+            return DB::transaction(function () use ($bundle, $user, $methodKey, $couponCode) {
+                User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+
+                return $this->checkoutBundleLocked($bundle, $user, $methodKey, $couponCode);
+            });
+        }
+
+        return $this->checkoutBundleLocked($bundle, $user, $methodKey, $couponCode);
+    }
+
+    private function checkoutBundleLocked(Bundle $bundle, User $user, ?string $methodKey, ?string $couponCode): Order
+    {
+        if (! $this->features->bundlesEnabled()) {
+            throw new RuntimeException('Pembelian bundle sedang dinonaktifkan.');
+        }
+
         if (! $this->gateway->isConfigured()) {
             throw new RuntimeException('Pembayaran belum dikonfigurasi. Hubungi admin.');
         }
@@ -228,7 +270,7 @@ class OrderService
         $breakdown = $this->fee->forMethod($pricing['payable_base'] - $discount, $methodKey);
 
         if ($existing
-            && $existing->isPayable()
+            && ($existing->isPayable() || (config('payment_queue.enabled') && in_array($existing->snap_status, ['queued', 'processing', 'needs_review'], true)))
             && $existing->payment_method_key === $methodKey
             && $existing->coupon_code === $normalizedCoupon
             && (int) $existing->bundle_discount_amount === $pricing['bundle_discount']
@@ -239,6 +281,9 @@ class OrderService
         }
 
         if ($existing) {
+            if (config('payment_queue.enabled') && in_array($existing->snap_status, ['queued', 'processing', 'needs_review'], true)) {
+                throw new RuntimeException('Tagihan sebelumnya masih disiapkan atau perlu diperiksa. Buka halaman pesanan untuk melihat statusnya.');
+            }
             $cancelled = $this->cancelPending($existing, $user, 'Diganti dengan metode pembayaran atau harga terbaru.');
             if ($cancelled->isCancellationPending()) {
                 throw new RuntimeException('Pembatalan tagihan sebelumnya masih diproses oleh penyedia pembayaran.');
@@ -282,11 +327,17 @@ class OrderService
                 $this->coupons->createRedemption($quote, $order, $user);
             }
 
-            $snap = $this->gateway->createSnapTransaction($order);
-            $order->update([
-                'snap_token' => $snap['token'],
-                'snap_redirect_url' => $snap['redirect_url'],
-            ]);
+            if (config('payment_queue.enabled')) {
+                $order->update(['snap_status' => 'queued']);
+                PrepareSnapTransaction::dispatch($order->id);
+            } else {
+                $snap = $this->gateway->createSnapTransaction($order);
+                $order->update([
+                    'snap_token' => $snap['token'],
+                    'snap_redirect_url' => $snap['redirect_url'],
+                    'snap_status' => 'ready',
+                ]);
+            }
 
             return $order;
         });
@@ -306,6 +357,9 @@ class OrderService
 
     public function cancelPending(Order $order, ?User $user = null, ?string $reason = null): Order
     {
+        if (config('payment_queue.enabled') && in_array($order->snap_status, ['queued', 'processing', 'needs_review'], true)) {
+            throw new RuntimeException('Tagihan sedang disiapkan atau perlu diperiksa sebelum dibatalkan.');
+        }
         $fresh = $this->refreshFromGateway($order->fresh());
 
         if ($fresh->isPaymentConfirmed() || ! $fresh->isPending()) {
@@ -552,6 +606,8 @@ class OrderService
                 $locked->status = Order::STATUS_AWAITING_VERIFICATION;
                 $locked->save();
 
+                $locked->user->notify(new PaymentStatusNotification($locked, PaymentStatusNotification::AWAITING_VERIFICATION));
+
                 Log::info('Pembayaran dikonfirmasi — menunggu verifikasi manual', [
                     'order_code' => $locked->order_code,
                     'user_id' => $locked->user_id,
@@ -564,6 +620,8 @@ class OrderService
                 $locked->save();
 
                 $this->grantAccess($locked);
+
+                $locked->user->notify(new PaymentStatusNotification($locked, PaymentStatusNotification::PAID));
 
                 Log::info('Pesanan lunas & peserta di-enroll (otomatis)', [
                     'order_code' => $locked->order_code,
@@ -598,6 +656,8 @@ class OrderService
             ]);
 
             $this->grantAccess($locked);
+
+            $locked->user->notify(new PaymentStatusNotification($locked, PaymentStatusNotification::APPROVED));
 
             Log::info('Pembayaran diverifikasi & peserta di-enroll', [
                 'order_code' => $locked->order_code,
@@ -643,6 +703,8 @@ class OrderService
                 'requested_at' => now(),
                 'reviewed_at' => now(),
             ]);
+
+            $locked->user->notify(new PaymentStatusNotification($locked, PaymentStatusNotification::REJECTED));
 
             Log::warning('Pembayaran ditolak setelah ditinjau', [
                 'order_code' => $locked->order_code,

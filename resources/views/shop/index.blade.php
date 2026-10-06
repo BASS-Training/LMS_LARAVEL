@@ -8,7 +8,7 @@
         <nav class="text-xs font-semibold text-slate-500"><a href="{{ route('welcome') }}" class="hover:text-bass-red">Beranda</a> <span class="mx-1">/</span> Katalog Course</nav>
         <p class="mt-8 text-xs font-bold uppercase tracking-[0.2em] text-bass-red">Katalog BASS</p>
         <h1 class="mt-3 text-4xl font-extrabold tracking-[-0.035em] [font-family:Fraunces,serif] sm:text-6xl">Semua <em class="font-medium text-bass-red">course</em></h1>
-        <p class="mt-4 max-w-2xl text-lg text-slate-600">Pilih course sesuai kebutuhan. Untuk paket lebih hemat atau urutan belajar terarah, kunjungi Bundle dan Learning Path.</p>
+        <p class="mt-4 max-w-2xl text-lg text-slate-600">Pilih course sesuai kebutuhan dan mulai tingkatkan kompetensi Anda.</p>
     </header>
 
     <form method="GET" action="{{ route('shop.index') }}" class="grid gap-8 lg:grid-cols-[240px_1fr]">

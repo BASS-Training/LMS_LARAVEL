@@ -76,9 +76,17 @@ class CourseController extends Controller
             });
         }
 
+        $saleFilter = $request->validate([
+            'penjualan' => ['nullable', Rule::in(['catalog', 'private'])],
+        ])['penjualan'] ?? null;
+
+        if ($saleFilter !== null) {
+            $query->where('visibility', $saleFilter);
+        }
+
         $courses = $query->with('instructors')->latest()->paginate(6)->withQueryString();
 
-        return view('courses.index', compact('courses', 'search'));
+        return view('courses.index', compact('courses', 'search', 'saleFilter'));
     }
 
     public function create()

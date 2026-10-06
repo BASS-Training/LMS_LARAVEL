@@ -43,6 +43,16 @@ return [
             'after_commit' => false,
         ],
 
+        // Payment receipts and jobs must share the order database transaction.
+        'payment_database' => [
+            'driver' => 'database',
+            'connection' => env('DB_CONNECTION'),
+            'table' => 'jobs',
+            'queue' => 'payments',
+            'retry_after' => 90,
+            'after_commit' => false,
+        ],
+
         'beanstalkd' => [
             'driver' => 'beanstalkd',
             'host' => env('BEANSTALKD_QUEUE_HOST', 'localhost'),

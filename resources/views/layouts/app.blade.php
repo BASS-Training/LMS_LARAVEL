@@ -1,3 +1,4 @@
+@inject('features', 'App\Services\FeatureAvailability')
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
@@ -5,6 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#ffffff">
+
+    {{-- Critical paint: prevent a white flash before the Vite stylesheet loads. --}}
+    <style>
+        html, body {
+            min-height: 100%;
+            margin: 0;
+            background-color: #f9fafb;
+        }
+    </style>
 
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any" type="image/x-icon">
     <link rel="alternate icon" href="{{ asset('images/favicon.ico') }}" type="image/x-icon">
@@ -17,6 +27,10 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    @can('admin-only')
+        @include('layouts.partials.admin-view-transitions')
+    @endcan
+
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
 
     @stack('styles')
@@ -26,9 +40,19 @@
 {{-- ══════════════════════════════════════════════════════
      ROOT WRAPPER — provides Alpine scope for mobile menu
      ══════════════════════════════════════════════════════ --}}
-<div x-data="{ mobileOpen: false }" class="min-h-screen flex flex-col">
+<div x-data="{
+        mobileOpen: false,
+        adminSidebarOpen: false,
+        adminSidebarCollapsed: localStorage.getItem('admin-sidebar-collapsed') === 'true',
+        toggleAdminSidebar() {
+            this.adminSidebarCollapsed = !this.adminSidebarCollapsed;
+            localStorage.setItem('admin-sidebar-collapsed', this.adminSidebarCollapsed);
+        }
+     }"
+     class="min-h-screen flex flex-col">
 
     {{-- ══════════════ STICKY NAVBAR ══════════════ --}}
+    @cannot('admin-only')
     <nav class="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm"
          :class="{ 'shadow-md': mobileOpen }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,43 +61,56 @@
                 {{-- ── LEFT: Logo + desktop links ── --}}
                 <div class="flex items-center min-w-0">
                     {{-- Logo --}}
+                    @cannot('admin-only')
                     <a href="{{ Auth::check() ? route('dashboard') : route('shop.index') }}" class="flex-shrink-0 mr-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bass-red rounded-md" aria-label="Beranda">
                         <img src="{{ asset('images/logo.png') }}"
                              alt="{{ config('app.name') }} Logo"
                              class="h-12 w-auto"
                              loading="eager">
                     </a>
+                    @endcannot
 
                     {{-- Desktop nav links — hidden on mobile --}}
                     <div class="hidden md:flex md:items-center md:gap-1">
                         @auth
+                        @cannot('admin-only')
                         <a href="{{ route('dashboard') }}"
                            class="nav-link-custom {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                             Dashboard
                         </a>
+                        @endcannot
                         @endauth
 
+                        @cannot('admin-only')
                         @can('view courses')
                         <a href="{{ route('courses.index') }}"
                            class="nav-link-custom {{ request()->routeIs('courses.*') ? 'active' : '' }}">
                             Kelola Kursus
                         </a>
                         @endcan
+                        @endcannot
 
                         {{-- Etalase kursus — terbuka untuk semua, termasuk tamu. --}}
+                        @cannot('admin-only')
                         <a href="{{ route('shop.index') }}"
                            class="nav-link-custom {{ request()->routeIs('shop.*') ? 'active' : '' }}">
-                            Katalog
+                             Katalog
                         </a>
+                        @endcannot
+                        @if ($features->bundlesEnabled())
                         <a href="{{ route('bundles.index') }}"
                            class="nav-link-custom {{ request()->routeIs('bundles.*') ? 'active' : '' }}">
                             Bundle
                         </a>
+                        @endif
+                        @if ($features->learningPathsEnabled())
                         <a href="{{ route('learning-paths.index') }}"
                            class="nav-link-custom {{ request()->routeIs('learning-paths.*') ? 'active' : '' }}">
                             Learning Path
                         </a>
+                        @endif
 
+                        @cannot('admin-only')
                         @can('view progress reports')
                         <a href="{{ route('eo.courses.index') }}"
                            class="nav-link-custom {{ request()->routeIs('eo.*') ? 'active' : '' }}">
@@ -84,102 +121,22 @@
                             Analytics
                         </a>
                         @endcan
+                        @endcannot
 
-                        {{-- Admin dropdown --}}
-                        @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage course taxonomy','manage coupons','manage bundles','manage learning paths'])
-                        <div x-data="{ adminOpen: false }" class="relative">
-                            <button @click="adminOpen = !adminOpen"
-                                    @keydown.escape.window="adminOpen = false"
-                                    :aria-expanded="adminOpen"
-                                    aria-haspopup="true"
-                                    class="dropdown-trigger-custom">
-                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
-                                </svg>
-                                <span>Admin</span>
-                                <svg class="w-3.5 h-3.5 transition-transform duration-200"
-                                     :class="{ 'rotate-180': adminOpen }"
-                                     fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                                </svg>
-                            </button>
-
-                            <div x-show="adminOpen"
-                                 x-transition:enter="transition ease-out duration-150"
-                                 x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
-                                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                                 x-transition:leave="transition ease-in duration-100"
-                                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                                 x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-                                 @click.outside="adminOpen = false"
-                                 class="absolute left-0 mt-2 w-64 rounded-xl bg-white shadow-xl ring-1 ring-black/5 divide-y divide-gray-100 z-50"
-                                 style="display:none"
-                                 role="menu">
-                                @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage coupons'])
-                                <div class="py-1" role="none">
-                                    <a href="{{ route('admin.users.index') }}"    class="dropdown-item-custom" role="menuitem">Manajemen Pengguna</a>
-                                    <a href="{{ route('admin.roles.index') }}"    class="dropdown-item-custom" role="menuitem">Manajemen Peran</a>
-                                    <a href="{{ route('admin.announcements.index') }}" class="dropdown-item-custom" role="menuitem">Manajemen Pengumuman</a>
-                                    <a href="{{ route('admin.participants.index') }}" class="dropdown-item-custom" role="menuitem">Analitik Peserta</a>
-                                </div>
-                                <div class="py-1" role="none">
-                                    <a href="{{ route('admin.certificate-templates.index') }}" class="dropdown-item-custom" role="menuitem">Certificate Template</a>
-                                    <a href="{{ route('certificate-management.index') }}"      class="dropdown-item-custom" role="menuitem">Manajemen Sertifikat</a>
-                                </div>
-                                <div class="py-1" role="none">
-                                    <a href="{{ route('admin.auto-grade.index') }}"    class="dropdown-item-custom" role="menuitem">Penilaian Otomatis</a>
-                                    <a href="{{ route('admin.force-complete.index') }}" class="dropdown-item-custom" role="menuitem">Force Complete Konten</a>
-                                    @can('manage coupons')
-                                    <a href="{{ route('admin.coupons.index') }}" class="dropdown-item-custom" role="menuitem">Manajemen Kupon</a>
-                                    @endcan
-                                </div>
-                                @role('super-admin')
-                                <div class="py-1" role="none">
-                                    @php($pendingVerif = \App\Models\Order::where('status', 'awaiting_verification')->count())
-                                    <a href="{{ route('admin.payment-verifications.index') }}" class="dropdown-item-custom flex items-center justify-between" role="menuitem">
-                                        <span>Verifikasi Pembayaran</span>
-                                        @if ($pendingVerif > 0)
-                                            <span class="ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-warning text-white text-xs font-bold">{{ $pendingVerif }}</span>
-                                        @endif
-                                    </a>
-                                    @php($pendingRefunds = \App\Models\Refund::whereIn('status', ['requested', 'failed', 'approved', 'manual_required'])->count())
-                                    <a href="{{ route('admin.refunds.index') }}" class="dropdown-item-custom flex items-center justify-between" role="menuitem">
-                                        <span>Manajemen Refund</span>
-                                        @if ($pendingRefunds > 0)
-                                            <span class="ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-error text-white text-xs font-bold">{{ $pendingRefunds }}</span>
-                                        @endif
-                                    </a>
-                                </div>
-                                @endrole
-                                <div class="py-1" role="none">
-                                    <a href="{{ route('file-control.index') }}"    class="dropdown-item-custom" role="menuitem">File Manager</a>
-                                    <a href="{{ route('activity-logs.index') }}"   class="dropdown-item-custom" role="menuitem">Log Aktivitas</a>
-                                </div>
-                                @endcanany
-                                @can('manage bundles')
-                                <div class="py-1" role="none">
-                                    <a href="{{ route('admin.bundles.index') }}" class="dropdown-item-custom" role="menuitem">Manajemen Bundle</a>
-                                </div>
-                                @endcan
-                                @can('manage learning paths')
-                                <div class="py-1" role="none">
-                                    <a href="{{ route('admin.learning-paths.index') }}" class="dropdown-item-custom" role="menuitem">Manajemen Learning Path</a>
-                                </div>
-                                @endcan
-                                @can('manage course taxonomy')
-                                <div class="py-1" role="none">
-                                    <a href="{{ route('admin.categories.index') }}" class="dropdown-item-custom" role="menuitem">Kategori Course</a>
-                                    <a href="{{ route('admin.tags.index') }}" class="dropdown-item-custom" role="menuitem">Tag Course</a>
-                                </div>
-                                @endcan
-                            </div>
-                        </div>
-                        @endcanany
                     </div>
                 </div>
 
                 {{-- ── RIGHT: User controls + hamburger ── --}}
                 <div class="flex items-center gap-2">
+
+                    @can('admin-only')
+                    <button type="button"
+                            @click="adminSidebarOpen = true"
+                            class="inline-flex h-11 w-11 items-center justify-center rounded-lg text-navy hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bass-red lg:hidden"
+                            aria-label="Buka menu admin">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h10M4 18h7"/></svg>
+                    </button>
+                    @endcan
 
                     @auth
                     {{-- User dropdown — desktop --}}
@@ -282,13 +239,16 @@
 
             <div class="py-2 space-y-0.5">
                 @auth
+                @cannot('admin-only')
                 <a href="{{ route('dashboard') }}"
                    class="responsive-nav-link-custom {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                     <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 21V12M16 21v-8"/></svg>
                     Dashboard
                 </a>
+                @endcannot
                 @endauth
 
+                @cannot('admin-only')
                 @can('view courses')
                 <a href="{{ route('courses.index') }}"
                    class="responsive-nav-link-custom {{ request()->routeIs('courses.*') ? 'active' : '' }}">
@@ -296,21 +256,29 @@
                     Kelola Kursus
                 </a>
                 @endcan
+                @endcannot
 
+                @cannot('admin-only')
                 <a href="{{ route('shop.index') }}"
                    class="responsive-nav-link-custom {{ request()->routeIs('shop.*') ? 'active' : '' }}">
                     <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                     Katalog Kursus
                 </a>
+                @endcannot
+                @if ($features->bundlesEnabled())
                 <a href="{{ route('bundles.index') }}"
                    class="responsive-nav-link-custom {{ request()->routeIs('bundles.*') ? 'active' : '' }}">
                     Bundle
                 </a>
+                @endif
+                @if ($features->learningPathsEnabled())
                 <a href="{{ route('learning-paths.index') }}"
                    class="responsive-nav-link-custom {{ request()->routeIs('learning-paths.*') ? 'active' : '' }}">
                     Learning Path
                 </a>
+                @endif
 
+                @cannot('admin-only')
                 @can('view progress reports')
                 <a href="{{ route('eo.courses.index') }}"
                    class="responsive-nav-link-custom {{ request()->routeIs('eo.*') ? 'active' : '' }}">
@@ -323,41 +291,8 @@
                     Analytics Instruktur
                 </a>
                 @endcan
+                @endcannot
 
-                @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage course taxonomy','manage coupons','manage bundles','manage learning paths'])
-                <div class="pt-2 mt-1 border-t border-gray-100">
-                    <p class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Admin</p>
-                    @canany(['manage users','manage roles','view certificate templates','view activity logs','view certificate analytics','view certificate management','manage coupons'])
-                    <a href="{{ route('admin.users.index') }}"    class="responsive-nav-link-custom {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">Manajemen Pengguna</a>
-                    <a href="{{ route('admin.roles.index') }}"    class="responsive-nav-link-custom {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">Manajemen Peran</a>
-                    <a href="{{ route('admin.announcements.index') }}" class="responsive-nav-link-custom">Manajemen Pengumuman</a>
-                    <a href="{{ route('admin.participants.index') }}" class="responsive-nav-link-custom">Analitik Peserta</a>
-                    <a href="{{ route('admin.certificate-templates.index') }}" class="responsive-nav-link-custom">Certificate Template</a>
-                    <a href="{{ route('certificate-management.index') }}"  class="responsive-nav-link-custom">Manajemen Sertifikat</a>
-                    <a href="{{ route('admin.auto-grade.index') }}"   class="responsive-nav-link-custom">Penilaian Otomatis</a>
-                    <a href="{{ route('admin.force-complete.index') }}" class="responsive-nav-link-custom">Force Complete Konten</a>
-                    @can('manage coupons')
-                    <a href="{{ route('admin.coupons.index') }}" class="responsive-nav-link-custom {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">Manajemen Kupon</a>
-                    @endcan
-                    @role('super-admin')
-                    <a href="{{ route('admin.payment-verifications.index') }}" class="responsive-nav-link-custom">Verifikasi Pembayaran</a>
-                    <a href="{{ route('admin.refunds.index') }}" class="responsive-nav-link-custom">Manajemen Refund</a>
-                    @endrole
-                    <a href="{{ route('file-control.index') }}"   class="responsive-nav-link-custom">File Manager</a>
-                    <a href="{{ route('activity-logs.index') }}"  class="responsive-nav-link-custom">Log Aktivitas</a>
-                    @endcanany
-                    @can('manage bundles')
-                    <a href="{{ route('admin.bundles.index') }}" class="responsive-nav-link-custom {{ request()->routeIs('admin.bundles.*') ? 'active' : '' }}">Manajemen Bundle</a>
-                    @endcan
-                    @can('manage learning paths')
-                    <a href="{{ route('admin.learning-paths.index') }}" class="responsive-nav-link-custom {{ request()->routeIs('admin.learning-paths.*') ? 'active' : '' }}">Manajemen Learning Path</a>
-                    @endcan
-                    @can('manage course taxonomy')
-                    <a href="{{ route('admin.categories.index') }}" class="responsive-nav-link-custom {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">Kategori Course</a>
-                    <a href="{{ route('admin.tags.index') }}" class="responsive-nav-link-custom {{ request()->routeIs('admin.tags.*') ? 'active' : '' }}">Tag Course</a>
-                    @endcan
-                </div>
-                @endcanany
             </div>
 
             {{-- Mobile user footer --}}
@@ -394,6 +329,14 @@
             @endauth
         </div>
     </nav>
+    @endcannot
+
+    @can('admin-only')
+        <div class="flex min-w-0 flex-1">
+            @include('layouts.partials.admin-sidebar')
+            <div class="flex min-w-0 flex-1 flex-col">
+                @include('layouts.partials.admin-topbar')
+    @endcan
 
     {{-- ══════════════ PAGE HEADER ══════════════ --}}
     @if(isset($header))
@@ -405,7 +348,7 @@
     @endif
 
     {{-- ══════════════ MAIN CONTENT ══════════════ --}}
-    <main class="flex-1 min-w-0">
+    <main class="admin-page-content flex-1 min-w-0">
         @hasSection('content')
             @yield('content')
         @else
@@ -421,6 +364,10 @@
             </p>
         </div>
     </footer>
+    @can('admin-only')
+            </div>
+        </div>
+    @endcan
 </div>
 
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" crossorigin="anonymous"></script>

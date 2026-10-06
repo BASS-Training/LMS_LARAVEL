@@ -2,14 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\Chat;
 use App\Models\Course;
 use App\Models\Quiz;
-use App\Models\Chat;
 use App\Policies\ChatPolicy;
 use App\Policies\CoursePolicy;
 use App\Policies\QuizPolicy;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -40,5 +40,7 @@ class AuthServiceProvider extends ServiceProvider
         Gate::before(function ($user, $ability) {
             return $user->hasRole('super-admin') ? true : null;
         });
+
+        Gate::define('super-admin-only', fn ($user) => $user->hasRole('super-admin'));
     }
 }

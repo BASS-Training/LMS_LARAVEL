@@ -7,9 +7,11 @@
     <div>
         <p class="text-xs font-bold uppercase tracking-[0.2em] text-bass-red">Pelatihan Profesional BASS</p>
         <h1 class="mt-4 max-w-4xl text-5xl font-extrabold leading-[0.98] tracking-[-0.045em] text-navy [font-family:Fraunces,serif] sm:text-7xl lg:text-[5.4rem]">Bersama kami, <em class="font-medium text-bass-red">mulai</em> kompeten.</h1>
-        <p class="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Ambil satu course sesuai kebutuhan, pilih bundle yang lebih hemat, atau ikuti Learning Path untuk perjalanan belajar yang terarah.</p>
+        <p class="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Pilih course sesuai kebutuhan dan bangun kompetensi profesional melalui pengalaman belajar yang terukur.</p>
         <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+            @if ($bundlesEnabled)
             <a href="{{ route('bundles.index') }}" class="inline-flex min-h-12 items-center justify-center rounded-xl border-2 border-navy bg-bass-red px-6 text-sm font-bold text-white shadow-[5px_5px_0_#17243A] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#17243A]">Lihat Bundle Hemat</a>
+            @endif
             <a href="{{ route('shop.index') }}" class="inline-flex min-h-12 items-center justify-center rounded-xl border-2 border-navy bg-white px-6 text-sm font-bold shadow-[5px_5px_0_#17243A] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#17243A]">Jelajahi Course</a>
         </div>
         <form method="GET" action="{{ route('shop.index') }}" class="mt-8 flex max-w-xl gap-2">
@@ -32,10 +34,14 @@
 </section>
 
 <section class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
-    <div class="grid overflow-hidden rounded-2xl border-2 border-navy bg-[#fffdf7] md:grid-cols-3">
-        <a href="{{ route('shop.index') }}" class="border-b-2 border-navy p-6 transition hover:bg-white md:border-b-0 md:border-r-2"><p class="text-xs font-bold tracking-[0.16em] text-bass-red">1 · COURSE</p><h2 class="mt-2 text-2xl font-extrabold [font-family:Fraunces,serif]">Pilih per course</h2><p class="mt-2 text-sm leading-6 text-slate-600">Ambil kompetensi tertentu sesuai kebutuhan Anda saat ini.</p></a>
+    <div class="grid overflow-hidden rounded-2xl border-2 border-navy bg-[#fffdf7] {{ $bundlesEnabled && $learningPathsEnabled ? 'md:grid-cols-3' : (($bundlesEnabled || $learningPathsEnabled) ? 'md:grid-cols-2' : '') }}">
+        <a href="{{ route('shop.index') }}" class="border-b-2 border-navy p-6 transition hover:bg-white md:border-b-0 {{ $bundlesEnabled || $learningPathsEnabled ? 'md:border-r-2' : '' }}"><p class="text-xs font-bold tracking-[0.16em] text-bass-red">COURSE</p><h2 class="mt-2 text-2xl font-extrabold [font-family:Fraunces,serif]">Pilih per course</h2><p class="mt-2 text-sm leading-6 text-slate-600">Ambil kompetensi tertentu sesuai kebutuhan Anda saat ini.</p></a>
+        @if ($bundlesEnabled)
         <a href="{{ route('bundles.index') }}" class="border-b-2 border-navy p-6 transition hover:bg-white md:border-b-0 md:border-r-2"><p class="text-xs font-bold tracking-[0.16em] text-bass-red">2 · BUNDLE</p><h2 class="mt-2 text-2xl font-extrabold [font-family:Fraunces,serif]">Beberapa course, lebih hemat</h2><p class="mt-2 text-sm leading-6 text-slate-600">Satu transaksi untuk paket course pilihan dengan harga khusus.</p></a>
+        @endif
+        @if ($learningPathsEnabled)
         <a href="{{ route('learning-paths.index') }}" class="p-6 transition hover:bg-white"><p class="text-xs font-bold tracking-[0.16em] text-bass-red">3 · LEARNING PATH</p><h2 class="mt-2 text-2xl font-extrabold [font-family:Fraunces,serif]">Belajar berurutan</h2><p class="mt-2 text-sm leading-6 text-slate-600">Ikuti rekomendasi urutan course untuk mencapai tujuan belajar.</p></a>
+        @endif
     </div>
 </section>
 
@@ -79,7 +85,7 @@
 </section>
 
 <section id="cara-belajar" class="py-16 sm:py-20">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><p class="text-xs font-bold uppercase tracking-[0.2em] text-bass-red">Cara belajar</p><h2 class="mt-3 text-4xl font-extrabold [font-family:Fraunces,serif] sm:text-5xl">Empat langkah, tanpa ribet.</h2><p class="mt-3 max-w-xl text-slate-600">Dari memilih program hingga membuktikan kompetensi, seluruh proses tersedia dalam satu platform.</p><ol class="mt-10 grid overflow-hidden rounded-2xl border-2 border-navy bg-[#fffdf7] md:grid-cols-4">@foreach ([['Pilih program', 'Course satuan, bundle hemat, atau Learning Path terarah.'], ['Selesaikan pendaftaran', 'Daftar gratis atau selesaikan pembayaran secara aman.'], ['Mulai belajar', 'Akses materi, asesmen, diskusi, dan feedback instruktur.'], ['Tuntaskan program', 'Selesaikan persyaratan dan dapatkan bukti kompetensi.']] as $index => [$title, $description])<li class="border-b-2 border-navy p-6 last:border-0 md:border-b-0 md:border-r-2"><span class="block text-5xl font-extrabold leading-none text-bass-red [font-family:Fraunces,serif]">{{ $index + 1 }}</span><h3 class="mt-3 text-xl font-extrabold [font-family:Fraunces,serif]">{{ $title }}</h3><p class="mt-2 text-sm leading-6 text-slate-600">{{ $description }}</p></li>@endforeach</ol></div>
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><p class="text-xs font-bold uppercase tracking-[0.2em] text-bass-red">Cara belajar</p><h2 class="mt-3 text-4xl font-extrabold [font-family:Fraunces,serif] sm:text-5xl">Empat langkah, tanpa ribet.</h2><p class="mt-3 max-w-xl text-slate-600">Dari memilih program hingga membuktikan kompetensi, seluruh proses tersedia dalam satu platform.</p><ol class="mt-10 grid overflow-hidden rounded-2xl border-2 border-navy bg-[#fffdf7] md:grid-cols-4">@foreach ([['Pilih course', 'Pilih pelatihan yang sesuai dengan kebutuhan kompetensi Anda.'], ['Selesaikan pendaftaran', 'Daftar gratis atau selesaikan pembayaran secara aman.'], ['Mulai belajar', 'Akses materi, asesmen, diskusi, dan feedback instruktur.'], ['Tuntaskan program', 'Selesaikan persyaratan dan dapatkan bukti kompetensi.']] as $index => [$title, $description])<li class="border-b-2 border-navy p-6 last:border-0 md:border-b-0 md:border-r-2"><span class="block text-5xl font-extrabold leading-none text-bass-red [font-family:Fraunces,serif]">{{ $index + 1 }}</span><h3 class="mt-3 text-xl font-extrabold [font-family:Fraunces,serif]">{{ $title }}</h3><p class="mt-2 text-sm leading-6 text-slate-600">{{ $description }}</p></li>@endforeach</ol></div>
 </section>
 
 <section id="kontak" class="border-y-2 border-navy bg-bass-gold py-16 sm:py-20">

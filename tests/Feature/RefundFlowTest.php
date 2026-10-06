@@ -7,6 +7,7 @@ use App\Enums\RefundStatus;
 use App\Models\Certificate;
 use App\Models\Content;
 use App\Models\Course;
+use App\Models\FeatureSetting;
 use App\Models\Lesson;
 use App\Models\Order;
 use App\Models\RefundSetting;
@@ -63,6 +64,40 @@ class RefundFlowTest extends TestCase
             'request_window_days' => 14,
             'max_progress_percentage' => 30,
         ]);
+    }
+
+    public function test_disabled_refund_requests_are_hidden_and_blocked_but_admin_history_remains_available(): void
+    {
+        [$participant, , $order] = $this->paidOrder();
+        FeatureSetting::current()->update(['refund_requests_enabled' => false]);
+
+        $this->actingAs($participant)
+            ->get(route('checkout.finish', $order))
+            ->assertOk()
+            ->assertDontSeeText('Ajukan refund penuh');
+        $this->post(route('refunds.store', $order), [
+            'reason_type' => RefundReason::ContentMismatch->value,
+        ])->assertNotFound();
+        $this->assertDatabaseCount('refunds', 0);
+
+        $admin = User::factory()->create();
+        Role::findOrCreate('super-admin', 'web');
+        $admin->assignRole('super-admin');
+        $this->actingAs($admin)
+            ->get(route('admin.refunds.index'))
+            ->assertOk()
+            ->assertSeeText('Manajemen Refund');
+    }
+
+    public function test_refund_service_rejects_direct_requests_while_feature_is_disabled(): void
+    {
+        [$participant, , $order] = $this->paidOrder();
+        FeatureSetting::current()->update(['refund_requests_enabled' => false]);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Pengajuan refund baru sedang dinonaktifkan.');
+
+        app(RefundService::class)->request($order, $participant, 'Alasan pengajuan refund yang valid.');
     }
 
     public function test_super_admin_can_view_refund_management_pages(): void

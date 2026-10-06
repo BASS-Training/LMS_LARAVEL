@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\BundleRequest;
 use App\Models\ActivityLog;
 use App\Models\Bundle;
 use App\Models\Course;
+use App\Models\FeatureSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -25,7 +26,25 @@ class BundleController extends Controller
         return view('admin.bundles.index', [
             'bundles' => $query->paginate(15)->withQueryString(),
             'search' => $search,
+            'featureSettings' => FeatureSetting::current(),
         ]);
+    }
+
+    public function updateAvailability(Request $request)
+    {
+        $validated = $request->validate([
+            'enabled' => ['required', 'boolean'],
+        ]);
+        $settings = FeatureSetting::current();
+        $previous = $settings->bundles_enabled;
+        $settings->update(['bundles_enabled' => $validated['enabled']]);
+
+        ActivityLog::log('bundle_availability_updated', [
+            'description' => 'Memperbarui ketersediaan publik Bundle',
+            'metadata' => ['before' => $previous, 'after' => $settings->bundles_enabled],
+        ]);
+
+        return back()->with('success', 'Ketersediaan Bundle berhasil diperbarui.');
     }
 
     public function create()

@@ -1,3 +1,4 @@
+@inject('features', 'App\Services\FeatureAvailability')
 @extends('layouts.app')
 
 @section('title', 'Status Pembayaran')
@@ -57,7 +58,7 @@
                     </a>
                 @endif
 
-                @if (! $order->refund)
+                @if (! $order->refund && $features->refundRequestsEnabled())
                     <div class="mt-5 pt-5 border-t border-gray-100 text-left"
                          x-data="{ open: @js($errors->has('reason_type') || $errors->has('reason_other')), reasonType: @js(old('reason_type', '')) }">
                         @if ($refundEligibility['eligible'])
@@ -121,6 +122,34 @@
                    class="mt-6 w-full inline-flex items-center justify-center min-h-[44px] rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors">
                     Muat Ulang Status
                 </a>
+            </div>
+
+        @elseif ($order->isPending() && in_array($order->snap_status, ['queued', 'processing', 'needs_review'], true))
+            <div class="p-8 text-center">
+                <h1 class="text-xl font-bold text-gray-900">Menyiapkan pembayaran</h1>
+                @if ($order->snap_status === 'needs_review')
+                    <p class="mt-2 text-sm text-gray-600">Transaksi perlu diperiksa oleh admin. Jangan buat pembayaran baru untuk pesanan ini.</p>
+                @else
+                    <p class="mt-2 text-sm text-gray-600">Tautan pembayaran sedang dibuat. Halaman ini akan membuka Midtrans secara otomatis.</p>
+                    <p id="snap-waiting" class="mt-3 text-xs text-gray-500">Menunggu pekerja antrean pembayaran...</p>
+                    <script>
+                        (() => {
+                            const url = @json(route('checkout.snap-status', $order));
+                            const check = async () => {
+                                try {
+                                    const response = await fetch(url, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' });
+                                    if (!response.ok) return;
+                                    const result = await response.json();
+                                    if (result.redirect_url) { window.location.assign(result.redirect_url); return; }
+                                    if (result.snap_status === 'needs_review' || result.status !== 'pending') { window.location.reload(); }
+                                } catch (error) { /* Retry on the next poll. */ }
+                            };
+                            check();
+                            setInterval(check, 3000);
+                        })();
+                    </script>
+                @endif
+                <a href="{{ route('checkout.index') }}" class="mt-6 inline-block text-sm text-bass-red">Lihat riwayat pesanan</a>
             </div>
 
         @elseif ($order->isPending())
@@ -208,10 +237,12 @@
                     </p>
                 @endif
 
-                <a href="{{ $order->isBundleOrder() ? route('bundles.show', $order->bundle) : route('shop.show', $order->course) }}"
-                   class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors">
-                    Pesan Ulang
-                </a>
+                @if (! $order->isBundleOrder() || $features->bundlesEnabled())
+                    <a href="{{ $order->isBundleOrder() ? route('bundles.show', $order->bundle) : route('shop.show', $order->course) }}"
+                       class="mt-6 w-full inline-flex items-center justify-center min-h-[48px] rounded-lg bg-bass-red text-white font-semibold hover:bg-bass-red-hover transition-colors">
+                         Pesan Ulang
+                    </a>
+                @endif
             </div>
         @endif
 

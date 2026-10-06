@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\RefundStatus;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
+use App\Models\FeatureSetting;
 use App\Models\Refund;
 use App\Models\RefundSetting;
 use App\Services\Payment\RefundService;
@@ -44,6 +45,7 @@ class RefundController extends Controller
                 ->where('status', RefundStatus::Refunded)
                 ->sum('amount'),
             'settings' => RefundSetting::current(),
+            'featureSettings' => FeatureSetting::current(),
         ]);
     }
 
@@ -52,15 +54,30 @@ class RefundController extends Controller
         $validated = $request->validate([
             'request_window_days' => ['required', 'integer', 'min:1', 'max:365'],
             'max_progress_percentage' => ['required', 'integer', 'min:0', 'max:100'],
+            'requests_enabled' => ['sometimes', 'boolean'],
         ]);
 
         $settings = RefundSetting::current();
         $previous = $settings->only(['request_window_days', 'max_progress_percentage']);
-        $settings->update($validated);
+        $featureSettings = FeatureSetting::current();
+        $previous['requests_enabled'] = $featureSettings->refund_requests_enabled;
+        $settings->update([
+            'request_window_days' => $validated['request_window_days'],
+            'max_progress_percentage' => $validated['max_progress_percentage'],
+        ]);
+        $featureSettings->update([
+            'refund_requests_enabled' => $validated['requests_enabled'] ?? $featureSettings->refund_requests_enabled,
+        ]);
 
         ActivityLog::log('refund_settings_updated', [
             'description' => 'Memperbarui kebijakan global refund',
-            'metadata' => ['before' => $previous, 'after' => $settings->fresh()->only(array_keys($previous))],
+            'metadata' => [
+                'before' => $previous,
+                'after' => [
+                    ...$settings->fresh()->only(['request_window_days', 'max_progress_percentage']),
+                    'requests_enabled' => $featureSettings->refund_requests_enabled,
+                ],
+            ],
         ]);
 
         return back()->with('success', 'Kebijakan refund berhasil diperbarui.');
