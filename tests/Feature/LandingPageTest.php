@@ -47,8 +47,10 @@ class LandingPageTest extends TestCase
             ->assertOk()
             ->assertSee(route('shop.index'), false)
             ->assertSee('name="q"', false)
-            ->assertSeeText('BASS Academy di Android')
-            ->assertSeeText('Download di')
+            ->assertSeeText('BASS Academy di Ponsel')
+            ->assertSee('google.png', false)
+            ->assertSee('apple.png', false)
+            ->assertSeeText('Segera hadir')
             ->assertSee('https://play.google.com/store/apps/details?id=com.basstraining.lms&amp;pcampaignid=web_share', false)
             ->assertSeeText('Program sedang dipersiapkan')
             ->assertDontSeeText('Paket belajar pilihan');

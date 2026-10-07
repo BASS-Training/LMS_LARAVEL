@@ -91,7 +91,7 @@
 <section id="aplikasi" class="overflow-hidden border-y-2 border-navy bg-bass-red text-white">
     <div class="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1fr_.8fr] lg:px-8">
         <div>
-            <p class="text-xs font-bold uppercase tracking-[0.2em] text-bass-gold">BASS Academy di Android</p>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-bass-gold">BASS Academy di Ponsel</p>
             <h2 class="mt-3 max-w-2xl text-4xl font-extrabold leading-tight [font-family:Fraunces,serif] sm:text-5xl">Belajar tetap jalan,<br>di mana pun Anda berada.</h2>
             <p class="mt-5 max-w-xl text-base leading-7 text-white/75">Akses course, lanjutkan materi, pantau progres, dan ikuti aktivitas belajar langsung dari ponsel Anda.</p>
             <div class="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold text-white/90">
@@ -99,18 +99,18 @@
                 <span class="inline-flex items-center gap-2"><span class="flex h-5 w-5 items-center justify-center rounded-full bg-bass-gold text-xs text-navy">&#10003;</span>Pantau progres</span>
                 <span class="inline-flex items-center gap-2"><span class="flex h-5 w-5 items-center justify-center rounded-full bg-bass-gold text-xs text-navy">&#10003;</span>Notifikasi belajar</span>
             </div>
-            <a href="https://play.google.com/store/apps/details?id=com.basstraining.lms&amp;pcampaignid=web_share"
-               target="_blank" rel="noopener noreferrer"
-               aria-label="Download BASS Academy di Google Play"
-               class="mt-8 inline-flex min-h-16 items-center gap-3 rounded-xl border-2 border-white bg-black px-5 text-white shadow-[5px_5px_0_#F6C945] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#F6C945]">
-                <svg class="h-9 w-9 shrink-0" viewBox="0 0 48 48" aria-hidden="true">
-                    <path fill="#00d7fe" d="M7.2 5.6c-.5.7-.8 1.7-.8 2.9v31c0 1.2.3 2.2.8 2.9L25 24 7.2 5.6Z"/>
-                    <path fill="#ffce00" d="m31 17.8-6-6.2L8.6 4.2c-.5-.2-1-.3-1.4-.1L25 24l6-6.2Z"/>
-                    <path fill="#ff3a44" d="M7.2 43.9c.4.2.9.1 1.4-.1L25 36.4l6-6.2-6-6.2L7.2 43.9Z"/>
-                    <path fill="#00f076" d="m40.3 21.9-9.3-4.1-6 6.2 6 6.2 9.3-4.1c1.8-.8 1.8-3.4 0-4.2Z"/>
-                </svg>
-                <span class="text-left"><span class="block text-[10px] font-medium uppercase leading-none tracking-[0.14em] text-white/75">Download di</span><span class="mt-1 block text-xl font-semibold leading-none">Google Play</span></span>
-            </a>
+            <div class="mt-8 flex flex-wrap items-start gap-4">
+                <a href="https://play.google.com/store/apps/details?id=com.basstraining.lms&amp;pcampaignid=web_share"
+                   target="_blank" rel="noopener noreferrer"
+                   aria-label="Download BASS Academy di Google Play"
+                   class="inline-block rounded-lg shadow-[5px_5px_0_#F6C945] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#F6C945]">
+                    <img src="{{ asset('google.png') }}" alt="Dapatkan di Google Play" class="h-14 w-auto sm:h-16">
+                </a>
+                <div class="flex flex-col items-center gap-1.5" aria-label="BASS Academy untuk App Store segera hadir">
+                    <img src="{{ asset('apple.png') }}" alt="Download di App Store" class="h-14 w-auto sm:h-16">
+                    <span class="text-[10px] font-bold uppercase tracking-[0.16em] text-white/80">Segera hadir</span>
+                </div>
+            </div>
         </div>
 
         <div class="relative mx-auto w-full max-w-sm px-8 pt-3 sm:px-12">
