@@ -43,6 +43,34 @@
             </section>
         @endif
 
+        @if ($course->instructors->isNotEmpty())
+            <section>
+                <p class="text-xs font-bold uppercase tracking-[0.18em] text-bass-red">Kenali Pengajar Anda</p>
+                <h2 class="mt-2 text-3xl font-extrabold [font-family:Fraunces,serif]">Instruktur</h2>
+                <div class="mt-5 grid gap-5 {{ $course->instructors->count() > 1 ? 'md:grid-cols-2' : '' }}">
+                    @foreach ($course->instructors as $instructor)
+                        <article class="flex flex-col gap-5 rounded-2xl border-2 border-navy bg-[#fffdf7] p-6 shadow-[5px_5px_0_#F6C945] sm:flex-row">
+                            <div class="shrink-0">
+                                @if ($instructor->avatar)
+                                    <img src="{{ asset('storage/'.$instructor->avatar) }}" alt="Foto {{ $instructor->name }}" class="h-28 w-28 rounded-2xl border-2 border-navy object-cover">
+                                @else
+                                    <span class="flex h-28 w-28 items-center justify-center rounded-2xl border-2 border-navy bg-navy text-3xl font-extrabold text-bass-gold [font-family:Fraunces,serif]">{{ Str::upper(Str::substr($instructor->name, 0, 2)) }}</span>
+                                @endif
+                            </div>
+                            <div class="min-w-0">
+                                <h3 class="text-2xl font-extrabold text-navy [font-family:Fraunces,serif]">{{ $instructor->name }}</h3>
+                                @if ($instructor->instructor_bio)
+                                    <div class="prose prose-sm mt-3 max-w-none text-slate-700 prose-a:font-semibold prose-a:text-bass-red">{!! $instructor->instructor_bio !!}</div>
+                                @else
+                                    <p class="mt-3 text-sm leading-6 text-slate-500">Instruktur BASS yang akan mendampingi proses belajar Anda.</p>
+                                @endif
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            </section>
+        @endif
+
         @if (!empty($course->salesProfile?->faq))
             <section><h2 class="text-3xl font-extrabold [font-family:Fraunces,serif]">Pertanyaan yang sering diajukan</h2><div class="mt-5 space-y-3">@foreach ($course->salesProfile->faq as $faq)<details class="rounded-xl border-2 border-navy bg-[#fffdf7] px-5"><summary class="cursor-pointer py-4 font-bold">{{ $faq['question'] }}</summary><p class="border-t border-dashed border-navy/20 py-4 text-sm leading-6 text-slate-700">{{ $faq['answer'] }}</p></details>@endforeach</div></section>
         @endif

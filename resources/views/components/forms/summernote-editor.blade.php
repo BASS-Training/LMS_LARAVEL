@@ -1,4 +1,4 @@
-@props(['id', 'name', 'value' => ''])
+@props(['id', 'name', 'value' => '', 'preset' => 'default', 'placeholder' => 'Tuliskan konten Anda di sini...'])
 
 <div wire:ignore>
     <textarea
@@ -12,10 +12,15 @@
 <script>
     $(document).ready(function() {
         $('#{{ $id }}').summernote({
-            placeholder: 'Tuliskan konten Anda di sini...',
+            placeholder: @json($placeholder),
             tabsize: 2,
-            height: 300,
-            toolbar: [
+            height: {{ $preset === 'bio' ? 220 : 300 }},
+            toolbar: @json($preset === 'bio' ? [
+                ['style', ['style']],
+                ['font', ['bold', 'italic', 'underline', 'clear']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['insert', ['link']],
+            ] : [
                 ['style', ['style']],
                 ['font', ['bold', 'underline', 'clear']],
                 ['color', ['color']],
@@ -23,14 +28,17 @@
                 ['table', ['table']],
                 ['insert', ['link', 'picture', 'video']],
                 ['view', ['fullscreen', 'codeview', 'help']]
-            ],
+            ]),
+            @if ($preset !== 'bio')
             callbacks: {
                 onImageUpload: function(files) {
                     uploadImage(files[0], '#{{ $id }}');
                 }
-            }
+            },
+            @endif
         });
 
+        @if ($preset !== 'bio')
         function uploadImage(file, editor) {
             let data = new FormData();
             data.append("image", file);
@@ -50,6 +58,7 @@
                 }
             });
         }
+        @endif
     });
 </script>
 @endpush

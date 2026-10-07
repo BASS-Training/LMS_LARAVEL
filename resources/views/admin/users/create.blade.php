@@ -9,7 +9,7 @@
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <form action="{{ route('admin.users.store') }}" method="POST">
+                    <form action="{{ route('admin.users.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         
                         <!-- Name -->
@@ -52,6 +52,22 @@
                                 @endforeach
                             </div>
                              @error('roles') <span class="text-error text-sm">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="avatar" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Foto Profil</label>
+                            <input type="file" name="avatar" id="avatar" accept="image/jpeg,image/png,image/webp" class="mt-1 block w-full text-sm text-gray-600 dark:text-gray-300">
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">JPG, PNG, atau WebP. Maksimal 2 MB.</p>
+                            @error('avatar') <span class="text-error text-sm">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="instructor_bio" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Bio Instruktur</label>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Diabaikan pada halaman publik jika pengguna bukan instruktur.</p>
+                            <div class="mt-2 text-gray-900">
+                                <x-forms.summernote-editor id="instructor_bio" name="instructor_bio" :value="old('instructor_bio')" preset="bio" placeholder="Pengalaman dan keahlian instruktur..." />
+                            </div>
+                            @error('instructor_bio') <span class="text-error text-sm">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="flex items-center justify-end mt-6">

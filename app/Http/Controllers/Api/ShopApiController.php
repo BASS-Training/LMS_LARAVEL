@@ -42,7 +42,7 @@ class ShopApiController extends Controller
         $search = $validated['q'] ?? null;
 
         $query = Course::inCatalog()->with([
-            'instructors:id,name',
+            'instructors:id,name,avatar,instructor_bio',
             'salesProfile',
             'categories' => fn ($query) => $query->active()->ordered()->select('categories.id', 'name', 'slug'),
             'tags' => fn ($query) => $query->active()->orderBy('name')->select('tags.id', 'name', 'slug'),
@@ -133,7 +133,7 @@ class ShopApiController extends Controller
         $this->assertVisible($course, $user);
 
         $course->load([
-            'instructors:id,name',
+            'instructors:id,name,avatar,instructor_bio',
             'salesProfile',
             'categories' => fn ($query) => $query->active()->ordered()->select('categories.id', 'name', 'slug'),
             'tags' => fn ($query) => $query->active()->orderBy('name')->select('tags.id', 'name', 'slug'),
@@ -240,6 +240,12 @@ class ShopApiController extends Controller
             'title' => $course->title,
             'shortDescription' => $course->salesProfile?->headline ?: ($course->short_description ?? ''),
             'instructor' => $course->instructors->pluck('name')->filter()->implode(', '),
+            'instructors' => $course->instructors->map(fn (User $instructor) => [
+                'id' => (string) $instructor->id,
+                'name' => $instructor->name,
+                'avatarUrl' => $instructor->avatar ? asset('storage/'.$instructor->avatar) : null,
+                'bioHtml' => $instructor->instructor_bio,
+            ])->values(),
             'thumbnailUrl' => $course->thumbnail ? asset('storage/'.$course->thumbnail) : null,
             // index() memakai withCount(); show() sudah memuat relasinya. Pakai
             // yang tersedia agar tidak ada COUNT tambahan per kursus.

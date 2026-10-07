@@ -4,6 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
@@ -67,6 +71,83 @@ class ProfileTest extends TestCase
             ->assertRedirect('/profile');
 
         $this->assertNotNull($user->refresh()->email_verified_at);
+    }
+
+    public function test_instructor_can_update_public_bio_and_avatar_safely(): void
+    {
+        Storage::fake('public');
+        Permission::findOrCreate('manage own courses');
+        Role::findOrCreate('instructor');
+
+        $user = User::factory()->create();
+        $user->assignRole('instructor');
+        $user->givePermissionTo('manage own courses');
+
+        $response = $this->actingAs($user)->patch('/profile', [
+            'name' => $user->name,
+            'email' => $user->email,
+            'date_of_birth' => '2000-01-01',
+            'gender' => 'male',
+            'institution_name' => 'BASS Institute',
+            'occupation' => 'Karyawan Swasta',
+            'avatar' => UploadedFile::fake()->image('instructor.jpg', 600, 600),
+            'instructor_bio' => '<div><span>Pengajar <strong>bass</strong></span></div><script>alert(1)</script><a href="javascript:alert(1)">Profil</a>',
+        ]);
+
+        $response->assertSessionHasNoErrors()->assertRedirect('/profile');
+
+        $user->refresh();
+        Storage::disk('public')->assertExists($user->avatar);
+        $this->assertStringContainsString('<strong>bass</strong>', $user->instructor_bio);
+        $this->assertStringNotContainsString('<script', $user->instructor_bio);
+        $this->assertStringNotContainsString('javascript:', $user->instructor_bio);
+    }
+
+    public function test_replacing_and_removing_avatar_cleans_up_old_files(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('avatars/old.jpg', 'old-avatar');
+
+        $user = User::factory()->create(['avatar' => 'avatars/old.jpg']);
+        $profile = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'date_of_birth' => '2000-01-01',
+            'gender' => 'female',
+            'institution_name' => 'BASS Institute',
+            'occupation' => 'Wiraswasta',
+        ];
+
+        $this->actingAs($user)->patch('/profile', $profile + [
+            'avatar' => UploadedFile::fake()->image('new.png', 500, 500),
+        ])->assertSessionHasNoErrors();
+
+        $newAvatar = $user->refresh()->avatar;
+        Storage::disk('public')->assertMissing('avatars/old.jpg');
+        Storage::disk('public')->assertExists($newAvatar);
+
+        $this->actingAs($user)->patch('/profile', $profile + ['remove_avatar' => true])
+            ->assertSessionHasNoErrors();
+
+        Storage::disk('public')->assertMissing($newAvatar);
+        $this->assertNull($user->refresh()->avatar);
+    }
+
+    public function test_participant_cannot_set_an_instructor_bio(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->patch('/profile', [
+            'name' => $user->name,
+            'email' => $user->email,
+            'date_of_birth' => '2000-01-01',
+            'gender' => 'male',
+            'institution_name' => 'BASS Institute',
+            'occupation' => 'Pelajar/Mahasiswa',
+            'instructor_bio' => '<p>Tidak boleh tampil</p>',
+        ])->assertSessionHasErrors('instructor_bio');
+
+        $this->assertNull($user->refresh()->instructor_bio);
     }
 
     public function test_user_can_delete_their_account(): void

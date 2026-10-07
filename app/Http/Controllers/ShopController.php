@@ -115,7 +115,7 @@ class ShopController extends Controller
 
         // Kurikulum: judul saja. Isi konten TIDAK pernah dikirim ke view.
         $course->load([
-            'instructors:id,name',
+            'instructors:id,name,avatar,instructor_bio',
             'salesProfile',
             'categories' => fn ($query) => $query->active()->ordered()->select('categories.id', 'name', 'slug'),
             'tags' => fn ($query) => $query->active()->orderBy('name')->select('tags.id', 'name', 'slug'),

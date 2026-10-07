@@ -35,6 +35,7 @@ class User extends Authenticatable
         'gender',
         'occupation',
         'avatar',
+        'instructor_bio',
         'phone',
         'monthly_income',
         'learning_reminder_email_enabled',
