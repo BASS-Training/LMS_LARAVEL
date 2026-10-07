@@ -8,6 +8,29 @@ Laravel 12 LMS (Learning Management System) for Indonesian training programs. Su
 
 ## Development Commands
 
+### Prerequisite: Redis (cache)
+
+Cache uses Redis (`CACHE_STORE=redis`, phpredis). Redis must be running before `composer dev`.
+
+```bash
+# Ubuntu/Debian
+sudo apt install redis-server php-redis && sudo systemctl enable --now redis-server
+# macOS
+brew install redis php-redis && brew services start redis
+# Docker (any OS)
+docker run -d --name lms-redis -p 6379:6379 redis:7
+# Check
+redis-cli ping            # PONG
+php -m | grep redis       # Windows: php -m | findstr redis
+```
+
+**Windows** (Redis has no official native build) — pick one:
+- **WSL2 (recommended):** `wsl --install`, then follow the Ubuntu steps inside WSL. Laravel on Windows can still reach `127.0.0.1:6379`.
+- **Docker Desktop:** use the `docker run` command above.
+- **Laragon:** enable Redis from the Laragon menu; `php_redis.dll` is bundled.
+- Community alternative: Memurai.
+- PHP extension on plain Windows PHP: download `php_redis.dll` matching your PHP version/TS/arch from pecl.php.net/package/redis, put it in `ext/`, add `extension=redis` to `php.ini`. If that is hard, use `composer require predis/predis` and set `REDIS_CLIENT=predis` in your local `.env` only (not production).
+
 ```bash
 # Start all dev processes concurrently (server + queue + logs + Vite HMR)
 composer dev
@@ -80,7 +103,7 @@ Templates have x/y coordinate fields for dynamic placement of name, date, title,
 No separate `routes/api.php`. API routes live inside `routes/web.php` under an `/api` prefix with Sanctum middleware. Currently covers chat/messaging endpoints.
 
 ### Queue & Sessions
-All driven by database: `SESSION_DRIVER=database`, `CACHE_STORE=database`, `QUEUE_CONNECTION=database`. No Redis required.
+Cache runs on Redis (`CACHE_STORE=redis`, phpredis). Sessions and queue are configured separately via `SESSION_DRIVER` and `QUEUE_CONNECTION` (payment jobs use the `payment_database` connection on purpose). Redis is shared with other apps on the host — never run `FLUSHALL`/`FLUSHDB`.
 
 ## Key Conventions
 
