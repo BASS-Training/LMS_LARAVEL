@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\Certificate;
 use App\Models\Content;
-use App\Models\Lesson;
-use App\Models\Course; // <-- TAMBAHKAN USE STATEMENT
-use App\Models\Certificate; // <-- TAMBAHKAN USE STATEMENT
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use App\Models\Course;
+use App\Models\Lesson; // <-- TAMBAHKAN USE STATEMENT
+use App\Models\User; // <-- TAMBAHKAN USE STATEMENT
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB; // <-- TAMBAHKAN USE STATEMENT
+// <-- TAMBAHKAN USE STATEMENT
 use Illuminate\Support\Facades\Log; // <-- TAMBAHKAN USE STATEMENT
 use Illuminate\Support\Facades\Storage; // <-- TAMBAHKAN USE STATEMENT
-use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Str;
 
 class ProgressController extends Controller
 {
@@ -22,12 +21,12 @@ class ProgressController extends Controller
         $user = Auth::user();
 
         // Authorization: only users allowed to attempt quizzes (participants) can view their scores
-        if (!$user->can('attempt quizzes')) {
+        if (! $user->can('attempt quizzes')) {
             abort(403, 'Akses ditolak. Halaman ini hanya untuk peserta.');
         }
 
         // Ensure participant is enrolled in the course
-        if (!$course->enrolledUsers()->where('user_id', $user->id)->exists()) {
+        if (! $course->enrolledUsers()->where('user_id', $user->id)->exists()) {
             abort(403, 'Anda tidak terdaftar pada kursus ini.');
         }
 
@@ -57,7 +56,7 @@ class ProgressController extends Controller
                     $totalMarks = (int) ($quiz->questions->sum('marks'));
                     $totalMarks = max(1, $totalMarks); // Minimal 1 untuk avoid division by zero
 
-                    $percentage = round(((int)$attempt->score / $totalMarks) * 100, 2);
+                    $percentage = round(((int) $attempt->score / $totalMarks) * 100, 2);
 
                     return [
                         'attempt_id' => $attempt->id,
@@ -127,6 +126,7 @@ class ProgressController extends Controller
             'essayAverage' => $essayAverage,
         ]);
     }
+
     public function markContentAsCompleted(Content $content)
     {
         $user = Auth::user();
@@ -135,7 +135,7 @@ class ProgressController extends Controller
 
         // Tandai konten saat ini sebagai selesai
         $user->completedContents()->syncWithoutDetaching([
-            $content->id => ['completed' => true, 'completed_at' => now()]
+            $content->id => ['completed' => true, 'completed_at' => now()],
         ]);
 
         // Cek apakah lesson (materi) sekarang sudah selesai
@@ -165,7 +165,7 @@ class ProgressController extends Controller
         // cek apakah semua pelajaran di kursus ini sudah selesai.
         $allLessonsCompleted = true;
         foreach ($course->lessons as $courseLesson) {
-            if (!$user->hasCompletedLesson($courseLesson)) {
+            if (! $user->hasCompletedLesson($courseLesson)) {
                 $allLessonsCompleted = false;
                 break;
             }
@@ -187,7 +187,7 @@ class ProgressController extends Controller
 
         // Tandai semua konten dalam pelajaran ini sebagai selesai juga
         $contentIds = $lesson->contents->pluck('id')->toArray();
-        if (!empty($contentIds)) {
+        if (! empty($contentIds)) {
             $user->contents()->syncWithoutDetaching(
                 array_fill_keys($contentIds, ['completed' => true, 'completed_at' => now()])
             );
@@ -206,8 +206,9 @@ class ProgressController extends Controller
         Log::info("Checking certificate eligibility for user {$user->id} in course {$course->id}");
 
         // Cek apakah course punya template sertifikat
-        if (!$course->certificate_template_id) {
+        if (! $course->certificate_template_id) {
             Log::info("No certificate template set for course {$course->id}");
+
             return;
         }
 
@@ -222,7 +223,7 @@ class ProgressController extends Controller
                 ->where('user_id', $user->id)
                 ->first();
 
-            if (!$existingCertificate) {
+            if (! $existingCertificate) {
                 Log::info("Generating new certificate for user {$user->id} in course {$course->id}");
                 $this->generateCertificate($course, $user);
             } else {
@@ -236,8 +237,9 @@ class ProgressController extends Controller
     private function generateCertificate(Course $course, User $user)
     {
         $template = $course->certificateTemplate;
-        if (!$template) {
+        if (! $template) {
             Log::warning("Certificate generation skipped for user {$user->id} in course {$course->id}: No template found.");
+
             return;
         }
 
@@ -258,25 +260,26 @@ class ProgressController extends Controller
 
             // Generate PDF using the enhanced certificate render view
             $pdf = Pdf::loadView('certificates.template-render', compact('certificate'))
-                ->setPaper('a4', 'landscape')
+                ->setPaper('a4', $certificate->certificateTemplate?->paperOrientation() ?? 'landscape')
                 ->setOptions([
                     'dpi' => 96, // Match screen DPI for consistent sizing
                     'defaultFont' => 'times',
                     'isHtml5ParserEnabled' => true,
                     'isRemoteEnabled' => true,
+                    'allowedRemoteHosts' => config('certificate.pdf_remote_hosts'),
                     'enable_local_file_access' => true,
                     'chroot' => public_path(),
                 ]);
 
             // Create certificates directory if it doesn't exist
             $certificatesDir = 'certificates';
-            if (!Storage::disk('public')->exists($certificatesDir)) {
+            if (! Storage::disk('public')->exists($certificatesDir)) {
                 Storage::disk('public')->makeDirectory($certificatesDir);
             }
 
             // Save PDF file
-            $fileName = $certificateCode . '.pdf';
-            $filePath = $certificatesDir . '/' . $fileName;
+            $fileName = $certificateCode.'.pdf';
+            $filePath = $certificatesDir.'/'.$fileName;
 
             Storage::disk('public')->put($filePath, $pdf->output());
 
@@ -290,7 +293,7 @@ class ProgressController extends Controller
 
             return $certificate;
         } catch (\Exception $e) {
-            Log::error("Certificate generation failed for user {$user->id} in course {$course->id}: " . $e->getMessage());
+            Log::error("Certificate generation failed for user {$user->id} in course {$course->id}: ".$e->getMessage());
 
             // Clean up certificate record if PDF generation failed
             if (isset($certificate)) {
@@ -324,11 +327,12 @@ class ProgressController extends Controller
                     ->get()
                     ->map(function ($attempt) {
                         $totalQuestions = $attempt->quiz->questions->count();
+
                         return [
                             'quiz_title' => $attempt->quiz->title,
                             'score' => $attempt->score,
                             'max_score' => $totalQuestions,
-                            'percentage' => $totalQuestions > 0 ? round(($attempt->score / $totalQuestions) * 100, 2) : 0
+                            'percentage' => $totalQuestions > 0 ? round(($attempt->score / $totalQuestions) * 100, 2) : 0,
                         ];
                     });
 
@@ -336,7 +340,7 @@ class ProgressController extends Controller
                 \Log::info('=== ESSAY DEBUG START ===', [
                     'participant_id' => $participant->id,
                     'participant_name' => $participant->name,
-                    'course_id' => $course->id
+                    'course_id' => $course->id,
                 ]);
 
                 // Step 1: Check essay submissions
@@ -361,11 +365,11 @@ class ProgressController extends Controller
                                     'id' => $ans->id,
                                     'score' => $ans->score,
                                     'question_id' => $ans->question_id,
-                                    'has_answer' => !empty($ans->answer)
+                                    'has_answer' => ! empty($ans->answer),
                                 ];
-                            })
+                            }),
                         ];
-                    })
+                    }),
                 ]);
 
                 // Step 2: Check essay content in course
@@ -382,9 +386,9 @@ class ProgressController extends Controller
                         return [
                             'id' => $content->id,
                             'title' => $content->title,
-                            'questions_count' => $content->essayQuestions()->count()
+                            'questions_count' => $content->essayQuestions()->count(),
                         ];
-                    })
+                    }),
                 ]);
 
                 // Step 3: Build essay scores
@@ -400,7 +404,7 @@ class ProgressController extends Controller
                         'graded_answers' => $answersWithScores->count(),
                         'answers_detail' => $answersWithScores->map(function ($ans) {
                             return ['score' => $ans->score, 'question_id' => $ans->question_id];
-                        })
+                        }),
                     ]);
 
                     if ($answersWithScores->count() > 0) {
@@ -409,29 +413,29 @@ class ProgressController extends Controller
                         $essayScores->push([
                             'essay_title' => $submission->content->title,
                             'score' => round($averageScore, 2),
-                            'percentage' => round($averageScore, 2)
+                            'percentage' => round($averageScore, 2),
                         ]);
 
                         \Log::info('Essay Score Added', [
                             'title' => $submission->content->title,
-                            'average_score' => $averageScore
+                            'average_score' => $averageScore,
                         ]);
                     } else {
                         \Log::info('No graded answers found for submission', [
                             'submission_id' => $submission->id,
-                            'content_title' => $submission->content->title
+                            'content_title' => $submission->content->title,
                         ]);
                     }
                 }
 
                 \Log::info('Final Essay Scores', [
                     'count' => $essayScores->count(),
-                    'scores' => $essayScores->toArray()
+                    'scores' => $essayScores->toArray(),
                 ]);
 
                 \Log::info('=== ESSAY DEBUG END ===');
 
-                $participantsProgress[] = (object)[
+                $participantsProgress[] = (object) [
                     'name' => $participant->name,
                     'email' => $participant->email,
                     'progress_percentage' => $progressData['progress_percentage'],
@@ -453,26 +457,24 @@ class ProgressController extends Controller
                 'course' => $course,
                 'participantsProgress' => collect($participantsProgress),
                 'date' => now()->translatedFormat('d F Y'),
-                'total_content_count' => $totalContentCount
+                'total_content_count' => $totalContentCount,
             ];
 
             $pdf = Pdf::loadView('reports.progress_pdf', $data);
             $pdf->setPaper('a4', 'portrait');
 
-            $fileName = 'laporan-progres-lengkap-' . Str::slug($course->title) . '.pdf';
+            $fileName = 'laporan-progres-lengkap-'.Str::slug($course->title).'.pdf';
 
             return $pdf->download($fileName);
         } catch (\Exception $e) {
             \Log::error('PDF Export Error', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
-            return back()->with('error', 'Error generating PDF: ' . $e->getMessage());
+            return back()->with('error', 'Error generating PDF: '.$e->getMessage());
         }
     }
-
-
 
     public function debugEssayScores(Course $course, User $participant)
     {
@@ -496,9 +498,9 @@ class ProgressController extends Controller
                     return [
                         'question_id' => $answer->question_id,
                         'score' => $answer->score,
-                        'has_score' => !is_null($answer->score)
+                        'has_score' => ! is_null($answer->score),
                     ];
-                })
+                }),
             ];
         }
 

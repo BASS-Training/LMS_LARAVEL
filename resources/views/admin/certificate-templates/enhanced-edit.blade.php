@@ -7,7 +7,7 @@
 
     <div class="py-6">
         <div class="max-w-full mx-auto px-4">
-            <div x-data="enhancedCertificateEditor()" x-init="initFromData({{ json_encode($certificateTemplate->layout_data) }})">
+            <div x-data="enhancedCertificateEditor({ initialPages: window.enhancedCertificateInitialPages, storageBaseUrl: window.enhancedCertificateStorageUrl, fontStylesheetUrl: window.enhancedCertificateFontStylesheetUrl })">
                 <form id="template-form" @submit.prevent="submitForm" method="POST" action="{{ route('admin.certificate-templates.update', $certificateTemplate) }}" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
@@ -55,11 +55,12 @@
                                 </button>
 
                                 <!-- Preview Button -->
-                                <button type="button" @click="openPreview" class="p-2 bg-success-soft text-success rounded hover:bg-green-200">
+                                <button type="button" @click="openPreview" aria-label="Pratinjau template" title="Pratinjau template" class="inline-flex items-center gap-2 rounded bg-success-soft p-2 text-success hover:bg-green-200">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                     </svg>
+                                    <span class="hidden sm:inline">Pratinjau</span>
                                 </button>
 
                                 <div class="border-l border-gray-200 pl-4 flex space-x-2">
@@ -71,28 +72,32 @@
                     </div>
 
                     <!-- Properties Panel (moved above canvas) -->
-                    <div x-show="selectedElement" class="bg-white shadow-sm rounded-2xl border border-gray-200 p-4 mb-6">
+                    <div class="mb-6 h-72 overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm md:h-64 lg:h-52">
                         <h3 class="font-semibold text-gray-900 mb-3">Properti Elemen</h3>
+
+                        <div x-show="!selectedElement" class="flex h-[calc(100%-2rem)] items-center justify-center text-sm text-gray-400">
+                            Pilih elemen pada canvas untuk mengubah propertinya.
+                        </div>
 
                         <div x-show="selectedElement" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                             <!-- Position -->
                             <div>
                                 <label class="text-xs font-medium text-gray-600">X Position</label>
-                                <input type="number" x-model.number="selectedElement.x" min="0" class="w-full text-sm border border-gray-300 rounded px-2 py-1">
+                                <input type="number" x-model.number="selectedElement.x" @change="normalizeSelectedRect" min="0" class="w-full text-sm border border-gray-300 rounded px-2 py-1">
                             </div>
                             <div>
                                 <label class="text-xs font-medium text-gray-600">Y Position</label>
-                                <input type="number" x-model.number="selectedElement.y" min="0" class="w-full text-sm border border-gray-300 rounded px-2 py-1">
+                                <input type="number" x-model.number="selectedElement.y" @change="normalizeSelectedRect" min="0" class="w-full text-sm border border-gray-300 rounded px-2 py-1">
                             </div>
 
                             <!-- Size -->
                             <div>
                                 <label class="text-xs font-medium text-gray-600">Width</label>
-                                <input type="number" x-model.number="selectedElement.width" min="10" class="w-full text-sm border border-gray-300 rounded px-2 py-1">
+                                <input type="number" x-model.number="selectedElement.width" @change="normalizeSelectedRect" min="20" class="w-full text-sm border border-gray-300 rounded px-2 py-1">
                             </div>
                             <div>
                                 <label class="text-xs font-medium text-gray-600">Height</label>
-                                <input type="number" x-model.number="selectedElement.height" min="10" class="w-full text-sm border border-gray-300 rounded px-2 py-1">
+                                <input type="number" x-model.number="selectedElement.height" @change="normalizeSelectedRect" min="20" class="w-full text-sm border border-gray-300 rounded px-2 py-1">
                             </div>
 
                             <!-- Typography -->
@@ -107,11 +112,9 @@
                             <div>
                                 <label class="text-xs font-medium text-gray-600">Font Family</label>
                                 <select x-model="selectedElement.fontFamily" class="w-full text-sm border border-gray-300 rounded px-2 py-1">
-                                    <option value="Arial">Arial</option>
-                                    <option value="Times New Roman">Times New Roman</option>
-                                    <option value="Helvetica">Helvetica</option>
-                                    <option value="Georgia">Georgia</option>
-                                    <option value="Verdana">Verdana</option>
+                                    @foreach(config('certificate.editor_fonts') as $fontFamily => $fontLabel)
+                                        <option value="{{ $fontFamily }}" style="font-family: '{{ $fontFamily }}'">{{ $fontLabel }}</option>
+                                    @endforeach
                                 </select>
                             </div>
 
@@ -226,7 +229,7 @@
                                     <p class="text-xs text-gray-600">Klik untuk mengunggah</p>
                                     <p class="text-xs text-gray-400 mt-1">PNG, JPG, GIF (Max 5MB)</p>
                                 </label>
-                                <input :id="'bg_upload_' + activePageIndex" type="file" @change="changeBackground($event)" accept="image/*" class="hidden">
+                                <input :id="'bg_upload_' + activePageIndex" type="file" @change="changeBackground($event)" accept=".jpg,.jpeg,.png,.gif,.webp" class="hidden">
                             </div>
 
                             <!-- Background Settings -->
@@ -255,9 +258,9 @@
                         </div>
                     </div>
 
-                    <div class="flex gap-6">
+                    <div class="flex flex-col gap-6 xl:flex-row">
                         <!-- Left Sidebar -->
-                        <div class="w-80 space-y-6">
+                        <div class="w-full space-y-6 xl:w-80 xl:shrink-0">
                             <!-- Page Navigation -->
                             <div class="bg-white shadow-sm rounded-2xl border border-gray-200 p-4">
                                 <div class="flex items-center justify-between mb-3">
@@ -265,7 +268,7 @@
                                     <button type="button" @click="addPage" class="text-xs px-3 py-1 bg-bass-red text-white rounded-md hover:bg-bass-red-hover">+ Tambah</button>
                                 </div>
                                 <div class="space-y-2">
-                                    <template x-for="(page, index) in pages" :key="index">
+                                    <template x-for="(page, index) in pages" :key="page.id">
                                         <div class="flex items-center justify-between p-2 rounded border" :class="activePageIndex === index ? 'border-bass-red bg-bass-red/5' : 'border-gray-200'">
                                             <button type="button" @click="setActivePage(index)" class="flex items-center space-x-2 flex-1">
                                                 <div class="w-8 h-6 bg-gray-200 rounded border flex items-center justify-center">
@@ -313,19 +316,20 @@
                         </div>
 
                         <!-- Main Canvas Area -->
-                        <div class="flex-1">
+                        <div class="min-w-0 flex-1">
                             <div class="bg-white rounded-lg shadow-sm p-6" :style="{ minHeight: 'calc(100vh - 200px)' }">
 
                                 <!-- Canvas Container -->
-                                <div class="relative overflow-auto border border-gray-300 rounded-lg landscape-canvas" :style="{ height: '70vh', minWidth: '100%' }">
+                                <div x-ref="canvasViewport" class="relative overflow-hidden border border-gray-300 rounded-lg landscape-canvas p-4"
+                                     :style="{ height: (794 * zoom + 32) + 'px', minWidth: '100%' }">
                                     <div class="relative mx-auto bg-gray-100 canvas-wrapper"
                                          :style="{
-                                             transform: `scale(${zoom})`,
-                                             transformOrigin: 'top center'
-                                         }">
+                                             width: (1123 * zoom) + 'px',
+                                             height: (794 * zoom) + 'px'
+                                          }">
                                         <div x-ref="canvasContainer"
-                                             class="relative bg-white"
-                                             style="width: 1123px; height: 794px;"
+                                             class="absolute left-0 top-0 bg-white"
+                                             :style="{ width: '1123px', height: '794px', transform: `scale(${zoom})`, transformOrigin: 'top left' }"
                                          @click="deselectElement">
 
                                         <!-- Grid overlay -->
@@ -354,7 +358,7 @@
                                         <!-- Background Upload Area -->
                                         <div x-show="!pages[activePageIndex]?.backgroundUrl"
                                              class="absolute inset-0 flex items-center justify-center">
-                                            <label :for="'background_image_' + activePageIndex"
+                                             <label :for="'background_image_' + pages[activePageIndex]?.id"
                                                    class="cursor-pointer bg-white p-8 rounded-lg shadow-lg border-2 border-dashed border-gray-300 hover:border-gray-400 text-center">
                                                 <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
@@ -367,13 +371,13 @@
 
                                         <!-- Elements -->
                                         <template x-for="(element, elementIndex) in (pages[activePageIndex]?.elements || [])" :key="element.id">
-                                            <div class="resizable-draggable absolute cursor-move select-none element-container"
-                                                 :data-page-index="activePageIndex"
-                                                 :data-element-index="elementIndex"
-                                                 @click.stop="selectElement(elementIndex)"
+                                             <div class="enhanced-editor-element resizable-draggable absolute cursor-move select-none element-container"
+                                                  :data-page-id="pages[activePageIndex].id"
+                                                  :data-element-id="element.id"
+                                                  @click.stop="selectElement(element.id)"
                                                  :class="{
-                                                     'element-selected': selectedElement === element,
-                                                     'element-hover': selectedElement !== element,
+                                                      'element-selected': selectedElementId === element.id,
+                                                      'element-hover': selectedElementId !== element.id,
                                                      'text-align-left': element.textAlign === 'left' || !element.textAlign,
                                                      'text-align-center': element.textAlign === 'center',
                                                      'text-align-right': element.textAlign === 'right'
@@ -403,7 +407,7 @@
                                                      }"></div>
 
                                                 <!-- Resize Handles -->
-                                                <template x-if="selectedElement === element">
+                                                 <template x-if="selectedElementId === element.id">
                                                     <div class="resize-handles">
                                                         <!-- Corner handles -->
                                                         <div class="resize-handle resize-handle-nw"></div>
@@ -442,8 +446,8 @@
                     <!-- Hidden inputs for form submission -->
                     <input type="hidden" name="layout_data" :value="JSON.stringify(getSanitizedPages())">
                     <div class="hidden">
-                        <template x-for="(page, index) in pages" :key="index">
-                            <input :id="'background_image_' + index" @change="handleBackgroundUpload($event, index)" type="file" name="backgrounds[]" accept="image/*">
+                        <template x-for="page in pages" :key="page.id">
+                            <input :id="'background_image_' + page.id" @change="handleBackgroundUpload($event, page.id)" type="file" accept=".jpg,.jpeg,.png,.gif,.webp">
                         </template>
                     </div>
                 </form>
@@ -451,447 +455,26 @@
         </div>
     </div>
 
+    @push('styles')
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="{{ config('certificate.google_fonts_url') }}" rel="stylesheet">
+    @endpush
+
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <script>
-    function enhancedCertificateEditor() {
-        return {
-            pages: [],
-            activePageIndex: 0,
-            selectedElement: null,
-            nextElementId: 1,
-            customText: '',
-            zoom: 1.0,
-            showGrid: true,
-            snapToGrid: true,
-            gridSize: 10,
-
-            initFromData(existingData) {
-                if (existingData && existingData.length > 0) {
-                    this.pages = existingData.map(pageData => ({
-                        ...pageData,
-                        backgroundUrl: pageData.background_image_path ? `{{ Storage::url('') }}${pageData.background_image_path}` : null,
-                        backgroundSize: pageData.backgroundSize || 'cover',
-                        backgroundPosition: pageData.backgroundPosition || 'center',
-                        elements: (pageData.elements || []).map(el => ({
-                            ...el,
-                            fontFamily: el.fontFamily || 'Arial',
-                            isItalic: el.isItalic || false,
-                            isUnderline: el.isUnderline || false,
-                            textAlign: el.textAlign || 'left',
-                            zIndex: el.zIndex || 10
-                        }))
-                    }));
-
-                    let maxId = 0;
-                    this.pages.forEach(p => p.elements.forEach(el => { if (el.id > maxId) maxId = el.id; }));
-                    this.nextElementId = maxId + 1;
-                } else {
-                    this.addPage();
-                }
-
-                this.activePageIndex = 0;
-
-                // Setup watchers for reactivity
-                this.$watch('pages', () => {
-                    this.$nextTick(() => {
-                        setTimeout(() => this.reinitInteract(), 100);
-                    });
-                }, { deep: true });
-
-                this.$watch('selectedElement', () => {
-                    this.$nextTick(() => {
-                        setTimeout(() => this.reinitInteract(), 50);
-                    });
-                });
-
-                this.$watch('activePageIndex', () => {
-                    this.$nextTick(() => {
-                        setTimeout(() => this.reinitInteract(), 50);
-                    });
-                });
-
-                // Initial setup
-                this.$nextTick(() => {
-                    setTimeout(() => this.reinitInteract(), 200);
-                });
-
-                // Keyboard shortcuts
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Delete' && this.selectedElement) {
-                        this.removeElement();
-                    }
-                    if (e.ctrlKey && e.key === 'd' && this.selectedElement) {
-                        e.preventDefault();
-                        this.duplicateElement();
-                    }
-                    if (e.key === 'Escape') {
-                        this.selectedElement = null;
-                    }
-                });
-            },
-
-            // Page Management
-            addPage() {
-                this.pages.push({
-                    backgroundUrl: null,
-                    background_image_path: null,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    elements: []
-                });
-                this.activePageIndex = this.pages.length - 1;
-            },
-
-            removePage(index) {
-                if (this.pages.length <= 1) {
-                    alert('Anda harus memiliki setidaknya satu halaman.');
-                    return;
-                }
-                if (!confirm('Apakah Anda yakin ingin menghapus halaman ini?')) return;
-
-                this.pages.splice(index, 1);
-                this.activePageIndex = Math.max(0, Math.min(this.activePageIndex, this.pages.length - 1));
-                this.selectedElement = null;
-            },
-
-            setActivePage(index) {
-                this.activePageIndex = index;
-                this.selectedElement = null;
-            },
-
-            // Zoom Controls
-            zoomIn() {
-                this.zoom = Math.min(2, this.zoom + 0.1);
-            },
-
-            zoomOut() {
-                this.zoom = Math.max(0.2, this.zoom - 0.1);
-            },
-
-            resetZoom() {
-                this.zoom = 1.0;
-            },
-
-            // Element Management
-            addElement(content) {
-                if (!this.pages[this.activePageIndex]?.backgroundUrl) {
-                    alert('Silakan unggah gambar latar belakang untuk halaman aktif terlebih dahulu.');
-                    return;
-                }
-
-                const newElement = {
-                    id: this.nextElementId++,
-                    content,
-                    x: 50,
-                    y: 50,
-                    width: 200,
-                    height: 40,
-                    fontSize: 24,
-                    fontFamily: 'Arial',
-                    color: '#000000',
-                    isBold: false,
-                    isItalic: false,
-                    isUnderline: false,
-                    textAlign: 'left',
-                    zIndex: 10
-                };
-
-                this.pages[this.activePageIndex].elements.push(newElement);
-                this.selectedElement = newElement;
-            },
-
-            addCustomText() {
-                if (!this.customText.trim()) return;
-                this.addElement(this.customText);
-                this.customText = '';
-            },
-
-            selectElement(elementIndex) {
-                this.selectedElement = this.pages[this.activePageIndex].elements[elementIndex];
-            },
-
-            deselectElement(event) {
-                if (event.target === this.$refs.canvasContainer || event.target.closest('.resizable-draggable') === null) {
-                    this.selectedElement = null;
-                }
-            },
-
-            removeElement() {
-                if (!this.selectedElement) return;
-
-                const elements = this.pages[this.activePageIndex].elements;
-                this.pages[this.activePageIndex].elements = elements.filter(el => el.id !== this.selectedElement.id);
-                this.selectedElement = null;
-            },
-
-            duplicateElement() {
-                if (!this.selectedElement) return;
-
-                const newElement = {
-                    ...JSON.parse(JSON.stringify(this.selectedElement)),
-                    id: this.nextElementId++,
-                    x: this.selectedElement.x + 20,
-                    y: this.selectedElement.y + 20
-                };
-
-                this.pages[this.activePageIndex].elements.push(newElement);
-                this.selectedElement = newElement;
-            },
-
-            // Layer Management
-            bringToFront() {
-                if (!this.selectedElement) return;
-                const maxZ = Math.max(...this.pages[this.activePageIndex].elements.map(el => el.zIndex || 10));
-                this.selectedElement.zIndex = maxZ + 1;
-            },
-
-            sendToBack() {
-                if (!this.selectedElement) return;
-                const minZ = Math.min(...this.pages[this.activePageIndex].elements.map(el => el.zIndex || 10));
-                this.selectedElement.zIndex = Math.max(1, minZ - 1);
-            },
-
-            // Preview
-            openPreview() {
-                const previewWindow = window.open('', '_blank', 'width=800,height=600');
-                const previewHTML = this.generatePreviewHTML();
-                previewWindow.document.write(previewHTML);
-            },
-
-            generatePreviewHTML() {
-                let html = `
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>Certificate Preview</title>
-                        <style>
-                            body { margin: 0; padding: 20px; background: #f0f0f0; font-family: Arial, sans-serif; }
-                            .page { width: 794px; height: 1123px; margin: 0 auto 20px; position: relative; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-                            .element { position: absolute; }
-                        </style>
-                    </head>
-                    <body>
-                `;
-
-                this.pages.forEach((page, pageIndex) => {
-                    html += `<div class="page">`;
-                    if (page.backgroundUrl) {
-                        html += `<img src="${page.backgroundUrl}" style="width: 100%; height: 100%; object-fit: cover; position: absolute;">`;
-                    }
-
-                    page.elements.forEach(element => {
-                        html += `
-                            <div class="element" style="
-                                left: ${element.x}px;
-                                top: ${element.y}px;
-                                width: ${element.width}px;
-                                height: ${element.height}px;
-                                font-size: ${element.fontSize}px;
-                                color: ${element.color};
-                                font-family: ${element.fontFamily || 'Arial'};
-                                font-weight: ${element.isBold ? 'bold' : 'normal'};
-                                font-style: ${element.isItalic ? 'italic' : 'normal'};
-                                text-decoration: ${element.isUnderline ? 'underline' : 'none'};
-                                text-align: ${element.textAlign || 'left'};
-                                line-height: 1.2;
-                                z-index: ${element.zIndex || 10};
-                            ">${element.content}</div>
-                        `;
-                    });
-
-                    html += `</div>`;
-                });
-
-                html += `</body></html>`;
-                return html;
-            },
-
-            // Snap to Grid
-            snapToGridFn(value) {
-                if (!this.snapToGrid) return value;
-                return Math.round(value / this.gridSize) * this.gridSize;
-            },
-
-            // File Upload
-            handleBackgroundUpload(e, pageIndex) {
-                const file = e.target.files[0];
-                if (file) {
-                    this.pages[pageIndex].backgroundUrl = URL.createObjectURL(file);
-                }
-            },
-
-            // Background Management
-            changeBackground(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    // Validate file size (5MB limit)
-                    if (file.size > 5 * 1024 * 1024) {
-                        alert('Ukuran file harus kurang dari 5MB');
-                        return;
-                    }
-
-                    // Validate file type
-                    if (!file.type.startsWith('image/')) {
-                        alert('Silakan pilih file gambar yang valid');
-                        return;
-                    }
-
-                    // Create object URL for preview
-                    this.pages[this.activePageIndex].backgroundUrl = URL.createObjectURL(file);
-
-                    // Set default background properties if not set
-                    if (!this.pages[this.activePageIndex].backgroundSize) {
-                        this.pages[this.activePageIndex].backgroundSize = 'cover';
-                    }
-                    if (!this.pages[this.activePageIndex].backgroundPosition) {
-                        this.pages[this.activePageIndex].backgroundPosition = 'center';
-                    }
-
-                    // Trigger file input for form submission
-                    const hiddenInput = document.getElementById(`background_image_${this.activePageIndex}`);
-                    const dt = new DataTransfer();
-                    dt.items.add(file);
-                    hiddenInput.files = dt.files;
-                }
-
-                // Reset input value to allow selecting same file again
-                event.target.value = '';
-            },
-
-            removeBackground() {
-                if (confirm('Apakah Anda yakin ingin menghapus latar belakang untuk halaman ini?')) {
-                    this.pages[this.activePageIndex].backgroundUrl = null;
-                    this.pages[this.activePageIndex].background_image_path = null;
-
-                    // Clear the hidden file input
-                    const hiddenInput = document.getElementById(`background_image_${this.activePageIndex}`);
-                    hiddenInput.value = '';
-                }
-            },
-
-            // InteractJS Integration
-            reinitInteract() {
-                interact('.resizable-draggable').unset();
-
-                interact('.resizable-draggable')
-                    .draggable({
-                        allowFrom: '.element-container',
-                        ignoreFrom: '.resize-handle',
-                        listeners: {
-                            start: (event) => {
-                                // Ensure element is selected when dragging starts
-                                const target = event.target;
-                                const elementIndex = parseInt(target.getAttribute('data-element-index'));
-                                this.selectElement(elementIndex);
-                            },
-                            move: (event) => {
-                                const target = event.target;
-                                let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-                                let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-
-                                if (this.snapToGrid) {
-                                    x = this.snapToGridFn(x);
-                                    y = this.snapToGridFn(y);
-                                }
-
-                                target.style.transform = `translate(${x}px, ${y}px)`;
-                                target.setAttribute('data-x', x);
-                                target.setAttribute('data-y', y);
-                            },
-                            end: (event) => {
-                                const target = event.target;
-                                const pageIndex = parseInt(target.getAttribute('data-page-index'));
-                                const elementIndex = parseInt(target.getAttribute('data-element-index'));
-                                const element = this.pages[pageIndex].elements[elementIndex];
-
-                                if (element) {
-                                    element.x += parseFloat(target.getAttribute('data-x')) || 0;
-                                    element.y += parseFloat(target.getAttribute('data-y')) || 0;
-
-                                    // Ensure position stays within canvas bounds
-                                    element.x = Math.max(0, Math.min(element.x, 1123 - element.width));
-                                    element.y = Math.max(0, Math.min(element.y, 794 - element.height));
-                                }
-
-                                target.style.transform = '';
-                                target.removeAttribute('data-x');
-                                target.removeAttribute('data-y');
-                            }
-                        }
-                    })
-                    .resizable({
-                        edges: { left: true, right: true, bottom: true, top: true },
-                        margin: 8,
-                        listeners: {
-                            start: (event) => {
-                                // Ensure element is selected when resizing starts
-                                const target = event.target;
-                                const elementIndex = parseInt(target.getAttribute('data-element-index'));
-                                this.selectElement(elementIndex);
-                            },
-                            move: (event) => {
-                                const target = event.target;
-                                const pageIndex = parseInt(target.getAttribute('data-page-index'));
-                                const elementIndex = parseInt(target.getAttribute('data-element-index'));
-                                const element = this.pages[pageIndex].elements[elementIndex];
-
-                                if (element) {
-                                    let width = event.rect.width;
-                                    let height = event.rect.height;
-                                    let x = element.x + event.deltaRect.left;
-                                    let y = element.y + event.deltaRect.top;
-
-                                    // Apply minimum sizes
-                                    width = Math.max(20, width);
-                                    height = Math.max(20, height);
-
-                                    // Apply snap to grid if enabled
-                                    if (this.snapToGrid) {
-                                        width = this.snapToGridFn(width);
-                                        height = this.snapToGridFn(height);
-                                        x = this.snapToGridFn(x);
-                                        y = this.snapToGridFn(y);
-                                    }
-
-                                    // Keep within canvas bounds
-                                    x = Math.max(0, Math.min(x, 1123 - width));
-                                    y = Math.max(0, Math.min(y, 794 - height));
-
-                                    // Update element properties
-                                    element.width = width;
-                                    element.height = height;
-                                    element.x = x;
-                                    element.y = y;
-                                }
-                            }
-                        }
-                    });
-            },
-
-            // Form Submission
-            getSanitizedPages() {
-                return this.pages.map(page => ({
-                    elements: page.elements,
-                    background_image_path: page.background_image_path,
-                    backgroundSize: page.backgroundSize || 'cover',
-                    backgroundPosition: page.backgroundPosition || 'center'
-                }));
-            },
-
-            submitForm() {
-                document.getElementById('template-form').submit();
-            }
-        }
-    }
+        window.enhancedCertificateInitialPages = @json($certificateTemplate->layout_data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
+        window.enhancedCertificateStorageUrl = @json(Storage::url(''));
+        window.enhancedCertificateFontStylesheetUrl = @json(config('certificate.google_fonts_url'));
     </script>
 
     <style>
     /* Element Container Styling */
     .element-container {
-        transition: all 0.1s ease;
         border: 1px solid transparent;
         border-radius: 2px;
+        touch-action: none;
     }
 
     .element-hover:hover {
@@ -1060,9 +643,7 @@
 
     /* Canvas wrapper styling */
     .canvas-wrapper {
-        padding: 40px;
-        display: inline-block;
-        min-width: 100%;
+        overflow: visible;
     }
     </style>
     @endpush

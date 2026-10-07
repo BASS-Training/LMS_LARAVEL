@@ -192,12 +192,13 @@ class CertificateApiController extends Controller
             ]);
 
             $pdf = Pdf::loadView('certificates.template-render', compact('certificate'))
-                ->setPaper('a4', 'landscape')
+                ->setPaper('a4', $certificate->certificateTemplate?->paperOrientation() ?? 'landscape')
                 ->setOptions([
                     'dpi' => 150,
                     'defaultFont' => 'times',
                     'isHtml5ParserEnabled' => true,
-                    'isRemoteEnabled' => false,
+                    'isRemoteEnabled' => true,
+                    'allowedRemoteHosts' => config('certificate.pdf_remote_hosts'),
                     'isPhpEnabled' => true,
                 ]);
 

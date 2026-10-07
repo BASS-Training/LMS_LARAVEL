@@ -1,3 +1,9 @@
+@php
+    $renderLayout = $certificate->certificateTemplate?->layout_data ?? [];
+    $renderFirstPage = is_array($renderLayout) ? ($renderLayout[0] ?? $renderLayout) : [];
+    $renderPageWidth = $renderFirstPage['width'] ?? 1123;
+    $renderPageHeight = $renderFirstPage['height'] ?? 794;
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,29 +11,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Certificate</title>
     <style>
+        @import url('{!! config('certificate.google_fonts_url') !!}');
+
         @page {
             margin: 0;
             padding: 0;
-            size: 1123px 794px;
+            size: {{ $renderPageWidth }}px {{ $renderPageHeight }}px;
         }
         
         html, body { 
             margin: 0; 
             padding: 0;
             font-family: 'Times New Roman', serif; 
-            width: 1123px; 
-            height: 794px; 
+            width: {{ $renderPageWidth }}px;
+            min-height: {{ $renderPageHeight }}px;
             position: relative; 
             overflow: hidden;
             background: white;
         }
         
-        .certificate-container {
-            width: 1123px;
-            height: 794px;
+        .certificate-page {
             position: relative;
             margin: 0;
             padding: 0;
+            overflow: hidden;
+            page-break-after: always;
+        }
+
+        .certificate-page:last-child {
+            page-break-after: auto;
         }
         
         .bg { 
@@ -53,7 +65,9 @@
             white-space: pre-wrap;
             display: flex;
             align-items: center;
-            line-height: 1.2;
+            line-height: 1.4;
+            box-sizing: border-box;
+            overflow: hidden;
         }
         
         .text-left {
@@ -84,7 +98,7 @@
     </style>
 </head>
 <body>
-    <div class="certificate-container">
+    <div>
         @php
             $hasTemplate = $certificate->certificateTemplate && $certificate->certificateTemplate->layout_data;
             $layoutData = $hasTemplate ? $certificate->certificateTemplate->layout_data : null;
@@ -106,9 +120,17 @@
             @endphp
             
             @foreach($pages as $pageIndex => $page)
-                @if($pageIndex > 0)
-                    <div style="page-break-before: always;"></div>
-                @endif
+                @php
+                    $pageWidth = $page['width'] ?? 1123;
+                    $pageHeight = $page['height'] ?? 794;
+                    $firstElement = $page['elements'][0] ?? [];
+                    $isEnhancedPage = ($page['editorType'] ?? null) === 'enhanced'
+                        || (!isset($page['width'], $page['height']) && !array_key_exists('type', $firstElement));
+                    $backgroundSize = $page['backgroundSize'] ?? 'cover';
+                    $backgroundPosition = $page['backgroundPosition'] ?? 'center';
+                    $backgroundColor = $page['backgroundColor'] ?? '#ffffff';
+                @endphp
+                <div class="certificate-page" style="width: {{ $pageWidth }}px; height: {{ $pageHeight }}px; background-color: {{ $backgroundColor }};">
                 
                 <!-- Background Image dengan BASE64 encoding -->
                 @if(isset($page['background_image_path']) && $page['background_image_path'])
@@ -138,7 +160,7 @@
                     @endphp
                     
                     @if($base64Image)
-                        <img src="{{ $base64Image }}" class="bg">
+                        <img src="{{ $base64Image }}" class="bg" style="object-fit: {{ $backgroundSize === '100% 100%' ? 'fill' : ($backgroundSize === 'auto' ? 'none' : $backgroundSize) }}; object-position: {{ $backgroundPosition }};">
                     @endif
                 @endif
                 
@@ -208,7 +230,7 @@
                                 $height = ($element['height'] ?? 40) * $scale;
                             @endphp
                             
-                            <div class="element text-{{ $textAlign }}" style="
+                             <div class="element text-{{ $textAlign }}" style="
                                 left: {{ $x }}px;
                                 top: {{ $y }}px;
                                 width: {{ $width }}px;
@@ -217,11 +239,17 @@
                                 color: {{ $element['color'] ?? '#000' }};
                                 font-weight: {{ ($element['isBold'] ?? false) ? 'bold' : 'normal' }};
                                 font-style: {{ ($element['isItalic'] ?? false) ? 'italic' : 'normal' }};
-                                text-decoration: {{ ($element['isUnderline'] ?? false) ? 'underline' : 'none' }};
-                                font-family: {{ $element['fontFamily'] ?? 'Times New Roman' }};
-                            ">{{ $text }}</div>
+                                 text-decoration: {{ ($element['isUnderline'] ?? false) ? 'underline' : 'none' }};
+                                 font-family: '{{ $element['fontFamily'] ?? 'Times New Roman' }}';
+                                 padding: {{ $isEnhancedPage ? '8px' : '0' }};
+                                 line-height: {{ $isEnhancedPage ? '1.4' : '1.2' }};
+                                 transform: rotate({{ $element['rotation'] ?? 0 }}deg);
+                                 opacity: {{ $element['opacity'] ?? 1 }};
+                                 z-index: {{ $element['zIndex'] ?? 10 }};
+                             ">{{ $text }}</div>
                         @endforeach
                     @endif
+                </div>
                 </div>
             @endforeach
         @else
