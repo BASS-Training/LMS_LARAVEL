@@ -25,6 +25,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage coupons',
             'manage bundles',
             'manage learning paths',
+            'manage course commerce',
 
             // Courses (global dan milik sendiri)
             'view courses',

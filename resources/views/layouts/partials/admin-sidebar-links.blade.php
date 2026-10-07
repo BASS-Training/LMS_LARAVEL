@@ -106,6 +106,15 @@
     </section>
     @endcanany
 
+    @can('manage course commerce')
+    <section x-data="{ open: true }">
+        <button type="button" x-show="!adminSidebarCollapsed" @click="open = !open" class="mb-2 flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-bold uppercase tracking-[0.16em] text-slate-400 hover:bg-white/10 hover:text-white"><span>Sales</span><svg class="h-4 w-4 transition" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg></button>
+        <div x-show="adminSidebarCollapsed || open" x-collapse class="space-y-1" :class="adminSidebarCollapsed ? '' : 'pl-3'">
+            @include('layouts.partials.admin-sidebar-link', ['href' => route('admin.course-commerce.index'), 'label' => 'Penjualan Course', 'active' => request()->routeIs('admin.course-commerce.*'), 'badge' => 0, 'icon' => 'M3 7h18v12H3V7Zm0 4h18M7 15h4'])
+        </div>
+    </section>
+    @endcan
+
     @canany(['manage coupons', 'super-admin-only'])
     <section x-data="{ open: true }">
         <button type="button" x-show="!adminSidebarCollapsed" @click="open = !open" class="mb-2 flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-bold uppercase tracking-[0.16em] text-slate-400 hover:bg-white/10 hover:text-white"><span>Transaksi</span><svg class="h-4 w-4 transition" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg></button>

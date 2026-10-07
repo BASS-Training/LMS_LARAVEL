@@ -39,7 +39,7 @@ class LearningPathFeatureTest extends TestCase
         $this->get(route('learning-paths.show', $path))->assertNotFound();
     }
 
-    public function test_avpn_learning_path_is_only_visible_to_approved_users(): void
+    public function test_avpn_learning_path_is_never_visible_in_commerce_catalog(): void
     {
         $courses = Course::factory()->count(2)->create([
             'status' => 'published',
@@ -55,7 +55,7 @@ class LearningPathFeatureTest extends TestCase
             ->assertNotFound();
         $this->actingAs(User::factory()->create(['avpn_verification_status' => 'approved']))
             ->get(route('learning-paths.show', $path))
-            ->assertOk();
+            ->assertNotFound();
     }
 
     public function test_personal_progress_reads_enrollment_without_changing_it(): void

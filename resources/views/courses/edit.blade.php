@@ -286,8 +286,6 @@
                                         @enderror
                                     </div>
 
-                                    @include('courses.partials.shop-fields')
-
                                     <!-- Tipe Program -->
                                     <div class="group">
                                         <label for="program_type" class="flex items-center text-sm font-semibold text-gray-700 mb-2">

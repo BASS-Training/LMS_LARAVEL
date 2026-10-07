@@ -114,6 +114,18 @@ erDiagram
         boolean token_enabled
         string program_type
     }
+    COURSE_SALES_PROFILES {
+        bigint id PK
+        bigint course_id FK,UK
+        string slug UK
+        string headline
+        string level
+        integer estimated_duration_minutes
+        string language
+        json faq
+        string sales_status
+        timestamp published_at
+    }
     CATEGORIES {
         bigint id PK
         bigint parent_id FK
@@ -223,6 +235,7 @@ erDiagram
     }
 
     CERTIFICATE_TEMPLATES o|--o{ COURSES : default_template
+    COURSES ||--o| COURSE_SALES_PROFILES : marketed_as
     COURSES ||--o{ LESSONS : contains
     LESSONS o|--o{ LESSONS : prerequisite
     LESSONS ||--o{ CONTENTS : contains
@@ -271,6 +284,8 @@ Constraint unik penting:
 - `tags.slug`
 - `category_course(category_id, course_id)`
 - `course_tag(course_id, tag_id)`
+- `course_sales_profiles.course_id`
+- `course_sales_profiles.slug`
 
 Saat category induk dihapus, `categories.parent_id` pada anak menjadi `null`. Penghapusan category atau tag hanya menghapus relasi pivot dan tidak menghapus course. Taxonomy nonaktif tetap dapat tersimpan pada course, tetapi tidak ditampilkan atau diterima sebagai filter katalog publik.
 
@@ -689,6 +704,7 @@ erDiagram
 | RBAC | `roles`, `permissions`, `model_has_roles`, `model_has_permissions`, `role_has_permissions` |
 | Course | `courses`, `lessons`, `contents`, `course_classes` |
 | Course taxonomy | `categories`, `tags`, `category_course`, `course_tag` |
+| Course commerce profile | `course_sales_profiles` |
 | Membership | `course_user`, `course_instructor`, `course_event_organizer`, `course_class_user`, `course_class_instructor`, `saved_courses` |
 | Progress | `lesson_user`, `content_user`, `attendances` |
 | Enrollment | `enrollment_codes` |

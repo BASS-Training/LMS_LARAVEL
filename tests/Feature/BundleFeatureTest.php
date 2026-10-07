@@ -65,7 +65,7 @@ class BundleFeatureTest extends TestCase
             ->assertDontSeeText($inactive->title);
     }
 
-    public function test_avpn_bundle_is_only_visible_and_purchasable_by_approved_users(): void
+    public function test_avpn_bundle_is_never_visible_or_purchasable(): void
     {
         [$bundle, $courses] = $this->bundle();
         $courses->each->update(['program_type' => 'avpn_ai']);
@@ -88,11 +88,12 @@ class BundleFeatureTest extends TestCase
 
         $this->actingAs($approved)
             ->get(route('welcome'))
-            ->assertSeeText($bundle->title);
+            ->assertDontSeeText($bundle->title);
         $this
             ->get(route('bundles.index'))
-            ->assertSeeText($bundle->title);
-        $this->get(route('bundles.show', $bundle))->assertOk();
+            ->assertDontSeeText($bundle->title);
+        $this->get(route('bundles.show', $bundle))->assertNotFound();
+        $this->get(route('checkout.bundle.choose', $bundle))->assertNotFound();
     }
 
     public function test_bundle_checkout_snapshots_membership_price_and_global_coupon(): void

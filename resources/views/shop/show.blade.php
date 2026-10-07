@@ -1,6 +1,7 @@
 @extends('layouts.public')
 
-@section('title', $course->title)
+@section('title', $course->salesProfile?->seo_title ?: $course->title)
+@section('meta_description', $course->salesProfile?->seo_description ?: ($course->salesProfile?->headline ?: ($course->short_description ?: 'Pelatihan profesional BASS untuk meningkatkan kompetensi dan kesiapan karier Anda.')))
 
 @section('content')
 <header class="relative overflow-hidden bg-navy pb-32 pt-10 text-white">
@@ -9,7 +10,7 @@
         <nav class="text-xs font-semibold text-white/60"><a href="{{ route('welcome') }}" class="hover:text-white">Beranda</a> <span class="mx-1">/</span> <a href="{{ route('shop.index') }}" class="hover:text-white">Katalog</a> <span class="mx-1">/</span> {{ $course->title }}</nav>
         <p class="mt-8 text-xs font-bold uppercase tracking-[0.2em] text-bass-gold">Course BASS</p>
         <h1 class="mt-3 max-w-4xl text-4xl font-extrabold leading-[1.03] tracking-[-0.035em] [font-family:Fraunces,serif] sm:text-6xl">{{ $course->title }}</h1>
-        @if ($course->short_description)<p class="mt-5 max-w-3xl text-lg leading-8 text-white/75">{{ $course->short_description }}</p>@endif
+        @if ($course->salesProfile?->headline || $course->short_description)<p class="mt-5 max-w-3xl text-lg leading-8 text-white/75">{{ $course->salesProfile?->headline ?: $course->short_description }}</p>@endif
         <div class="mt-6 flex flex-wrap gap-2 text-xs font-semibold">
             <span class="rounded-full border-2 border-bass-gold bg-bass-gold px-3 py-1.5 text-navy">{{ $course->price_label }}</span>
             <span class="rounded-full border border-white/60 px-3 py-1.5">{{ $course->lessons->count() }} pelajaran</span>
@@ -27,8 +28,23 @@
             <section><h2 class="text-3xl font-extrabold [font-family:Fraunces,serif]">Yang akan Anda pelajari</h2><div class="prose prose-sm mt-4 max-w-none text-slate-700 prose-li:marker:text-bass-red">{!! $course->objectives !!}</div></section>
         @endif
 
+        @if ($course->salesProfile?->learning_benefits)
+            <section><h2 class="text-3xl font-extrabold [font-family:Fraunces,serif]">Manfaat yang Anda dapatkan</h2><div class="mt-4 whitespace-pre-line leading-7 text-slate-700">{{ $course->salesProfile->learning_benefits }}</div></section>
+        @endif
+
         @if ($course->description)
             <section><h2 class="text-3xl font-extrabold [font-family:Fraunces,serif]">Tentang course ini</h2><div class="prose prose-sm mt-4 max-w-none text-slate-700">{!! $course->description !!}</div></section>
+        @endif
+
+        @if ($course->salesProfile && ($course->salesProfile->target_audience || $course->salesProfile->requirements))
+            <section class="grid gap-5 sm:grid-cols-2">
+                @if ($course->salesProfile->target_audience)<div class="rounded-2xl border-2 border-navy bg-[#fffdf7] p-6"><h2 class="text-xl font-extrabold [font-family:Fraunces,serif]">Cocok untuk siapa?</h2><p class="mt-3 whitespace-pre-line text-sm leading-6 text-slate-700">{{ $course->salesProfile->target_audience }}</p></div>@endif
+                @if ($course->salesProfile->requirements)<div class="rounded-2xl border-2 border-navy bg-[#fffdf7] p-6"><h2 class="text-xl font-extrabold [font-family:Fraunces,serif]">Persyaratan</h2><p class="mt-3 whitespace-pre-line text-sm leading-6 text-slate-700">{{ $course->salesProfile->requirements }}</p></div>@endif
+            </section>
+        @endif
+
+        @if (!empty($course->salesProfile?->faq))
+            <section><h2 class="text-3xl font-extrabold [font-family:Fraunces,serif]">Pertanyaan yang sering diajukan</h2><div class="mt-5 space-y-3">@foreach ($course->salesProfile->faq as $faq)<details class="rounded-xl border-2 border-navy bg-[#fffdf7] px-5"><summary class="cursor-pointer py-4 font-bold">{{ $faq['question'] }}</summary><p class="border-t border-dashed border-navy/20 py-4 text-sm leading-6 text-slate-700">{{ $faq['answer'] }}</p></details>@endforeach</div></section>
         @endif
 
         @if ($learningPaths->isNotEmpty())
@@ -82,7 +98,13 @@
                     <p class="text-center text-xs text-slate-500">Pilih QRIS, e-wallet, transfer bank, atau kartu.</p>
                 @endguest
 
-                <ul class="border-t border-dashed border-navy/20 pt-3 text-sm"><li class="py-1.5">Akses pembelajaran setelah terdaftar</li><li class="py-1.5">Dapat dibuka melalui web dan mobile</li><li class="py-1.5">Sertifikat sesuai persyaratan course</li></ul>
+                @if ($course->salesProfile?->promo_video_url)<a href="{{ $course->salesProfile->promo_video_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex w-full items-center justify-center rounded-xl border-2 border-navy px-4 py-3 text-sm font-bold hover:bg-white">Tonton Video Promosi</a>@endif
+                <ul class="border-t border-dashed border-navy/20 pt-3 text-sm">
+                    @if ($course->salesProfile?->level)<li class="py-1.5">Level: {{ ['beginner' => 'Pemula', 'intermediate' => 'Menengah', 'advanced' => 'Mahir', 'all_levels' => 'Semua Level'][$course->salesProfile->level] ?? $course->salesProfile->level }}</li>@endif
+                    @if ($course->salesProfile?->language)<li class="py-1.5">Bahasa: {{ $course->salesProfile->language }}</li>@endif
+                    @if ($course->salesProfile?->estimated_duration_minutes)<li class="py-1.5">Estimasi durasi: {{ intdiv($course->salesProfile->estimated_duration_minutes, 60) > 0 ? intdiv($course->salesProfile->estimated_duration_minutes, 60).' jam ' : '' }}{{ $course->salesProfile->estimated_duration_minutes % 60 ? ($course->salesProfile->estimated_duration_minutes % 60).' menit' : '' }}</li>@endif
+                    <li class="py-1.5">Akses pembelajaran setelah terdaftar</li><li class="py-1.5">Dapat dibuka melalui web dan mobile</li><li class="py-1.5">Sertifikat sesuai persyaratan course</li>
+                </ul>
             </div>
         </div>
     </aside>

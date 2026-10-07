@@ -111,6 +111,8 @@ Aturan:
 
 ### 5.2 Sales Profile
 
+**Status: Laravel MVP direalisasikan 7 Oktober 2026.** Pengelolaan tersedia melalui menu admin Penjualan Course yang terpisah dari form akademik, dan data profile digunakan oleh katalog web serta API mobile.
+
 Informasi penjualan dipisahkan dari data inti course melalui relasi satu-ke-satu.
 
 ```text
@@ -513,7 +515,7 @@ Sebelum implementasi dimulai, pimpinan perlu menetapkan:
 4. Apakah harga dan diskon sudah termasuk pajak.
 5. Apakah instructor memperoleh komisi.
 6. Apakah satu akun dapat membeli course sebagai hadiah untuk akun lain.
-7. Apakah course AVPN boleh dijual secara publik.
+7. Course AVPN tidak boleh dijual secara publik; commerce hanya menerima course Regular.
 8. Apakah sertifikat tetap valid setelah refund atau pencabutan akses.
 
 ## 12. Rekomendasi Awal

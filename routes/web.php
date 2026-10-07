@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\BundleController as AdminBundleController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CertificateTemplateController;
 use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\CourseCommerceController;
 use App\Http\Controllers\Admin\LearningPathController as AdminLearningPathController;
 use App\Http\Controllers\Admin\PaymentVerificationController;
 use App\Http\Controllers\Admin\RefundController as AdminRefundController;
@@ -129,6 +130,15 @@ Route::middleware(['auth', 'permission:manage coupons'])
         Route::get('/{coupon}/edit', [CouponController::class, 'edit'])->name('edit');
         Route::put('/{coupon}', [CouponController::class, 'update'])->name('update');
         Route::delete('/{coupon}', [CouponController::class, 'destroy'])->name('destroy');
+    });
+
+Route::middleware(['auth', 'permission:manage course commerce'])
+    ->prefix('admin/course-commerce')
+    ->name('admin.course-commerce.')
+    ->group(function () {
+        Route::get('/', [CourseCommerceController::class, 'index'])->name('index');
+        Route::get('/{course}/edit', [CourseCommerceController::class, 'edit'])->name('edit');
+        Route::put('/{course}', [CourseCommerceController::class, 'update'])->name('update');
     });
 
 Route::middleware(['auth', 'permission:manage bundles'])

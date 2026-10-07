@@ -24,6 +24,7 @@ class PermissionsSeederTest extends TestCase
             'manage coupons',
             'manage bundles',
             'manage learning paths',
+            'manage course commerce',
         ];
 
         foreach ($expected as $name) {

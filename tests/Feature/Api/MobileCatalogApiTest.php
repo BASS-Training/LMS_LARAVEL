@@ -115,7 +115,7 @@ class MobileCatalogApiTest extends TestCase
             ->assertJsonPath('data.0.isEnrolled', true);
     }
 
-    public function test_avpn_catalog_detail_requires_an_approved_user(): void
+    public function test_avpn_catalog_is_unavailable_even_to_an_approved_user(): void
     {
         $course = Course::factory()->create([
             'status' => 'published',
@@ -130,8 +130,7 @@ class MobileCatalogApiTest extends TestCase
 
         $this->withToken('catalog-test-token')
             ->getJson("/api/mobile/catalog/{$course->id}")
-            ->assertOk()
-            ->assertJsonPath('data.id', (string) $course->id);
+            ->assertNotFound();
     }
 
     public function test_catalog_filters_and_returns_active_taxonomy(): void

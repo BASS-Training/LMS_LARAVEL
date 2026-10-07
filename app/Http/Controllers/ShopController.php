@@ -48,6 +48,7 @@ class ShopController extends Controller
         $search = $validated['q'] ?? null;
         $query = Course::inCatalog()->with([
             'instructors',
+            'salesProfile',
             'categories' => fn ($query) => $query->active()->ordered()->select('categories.id', 'name', 'slug'),
             'tags' => fn ($query) => $query->active()->orderBy('name')->select('tags.id', 'name', 'slug'),
         ]);
@@ -56,7 +57,12 @@ class ShopController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', '%'.$search.'%')
                     ->orWhere('short_description', 'like', '%'.$search.'%')
-                    ->orWhere('description', 'like', '%'.$search.'%');
+                    ->orWhere('description', 'like', '%'.$search.'%')
+                    ->orWhereHas('salesProfile', function ($query) use ($search) {
+                        $query->where('headline', 'like', '%'.$search.'%')
+                            ->orWhere('target_audience', 'like', '%'.$search.'%')
+                            ->orWhere('learning_benefits', 'like', '%'.$search.'%');
+                    });
             });
         }
 
@@ -110,6 +116,7 @@ class ShopController extends Controller
         // Kurikulum: judul saja. Isi konten TIDAK pernah dikirim ke view.
         $course->load([
             'instructors:id,name',
+            'salesProfile',
             'categories' => fn ($query) => $query->active()->ordered()->select('categories.id', 'name', 'slug'),
             'tags' => fn ($query) => $query->active()->orderBy('name')->select('tags.id', 'name', 'slug'),
             'lessons' => fn ($q) => $q->select('id', 'course_id', 'title', 'order')->orderBy('order'),

@@ -234,6 +234,7 @@ class CheckoutController extends Controller
 
     public function removeCoupon(Course $course)
     {
+        abort_unless($course->isInCatalog() && ! $course->isFree(), 404);
         session()->forget($this->couponSessionKey($course));
 
         return redirect()->route('checkout.choose', $course)
