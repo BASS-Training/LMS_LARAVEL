@@ -530,7 +530,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/contents/{content}/complete-and-continue', [ContentController::class, 'completeAndContinue'])->name('contents.complete_and_continue')->middleware('auth');
 
     // Grup Route untuk Admin, Instruktur, dan EO
-    Route::middleware(['permission:manage users|manage roles|view certificate templates|view activity logs|view announcements|view certificate analytics|view certificate management|manage course taxonomy'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['permission:manage users|manage roles|view certificate templates|create certificate templates|update certificate templates|delete certificate templates|duplicate certificate templates|preview certificate templates|view activity logs|view announcements|view certificate analytics|view certificate management|manage course taxonomy'])->prefix('admin')->name('admin.')->group(function () {
         // Add explicit permission middleware so these can be opened to admin-like roles later safely
         Route::resource('roles', RoleController::class)->except(['show'])->middleware('permission:manage roles');
 
@@ -553,7 +553,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('certificate-templates/{certificateTemplate}/preview', [CertificateTemplateController::class, 'preview'])->name('certificate-templates.preview')->middleware('permission:preview certificate templates');
         Route::post('certificate-templates/{certificateTemplate}/preview', [CertificateTemplateController::class, 'generatePreview'])->name('certificate-templates.generate-preview')->middleware('permission:preview certificate templates');
         Route::post('certificate-templates/{certificateTemplate}/duplicate', [CertificateTemplateController::class, 'duplicate'])->name('certificate-templates.duplicate')->middleware('permission:duplicate certificate templates');
-        Route::resource('certificate-templates', CertificateTemplateController::class)->middleware('permission:view certificate templates|create certificate templates|update certificate templates|delete certificate templates|duplicate certificate templates|preview certificate templates');
+        Route::resource('certificate-templates', CertificateTemplateController::class)->only(['index', 'show'])->middleware('permission:view certificate templates');
+        Route::resource('certificate-templates', CertificateTemplateController::class)->only(['create', 'store'])->middleware('permission:create certificate templates');
+        Route::resource('certificate-templates', CertificateTemplateController::class)->only(['edit', 'update'])->middleware('permission:update certificate templates');
+        Route::resource('certificate-templates', CertificateTemplateController::class)->only(['destroy'])->middleware('permission:delete certificate templates');
 
         // Tools (Admin Utilities)
         Route::get('/tools', [\App\Http\Controllers\Admin\ToolsController::class, 'index'])

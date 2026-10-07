@@ -2,6 +2,7 @@ import './bootstrap';
 
 import Alpine from 'alpinejs';
 import collapse from '@alpinejs/collapse';
+import './enhanced-certificate-editor';
 
 window.Alpine = Alpine;
 

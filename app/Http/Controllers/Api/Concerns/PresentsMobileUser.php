@@ -39,6 +39,7 @@ trait PresentsMobileUser
             'institution_name' => $user->institution_name,
             'occupation' => $user->occupation,
             'avatar_url' => $user->avatar ? asset('storage/'.$user->avatar) : null,
+            'instructor_bio' => $user->instructor_bio,
             'created_at' => optional($user->created_at)?->toISOString(),
             // Status verifikasi email (soft enforcement):
             'email_verified' => $user->isEmailVerified(),

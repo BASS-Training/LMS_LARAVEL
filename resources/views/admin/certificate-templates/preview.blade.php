@@ -1,4 +1,7 @@
-﻿<x-app-layout>
+﻿@php
+    $isEnhancedTemplate = $certificateTemplate->editorType() === 'enhanced';
+@endphp
+<x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -9,10 +12,12 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                     Kembali ke Template
                 </a>
-                <a href="{{ route('admin.certificate-templates.edit-advanced', $certificateTemplate) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-navy text-white rounded-xl font-medium text-sm hover:bg-navy/90 transition shadow-sm">
+                @can('update certificate templates')
+                <a href="{{ route($isEnhancedTemplate ? 'admin.certificate-templates.edit-enhanced' : 'admin.certificate-templates.edit-advanced', $certificateTemplate) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-navy text-white rounded-xl font-medium text-sm hover:bg-navy/90 transition shadow-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
                     Edit Template
                 </a>
+                @endcan
             </div>
         </div>
     </x-slot>
@@ -52,7 +57,7 @@
                     </div>
                     
                     <!-- Sample Data Form -->
-                    <div class="mt-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4">
+                    <div class="mt-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
                             <input type="text" id="sample-name" value="John Doe" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-bass-red focus:ring-bass-red">
@@ -76,6 +81,14 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nilai</label>
                             <input type="text" id="sample-grade" value="A+" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-bass-red focus:ring-bass-red">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kode Sertifikat</label>
+                            <input type="text" id="sample-certificate-code" value="CERT-2026-001" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-bass-red focus:ring-bass-red">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Rangkuman Materi</label>
+                            <input type="text" id="sample-course-summary" value="Rangkuman materi pelatihan" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-bass-red focus:ring-bass-red">
                         </div>
                         <div class="flex items-end">
                             <button id="update-preview" class="w-full px-3 py-2 bg-bass-red text-white rounded-xl font-medium text-sm hover:bg-bass-red-hover transition shadow-sm">
@@ -102,15 +115,16 @@
                         <div id="preview-content" class="mx-auto" style="transform-origin: top center;">
                             @forelse($layoutPages as $pageIndex => $page)
                                 @php
-                                    $pageWidth = $page['width'] ?? 794;
-                                    $pageHeight = $page['height'] ?? 1123;
+                                    $pageWidth = $page['width'] ?? 1123;
+                                    $pageHeight = $page['height'] ?? 794;
                                     $backgroundImagePath = $page['background_image_path'] ?? null;
                                     $backgroundSize = $page['backgroundSize'] ?? 'cover';
+                                    $backgroundPosition = $page['backgroundPosition'] ?? 'center';
                                     $backgroundColor = $page['backgroundColor'] ?? '#ffffff';
                                 @endphp
                                 <div class="preview-page bg-white shadow-lg mx-auto mb-8 {{ $loop->last ? '' : 'page-break-after' }}" 
                                      style="width: {{ $pageWidth }}px; height: {{ $pageHeight }}px; 
-                                            {{ !empty($backgroundImagePath) ? 'background-image: url(' . asset('storage/' . $backgroundImagePath) . '); background-size: ' . $backgroundSize . '; background-position: center; background-repeat: no-repeat;' : 'background-color: ' . $backgroundColor . ';' }}">
+                                             {{ !empty($backgroundImagePath) ? 'background-image: url(' . asset('storage/' . $backgroundImagePath) . '); background-size: ' . $backgroundSize . '; background-position: ' . $backgroundPosition . '; background-repeat: no-repeat;' : 'background-color: ' . $backgroundColor . ';' }}">
                                     
                                     @if(isset($page['elements']) && is_array($page['elements']))
                                         @foreach($page['elements'] as $element)
@@ -130,7 +144,9 @@
                                                 $elementColor = $element['color'] ?? '#000000';
                                                 $elementIsBold = !empty($element['isBold']);
                                                 $elementIsItalic = !empty($element['isItalic']);
-                                                $elementIsUnderline = !empty($element['isUnderline']);
+                                    $elementIsUnderline = !empty($element['isUnderline']);
+                                    $isEnhancedPage = ($page['editorType'] ?? null) === 'enhanced'
+                                        || (!isset($page['width'], $page['height']) && !array_key_exists('type', $element));
                                             @endphp
                                             @if($elementType === 'text')
                                                 <div class="absolute" 
@@ -151,10 +167,14 @@
                                                                 color: {{ $elementColor }}; 
                                                                 font-weight: {{ $elementIsBold ? 'bold' : 'normal' }}; 
                                                                 font-style: {{ $elementIsItalic ? 'italic' : 'normal' }}; 
-                                                                text-decoration: {{ $elementIsUnderline ? 'underline' : 'none' }}; 
-                                                                word-wrap: break-word; 
-                                                                overflow: hidden; 
-                                                                padding: 2px;">
+                                                                 text-decoration: {{ $elementIsUnderline ? 'underline' : 'none' }};
+                                                                 text-align: {{ $elementTextAlign }};
+                                                                 line-height: {{ $isEnhancedPage ? '1.4' : 'normal' }};
+                                                                 white-space: pre-wrap;
+                                                                 box-sizing: border-box;
+                                                                 word-wrap: break-word;
+                                                                 overflow: hidden;
+                                                                 padding: {{ $isEnhancedPage ? '8px' : '2px' }};">
                                                         <span class="template-variable" data-original="{{ $elementContent }}">{{ $elementContent }}</span>
                                                     </div>
                                                 </div>
@@ -194,6 +214,9 @@
     </div>
 
     @push('styles')
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="{{ config('certificate.google_fonts_url') }}" rel="stylesheet">
     <style>
         .preview-page {
             position: relative;
@@ -239,7 +262,9 @@
                 '@{{training_date}}': 'sample-training-date',
                 '@{{training_period}}': 'sample-training-date',
                 '@{{grade}}': 'sample-grade',
-                '@{{organization}}': 'sample-organization'
+                '@{{score}}': 'sample-grade',
+                '@{{certificate_code}}': 'sample-certificate-code',
+                '@{{course_summary}}': 'sample-course-summary'
             };
 
             document.getElementById('zoom-in').addEventListener('click', function() {
@@ -299,18 +324,23 @@
 
                 try {
                     const { jsPDF } = window.jspdf;
+                    const pages = document.querySelectorAll('.preview-page');
+                    if (!pages.length) return;
+                    const firstWidth = pages[0].offsetWidth;
+                    const firstHeight = pages[0].offsetHeight;
                     const pdf = new jsPDF({
-                        orientation: 'landscape',
+                        orientation: firstWidth >= firstHeight ? 'landscape' : 'portrait',
                         unit: 'px',
-                        format: [794, 1123]
+                        format: [firstWidth, firstHeight]
                     });
 
-                    const pages = document.querySelectorAll('.preview-page');
                     for (let i = 0; i < pages.length; i++) {
-                        if (i > 0) pdf.addPage();
+                        const width = pages[i].offsetWidth;
+                        const height = pages[i].offsetHeight;
+                        if (i > 0) pdf.addPage([width, height], width >= height ? 'landscape' : 'portrait');
                         const canvas = await html2canvas(pages[i], { scale: 2, useCORS: true, allowTaint: true });
                         const imgData = canvas.toDataURL('image/jpeg', 0.9);
-                        pdf.addImage(imgData, 'JPEG', 0, 0, 794, 1123);
+                        pdf.addImage(imgData, 'JPEG', 0, 0, width, height);
                     }
                     pdf.save(`{{ $certificateTemplate->name }}_preview.pdf`);
                 } catch (error) {

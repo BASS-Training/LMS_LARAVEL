@@ -1,7 +1,19 @@
 # Rencana Perbaikan Canvas Sertifikat Enhanced Editor
 
-Status: rencana berdasarkan audit kode; belum diimplementasikan.  
+Status: implementasi kode dan automated test selesai; validasi browser/visual PDF masih diperlukan.
 Tanggal: 29 September 2026.
+
+## Status implementasi 7 Oktober 2026
+
+- Logika create/edit telah disatukan di `resources/js/enhanced-certificate-editor.js`.
+- Halaman memakai ID stabil, metadata Enhanced versi 2, dan ukuran desain 1123 x 794.
+- Drag/resize memakai delta layar yang dikonversi berdasarkan zoom, akumulasi gesture, snap posisi absolut, dan pembatas canvas bersama.
+- Shortcut aman terhadap input/contenteditable dan listener dibersihkan saat komponen dihancurkan.
+- Upload background dipetakan berdasarkan ID halaman lalu dikirim dengan indeks eksplisit; `null` dipertahankan sebagai penghapusan eksplisit.
+- Controller memvalidasi kepemilikan path, menyimpan secara transaksional, dan baru membersihkan file lama setelah update berhasil.
+- Preview dan renderer memakai dimensi, posisi background, serta kontrak box teks yang konsisten sambil mempertahankan template Advanced.
+- Unit test JavaScript dan feature test persistence/background telah ditambahkan.
+- Pengujian browser interaktif pada beberapa tingkat zoom dan perbandingan visual hasil Dompdf belum diotomatisasi.
 
 ## Tujuan
 

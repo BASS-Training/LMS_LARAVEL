@@ -93,6 +93,29 @@ class CourseSalesProfileTest extends TestCase
         $this->get(route('shop.show', $hiddenCourse))->assertNotFound();
     }
 
+    public function test_public_course_detail_displays_instructor_profile(): void
+    {
+        $course = Course::factory()->create([
+            'title' => 'Teknik Groove Bass',
+            'status' => 'published',
+            'visibility' => 'catalog',
+            'program_type' => 'regular',
+        ]);
+        $instructor = User::factory()->create([
+            'name' => 'Raka Groove',
+            'avatar' => 'avatars/raka.webp',
+            'instructor_bio' => '<p>Spesialis <strong>groove</strong> dan improvisasi.</p>',
+        ]);
+        $course->instructors()->attach($instructor);
+
+        $this->get(route('shop.show', $course))
+            ->assertOk()
+            ->assertSeeText('Kenali Pengajar Anda')
+            ->assertSeeText('Raka Groove')
+            ->assertSee('<strong>groove</strong>', false)
+            ->assertSee(asset('storage/avatars/raka.webp'));
+    }
+
     public function test_sales_profile_slug_must_be_unique(): void
     {
         $manager = $this->manager();

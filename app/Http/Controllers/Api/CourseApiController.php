@@ -32,14 +32,14 @@ class CourseApiController extends Controller
                     $q->where('user_id', $user->id);
                 });
 
-            if (!$user->isAvpnApproved()) {
+            if (! $user->isAvpnApproved()) {
                 $query->where('program_type', '!=', 'avpn_ai');
             }
         }
 
         $savedIds = $user->savedCourses()->pluck('courses.id')->all();
 
-        $courses = $query->with(['lessons.contents.quiz', 'lessons.contents.images', 'instructors'])
+        $courses = $query->with(['lessons.contents.quiz', 'lessons.contents.images', 'instructors:id,name,avatar,instructor_bio'])
             ->latest()
             ->get();
 
@@ -64,7 +64,7 @@ class CourseApiController extends Controller
         $user = $request->user();
 
         $courses = $user->savedCourses()
-            ->with(['lessons.contents.quiz', 'lessons.contents.images', 'instructors'])
+            ->with(['lessons.contents.quiz', 'lessons.contents.images', 'instructors:id,name,avatar,instructor_bio'])
             ->latest('saved_courses.created_at')
             ->get();
 
@@ -207,10 +207,10 @@ class CourseApiController extends Controller
 
         if ($content->attendance_required ?? false) {
             $att = $ctx['attendance'][$id] ?? null;
-            if (!$att) {
+            if (! $att) {
                 return false;
             }
-            if (!in_array($att->status, ['present', 'excused'], true)) {
+            if (! in_array($att->status, ['present', 'excused'], true)) {
                 return false;
             }
             if ($content->min_attendance_minutes
@@ -233,6 +233,7 @@ class CourseApiController extends Controller
                 if (($content->collect_submission ?? false) && ($content->require_submission_pass ?? false)) {
                     return ($ctx['docStatus'][$id] ?? null) === 'passed';
                 }
+
                 return isset($ctx['completed'][$id]);
             default:
                 return isset($ctx['completed'][$id]);
@@ -248,11 +249,17 @@ class CourseApiController extends Controller
             // Kirim SEMUA instruktur (dipisah koma). Mobile akan memecahnya
             // menjadi daftar dan menampilkan masing-masing.
             'instructor' => $course->instructors->pluck('name')->filter()->implode(', '),
+            'instructors' => $course->instructors->map(fn (User $instructor) => [
+                'id' => (string) $instructor->id,
+                'name' => $instructor->name,
+                'avatarUrl' => $instructor->avatar ? asset('storage/'.$instructor->avatar) : null,
+                'bioHtml' => $instructor->instructor_bio,
+            ])->values(),
             'color' => '#6C5CE7',
             'icon' => '📚',
             // Gambar sampul yang diunggah dari web (nullable). Mobile memakainya
             // bila ada; jika null, mobile jatuh ke cover gradient + emoji default.
-            'thumbnailUrl' => $course->thumbnail ? asset('storage/' . $course->thumbnail) : null,
+            'thumbnailUrl' => $course->thumbnail ? asset('storage/'.$course->thumbnail) : null,
             'chaptersCount' => $course->lessons->count(),
             'duration' => '0 min',
             'is_saved' => in_array($course->id, $savedIds),
@@ -286,17 +293,17 @@ class CourseApiController extends Controller
                     })->map(function ($content) use ($course, $lesson, $user, $completionCtx) {
                         // Prefer explicit content.file_path, fallback to first attached document's file_path
                         $filePath = null;
-                        if (!empty($content->file_path)) {
+                        if (! empty($content->file_path)) {
                             $filePath = $content->file_path;
                         } else {
                             $firstDoc = $content->documents()->first();
-                            if ($firstDoc && !empty($firstDoc->file_path)) {
+                            if ($firstDoc && ! empty($firstDoc->file_path)) {
                                 $filePath = $firstDoc->file_path;
                             }
                         }
 
                         // Return the public storage URL so the mobile PDF viewer can fetch it without auth.
-                        $documentUrl = $filePath ? asset('storage/' . $filePath) : null;
+                        $documentUrl = $filePath ? asset('storage/'.$filePath) : null;
 
                         return [
                             'id' => (string) $content->id,
@@ -354,7 +361,7 @@ class CourseApiController extends Controller
                             'scheduledEnd' => $content->scheduled_end?->toISOString(),
                             'imageUrls' => $content->type === 'image'
                                 ? $content->images->sortBy('order')->map(function ($img) {
-                                    return asset('storage/' . $img->file_path);
+                                    return asset('storage/'.$img->file_path);
                                 })->values()->toArray()
                                 : [],
                             'lessonId' => (string) $lesson->id,

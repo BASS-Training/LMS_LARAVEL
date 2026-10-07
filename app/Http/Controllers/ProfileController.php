@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Services\InstructorBioSanitizer;
+use App\Services\UserAvatarService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,15 +26,23 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
-    {
-        $request->user()->fill($request->validated());
+    public function update(
+        ProfileUpdateRequest $request,
+        InstructorBioSanitizer $bioSanitizer,
+        UserAvatarService $avatars
+    ): RedirectResponse {
+        $user = $request->user();
+        $user->fill($request->safe()->except(['avatar', 'remove_avatar', 'instructor_bio']));
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if ($user->can('manage own courses') && $request->has('instructor_bio')) {
+            $user->instructor_bio = $bioSanitizer->sanitize($request->input('instructor_bio'));
         }
 
-        $request->user()->save();
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $avatars->save($user, $request->file('avatar'), $request->boolean('remove_avatar'));
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }

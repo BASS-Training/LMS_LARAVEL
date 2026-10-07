@@ -13,9 +13,29 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="mt-6 space-y-6">
         @csrf
         @method('patch')
+
+        <div>
+            <x-input-label for="avatar" :value="__('Foto Profil')" />
+            <div class="mt-2 flex items-center gap-4">
+                @if ($user->avatar)
+                    <img src="{{ asset('storage/'.$user->avatar) }}" alt="Foto {{ $user->name }}" class="h-20 w-20 rounded-full border-2 border-gray-200 object-cover">
+                @else
+                    <span class="flex h-20 w-20 items-center justify-center rounded-full bg-navy text-xl font-bold text-white">{{ Str::upper(Str::substr($user->name, 0, 2)) }}</span>
+                @endif
+                <input id="avatar" name="avatar" type="file" accept="image/jpeg,image/png,image/webp" class="block w-full text-sm text-gray-600 file:mr-4 file:rounded-md file:border-0 file:bg-navy file:px-4 file:py-2 file:font-semibold file:text-white hover:file:bg-navy/90">
+            </div>
+            <p class="mt-1 text-xs text-gray-500">JPG, PNG, atau WebP. Maksimal 2 MB dan 4000 x 4000 piksel.</p>
+            @if ($user->avatar)
+                <label class="mt-2 inline-flex items-center gap-2 text-sm text-gray-600">
+                    <input type="checkbox" name="remove_avatar" value="1" class="rounded border-gray-300 text-bass-red focus:ring-bass-red">
+                    Hapus foto saat ini
+                </label>
+            @endif
+            <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
+        </div>
 
         <div>
             <x-input-label for="name" :value="__('Name')" />
@@ -106,6 +126,23 @@
             </div>
             <x-input-error class="mt-2" :messages="$errors->get('occupation')" />
         </div>
+
+        @if ($user->can('manage own courses'))
+            <div>
+                <x-input-label for="instructor_bio" :value="__('Bio Instruktur')" />
+                <p class="mt-1 text-xs text-gray-500">Profil ini ditampilkan kepada calon peserta pada detail course yang Anda ajar.</p>
+                <div class="mt-2">
+                    <x-forms.summernote-editor
+                        id="instructor_bio"
+                        name="instructor_bio"
+                        :value="old('instructor_bio', $user->instructor_bio)"
+                        preset="bio"
+                        placeholder="Ceritakan pengalaman, keahlian, dan latar belakang Anda..."
+                    />
+                </div>
+                <x-input-error class="mt-2" :messages="$errors->get('instructor_bio')" />
+            </div>
+        @endif
 
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>

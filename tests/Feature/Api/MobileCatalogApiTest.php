@@ -192,6 +192,50 @@ class MobileCatalogApiTest extends TestCase
         $this->assertArrayNotHasKey('body', $response->json('data.sections.0.lessons.0'));
     }
 
+    public function test_catalog_exposes_structured_instructor_profiles_without_removing_legacy_name(): void
+    {
+        $course = Course::factory()->create([
+            'status' => 'published',
+            'visibility' => 'catalog',
+            'program_type' => 'regular',
+        ]);
+        $instructor = User::factory()->create([
+            'name' => 'Nadia Bass',
+            'avatar' => 'avatars/nadia.webp',
+            'instructor_bio' => '<p>Instruktur bass profesional.</p>',
+        ]);
+        $course->instructors()->attach($instructor);
+
+        $this->getJson("/api/mobile/catalog/{$course->id}")
+            ->assertOk()
+            ->assertJsonPath('data.instructor', 'Nadia Bass')
+            ->assertJsonPath('data.instructors.0.id', (string) $instructor->id)
+            ->assertJsonPath('data.instructors.0.name', 'Nadia Bass')
+            ->assertJsonPath('data.instructors.0.avatarUrl', asset('storage/avatars/nadia.webp'))
+            ->assertJsonPath('data.instructors.0.bioHtml', '<p>Instruktur bass profesional.</p>');
+    }
+
+    public function test_enrolled_courses_expose_structured_instructor_profiles(): void
+    {
+        $course = Course::factory()->create([
+            'status' => 'published',
+            'program_type' => 'regular',
+        ]);
+        $instructor = User::factory()->create([
+            'name' => 'Dimas Groove',
+            'instructor_bio' => '<p>Pengajar groove.</p>',
+        ]);
+        $course->instructors()->attach($instructor);
+        $course->enrolledUsers()->attach($this->user);
+
+        $this->withToken('catalog-test-token')
+            ->getJson('/api/mobile/courses')
+            ->assertOk()
+            ->assertJsonPath('data.0.instructor', 'Dimas Groove')
+            ->assertJsonPath('data.0.instructors.0.id', (string) $instructor->id)
+            ->assertJsonPath('data.0.instructors.0.bioHtml', '<p>Pengajar groove.</p>');
+    }
+
     public function test_free_course_can_be_enrolled_but_paid_course_is_rejected(): void
     {
         $freeCourse = Course::factory()->create([
