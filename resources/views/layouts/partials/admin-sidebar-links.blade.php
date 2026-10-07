@@ -43,6 +43,15 @@
         </div>
     </section>
 
+    @can('manage course commerce')
+    <section x-data="{ open: true }">
+        <button type="button" x-show="!adminSidebarCollapsed" @click="open = !open" class="mb-2 flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-bold uppercase tracking-[0.16em] text-slate-400 hover:bg-white/10 hover:text-white"><span>Sales</span><svg class="h-4 w-4 transition" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg></button>
+        <div x-show="adminSidebarCollapsed || open" x-collapse class="space-y-1" :class="adminSidebarCollapsed ? '' : 'pl-3'">
+            @include('layouts.partials.admin-sidebar-link', ['href' => route('admin.course-commerce.index'), 'label' => 'Penjualan Course', 'active' => request()->routeIs('admin.course-commerce.*'), 'badge' => 0, 'icon' => 'M3 7h18v12H3V7Zm0 4h18M7 15h4'])
+        </div>
+    </section>
+    @endcan
+
     @canany(['view courses', 'view progress reports', 'view instructor analytics', 'manage course taxonomy', 'manage bundles', 'manage learning paths'])
     <section x-data="{ open: true }">
         <button type="button" x-show="!adminSidebarCollapsed" @click="open = !open" class="mb-2 flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-bold uppercase tracking-[0.16em] text-slate-400 hover:bg-white/10 hover:text-white"><span>Program</span><svg class="h-4 w-4 transition" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg></button>
@@ -65,6 +74,21 @@
             @endcan
             @can('manage learning paths')
                 @include('layouts.partials.admin-sidebar-link', ['href' => route('admin.learning-paths.index'), 'label' => 'Skema', 'active' => request()->routeIs('admin.learning-paths.*'), 'badge' => 0, 'icon' => 'M5 19V8m0 0 4 4M5 8l4-4m10 1v11m0 0-4-4m4 4-4 4M9 12h6'])
+            @endcan
+        </div>
+    </section>
+    @endcanany
+
+    @canany(['manage coupons', 'super-admin-only'])
+    <section x-data="{ open: true }">
+        <button type="button" x-show="!adminSidebarCollapsed" @click="open = !open" class="mb-2 flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-bold uppercase tracking-[0.16em] text-slate-400 hover:bg-white/10 hover:text-white"><span>Transaksi</span><svg class="h-4 w-4 transition" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg></button>
+        <div x-show="adminSidebarCollapsed || open" x-collapse class="space-y-1" :class="adminSidebarCollapsed ? '' : 'pl-3'">
+            @can('manage coupons')
+                @include('layouts.partials.admin-sidebar-link', ['href' => route('admin.coupons.index'), 'label' => 'Manajemen Kupon', 'active' => request()->routeIs('admin.coupons.*'), 'badge' => 0, 'icon' => 'M3 9a3 3 0 0 0 0 6v4h18v-4a3 3 0 0 0 0-6V9a3 3 0 0 0 0 6V5H3v4Zm9-1v2m0 4v2'])
+            @endcan
+            @can('super-admin-only')
+                @include('layouts.partials.admin-sidebar-link', ['href' => route('admin.payment-verifications.index'), 'label' => 'Verifikasi Pembayaran', 'active' => request()->routeIs('admin.payment-verifications.*'), 'badge' => $pendingVerifications, 'icon' => 'M3 7h18v12H3V7Zm0 4h18M7 15h4'])
+                @include('layouts.partials.admin-sidebar-link', ['href' => route('admin.refunds.index'), 'label' => 'Manajemen Refund', 'active' => request()->routeIs('admin.refunds.*'), 'badge' => $pendingRefunds, 'icon' => 'M3 12a9 9 0 1 0 3-6.7L3 8m0-5v5h5M8 12h8m-3-3 3 3-3 3'])
             @endcan
         </div>
     </section>
@@ -102,30 +126,6 @@
                 @include('layouts.partials.admin-sidebar-link', ['href' => route('admin.auto-grade.index'), 'label' => 'Penilaian Otomatis', 'active' => request()->routeIs('admin.auto-grade.*'), 'badge' => 0, 'icon' => 'm4 13 4 4L20 5M4 5h7M4 9h4M14 17h6'])
             @endcanany
             @include('layouts.partials.admin-sidebar-link', ['href' => route('admin.force-complete.index'), 'label' => 'Force Complete', 'active' => request()->routeIs('admin.force-complete.*'), 'badge' => 0, 'icon' => 'M22 11.1V12a10 10 0 1 1-5.9-9.1M22 4 12 14l-3-3'])
-        </div>
-    </section>
-    @endcanany
-
-    @can('manage course commerce')
-    <section x-data="{ open: true }">
-        <button type="button" x-show="!adminSidebarCollapsed" @click="open = !open" class="mb-2 flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-bold uppercase tracking-[0.16em] text-slate-400 hover:bg-white/10 hover:text-white"><span>Sales</span><svg class="h-4 w-4 transition" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg></button>
-        <div x-show="adminSidebarCollapsed || open" x-collapse class="space-y-1" :class="adminSidebarCollapsed ? '' : 'pl-3'">
-            @include('layouts.partials.admin-sidebar-link', ['href' => route('admin.course-commerce.index'), 'label' => 'Penjualan Course', 'active' => request()->routeIs('admin.course-commerce.*'), 'badge' => 0, 'icon' => 'M3 7h18v12H3V7Zm0 4h18M7 15h4'])
-        </div>
-    </section>
-    @endcan
-
-    @canany(['manage coupons', 'super-admin-only'])
-    <section x-data="{ open: true }">
-        <button type="button" x-show="!adminSidebarCollapsed" @click="open = !open" class="mb-2 flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-bold uppercase tracking-[0.16em] text-slate-400 hover:bg-white/10 hover:text-white"><span>Transaksi</span><svg class="h-4 w-4 transition" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg></button>
-        <div x-show="adminSidebarCollapsed || open" x-collapse class="space-y-1" :class="adminSidebarCollapsed ? '' : 'pl-3'">
-            @can('manage coupons')
-                @include('layouts.partials.admin-sidebar-link', ['href' => route('admin.coupons.index'), 'label' => 'Manajemen Kupon', 'active' => request()->routeIs('admin.coupons.*'), 'badge' => 0, 'icon' => 'M3 9a3 3 0 0 0 0 6v4h18v-4a3 3 0 0 0 0-6V9a3 3 0 0 0 0 6V5H3v4Zm9-1v2m0 4v2'])
-            @endcan
-            @can('super-admin-only')
-                @include('layouts.partials.admin-sidebar-link', ['href' => route('admin.payment-verifications.index'), 'label' => 'Verifikasi Pembayaran', 'active' => request()->routeIs('admin.payment-verifications.*'), 'badge' => $pendingVerifications, 'icon' => 'M3 7h18v12H3V7Zm0 4h18M7 15h4'])
-                @include('layouts.partials.admin-sidebar-link', ['href' => route('admin.refunds.index'), 'label' => 'Manajemen Refund', 'active' => request()->routeIs('admin.refunds.*'), 'badge' => $pendingRefunds, 'icon' => 'M3 12a9 9 0 1 0 3-6.7L3 8m0-5v5h5M8 12h8m-3-3 3 3-3 3'])
-            @endcan
         </div>
     </section>
     @endcanany
