@@ -349,6 +349,80 @@ class RefundFlowTest extends TestCase
             && $request->body() === '');
     }
 
+    public function test_order_history_only_shows_cancel_action_for_pending_orders(): void
+    {
+        $participant = User::factory()->create();
+        $course = $this->course();
+        $pending = Order::create([
+            'user_id' => $participant->id,
+            'course_id' => $course->id,
+            'order_code' => 'BASS-HISTORY-PENDING',
+            'base_amount' => 100000,
+            'fee_amount' => 4000,
+            'amount' => 104000,
+            'status' => Order::STATUS_PENDING,
+            'expires_at' => now()->addHour(),
+        ]);
+        $paid = Order::create([
+            'user_id' => $participant->id,
+            'course_id' => $course->id,
+            'order_code' => 'BASS-HISTORY-PAID',
+            'base_amount' => 100000,
+            'fee_amount' => 4000,
+            'amount' => 104000,
+            'status' => Order::STATUS_PAID,
+            'payment_confirmed_at' => now(),
+            'paid_at' => now(),
+        ]);
+
+        $this->actingAs($participant)
+            ->get(route('checkout.index'))
+            ->assertOk()
+            ->assertSee(route('checkout.cancel', $pending), false)
+            ->assertDontSee(route('checkout.cancel', $paid), false);
+
+        $this->get(route('checkout.finish', $pending))
+            ->assertOk()
+            ->assertSeeText('Tagihan ini akan dinonaktifkan dan Anda dapat membuat pesanan baru kapan saja.');
+    }
+
+    public function test_participant_cannot_cancel_another_users_order(): void
+    {
+        $owner = User::factory()->create();
+        $otherParticipant = User::factory()->create();
+        $order = Order::create([
+            'user_id' => $owner->id,
+            'course_id' => $this->course()->id,
+            'order_code' => 'BASS-CANCEL-OTHER-USER',
+            'base_amount' => 100000,
+            'fee_amount' => 4000,
+            'amount' => 104000,
+            'status' => Order::STATUS_PENDING,
+            'expires_at' => now()->addHour(),
+        ]);
+
+        $this->actingAs($otherParticipant)
+            ->post(route('checkout.cancel', $order))
+            ->assertForbidden();
+
+        $this->assertSame(Order::STATUS_PENDING, $order->fresh()->status);
+    }
+
+    public function test_non_pending_orders_redirect_with_an_error_and_keep_their_status(): void
+    {
+        foreach ([Order::STATUS_PAID, Order::STATUS_AWAITING_VERIFICATION] as $status) {
+            [$participant, , $order] = $this->paidOrder(status: $status, confirmed: true);
+
+            $this->actingAs($participant)
+                ->from(route('checkout.finish', $order))
+                ->post(route('checkout.cancel', $order))
+                ->assertRedirect(route('checkout.finish', $order))
+                ->assertSessionHasErrors('cancel');
+
+            $this->assertSame($status, $order->fresh()->status);
+        }
+    }
+
     public function test_cancel_succeeds_when_failed_api_response_reconciles_as_cancelled(): void
     {
         config(['midtrans.server_key' => 'test-server-key']);
@@ -758,6 +832,92 @@ class RefundFlowTest extends TestCase
         $this->artisan('orders:expire-pending')->assertSuccessful();
 
         $this->assertSame(Order::STATUS_EXPIRED, $order->fresh()->status);
+    }
+
+    public function test_expired_pending_order_is_cancelled_at_midtrans_before_being_closed_locally(): void
+    {
+        config(['midtrans.server_key' => 'test-server-key']);
+        [, , $order] = $this->paidOrder(status: Order::STATUS_PENDING, confirmed: false);
+        $order->update([
+            'expires_at' => now()->subMinute(),
+            'transaction_id' => 'midtrans-expired-001',
+        ]);
+
+        Http::fake(function ($request) use ($order) {
+            if (str_ends_with($request->url(), '/cancel')) {
+                return Http::response(['status_code' => '200']);
+            }
+
+            return Http::response([
+                'status_code' => '201',
+                'order_id' => $order->order_code,
+                'transaction_status' => 'pending',
+                'transaction_id' => 'midtrans-expired-001',
+                'gross_amount' => '104000.00',
+                'currency' => 'IDR',
+            ]);
+        });
+
+        $this->artisan('orders:expire-pending')->assertSuccessful();
+
+        $this->assertSame(Order::STATUS_EXPIRED, $order->fresh()->status);
+        Http::assertSent(fn ($request) => str_ends_with($request->url(), '/v2/midtrans-expired-001/cancel'));
+    }
+
+    public function test_expiry_reconciliation_fulfills_order_that_midtrans_reports_as_paid(): void
+    {
+        config(['midtrans.server_key' => 'test-server-key']);
+        [$participant, $course, $order] = $this->paidOrder(status: Order::STATUS_PENDING, confirmed: false);
+        $order->update(['expires_at' => now()->subMinute()]);
+
+        Http::fake(fn () => Http::response([
+            'status_code' => '200',
+            'order_id' => $order->order_code,
+            'transaction_status' => 'settlement',
+            'transaction_id' => 'midtrans-settled-at-expiry',
+            'payment_type' => 'qris',
+            'gross_amount' => '104000.00',
+            'currency' => 'IDR',
+        ]));
+
+        $this->artisan('orders:expire-pending')->assertSuccessful();
+
+        $this->assertSame(Order::STATUS_PAID, $order->fresh()->status);
+        $this->assertDatabaseHas('course_user', [
+            'course_id' => $course->id,
+            'user_id' => $participant->id,
+            'order_id' => $order->id,
+        ]);
+        Http::assertNotSent(fn ($request) => str_ends_with($request->url(), '/cancel'));
+    }
+
+    public function test_expired_order_is_closed_locally_when_midtrans_cancel_fails(): void
+    {
+        config(['midtrans.server_key' => 'test-server-key']);
+        [, , $order] = $this->paidOrder(status: Order::STATUS_PENDING, confirmed: false);
+        $order->update(['expires_at' => now()->subMinute()]);
+
+        Http::fake(function ($request) use ($order) {
+            if (str_ends_with($request->url(), '/cancel')) {
+                return Http::response([
+                    'status_code' => '500',
+                    'status_message' => 'Gateway temporarily unavailable',
+                ], 500);
+            }
+
+            return Http::response([
+                'status_code' => '201',
+                'order_id' => $order->order_code,
+                'transaction_status' => 'pending',
+                'gross_amount' => '104000.00',
+                'currency' => 'IDR',
+            ]);
+        });
+
+        $this->artisan('orders:expire-pending')->assertSuccessful();
+
+        $this->assertSame(Order::STATUS_EXPIRED, $order->fresh()->status);
+        Http::assertSent(fn ($request) => str_ends_with($request->url(), '/cancel'));
     }
 
     private function paidOrder(string $status = Order::STATUS_PAID, bool $confirmed = true): array

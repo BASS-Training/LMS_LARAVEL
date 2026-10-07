@@ -10,8 +10,7 @@ trait Duplicateable
     /**
      * Duplicate the model and its specified relationships recursively.
      *
-     * @param bool $addCopyToTitle Whether to add "(Copy)" to the title (default: true)
-     * @return \Illuminate\Database\Eloquent\Model
+     * @param  bool  $addCopyToTitle  Whether to add "(Copy)" to the title (default: true)
      */
     public function duplicate($addCopyToTitle = true): Model
     {
@@ -29,7 +28,7 @@ trait Duplicateable
 
                 // Remove attributes that don't exist in database
                 foreach ($modelAttributes as $attr) {
-                    if (!in_array($attr, $tableColumns)) {
+                    if (! in_array($attr, $tableColumns)) {
                         unset($newModel->$attr);
                         \Log::warning('Removed non-existent column from model', [
                             'model' => get_class($newModel),
@@ -51,6 +50,10 @@ trait Duplicateable
                     $newModel->token_enabled = false;
                     $newModel->token_expires_at = null;
                     $newModel->token_type = 'random'; // Reset to default
+                    $newModel->visibility = 'private';
+                    $newModel->price = null;
+                    $newModel->short_description = null;
+                    $newModel->requires_payment_verification = false;
 
                     \Log::info('Reset token fields for duplicated course', [
                         'original_course_id' => $this->id,
@@ -71,7 +74,7 @@ trait Duplicateable
                     'model_type' => get_class($this),
                     'original_id' => $this->id,
                     'new_id' => $newModel->id,
-                    'title' => $newModel->title ?? 'N/A'
+                    'title' => $newModel->title ?? 'N/A',
                 ]);
             } catch (\Exception $e) {
                 \Log::error('Failed to replicate base model', [
@@ -82,7 +85,7 @@ trait Duplicateable
                 ]);
                 throw $e;
             }
-            
+
             // =================================================================
             // PERBAIKAN: Logika khusus untuk duplikasi relasi Quiz secara mendalam
             // =================================================================
@@ -103,7 +106,7 @@ trait Duplicateable
                     $quizTableColumns = \Schema::getColumnListing('quizzes');
                     $quizAttributes = array_keys($newQuiz->getAttributes());
                     foreach ($quizAttributes as $attr) {
-                        if (!in_array($attr, $quizTableColumns)) {
+                        if (! in_array($attr, $quizTableColumns)) {
                             unset($newQuiz->$attr);
                             \Log::warning('Removed non-existent column from Quiz model', [
                                 'column' => $attr,
@@ -224,7 +227,7 @@ trait Duplicateable
                     continue;
                 }
 
-                if (!in_array($relationName, $this->getRelationsToDuplicate())) {
+                if (! in_array($relationName, $this->getRelationsToDuplicate())) {
                     continue;
                 }
 
@@ -243,6 +246,7 @@ trait Duplicateable
                             'relation_name' => $relationName,
                             'count' => $pivotData->count(),
                         ]);
+
                         continue;
                     }
 
@@ -295,8 +299,7 @@ trait Duplicateable
                             'relation_name' => $relationName,
                             'count' => $relatedCount,
                         ]);
-                    }
-                    elseif ($relation instanceof Model) {
+                    } elseif ($relation instanceof Model) {
                         // Child models should not have "(Copy)" added to their titles
                         $newRelatedModel = $relation->duplicate(false);
                         $foreignKeyName = $this->{$relationName}()->getForeignKeyName();

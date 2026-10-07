@@ -22,10 +22,15 @@ class RefundController extends Controller
     {
         abort_unless($order->user_id === Auth::id(), 403);
 
+        $companyIssue = $order->refund_policy_mode === 'company_issue';
+
         $validated = $request->validate([
-            'reason_type' => ['required', Rule::enum(RefundReason::class)],
+            'reason_type' => ['required', Rule::enum(RefundReason::class), ...($companyIssue ? [Rule::in([
+                RefundReason::TechnicalIssue->value,
+                RefundReason::Other->value,
+            ])] : [])],
             'reason_other' => [
-                Rule::requiredIf($request->input('reason_type') === RefundReason::Other->value),
+                Rule::requiredIf($companyIssue || $request->input('reason_type') === RefundReason::Other->value),
                 'nullable',
                 'string',
                 'min:10',
@@ -34,7 +39,7 @@ class RefundController extends Controller
         ]);
 
         $reasonType = RefundReason::from($validated['reason_type']);
-        $reason = $reasonType === RefundReason::Other
+        $reason = $companyIssue || $reasonType === RefundReason::Other
             ? $reasonType->label().': '.trim($validated['reason_other'])
             : $reasonType->label();
 

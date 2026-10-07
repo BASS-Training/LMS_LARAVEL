@@ -43,17 +43,21 @@ class ShopApiController extends Controller
 
         $query = Course::inCatalog()->with([
             'instructors:id,name',
+            'salesProfile',
             'categories' => fn ($query) => $query->active()->ordered()->select('categories.id', 'name', 'slug'),
             'tags' => fn ($query) => $query->active()->orderBy('name')->select('tags.id', 'name', 'slug'),
         ]);
-
-        $this->hideRestrictedPrograms($query, $user);
 
         if ($search !== null) {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', '%'.$search.'%')
                     ->orWhere('short_description', 'like', '%'.$search.'%')
-                    ->orWhere('description', 'like', '%'.$search.'%');
+                    ->orWhere('description', 'like', '%'.$search.'%')
+                    ->orWhereHas('salesProfile', function ($query) use ($search) {
+                        $query->where('headline', 'like', '%'.$search.'%')
+                            ->orWhere('target_audience', 'like', '%'.$search.'%')
+                            ->orWhere('learning_benefits', 'like', '%'.$search.'%');
+                    });
             });
         }
 
@@ -130,6 +134,7 @@ class ShopApiController extends Controller
 
         $course->load([
             'instructors:id,name',
+            'salesProfile',
             'categories' => fn ($query) => $query->active()->ordered()->select('categories.id', 'name', 'slug'),
             'tags' => fn ($query) => $query->active()->orderBy('name')->select('tags.id', 'name', 'slug'),
             'lessons' => fn ($q) => $q->select('id', 'course_id', 'title', 'order')->orderBy('order'),
@@ -141,6 +146,18 @@ class ShopApiController extends Controller
         $data = $this->transformCard($course, $isEnrolled ? [$course->id => true] : []);
 
         $data['description'] = $course->description ?? '';
+        $data['salesProfile'] = $course->salesProfile ? [
+            'slug' => $course->salesProfile->slug,
+            'headline' => $course->salesProfile->headline,
+            'targetAudience' => $course->salesProfile->target_audience,
+            'learningBenefits' => $course->salesProfile->learning_benefits,
+            'requirements' => $course->salesProfile->requirements,
+            'level' => $course->salesProfile->level,
+            'estimatedDurationMinutes' => $course->salesProfile->estimated_duration_minutes,
+            'language' => $course->salesProfile->language,
+            'promoVideoUrl' => $course->salesProfile->promo_video_url,
+            'faq' => $course->salesProfile->faq ?? [],
+        ] : null;
         $data['totalContents'] = $course->lessons->sum(fn ($lesson) => $lesson->contents->count());
         $data['sections'] = $course->lessons->values()->map(function ($lesson, $index) {
             return [
@@ -221,7 +238,7 @@ class ShopApiController extends Controller
         return [
             'id' => (string) $course->id,
             'title' => $course->title,
-            'shortDescription' => $course->short_description ?? '',
+            'shortDescription' => $course->salesProfile?->headline ?: ($course->short_description ?? ''),
             'instructor' => $course->instructors->pluck('name')->filter()->implode(', '),
             'thumbnailUrl' => $course->thumbnail ? asset('storage/'.$course->thumbnail) : null,
             // index() memakai withCount(); show() sudah memuat relasinya. Pakai
@@ -250,28 +267,12 @@ class ShopApiController extends Controller
     }
 
     /**
-     * Kursus AVPN hanya tampil untuk akun yang sudah disetujui — aturan yang
-     * sama dipakai CourseApiController::index(). Tanpa ini, etalase jadi pintu
-     * belakang untuk melihat program terbatas.
-     */
-    private function hideRestrictedPrograms($query, ?User $user): void
-    {
-        if (! $user || ! $user->isAvpnApproved()) {
-            $query->where('program_type', '!=', 'avpn_ai');
-        }
-    }
-
-    /**
      * 404 (bukan 403) untuk kursus di luar etalase — jangan bocorkan bahwa
      * sebuah kursus privat itu ada.
      */
     private function assertVisible(Course $course, ?User $user): void
     {
         abort_unless($course->isInCatalog(), 404);
-        abort_if(
-            $course->isAvpnProgram() && (! $user || ! $user->canAccessProgram('avpn_ai')),
-            404
-        );
     }
 
     /**

@@ -145,8 +145,11 @@ Migration terkait yang akan dijalankan jika belum tersedia:
 - `2026_10_03_110000_create_bundles_and_extend_orders.php`
 - `2026_10_05_000000_create_learning_paths_tables.php`
 - `2026_10_06_000000_add_payment_queue_tracking.php` (kolom status Snap dan tabel receipt webhook)
+- `2026_10_07_000000_add_refund_policy_to_orders_and_settings.php` (mode kebijakan refund, snapshot per order, dan waktu persetujuan)
 
 `RolesAndPermissionsSeeder` bersifat idempotent dan diperlukan untuk membuat permission `manage coupons`, `manage bundles`, `manage learning paths`, dan `manage course taxonomy` yang belum ada.
+
+Setelah migrasi, pembelian baru memakai aturan **non-refundable kecuali ada kendala dari pihak perusahaan**. Pesanan lama tanpa snapshot tetap mengikuti ketentuan refund berbatas hari yang berlaku sebelumnya. Admin dapat mengganti mode untuk pembelian berikutnya di **Manajemen Refund → Atur Kebijakan**; periksa teks halaman `/kebijakan-refund` sebelum membuka checkout production.
 
 ### 6. Periksa Environment
 

@@ -69,7 +69,7 @@
                             <a href="{{ route('shop.show', $course) }}" class="min-w-0 flex-1 p-4 sm:p-5">
                                 <div class="flex flex-wrap gap-2">@if ($managed)<span class="rounded-md bg-navy px-2 py-1 text-xs font-bold text-white">Dikelola</span>@elseif ($owned)<span class="rounded-md bg-success-soft px-2 py-1 text-xs font-bold text-success">Sudah dimiliki</span>@endif @foreach ($course->categories->take(1) as $category)<span class="rounded-md border border-navy/20 px-2 py-1 text-xs font-semibold">{{ $category->name }}</span>@endforeach</div>
                                 <h2 class="mt-3 text-xl font-extrabold leading-tight group-hover:text-bass-red [font-family:Fraunces,serif]">{{ $course->title }}</h2>
-                                @if ($course->short_description)<p class="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{{ $course->short_description }}</p>@endif
+                                @if ($course->salesProfile?->headline || $course->short_description)<p class="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{{ $course->salesProfile?->headline ?: $course->short_description }}</p>@endif
                                 <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500"><span>{{ $course->instructors->pluck('name')->join(', ') ?: 'Instruktur BASS' }}</span><span>{{ $course->lessons_count }} pelajaran</span>@foreach ($course->tags->take(2) as $tag)<span>#{{ $tag->name }}</span>@endforeach</div>
                             </a>
                             <div class="flex items-center justify-between gap-4 border-t-2 border-dashed border-navy/20 p-4 sm:w-48 sm:flex-col sm:items-end sm:justify-center sm:border-l-2 sm:border-t-0">

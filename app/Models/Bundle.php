@@ -47,19 +47,17 @@ class Bundle extends Model
         return $query->where('is_active', true)
             ->whereHas('courses')
             ->whereDoesntHave('courses', fn (Builder $query) => $query->where(function (Builder $query) {
-                $query->where('status', '!=', 'published')
+                $query->where('program_type', '!=', 'regular')
+                    ->orWhere('status', '!=', 'published')
                     ->orWhere('visibility', '!=', 'catalog')
                     ->orWhereNull('price')
-                    ->orWhere('price', '<=', 0);
+                    ->orWhere('price', '<=', 0)
+                    ->orWhereHas('salesProfile', fn (Builder $query) => $query->where('sales_status', '!=', 'published'));
             }));
     }
 
     public function scopeVisibleTo(Builder $query, ?User $user): Builder
     {
-        if (! $user?->canAccessProgram('avpn_ai')) {
-            $query->whereDoesntHave('courses', fn (Builder $query) => $query->where('program_type', 'avpn_ai'));
-        }
-
         return $query;
     }
 

@@ -103,7 +103,7 @@ class CourseController extends Controller
     {
         $this->authorize('create', Course::class);
 
-        $validatedData = $this->normalizeShopFields($request->validated());
+        $validatedData = $request->validated();
 
         $request->validate([
             'certificate_template_id' => 'nullable|exists:certificate_templates,id',
@@ -124,10 +124,6 @@ class CourseController extends Controller
                 'objectives' => $validatedData['objectives'],
                 'thumbnail' => $validatedData['thumbnail'] ?? null,
                 'status' => $validatedData['status'],
-                'visibility' => $validatedData['visibility'],
-                'price' => $validatedData['price'],
-                'requires_payment_verification' => $validatedData['requires_payment_verification'] ?? false,
-                'short_description' => $validatedData['short_description'],
                 'program_type' => $validatedData['program_type'],
                 'training_start_date' => $validatedData['training_start_date'] ?? null,
                 'training_end_date' => $validatedData['training_end_date'] ?? null,
@@ -136,7 +132,6 @@ class CourseController extends Controller
 
             $course->categories()->sync($validatedData['category_ids'] ?? []);
             $course->tags()->sync($validatedData['tag_ids'] ?? []);
-
             // Assign creator as instructor
             $course->instructors()->attach(Auth::id());
 
@@ -342,10 +337,6 @@ class CourseController extends Controller
             'objectives' => 'nullable|string',
             'thumbnail' => 'nullable|image|max:2048',
             'status' => 'required|in:draft,published',
-            'visibility' => 'nullable|in:private,catalog',
-            'price' => 'nullable|integer|min:0|max:1000000000',
-            'requires_payment_verification' => 'nullable|boolean',
-            'short_description' => 'nullable|string|max:255',
             'program_type' => 'required|in:regular,avpn_ai',
             'training_start_date' => 'nullable|date|required_with:training_end_date',
             'training_end_date' => 'nullable|date|after_or_equal:training_start_date|required_with:training_start_date',
@@ -373,8 +364,6 @@ class CourseController extends Controller
             'periods.*.status' => 'required_with:periods|in:upcoming,active,completed,cancelled',
         ]);
 
-        $validatedData = $this->normalizeShopFields($validatedData);
-
         try {
             DB::beginTransaction();
 
@@ -387,6 +376,13 @@ class CourseController extends Controller
                 ? ($validatedData['tag_ids'] ?? [])
                 : $existingTagIds;
             unset($validatedData['category_ids'], $validatedData['tag_ids'], $validatedData['taxonomy_present']);
+
+            if ($validatedData['program_type'] === 'avpn_ai') {
+                $validatedData['visibility'] = 'private';
+                $validatedData['price'] = null;
+                $validatedData['short_description'] = null;
+                $validatedData['requires_payment_verification'] = false;
+            }
 
             if ($request->boolean('clear_thumbnail')) {
                 if ($course->thumbnail) {
@@ -404,6 +400,13 @@ class CourseController extends Controller
             $course->categories()->sync($categoryIds);
             $course->tags()->sync($tagIds);
 
+            if ($course->isAvpnProgram()) {
+                $course->salesProfile()->update(['sales_status' => 'hidden']);
+                $course->bundles()->detach();
+                $course->learningPaths()->detach();
+                $course->coupons()->detach();
+            }
+
             // Keep all class/batch program types aligned with the parent course.
             $course->periods()->update(['program_type' => $course->program_type]);
 
@@ -415,7 +418,7 @@ class CourseController extends Controller
 
             // ✅ LOG COURSE UPDATE WITH BEFORE/AFTER
             $changes = [];
-            $fields = ['title', 'description', 'objectives', 'status', 'visibility', 'price', 'requires_payment_verification', 'short_description', 'program_type', 'training_start_date', 'training_end_date', 'thumbnail', 'certificate_template_id'];
+            $fields = ['title', 'description', 'objectives', 'status', 'program_type', 'training_start_date', 'training_end_date', 'thumbnail', 'certificate_template_id'];
 
             foreach ($fields as $field) {
                 if ($originalData[$field] != $course->$field) {
@@ -453,32 +456,6 @@ class CourseController extends Controller
 
             return back()->withInput()->withErrors(['error' => 'Gagal memperbarui kursus: '.$e->getMessage()]);
         }
-    }
-
-    /**
-     * Rapikan field etalase sebelum disimpan.
-     *
-     * Checkbox "tampilkan di katalog" dikirim sebagai hidden(private) + checkbox(catalog),
-     * jadi nilainya selalu ada. Kalau course tidak dikatalogkan, harga & deskripsi singkat
-     * tidak relevan → dikosongkan supaya tidak meninggalkan data hantu yang menyesatkan.
-     */
-    private function normalizeShopFields(array $data): array
-    {
-        if (($data['visibility'] ?? 'private') !== 'catalog') {
-            $data['visibility'] = 'private';
-            $data['price'] = null;
-            $data['short_description'] = null;
-            $data['requires_payment_verification'] = false;
-
-            return $data;
-        }
-
-        $data['visibility'] = 'catalog';
-        $data['price'] = (int) ($data['price'] ?? 0);
-        $data['short_description'] = $data['short_description'] ?? null;
-        $data['requires_payment_verification'] = (bool) ($data['requires_payment_verification'] ?? false);
-
-        return $data;
     }
 
     private function updateCoursePeriods(Course $course, Request $request, array $validatedData)

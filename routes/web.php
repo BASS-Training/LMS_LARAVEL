@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\BundleController as AdminBundleController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CertificateTemplateController;
 use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\CourseCommerceController;
 use App\Http\Controllers\Admin\LearningPathController as AdminLearningPathController;
 use App\Http\Controllers\Admin\PaymentVerificationController;
 use App\Http\Controllers\Admin\RefundController as AdminRefundController;
@@ -60,6 +61,7 @@ Route::get('/certificates/download/{code}', [CertificateController::class, 'publ
 | dan hanya judul kurikulum yang dibuka — isi konten tetap terkunci.
 */
 Route::get('/katalog', [ShopController::class, 'index'])->name('shop.index');
+Route::get('/kebijakan-refund', [ShopController::class, 'refundPolicy'])->name('shop.refund-policy');
 Route::middleware('feature:bundles')->group(function () {
     Route::get('/bundles', [BundleController::class, 'index'])->name('bundles.index');
     Route::get('/bundles/{bundle}', [BundleController::class, 'show'])->name('bundles.show');
@@ -128,6 +130,15 @@ Route::middleware(['auth', 'permission:manage coupons'])
         Route::get('/{coupon}/edit', [CouponController::class, 'edit'])->name('edit');
         Route::put('/{coupon}', [CouponController::class, 'update'])->name('update');
         Route::delete('/{coupon}', [CouponController::class, 'destroy'])->name('destroy');
+    });
+
+Route::middleware(['auth', 'permission:manage course commerce'])
+    ->prefix('admin/course-commerce')
+    ->name('admin.course-commerce.')
+    ->group(function () {
+        Route::get('/', [CourseCommerceController::class, 'index'])->name('index');
+        Route::get('/{course}/edit', [CourseCommerceController::class, 'edit'])->name('edit');
+        Route::put('/{course}', [CourseCommerceController::class, 'update'])->name('update');
     });
 
 Route::middleware(['auth', 'permission:manage bundles'])
@@ -239,6 +250,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Profile Pengguna
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/email-preferences', [ProfileController::class, 'updateEmailPreferences'])
+        ->name('profile.email-preferences.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/profile/avpn-verification/request', [ProfileController::class, 'requestAvpnVerification'])
         ->name('profile.avpn.request');

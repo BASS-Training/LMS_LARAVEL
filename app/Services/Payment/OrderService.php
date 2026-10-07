@@ -2,11 +2,12 @@
 
 namespace App\Services\Payment;
 
-use App\Jobs\PrepareSnapTransaction;
 use App\Enums\RefundStatus;
+use App\Jobs\PrepareSnapTransaction;
 use App\Models\Bundle;
 use App\Models\Course;
 use App\Models\Order;
+use App\Models\RefundSetting;
 use App\Models\User;
 use App\Notifications\PaymentStatusNotification;
 use App\Services\FeatureAvailability;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use RuntimeException;
+use Throwable;
 
 /**
  * Aturan bisnis pembelian kursus.
@@ -42,20 +44,20 @@ class OrderService
      *                                  (mis. 'qris', 'bank_transfer'). Menentukan biaya layanan yang dipakai
      *                                  dan mengunci Snap ke metode itu. null → tarif gabungan + semua metode.
      */
-    public function checkout(Course $course, User $user, ?string $methodKey = null, ?string $couponCode = null): Order
+    public function checkout(Course $course, User $user, ?string $methodKey = null, ?string $couponCode = null, ?string $acceptedPolicyMode = null): Order
     {
         if (config('payment_queue.enabled')) {
-            return DB::transaction(function () use ($course, $user, $methodKey, $couponCode) {
+            return DB::transaction(function () use ($course, $user, $methodKey, $couponCode, $acceptedPolicyMode) {
                 User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
 
-                return $this->checkoutCourseLocked($course, $user, $methodKey, $couponCode);
+                return $this->checkoutCourseLocked($course, $user, $methodKey, $couponCode, $acceptedPolicyMode);
             });
         }
 
-        return $this->checkoutCourseLocked($course, $user, $methodKey, $couponCode);
+        return $this->checkoutCourseLocked($course, $user, $methodKey, $couponCode, $acceptedPolicyMode);
     }
 
-    private function checkoutCourseLocked(Course $course, User $user, ?string $methodKey, ?string $couponCode): Order
+    private function checkoutCourseLocked(Course $course, User $user, ?string $methodKey, ?string $couponCode, ?string $acceptedPolicyMode): Order
     {
         if (! $this->gateway->isConfigured()) {
             throw new RuntimeException('Pembayaran belum dikonfigurasi. Hubungi admin.');
@@ -138,7 +140,11 @@ class OrderService
             }
         }
 
-        return DB::transaction(function () use ($course, $user, $methodKey, $normalizedCoupon) {
+        return DB::transaction(function () use ($course, $user, $methodKey, $normalizedCoupon, $acceptedPolicyMode) {
+            $refundPolicy = RefundSetting::current();
+            if ($acceptedPolicyMode !== null && $acceptedPolicyMode !== $refundPolicy->policy_mode) {
+                throw new RuntimeException('Kebijakan refund berubah. Muat ulang halaman dan tinjau ketentuan terbaru.');
+            }
             $quote = $normalizedCoupon
                 ? $this->coupons->quoteForReservation($normalizedCoupon, (int) $course->price, $course, $user)
                 : null;
@@ -158,6 +164,10 @@ class OrderService
                 'amount' => $breakdown['total'],     // TOTAL yang ditagih ke Midtrans
                 'payment_method_key' => $methodKey,  // metode pilihan (dasar biaya + kunci Snap)
                 'status' => Order::STATUS_PENDING,
+                'refund_policy_mode' => $refundPolicy->policy_mode,
+                'refund_window_days' => $refundPolicy->policy_mode === 'company_issue' ? 7 : $refundPolicy->request_window_days,
+                'refund_max_progress' => $refundPolicy->max_progress_percentage,
+                'refund_policy_accepted_at' => $acceptedPolicyMode !== null ? now() : null,
                 'expires_at' => now()->addHours((int) config('midtrans.expiry_hours', 24)),
             ]);
 
@@ -208,20 +218,20 @@ class OrderService
         ];
     }
 
-    public function checkoutBundle(Bundle $bundle, User $user, ?string $methodKey = null, ?string $couponCode = null): Order
+    public function checkoutBundle(Bundle $bundle, User $user, ?string $methodKey = null, ?string $couponCode = null, ?string $acceptedPolicyMode = null): Order
     {
         if (config('payment_queue.enabled')) {
-            return DB::transaction(function () use ($bundle, $user, $methodKey, $couponCode) {
+            return DB::transaction(function () use ($bundle, $user, $methodKey, $couponCode, $acceptedPolicyMode) {
                 User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
 
-                return $this->checkoutBundleLocked($bundle, $user, $methodKey, $couponCode);
+                return $this->checkoutBundleLocked($bundle, $user, $methodKey, $couponCode, $acceptedPolicyMode);
             });
         }
 
-        return $this->checkoutBundleLocked($bundle, $user, $methodKey, $couponCode);
+        return $this->checkoutBundleLocked($bundle, $user, $methodKey, $couponCode, $acceptedPolicyMode);
     }
 
-    private function checkoutBundleLocked(Bundle $bundle, User $user, ?string $methodKey, ?string $couponCode): Order
+    private function checkoutBundleLocked(Bundle $bundle, User $user, ?string $methodKey, ?string $couponCode, ?string $acceptedPolicyMode): Order
     {
         if (! $this->features->bundlesEnabled()) {
             throw new RuntimeException('Pembelian bundle sedang dinonaktifkan.');
@@ -290,7 +300,11 @@ class OrderService
             }
         }
 
-        return DB::transaction(function () use ($bundle, $user, $methodKey, $normalizedCoupon, $pricing) {
+        return DB::transaction(function () use ($bundle, $user, $methodKey, $normalizedCoupon, $pricing, $acceptedPolicyMode) {
+            $refundPolicy = RefundSetting::current();
+            if ($acceptedPolicyMode !== null && $acceptedPolicyMode !== $refundPolicy->policy_mode) {
+                throw new RuntimeException('Kebijakan refund berubah. Muat ulang halaman dan tinjau ketentuan terbaru.');
+            }
             $quote = $normalizedCoupon
                 ? $this->coupons->quoteBundleForReservation($normalizedCoupon, $pricing['payable_base'], $bundle, $user)
                 : null;
@@ -312,6 +326,10 @@ class OrderService
                 'amount' => $breakdown['total'],
                 'payment_method_key' => $methodKey,
                 'status' => Order::STATUS_PENDING,
+                'refund_policy_mode' => $refundPolicy->policy_mode,
+                'refund_window_days' => $refundPolicy->policy_mode === 'company_issue' ? 7 : $refundPolicy->request_window_days,
+                'refund_max_progress' => $refundPolicy->max_progress_percentage,
+                'refund_policy_accepted_at' => $acceptedPolicyMode !== null ? now() : null,
                 'expires_at' => now()->addHours((int) config('midtrans.expiry_hours', 24)),
             ]);
 
@@ -719,6 +737,26 @@ class OrderService
 
     public function expirePending(Order $order): bool
     {
+        $fresh = $order->fresh();
+
+        if (! $fresh?->isPending() || ! $fresh->expires_at?->isPast()) {
+            return false;
+        }
+
+        if ($this->gateway->isConfigured()) {
+            $identifier = $fresh->transaction_id ?: $fresh->order_code;
+
+            try {
+                $this->gateway->cancelTransaction($identifier);
+            } catch (Throwable $exception) {
+                Log::warning('Gagal membatalkan tagihan Midtrans yang kedaluwarsa', [
+                    'order_code' => $fresh->order_code,
+                    'transaction_id' => $fresh->transaction_id,
+                    'message' => $exception->getMessage(),
+                ]);
+            }
+        }
+
         return DB::transaction(function () use ($order) {
             $locked = Order::query()->lockForUpdate()->find($order->id);
 

@@ -47,6 +47,15 @@
                             <a href="{{ route('checkout.invoice', $order) }}"
                                class="block mt-1 text-xs text-bass-red hover:underline">Invoice (PDF)</a>
                         @endif
+                        @if ($order->isPending())
+                            <form method="POST" action="{{ route('checkout.cancel', $order) }}" class="mt-2"
+                                  onsubmit="return confirm('Batalkan pesanan ini? Tagihan Midtrans tidak dapat digunakan lagi.');">
+                                @csrf
+                                <button type="submit" class="text-xs font-medium text-bass-red hover:underline">
+                                    Batalkan
+                                </button>
+                            </form>
+                        @endif
                     </div>
                 </div>
             @endforeach

@@ -45,12 +45,20 @@ class CouponService
     /** @return array{coupon:Coupon, code:string, discount:int, original_base:int, discounted_base:int} */
     public function quoteForBundle(string $code, int $amount, Bundle $bundle, User $user, ?Order $existingOrder = null): array
     {
+        if (! $bundle->isInCatalog()) {
+            throw new RuntimeException('Kupon hanya dapat digunakan untuk bundle course Regular yang dijual.');
+        }
+
         return $this->resolve($code, $amount, null, $user, $existingOrder, false, true);
     }
 
     /** @return array{coupon:Coupon, code:string, discount:int, original_base:int, discounted_base:int} */
     public function quoteBundleForReservation(string $code, int $amount, Bundle $bundle, User $user): array
     {
+        if (! $bundle->isInCatalog()) {
+            throw new RuntimeException('Kupon hanya dapat digunakan untuk bundle course Regular yang dijual.');
+        }
+
         return $this->resolve($code, $amount, null, $user, null, true, true);
     }
 
@@ -85,6 +93,10 @@ class CouponService
     ): array {
         if (! $this->checkoutEnabled()) {
             throw new RuntimeException('Fitur kupon sedang tidak tersedia.');
+        }
+
+        if ($course && ! $course->isInCatalog()) {
+            throw new RuntimeException('Kupon hanya dapat digunakan untuk course Regular yang dijual.');
         }
 
         $normalized = $this->normalize($code);

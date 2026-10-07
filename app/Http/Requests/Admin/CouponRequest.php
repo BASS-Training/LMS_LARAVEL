@@ -3,8 +3,10 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\Coupon;
+use App\Models\Course;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class CouponRequest extends FormRequest
 {
@@ -60,6 +62,32 @@ class CouponRequest extends FormRequest
             'discount_value.max' => 'Diskon persentase maksimal 99% untuk menjaga total pembayaran tetap positif.',
             'course_ids.required_if' => 'Pilih minimal satu kursus untuk kupon khusus.',
             'expires_at.after' => 'Waktu berakhir harus setelah waktu mulai.',
+        ];
+    }
+
+    public function after(): array
+    {
+        return [
+            function (Validator $validator) {
+                if ($this->boolean('applies_to_all_courses')) {
+                    return;
+                }
+
+                $ids = array_values(array_unique(array_map('intval', $this->input('course_ids', []))));
+                if ($ids === []) {
+                    return;
+                }
+
+                $validCount = Course::query()
+                    ->whereKey($ids)
+                    ->inCatalog()
+                    ->where('price', '>', 0)
+                    ->count();
+
+                if ($validCount !== count($ids)) {
+                    $validator->errors()->add('course_ids', 'Kupon hanya dapat dipasang pada course Regular berbayar yang tampil di katalog.');
+                }
+            },
         ];
     }
 }

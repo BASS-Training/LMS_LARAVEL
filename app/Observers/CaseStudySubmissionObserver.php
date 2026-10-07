@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\CaseStudySubmission;
+use App\Notifications\FinalAssessmentResultNotification;
 use App\Notifications\MobileNotification;
 use App\Observers\Concerns\NotifiesInstructors;
 
@@ -55,5 +56,13 @@ class CaseStudySubmissionObserver
             'courseTitle' => $course?->title,
             'contentId' => $content ? (string) $content->id : null,
         ]));
+        $user->notify(new FinalAssessmentResultNotification(
+            assessmentType: 'case_study',
+            submissionId: $submission->id,
+            contentId: $content->id,
+            contentTitle: $content->title,
+            courseTitle: $course?->title ?? 'Course BASS Academy',
+            status: $submission->status,
+        ));
     }
 }

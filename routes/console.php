@@ -13,6 +13,7 @@ Artisan::command('inspire', function () {
 Schedule::command('certificates:cleanup-downloads')->hourly();
 Schedule::command('orders:expire-pending')->everyFifteenMinutes()->withoutOverlapping();
 Schedule::command('orders:reconcile-cancellations')->everyMinute()->withoutOverlapping();
+Schedule::command('learning-reminders:send')->everyFiveMinutes()->withoutOverlapping()->onOneServer();
 
 // Audit permission middleware coverage across named routes
 Artisan::command('permissions:audit {--format=table : Output format: table|csv|json} {--missing-only : Show only routes without permission middleware} {--name= : Filter by route name contains} {--method= : Filter by HTTP method} {--path= : Filter by URI contains}', function () {

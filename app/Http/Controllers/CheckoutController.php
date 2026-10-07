@@ -8,6 +8,7 @@ use App\Models\Bundle;
 use App\Models\Course;
 use App\Models\Order;
 use App\Models\PaymentWebhookReceipt;
+use App\Models\RefundSetting;
 use App\Services\Payment\CouponService;
 use App\Services\Payment\MidtransGateway;
 use App\Services\Payment\OrderService;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use RuntimeException;
 use Throwable;
 
@@ -101,6 +103,7 @@ class CheckoutController extends Controller
             'couponsEnabled' => $this->coupons->checkoutEnabled(),
             'couponQuote' => $couponQuote,
             'couponError' => $couponError,
+            'refundSettings' => RefundSetting::current(),
         ]);
     }
 
@@ -168,6 +171,7 @@ class CheckoutController extends Controller
             'couponsEnabled' => $this->coupons->checkoutEnabled(),
             'couponQuote' => $couponQuote,
             'couponError' => $couponError,
+            'refundSettings' => RefundSetting::current(),
         ]);
     }
 
@@ -230,6 +234,7 @@ class CheckoutController extends Controller
 
     public function removeCoupon(Course $course)
     {
+        abort_unless($course->isInCatalog() && ! $course->isFree(), 404);
         session()->forget($this->couponSessionKey($course));
 
         return redirect()->route('checkout.choose', $course)
@@ -243,6 +248,7 @@ class CheckoutController extends Controller
     public function store(Course $course, Request $request)
     {
         abort_unless($course->isInCatalog(), 404);
+        $this->validateRefundConsent($request);
 
         $methodKey = null;
 
@@ -263,12 +269,14 @@ class CheckoutController extends Controller
             $course,
             $methodKey,
             session($this->couponSessionKey($course)),
+            $request->input('refund_policy_mode'),
         );
     }
 
     public function storeBundle(Bundle $bundle, Request $request)
     {
         abort_unless($bundle->isVisibleInCatalog(Auth::user()), 404);
+        $this->validateRefundConsent($request);
         $methodKey = null;
 
         if ($this->fee->methodsEnabled()) {
@@ -286,6 +294,7 @@ class CheckoutController extends Controller
                 Auth::user(),
                 $methodKey,
                 session($this->bundleCouponSessionKey($bundle)),
+                $request->input('refund_policy_mode'),
             );
         } catch (RuntimeException $exception) {
             return redirect()->route('checkout.bundle.choose', $bundle)
@@ -307,10 +316,10 @@ class CheckoutController extends Controller
     /**
      * Buat pesanan + lempar ke Snap, atau balik dengan error yang ramah.
      */
-    private function createAndRedirect(Course $course, ?string $methodKey, ?string $couponCode = null)
+    private function createAndRedirect(Course $course, ?string $methodKey, ?string $couponCode = null, ?string $acceptedPolicyMode = null)
     {
         try {
-            $order = $this->orders->checkout($course, Auth::user(), $methodKey, $couponCode);
+            $order = $this->orders->checkout($course, Auth::user(), $methodKey, $couponCode, $acceptedPolicyMode);
         } catch (RuntimeException $e) {
             return redirect()->route('checkout.choose', $course)
                 ->withErrors(['shop' => $e->getMessage()]);
@@ -332,6 +341,18 @@ class CheckoutController extends Controller
         return config('payment_queue.enabled') && ! $order->snap_redirect_url
             ? redirect()->route('checkout.finish', $order)
             : redirect()->away($order->snap_redirect_url);
+    }
+
+    private function validateRefundConsent(Request $request): void
+    {
+        $settings = RefundSetting::current();
+        $request->validate([
+            'refund_consent' => ['accepted'],
+            'refund_policy_mode' => ['required', Rule::in([$settings->policy_mode])],
+        ], [
+            'refund_consent.accepted' => 'Anda harus menyetujui kebijakan refund sebelum melanjutkan.',
+            'refund_policy_mode.in' => 'Kebijakan refund berubah. Muat ulang halaman dan tinjau ketentuan terbaru.',
+        ]);
     }
 
     /**

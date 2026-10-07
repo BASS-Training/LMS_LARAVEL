@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\Course;
 use App\Models\User;
+use App\Notifications\AvpnVerificationStatusNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -89,5 +91,39 @@ class AdminParticipantAvpnToolsTest extends TestCase
 
         $this->assertSame('regular', $legacyRegularUser->registration_program);
         $this->assertSame('not_required', $legacyRegularUser->avpn_verification_status);
+    }
+
+    public function test_admin_avpn_actions_email_only_participants_transitioned_from_pending(): void
+    {
+        Notification::fake();
+        Permission::findOrCreate('manage users');
+        Role::findOrCreate('super-admin');
+        $admin = User::factory()->create();
+        $admin->givePermissionTo('manage users');
+        $admin->assignRole('super-admin');
+        $pending = User::factory()->create(['avpn_verification_status' => 'pending']);
+        $alreadyApproved = User::factory()->create(['avpn_verification_status' => 'approved']);
+
+        $this->actingAs($admin)
+            ->post(route('admin.participants.avpn.batch-reject'), [
+                'participant_ids' => [$pending->id, $alreadyApproved->id, $pending->id],
+                'reason' => 'Dokumen perlu diperbarui.',
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('success', fn ($message) => str_contains($message, '1 peserta dilewati'));
+
+        $this->assertSame('rejected', $pending->fresh()->avpn_verification_status);
+        $this->assertSame('Dokumen perlu diperbarui.', $pending->fresh()->avpn_rejection_reason);
+        Notification::assertSentToTimes($pending, AvpnVerificationStatusNotification::class, 1);
+        Notification::assertNotSentTo($alreadyApproved, AvpnVerificationStatusNotification::class);
+
+        $this->actingAs($admin)
+            ->post(route('admin.participants.avpn.reject', $pending), [
+                'reason' => 'Percobaan kedua.',
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('error');
+
+        Notification::assertSentToTimes($pending, AvpnVerificationStatusNotification::class, 1);
     }
 }

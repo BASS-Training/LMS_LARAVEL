@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\AvpnVerificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ParticipantController extends Controller
 {
+    public function __construct(private AvpnVerificationService $avpnVerification) {}
+
     public function index(Request $request)
     {
         $this->authorize('viewAny', User::class);
@@ -79,16 +82,13 @@ class ParticipantController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
-        if ($user->avpn_verification_status !== 'pending') {
+        $transitioned = $this->avpnVerification->transitionPending([$user->id], 'approved', auth()->user());
+
+        if ($transitioned->isEmpty()) {
             return back()->with('error', 'User ini tidak sedang menunggu verifikasi AVPN.');
         }
 
-        $user->update([
-            'avpn_verification_status' => 'approved',
-            'avpn_verified_at' => now(),
-            'avpn_verified_by' => auth()->id(),
-            'avpn_rejection_reason' => null,
-        ]);
+        $user = $transitioned->first();
 
         \App\Models\ActivityLog::log('avpn_registration_approved', [
             'description' => "Approved AVPN verification for user: {$user->name}",
@@ -107,20 +107,22 @@ class ParticipantController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
-        if ($user->avpn_verification_status !== 'pending') {
-            return back()->with('error', 'User ini tidak sedang menunggu verifikasi AVPN.');
-        }
-
         $validated = $request->validate([
             'reason' => 'nullable|string|max:500',
         ]);
 
-        $user->update([
-            'avpn_verification_status' => 'rejected',
-            'avpn_verified_at' => now(),
-            'avpn_verified_by' => auth()->id(),
-            'avpn_rejection_reason' => $validated['reason'] ?? null,
-        ]);
+        $transitioned = $this->avpnVerification->transitionPending(
+            [$user->id],
+            'rejected',
+            auth()->user(),
+            $validated['reason'] ?? null,
+        );
+
+        if ($transitioned->isEmpty()) {
+            return back()->with('error', 'User ini tidak sedang menunggu verifikasi AVPN.');
+        }
+
+        $user = $transitioned->first();
 
         \App\Models\ActivityLog::log('avpn_registration_rejected', [
             'description' => "Rejected AVPN verification for user: {$user->name}",
@@ -224,23 +226,11 @@ class ParticipantController extends Controller
 
         $ids = collect($validated['participant_ids'])->unique()->values();
 
-        $pendingUsers = User::query()
-            ->whereIn('id', $ids)
-            ->where('avpn_verification_status', 'pending')
-            ->get();
+        $pendingUsers = $this->avpnVerification->transitionPending($ids, 'approved', auth()->user());
 
         if ($pendingUsers->isEmpty()) {
             return back()->with('error', 'Tidak ada peserta berstatus pending yang dapat di-approve.');
         }
-
-        User::query()
-            ->whereIn('id', $pendingUsers->pluck('id'))
-            ->update([
-                'avpn_verification_status' => 'approved',
-                'avpn_verified_at' => now(),
-                'avpn_verified_by' => auth()->id(),
-                'avpn_rejection_reason' => null,
-            ]);
 
         \App\Models\ActivityLog::log('avpn_registration_batch_approved', [
             'description' => 'Batch approved AVPN verification.',
@@ -273,25 +263,12 @@ class ParticipantController extends Controller
 
         $ids = collect($validated['participant_ids'])->unique()->values();
 
-        $pendingUsers = User::query()
-            ->whereIn('id', $ids)
-            ->where('avpn_verification_status', 'pending')
-            ->get();
+        $reason = $validated['reason'] ?? 'Ditolak batch oleh admin.';
+        $pendingUsers = $this->avpnVerification->transitionPending($ids, 'rejected', auth()->user(), $reason);
 
         if ($pendingUsers->isEmpty()) {
             return back()->with('error', 'Tidak ada peserta berstatus pending yang dapat di-reject.');
         }
-
-        $reason = $validated['reason'] ?? 'Ditolak batch oleh admin.';
-
-        User::query()
-            ->whereIn('id', $pendingUsers->pluck('id'))
-            ->update([
-                'avpn_verification_status' => 'rejected',
-                'avpn_verified_at' => now(),
-                'avpn_verified_by' => auth()->id(),
-                'avpn_rejection_reason' => $reason,
-            ]);
 
         \App\Models\ActivityLog::log('avpn_registration_batch_rejected', [
             'description' => 'Batch rejected AVPN verification.',

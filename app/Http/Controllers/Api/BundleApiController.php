@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Bundle;
 use App\Models\Course;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -15,7 +14,6 @@ class BundleApiController extends Controller
     {
         $perPage = min(50, max(1, (int) $request->integer('perPage', 20)));
         $query = Bundle::query()->inCatalog()->with('courses')->latest();
-        $this->hideRestrictedPrograms($query, $request->user());
         $bundles = $query->paginate($perPage);
 
         return response()->json([
@@ -36,10 +34,6 @@ class BundleApiController extends Controller
     {
         abort_unless($bundle->isInCatalog(), 404);
         $bundle->load('courses');
-        if ($bundle->courses->contains(fn (Course $course) => $course->isAvpnProgram())
-            && ! $request->user()?->canAccessProgram('avpn_ai')) {
-            abort(404);
-        }
 
         return response()->json([
             'status' => 'success',
@@ -78,12 +72,5 @@ class BundleApiController extends Controller
             'ownedCoursesCount' => $ownedCount,
             'isOwned' => $courseIds->isNotEmpty() && $ownedCount === $courseIds->count(),
         ];
-    }
-
-    private function hideRestrictedPrograms(Builder $query, $user): void
-    {
-        if (! $user?->canAccessProgram('avpn_ai')) {
-            $query->whereDoesntHave('courses', fn (Builder $query) => $query->where('program_type', 'avpn_ai'));
-        }
     }
 }

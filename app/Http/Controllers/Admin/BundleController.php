@@ -123,8 +123,7 @@ class BundleController extends Controller
     private function courseQuery()
     {
         return Course::query()
-            ->where('status', 'published')
-            ->where('visibility', 'catalog')
+            ->inCatalog()
             ->where('price', '>', 0)
             ->orderBy('title');
     }

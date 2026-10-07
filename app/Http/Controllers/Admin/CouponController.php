@@ -121,7 +121,7 @@ class CouponController extends Controller
 
     private function courses()
     {
-        return Course::query()->where('price', '>', 0)->orderBy('title')->get(['id', 'title']);
+        return Course::query()->inCatalog()->where('price', '>', 0)->orderBy('title')->get(['id', 'title']);
     }
 
     private function syncCourses(Coupon $coupon, CouponRequest $request): void

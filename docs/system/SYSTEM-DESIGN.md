@@ -309,6 +309,8 @@ Observer submission membuat notifikasi untuk instructor dan participant. Essay d
 
 ## 11. Pembayaran
 
+Commerce hanya berlaku untuk course dengan `program_type=regular`. Pengaturan katalog, harga, dan sales profile dikelola melalui menu admin Penjualan Course, terpisah dari form akademik. Course AVPN tidak boleh muncul pada katalog, bundle, learning path publik, kupon, atau checkout.
+
 ```mermaid
 sequenceDiagram
     actor Buyer

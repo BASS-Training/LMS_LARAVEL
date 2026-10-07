@@ -20,10 +20,6 @@ class StoreCourseRequest extends FormRequest
             'objectives' => 'nullable|string',
             'thumbnail' => 'nullable|image|max:2048',
             'status' => 'required|in:draft,published',
-            'visibility' => 'nullable|in:private,catalog',
-            'price' => 'nullable|integer|min:0|max:1000000000',
-            'requires_payment_verification' => 'nullable|boolean',
-            'short_description' => 'nullable|string|max:255',
             'program_type' => 'required|in:regular,avpn_ai',
             'training_start_date' => 'nullable|date|required_with:training_end_date',
             'training_end_date' => 'nullable|date|after_or_equal:training_start_date|required_with:training_start_date',
@@ -33,7 +29,6 @@ class StoreCourseRequest extends FormRequest
             'tag_ids' => ['nullable', 'array'],
             'tag_ids.*' => ['integer', 'distinct', Rule::exists('tags', 'id')->where('is_active', true)],
             'taxonomy_present' => ['nullable', 'boolean'],
-
             'enable_periods' => 'nullable|boolean',
             'periods' => 'nullable|array',
             'periods.*.name' => 'required_with:periods|string|max:255',

@@ -73,6 +73,11 @@ class Course extends Model
         return $this->belongsToMany(Tag::class);
     }
 
+    public function salesProfile()
+    {
+        return $this->hasOne(CourseSalesProfile::class);
+    }
+
     public function bundles()
     {
         return $this->belongsToMany(Bundle::class)
@@ -84,6 +89,11 @@ class Course extends Model
         return $this->belongsToMany(LearningPath::class, 'course_learning_path')
             ->withPivot('sort_order')
             ->orderByPivot('sort_order');
+    }
+
+    public function coupons()
+    {
+        return $this->belongsToMany(Coupon::class, 'coupon_course');
     }
 
     // Relasi ke Lesson (satu kursus punya banyak pelajaran)
@@ -203,6 +213,11 @@ class Course extends Model
     public function isAvpnProgram(): bool
     {
         return $this->program_type === 'avpn_ai';
+    }
+
+    public function isRegularProgram(): bool
+    {
+        return $this->program_type === 'regular';
     }
 
     /**
@@ -489,12 +504,26 @@ class Course extends Model
      */
     public function scopeInCatalog($query)
     {
-        return $query->where('status', 'published')->where('visibility', 'catalog');
+        return $query->where('status', 'published')
+            ->where('program_type', 'regular')
+            ->where('visibility', 'catalog')
+            ->where(function ($query) {
+                $query->whereDoesntHave('salesProfile')
+                    ->orWhereHas('salesProfile', fn ($query) => $query->where('sales_status', 'published'));
+            });
     }
 
     public function isInCatalog(): bool
     {
-        return $this->status === 'published' && $this->visibility === 'catalog';
+        if (! $this->isRegularProgram() || $this->status !== 'published' || $this->visibility !== 'catalog') {
+            return false;
+        }
+
+        $salesProfile = $this->relationLoaded('salesProfile')
+            ? $this->salesProfile
+            : $this->salesProfile()->first();
+
+        return $salesProfile === null || $salesProfile->isPublished();
     }
 
     public function isFree(): bool

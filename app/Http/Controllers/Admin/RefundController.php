@@ -11,6 +11,7 @@ use App\Models\RefundSetting;
 use App\Services\Payment\RefundService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use RuntimeException;
 
 class RefundController extends Controller
@@ -55,15 +56,17 @@ class RefundController extends Controller
             'request_window_days' => ['required', 'integer', 'min:1', 'max:365'],
             'max_progress_percentage' => ['required', 'integer', 'min:0', 'max:100'],
             'requests_enabled' => ['sometimes', 'boolean'],
+            'policy_mode' => ['sometimes', Rule::in(['seven_day', 'company_issue'])],
         ]);
 
         $settings = RefundSetting::current();
-        $previous = $settings->only(['request_window_days', 'max_progress_percentage']);
+        $previous = $settings->only(['request_window_days', 'max_progress_percentage', 'policy_mode']);
         $featureSettings = FeatureSetting::current();
         $previous['requests_enabled'] = $featureSettings->refund_requests_enabled;
         $settings->update([
             'request_window_days' => $validated['request_window_days'],
             'max_progress_percentage' => $validated['max_progress_percentage'],
+            'policy_mode' => $validated['policy_mode'] ?? $settings->policy_mode,
         ]);
         $featureSettings->update([
             'refund_requests_enabled' => $validated['requests_enabled'] ?? $featureSettings->refund_requests_enabled,
@@ -74,7 +77,7 @@ class RefundController extends Controller
             'metadata' => [
                 'before' => $previous,
                 'after' => [
-                    ...$settings->fresh()->only(['request_window_days', 'max_progress_percentage']),
+                    ...$settings->fresh()->only(['request_window_days', 'max_progress_percentage', 'policy_mode']),
                     'requests_enabled' => $featureSettings->refund_requests_enabled,
                 ],
             ],

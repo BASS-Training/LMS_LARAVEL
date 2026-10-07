@@ -42,6 +42,7 @@ class Certificate extends Model
      */
     protected $casts = [
         'issued_at' => 'datetime',
+        'issued_email_queued_at' => 'datetime',
         'date_of_birth' => 'date', // PENAMBAHAN: Pastikan kolom tanggal lahir di-cast sebagai tanggal
     ];
 

@@ -51,12 +51,11 @@ class LearningPathRequest extends FormRequest
 
                 $validCount = Course::query()
                     ->whereKey($ids)
-                    ->where('status', 'published')
-                    ->where('visibility', 'catalog')
+                    ->inCatalog()
                     ->count();
 
                 if ($validCount !== count($ids)) {
-                    $validator->errors()->add('course_ids', 'Semua course harus published dan tampil di katalog.');
+                    $validator->errors()->add('course_ids', 'Semua course harus Regular, published, dan tampil di katalog.');
                 }
             },
         ];

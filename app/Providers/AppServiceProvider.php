@@ -2,18 +2,18 @@
 
 namespace App\Providers;
 
+use App\Models\Chat; // Tambahkan ini jika belum ada
 use App\Models\Course; // Tambahkan ini jika belum ada
-use App\Policies\CoursePolicy; // Tambahkan ini jika belum ada
 use App\Models\Quiz; // <--- PASTIKAN INI ADA
-use App\Policies\QuizPolicy; // <--- PASTIKAN INI ADA
-use App\Models\Chat;
+use App\Models\User; // <--- PASTIKAN INI ADA
 use App\Policies\ChatPolicy;
+use App\Policies\CoursePolicy;
+use App\Policies\QuizPolicy;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
-use App\Models\User;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -50,17 +50,23 @@ class AppServiceProvider extends ServiceProvider
         // Global model change logging (create/update/delete) for non-participants
         \Illuminate\Database\Eloquent\Model::updated(function ($model) {
             try {
-                if (!auth()->check()) return;
+                if (! auth()->check()) {
+                    return;
+                }
                 $user = auth()->user();
                 $roles = method_exists($user, 'getRoleNames') ? $user->getRoleNames() : collect();
-                if ($roles->count() === 1 && $roles->contains('participant')) return;
+                if ($roles->count() === 1 && $roles->contains('participant')) {
+                    return;
+                }
 
                 $original = $model->getOriginal();
                 $attributes = $model->getAttributes();
                 $changes = array_keys($model->getChanges());
                 $ignore = ['updated_at', 'created_at', 'remember_token', 'password'];
                 $changed = array_values(array_diff($changes, $ignore));
-                if (empty($changed)) return; // nothing meaningful changed
+                if (empty($changed)) {
+                    return;
+                } // nothing meaningful changed
 
                 $before = [];
                 $after = [];
@@ -79,15 +85,20 @@ class AppServiceProvider extends ServiceProvider
                         'after' => $after,
                     ],
                 ]);
-            } catch (\Throwable $e) {}
+            } catch (\Throwable $e) {
+            }
         });
 
         \Illuminate\Database\Eloquent\Model::created(function ($model) {
             try {
-                if (!auth()->check()) return;
+                if (! auth()->check()) {
+                    return;
+                }
                 $user = auth()->user();
                 $roles = method_exists($user, 'getRoleNames') ? $user->getRoleNames() : collect();
-                if ($roles->count() === 1 && $roles->contains('participant')) return;
+                if ($roles->count() === 1 && $roles->contains('participant')) {
+                    return;
+                }
 
                 \App\Models\ActivityLog::log('model.created', [
                     'description' => sprintf('Created %s #%s', get_class($model), $model->getKey()),
@@ -97,15 +108,20 @@ class AppServiceProvider extends ServiceProvider
                         'after' => $model->getAttributes(),
                     ],
                 ]);
-            } catch (\Throwable $e) {}
+            } catch (\Throwable $e) {
+            }
         });
 
         \Illuminate\Database\Eloquent\Model::deleted(function ($model) {
             try {
-                if (!auth()->check()) return;
+                if (! auth()->check()) {
+                    return;
+                }
                 $user = auth()->user();
                 $roles = method_exists($user, 'getRoleNames') ? $user->getRoleNames() : collect();
-                if ($roles->count() === 1 && $roles->contains('participant')) return;
+                if ($roles->count() === 1 && $roles->contains('participant')) {
+                    return;
+                }
 
                 \App\Models\ActivityLog::log('model.deleted', [
                     'description' => sprintf('Deleted %s #%s', get_class($model), $model->getKey()),
@@ -115,7 +131,8 @@ class AppServiceProvider extends ServiceProvider
                         'before' => $model->getOriginal(),
                     ],
                 ]);
-            } catch (\Throwable $e) {}
+            } catch (\Throwable $e) {
+            }
         });
 
         // Push global activity logger middleware (logs only non-GET and skips pure participants internally)
@@ -132,7 +149,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Gate untuk user admin
         Gate::define('admin-only', function (User $user) {
-            return $user->can('manage users') || $user->can('manage roles');
+            return $user->can('manage users')
+                || $user->can('manage roles')
+                || $user->can('manage course commerce');
         });
 
         // Mobile notification triggers (sinkron web↔mobile lewat model events):
@@ -142,6 +161,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\EssaySubmission::observe(\App\Observers\EssaySubmissionObserver::class);
         \App\Models\CaseStudySubmission::observe(\App\Observers\CaseStudySubmissionObserver::class);
         \App\Models\DocumentSubmission::observe(\App\Observers\DocumentSubmissionObserver::class);
+        \App\Models\Certificate::observe(\App\Observers\CertificateObserver::class);
     }
 
     private function configureMobileRateLimiters(): void

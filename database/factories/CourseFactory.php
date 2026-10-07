@@ -20,6 +20,7 @@ class CourseFactory extends Factory
             'objectives' => $this->faker->sentence(),
             'thumbnail' => null,
             'status' => 'draft',
+            'program_type' => 'regular',
         ];
     }
 }

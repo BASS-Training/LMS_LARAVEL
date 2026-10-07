@@ -119,8 +119,7 @@ class LearningPathController extends Controller
     private function courseQuery()
     {
         return Course::query()
-            ->where('status', 'published')
-            ->where('visibility', 'catalog')
+            ->inCatalog()
             ->orderBy('title');
     }
 

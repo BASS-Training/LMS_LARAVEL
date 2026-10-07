@@ -77,7 +77,11 @@
                     <a href="{{ route('login') }}" class="mt-7 flex min-h-12 items-center justify-center rounded-xl border-2 border-navy bg-bass-red px-5 font-bold text-white shadow-[4px_4px_0_#F6C945] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#F6C945]">Masuk untuk Membeli</a>
                 @else
                     @if ($pricing['payable_base'] > 0)
-                        <a href="{{ route('checkout.bundle.choose', $bundle) }}" class="mt-7 flex min-h-12 items-center justify-center rounded-xl border-2 border-navy bg-bass-red px-5 font-bold text-white shadow-[4px_4px_0_#F6C945] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#F6C945]">Beli Paket</a>
+                        @php($refundSettings = \App\Models\RefundSetting::current())
+                        <form method="GET" action="{{ route('checkout.bundle.choose', $bundle) }}" class="mt-7 space-y-3">
+                            @include('shop.partials.refund-consent')
+                            <button type="submit" class="flex min-h-12 w-full items-center justify-center rounded-xl border-2 border-navy bg-bass-red px-5 font-bold text-white shadow-[4px_4px_0_#F6C945] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#F6C945]">Beli Paket</button>
+                        </form>
                     @else
                         <button disabled class="mt-7 flex min-h-12 w-full cursor-not-allowed items-center justify-center rounded-xl border-2 border-slate-300 bg-slate-200 px-5 font-bold text-slate-500">Tidak Ada Tagihan</button>
                     @endif

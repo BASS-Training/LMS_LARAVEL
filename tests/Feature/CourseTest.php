@@ -7,9 +7,9 @@ use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
+use Tests\TestCase;
 
 class CourseTest extends TestCase
 {
@@ -89,5 +89,66 @@ class CourseTest extends TestCase
 
         $response->assertRedirect();
         $this->assertModelMissing($course);
+    }
+
+    public function test_academic_course_endpoint_cannot_change_commerce_configuration(): void
+    {
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+        Permission::findOrCreate('manage all courses');
+        $user = User::factory()->create();
+        $user->givePermissionTo('manage all courses');
+        $course = Course::factory()->create([
+            'visibility' => 'private',
+            'price' => null,
+        ]);
+
+        $this->actingAs($user)->patch(route('courses.update', $course), [
+            'title' => 'Course Akademik',
+            'status' => 'published',
+            'program_type' => 'regular',
+            'visibility' => 'catalog',
+            'price' => 999000,
+            'sales_profile' => [
+                'sales_status' => 'published',
+                'headline' => 'Payload yang harus diabaikan',
+            ],
+        ])->assertRedirect();
+
+        $course->refresh();
+        $this->assertSame('private', $course->visibility);
+        $this->assertNull($course->price);
+        $this->assertNull($course->salesProfile);
+    }
+
+    public function test_changing_regular_course_to_avpn_disables_existing_commerce(): void
+    {
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+        Permission::findOrCreate('manage all courses');
+        $user = User::factory()->create();
+        $user->givePermissionTo('manage all courses');
+        $course = Course::factory()->create([
+            'visibility' => 'catalog',
+            'price' => 150000,
+            'short_description' => 'Dijual',
+            'requires_payment_verification' => true,
+        ]);
+        $course->salesProfile()->create([
+            'slug' => 'course-regular-dijual',
+            'sales_status' => 'published',
+        ]);
+
+        $this->actingAs($user)->patch(route('courses.update', $course), [
+            'title' => $course->title,
+            'status' => 'published',
+            'program_type' => 'avpn_ai',
+        ])->assertRedirect();
+
+        $course->refresh();
+        $this->assertSame('avpn_ai', $course->program_type);
+        $this->assertSame('private', $course->visibility);
+        $this->assertNull($course->price);
+        $this->assertNull($course->short_description);
+        $this->assertFalse($course->requires_payment_verification);
+        $this->assertSame('hidden', $course->salesProfile->sales_status);
     }
 }

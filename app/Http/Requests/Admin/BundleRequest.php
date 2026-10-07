@@ -53,13 +53,12 @@ class BundleRequest extends FormRequest
 
                 $validCount = Course::query()
                     ->whereKey($ids)
-                    ->where('status', 'published')
-                    ->where('visibility', 'catalog')
+                    ->inCatalog()
                     ->where('price', '>', 0)
                     ->count();
 
                 if ($validCount !== count($ids)) {
-                    $validator->errors()->add('course_ids', 'Semua course harus published, tampil di katalog, dan berbayar.');
+                    $validator->errors()->add('course_ids', 'Semua course harus Regular, published, tampil di katalog, dan berbayar.');
                 }
             },
         ];

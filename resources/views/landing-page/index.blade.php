@@ -88,6 +88,53 @@
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><p class="text-xs font-bold uppercase tracking-[0.2em] text-bass-red">Cara belajar</p><h2 class="mt-3 text-4xl font-extrabold [font-family:Fraunces,serif] sm:text-5xl">Empat langkah, tanpa ribet.</h2><p class="mt-3 max-w-xl text-slate-600">Dari memilih program hingga membuktikan kompetensi, seluruh proses tersedia dalam satu platform.</p><ol class="mt-10 grid overflow-hidden rounded-2xl border-2 border-navy bg-[#fffdf7] md:grid-cols-4">@foreach ([['Pilih course', 'Pilih pelatihan yang sesuai dengan kebutuhan kompetensi Anda.'], ['Selesaikan pendaftaran', 'Daftar gratis atau selesaikan pembayaran secara aman.'], ['Mulai belajar', 'Akses materi, asesmen, diskusi, dan feedback instruktur.'], ['Tuntaskan program', 'Selesaikan persyaratan dan dapatkan bukti kompetensi.']] as $index => [$title, $description])<li class="border-b-2 border-navy p-6 last:border-0 md:border-b-0 md:border-r-2"><span class="block text-5xl font-extrabold leading-none text-bass-red [font-family:Fraunces,serif]">{{ $index + 1 }}</span><h3 class="mt-3 text-xl font-extrabold [font-family:Fraunces,serif]">{{ $title }}</h3><p class="mt-2 text-sm leading-6 text-slate-600">{{ $description }}</p></li>@endforeach</ol></div>
 </section>
 
+<section id="aplikasi" class="overflow-hidden border-y-2 border-navy bg-bass-red text-white">
+    <div class="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1fr_.8fr] lg:px-8">
+        <div>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-bass-gold">BASS Academy di Ponsel</p>
+            <h2 class="mt-3 max-w-2xl text-4xl font-extrabold leading-tight [font-family:Fraunces,serif] sm:text-5xl">Belajar tetap jalan,<br>di mana pun Anda berada.</h2>
+            <p class="mt-5 max-w-xl text-base leading-7 text-white/75">Akses course, lanjutkan materi, pantau progres, dan ikuti aktivitas belajar langsung dari ponsel Anda.</p>
+            <div class="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold text-white/90">
+                <span class="inline-flex items-center gap-2"><span class="flex h-5 w-5 items-center justify-center rounded-full bg-bass-gold text-xs text-navy">&#10003;</span>Akses materi</span>
+                <span class="inline-flex items-center gap-2"><span class="flex h-5 w-5 items-center justify-center rounded-full bg-bass-gold text-xs text-navy">&#10003;</span>Pantau progres</span>
+                <span class="inline-flex items-center gap-2"><span class="flex h-5 w-5 items-center justify-center rounded-full bg-bass-gold text-xs text-navy">&#10003;</span>Notifikasi belajar</span>
+            </div>
+            <div class="mt-8 flex flex-wrap items-start gap-4">
+                <a href="https://play.google.com/store/apps/details?id=com.basstraining.lms&amp;pcampaignid=web_share"
+                   target="_blank" rel="noopener noreferrer"
+                   aria-label="Download BASS Academy di Google Play"
+                   class="inline-block rounded-lg shadow-[5px_5px_0_#F6C945] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#F6C945]">
+                    <img src="{{ asset('google.png') }}" alt="Dapatkan di Google Play" class="h-14 w-auto sm:h-16">
+                </a>
+                <div class="flex flex-col items-center gap-1.5" aria-label="BASS Academy untuk App Store segera hadir">
+                    <img src="{{ asset('apple.png') }}" alt="Download di App Store" class="h-14 w-auto sm:h-16">
+                    <span class="text-[10px] font-bold uppercase tracking-[0.16em] text-white/80">Segera hadir</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative mx-auto w-full max-w-sm px-8 pt-3 sm:px-12">
+            <div class="absolute left-0 top-12 h-24 w-24 -rotate-12 rounded-full border-2 border-navy bg-bass-gold"></div>
+            <div class="absolute bottom-8 right-1 h-16 w-16 rotate-12 border-2 border-navy bg-white"></div>
+            <div class="relative mx-auto w-64 rotate-2 rounded-[2.5rem] border-[5px] border-navy bg-[#f7f3ea] p-3 shadow-[10px_10px_0_#17243A] sm:w-72">
+                <div class="mx-auto mb-3 h-1.5 w-16 rounded-full bg-navy"></div>
+                <div class="rounded-[1.8rem] bg-white p-4 text-navy">
+                    <div class="flex items-center justify-between"><img src="{{ asset('images/logo.png') }}" alt="BASS Academy" class="h-8 w-auto"><span class="h-8 w-8 rounded-full bg-bass-gold"></span></div>
+                    <p class="mt-6 text-xs font-semibold text-slate-500">Selamat datang kembali</p>
+                    <p class="mt-1 text-xl font-extrabold [font-family:Fraunces,serif]">Lanjutkan belajar.</p>
+                    <div class="mt-4 rounded-xl bg-navy p-4 text-white">
+                        <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-white/60"><span>Course aktif</span><span>68%</span></div>
+                        <p class="mt-3 text-sm font-bold">Kompetensi Profesional</p>
+                        <div class="mt-4 h-2 overflow-hidden rounded-full bg-white/20"><div class="h-full w-2/3 rounded-full bg-bass-gold"></div></div>
+                        <div class="mt-4 rounded-lg bg-bass-red px-3 py-2 text-center text-xs font-bold">Lanjutkan materi</div>
+                    </div>
+                    <div class="mt-3 grid grid-cols-2 gap-3"><div class="rounded-xl border-2 border-navy/10 p-3"><span class="block text-lg font-extrabold">4</span><span class="text-[10px] text-slate-500">Course saya</span></div><div class="rounded-xl border-2 border-navy/10 p-3"><span class="block text-lg font-extrabold">2</span><span class="text-[10px] text-slate-500">Sertifikat</span></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section id="kontak" class="border-y-2 border-navy bg-bass-gold py-16 sm:py-20">
     <div class="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 md:grid-cols-2 lg:px-8"><div class="flex flex-col rounded-2xl bg-navy p-7 text-white sm:p-9"><p class="text-xs font-bold uppercase tracking-[0.2em] text-bass-gold">Kontak</p><h2 class="mt-3 text-4xl font-extrabold [font-family:Fraunces,serif]">Ada pertanyaan?<br>Hubungi kami.</h2><p class="mt-5 max-w-md text-sm leading-6 text-white/70">Tim BASS siap membantu memilih program yang sesuai dengan kebutuhan individu maupun perusahaan Anda.</p><div class="mt-8 space-y-2 text-sm text-white/80"><p>PT Bintang Anugrah Surya Semesta</p><p>Ruko U Town Avenue Bintaro Jaya A16, Tangerang Selatan</p><p>WhatsApp: +62 821-1279-8728</p></div><a href="https://wa.me/6282112798728" target="_blank" rel="noopener" class="mt-8 inline-flex min-h-12 w-fit items-center justify-center rounded-xl border-2 border-white bg-bass-red px-6 text-sm font-bold shadow-[4px_4px_0_#F6C945]">Chat WhatsApp</a></div><div x-data="{ name: '', message: '' }" class="rounded-2xl border-2 border-navy bg-[#fffdf7] p-7 shadow-[7px_7px_0_#17243A] sm:p-9"><h2 class="text-3xl font-extrabold [font-family:Fraunces,serif]">Kirim pesan</h2><p class="mt-2 text-sm text-slate-600">Pesan akan diteruskan melalui WhatsApp BASS.</p><label class="mt-6 block text-sm font-bold" for="contact-name">Nama Anda</label><input id="contact-name" x-model="name" class="mt-2 min-h-12 w-full rounded-xl border-2 border-navy bg-white focus:border-bass-red focus:ring-bass-red" placeholder="Nama lengkap"><label class="mt-4 block text-sm font-bold" for="contact-message">Pertanyaan atau kebutuhan</label><textarea id="contact-message" x-model="message" rows="4" class="mt-2 w-full rounded-xl border-2 border-navy bg-white focus:border-bass-red focus:ring-bass-red" placeholder="Ceritakan program yang Anda cari"></textarea><button type="button" @click="window.open('https://wa.me/6282112798728?text=' + encodeURIComponent('Halo BASS, saya ' + (name || 'calon peserta') + '.\n' + message), '_blank', 'noopener')" class="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl border-2 border-navy bg-bass-red px-6 text-sm font-bold text-white shadow-[4px_4px_0_#17243A]">Kirim via WhatsApp</button></div></div>
 </section>

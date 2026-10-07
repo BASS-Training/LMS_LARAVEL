@@ -89,11 +89,18 @@
                         </span>
                         <div>
                             <h2 class="font-semibold">Kebijakan Refund Global</h2>
-                            <p class="mt-1 text-sm text-white/70">Aturan berlaku untuk semua kursus berbayar. Sertifikat yang sudah terbit selalu memblokir refund.</p>
+                            <p class="mt-1 text-sm text-white/70">Aturan baru berlaku untuk pembelian berikutnya. Sertifikat yang sudah terbit selalu memblokir refund.</p>
                         </div>
                     </div>
                 </div>
-                <div class="grid gap-4 p-5 sm:grid-cols-2 lg:min-w-[720px] lg:grid-cols-[1fr_1fr_1.2fr_auto] lg:items-end lg:p-6">
+                <div class="grid gap-4 p-5 sm:grid-cols-2 lg:min-w-[840px] lg:grid-cols-[1.3fr_1fr_1fr_1.2fr_auto] lg:items-end lg:p-6">
+                    <div>
+                        <label for="policy_mode" class="block text-xs font-semibold uppercase tracking-wide text-gray-500">Aturan refund</label>
+                        <select id="policy_mode" name="policy_mode" class="mt-1.5 w-full rounded-xl border-gray-300 text-sm font-semibold focus:border-navy focus:ring-navy">
+                            <option value="company_issue" @selected(old('policy_mode', $settings->policy_mode) === 'company_issue')>Kendala pihak kami</option>
+                            <option value="seven_day" @selected(old('policy_mode', $settings->policy_mode) === 'seven_day')>Refund berbatas hari</option>
+                        </select>
+                    </div>
                     <div>
                         <label for="request_window_days" class="block text-xs font-semibold uppercase tracking-wide text-gray-500">Batas pengajuan</label>
                         <div class="relative mt-1.5">

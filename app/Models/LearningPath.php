@@ -39,19 +39,17 @@ class LearningPath extends Model
         return $query->where('is_active', true)
             ->has('courses', '>=', 2)
             ->whereDoesntHave('courses', fn (Builder $query) => $query->where(function (Builder $query) {
-                $query->whereNull('status')
+                $query->where('program_type', '!=', 'regular')
+                    ->orWhereNull('status')
                     ->orWhere('status', '!=', 'published')
                     ->orWhereNull('visibility')
-                    ->orWhere('visibility', '!=', 'catalog');
+                    ->orWhere('visibility', '!=', 'catalog')
+                    ->orWhereHas('salesProfile', fn (Builder $query) => $query->where('sales_status', '!=', 'published'));
             }));
     }
 
     public function scopeVisibleTo(Builder $query, ?User $user): Builder
     {
-        if (! $user?->canAccessProgram('avpn_ai')) {
-            $query->whereDoesntHave('courses', fn (Builder $query) => $query->where('program_type', 'avpn_ai'));
-        }
-
         return $query;
     }
 
