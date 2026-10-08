@@ -124,7 +124,7 @@
                                         Jawaban Anda:
                                     </h4>
                                     <div class="prose dark:prose-invert max-w-none p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border">
-                                        {!! $answer->answer !!}
+                                        {!! app(\App\Services\ParticipantRichTextSanitizer::class)->sanitize($answer->answer) !!}
                                     </div>
                                 </div>
 

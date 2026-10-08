@@ -32,6 +32,34 @@
     @endcan
 
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+    <style>
+        body > .note-modal-backdrop {
+            position: fixed !important;
+            z-index: 99990 !important;
+        }
+
+        body > .note-modal {
+            position: fixed !important;
+            z-index: 100000 !important;
+            overflow-y: auto !important;
+            pointer-events: auto !important;
+        }
+
+        body > .note-modal .note-modal-content {
+            position: relative;
+            z-index: 1;
+            pointer-events: auto !important;
+        }
+
+        body > .note-modal .note-modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            min-height: 4rem;
+            height: auto;
+            padding: 0.75rem 1.25rem;
+        }
+    </style>
 
     @stack('styles')
 </head>
@@ -370,7 +398,7 @@
     @endcan
 </div>
 
-<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 
 @stack('scripts')

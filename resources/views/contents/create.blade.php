@@ -707,8 +707,9 @@
 
             if (type === 'text') {
                 document.getElementById('body_field').classList.remove('hidden');
-                 document.getElementById('body_label').textContent = 'Isi Konten';
+                document.getElementById('body_label').textContent = 'Isi Konten';
                 document.getElementById('body_hint').textContent = 'Gunakan editor untuk memformat teks dengan rich content';
+                requestAnimationFrame(() => $('#body_text').trigger('rich-editor:init'));
 
             } else if (type === 'essay') {
                 // Show essay questions field instead of body field

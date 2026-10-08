@@ -3,16 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\Content;
-use App\Models\EssaySubmission;
 use App\Models\EssayAnswer;
+use App\Models\EssaySubmission;
+use App\Services\ParticipantRichTextSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class EssaySubmissionController extends Controller
 {
     private const MIN_WORDS = 10;
+
+    public function __construct(
+        private readonly ParticipantRichTextSanitizer $richTextSanitizer,
+    ) {}
 
     /**
      * Store a newly created resource in storage.
@@ -24,6 +30,15 @@ class EssaySubmissionController extends Controller
         }
 
         $user = Auth::user();
+        $this->authorize('view', $content->lesson->course);
+
+        $existingSubmission = EssaySubmission::where('user_id', $user->id)
+            ->where('content_id', $content->id)
+            ->first();
+        if ($existingSubmission && in_array($existingSubmission->status, ['submitted', 'graded'], true)) {
+            return back()->with('error', 'Jawaban yang sudah dikumpulkan tidak dapat diubah.');
+        }
+
         $questions = $content->essayQuestions;
 
         try {
@@ -36,14 +51,19 @@ class EssaySubmissionController extends Controller
                         'string',
                         function ($attribute, $value, $fail) {
                             if ($this->countWords($value) < self::MIN_WORDS) {
-                                $fail('Jawaban minimal ' . self::MIN_WORDS . ' kata.');
+                                $fail('Jawaban minimal '.self::MIN_WORDS.' kata.');
                             }
-                        }
+                        },
                     ];
                 }
                 $request->validate($rules);
+                $sanitizedAnswers = $questions->mapWithKeys(fn ($question) => [
+                    $question->id => $this->richTextSanitizer->sanitize(
+                        $request->input("answer_{$question->id}")
+                    ),
+                ]);
 
-                DB::transaction(function () use ($request, $content, $user, $questions) {
+                DB::transaction(function () use ($content, $user, $questions, $sanitizedAnswers) {
                     $submission = EssaySubmission::updateOrCreate(
                         [
                             'user_id' => $user->id,
@@ -61,7 +81,7 @@ class EssaySubmissionController extends Controller
                         EssayAnswer::create([
                             'submission_id' => $submission->id,
                             'question_id' => $question->id,
-                            'answer' => $request->input("answer_{$question->id}"),
+                            'answer' => $sanitizedAnswers[$question->id],
                         ]);
                     }
                 });
@@ -73,11 +93,12 @@ class EssaySubmissionController extends Controller
                         'string',
                         function ($attribute, $value, $fail) {
                             if ($this->countWords($value) < self::MIN_WORDS) {
-                                $fail('Jawaban minimal ' . self::MIN_WORDS . ' kata.');
+                                $fail('Jawaban minimal '.self::MIN_WORDS.' kata.');
                             }
-                        }
+                        },
                     ],
                 ]);
+                $sanitizedAnswer = $this->richTextSanitizer->sanitize($request->input('essay_content'));
 
                 $submission = EssaySubmission::updateOrCreate(
                     [
@@ -94,22 +115,22 @@ class EssaySubmissionController extends Controller
                 EssayAnswer::create([
                     'submission_id' => $submission->id,
                     'question_id' => null,
-                    'answer' => $request->input('essay_content'),
+                    'answer' => $sanitizedAnswer,
                 ]);
             }
 
             // ✅ FIX: Mark as completed but DON'T do complex lesson logic here
             $user->completedContents()->syncWithoutDetaching([
-                $content->id => ['completed' => true, 'completed_at' => now()]
+                $content->id => ['completed' => true, 'completed_at' => now()],
             ]);
 
             // ✅ FIX: Simple redirect - let the view handle navigation
             return redirect()->route('contents.show', $content)
                 ->with('success', 'Essay submitted successfully!');
         } catch (\Exception $e) {
-            Log::error('Essay submission error: ' . $e->getMessage(), [
+            Log::error('Essay submission error: '.$e->getMessage(), [
                 'user_id' => $user->id,
-                'content_id' => $content->id
+                'content_id' => $content->id,
             ]);
 
             return back()->withInput()->with('error', 'Failed to submit essay. Please try again.');
@@ -137,11 +158,22 @@ class EssaySubmissionController extends Controller
         }
 
         $user = Auth::user();
+        $this->authorize('view', $content->lesson->course);
+
+        $existingSubmission = EssaySubmission::where('user_id', $user->id)
+            ->where('content_id', $content->id)
+            ->first();
+        if ($existingSubmission && in_array($existingSubmission->status, ['submitted', 'graded'], true)) {
+            return response()->json(['error' => 'Jawaban yang sudah dikumpulkan tidak dapat diubah.'], 409);
+        }
 
         // Validate input
         $request->validate(
             [
-                'question_id' => 'required|exists:essay_questions,id',
+                'question_id' => [
+                    'required',
+                    Rule::exists('essay_questions', 'id')->where('content_id', $content->id),
+                ],
                 'answer' => [
                     'required',
                     'string',
@@ -149,7 +181,7 @@ class EssaySubmissionController extends Controller
                         if (trim((string) $value) === '') {
                             $fail('Jawaban tidak boleh kosong.');
                         }
-                    }
+                    },
                 ],
             ],
             [
@@ -178,7 +210,7 @@ class EssaySubmissionController extends Controller
                         'question_id' => $request->question_id,
                     ],
                     [
-                        'answer' => $request->answer ?? '',
+                        'answer' => $this->richTextSanitizer->sanitize($request->answer),
                     ]
                 );
             });
@@ -186,17 +218,17 @@ class EssaySubmissionController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Draft saved',
-                'saved_at' => now()->format('H:i:s')
+                'saved_at' => now()->format('H:i:s'),
             ]);
         } catch (\Exception $e) {
-            Log::error('Autosave error: ' . $e->getMessage(), [
+            Log::error('Autosave error: '.$e->getMessage(), [
                 'user_id' => $user->id,
                 'content_id' => $content->id,
-                'question_id' => $request->question_id
+                'question_id' => $request->question_id,
             ]);
 
             return response()->json([
-                'error' => 'Failed to save draft'
+                'error' => 'Failed to save draft',
             ], 500);
         }
     }
@@ -211,13 +243,14 @@ class EssaySubmissionController extends Controller
         }
 
         $user = Auth::user();
+        $this->authorize('view', $content->lesson->course);
 
         $submission = EssaySubmission::where('user_id', $user->id)
             ->where('content_id', $content->id)
             ->with('answers')
             ->first();
 
-        if (!$submission) {
+        if (! $submission) {
             return response()->json(['drafts' => []]);
         }
 
@@ -228,7 +261,7 @@ class EssaySubmissionController extends Controller
 
         return response()->json([
             'drafts' => $drafts,
-            'status' => $submission->status
+            'status' => $submission->status,
         ]);
     }
 
@@ -247,7 +280,7 @@ class EssaySubmissionController extends Controller
                 $query->orderBy('order');
             },
             'answers.question',
-            'user'
+            'user',
         ]);
 
         return view('essays.result', compact('submission'));

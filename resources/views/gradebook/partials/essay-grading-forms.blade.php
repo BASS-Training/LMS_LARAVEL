@@ -13,7 +13,7 @@
                     @endif
                     
                     <div class="bg-gray-50 p-3 rounded mb-3">
-                        <strong>Jawaban:</strong> {!! $answer->answer !!}
+                        <strong>Jawaban:</strong> {!! app(\App\Services\ParticipantRichTextSanitizer::class)->sanitize($answer->answer) !!}
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -57,7 +57,7 @@
                     @endif
                     
                     <div class="bg-gray-50 p-3 rounded mb-3">
-                        <strong>Jawaban:</strong> {!! $answer->answer !!}
+                        <strong>Jawaban:</strong> {!! app(\App\Services\ParticipantRichTextSanitizer::class)->sanitize($answer->answer) !!}
                     </div>
                     
                     <div>
@@ -88,7 +88,7 @@
                         <h5 class="font-medium text-gray-800 mb-2">Pertanyaan {{ $index + 1 }}: {{ $answer->question->question }}</h5>
                     @endif
                     <div class="bg-gray-50 p-3 rounded">
-                        <strong>Jawaban:</strong> {!! $answer->answer !!}
+                        <strong>Jawaban:</strong> {!! app(\App\Services\ParticipantRichTextSanitizer::class)->sanitize($answer->answer) !!}
                     </div>
                 </div>
             @endforeach
@@ -132,7 +132,7 @@
                         <h5 class="font-medium text-gray-800 mb-2">Pertanyaan {{ $index + 1 }}: {{ $answer->question->question }}</h5>
                     @endif
                     <div class="bg-gray-50 p-3 rounded">
-                        <strong>Jawaban:</strong> {!! $answer->answer !!}
+                        <strong>Jawaban:</strong> {!! app(\App\Services\ParticipantRichTextSanitizer::class)->sanitize($answer->answer) !!}
                     </div>
                 </div>
             @endforeach
