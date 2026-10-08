@@ -5,8 +5,8 @@ declare(strict_types=1);
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\ConfigurationUrlParser;
 
-require dirname(__DIR__).'/vendor/autoload.php';
-$app = require dirname(__DIR__).'/bootstrap/app.php';
+require getcwd().'/vendor/autoload.php';
+$app = require getcwd().'/bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 
 $path = $argv[1] ?? null;
