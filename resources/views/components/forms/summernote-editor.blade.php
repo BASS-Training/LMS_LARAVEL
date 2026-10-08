@@ -33,59 +33,58 @@
     >{{ $value }}</textarea>
 </div>
 
-@push('styles')
-<style>
-    body > .note-modal-backdrop {
-        position: fixed !important;
-        z-index: 1090 !important;
-    }
-
-    body > .note-modal {
-        position: fixed !important;
-        z-index: 1100 !important;
-        overflow-y: auto;
-    }
-
-    body > .note-modal .note-modal-footer {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        min-height: 64px;
-        height: auto;
-        padding: 12px 20px;
-    }
-</style>
-@endpush
-
 @push('scripts')
 <script>
     $(document).ready(function() {
         const editor = $('#{{ $id }}');
+        const visibilityContainer = editor.closest('.content-field, [x-show]').get(0);
 
         function syncEditor(contents) {
             editor.val(contents);
             editor[0].dispatchEvent(new Event('input', { bubbles: true }));
         }
 
-        editor.summernote({
-            placeholder: @json($placeholder),
-            tabsize: 2,
-            dialogsInBody: true,
-            height: {{ $preset === 'bio' ? 220 : 300 }},
-            toolbar: @json($toolbar),
-            dialogsInBody: true,
-            callbacks: {
-                onChange: syncEditor,
-                onChangeCodeview: function() {
-                    syncEditor(editor.summernote('code'));
+        function initializeEditor() {
+            if (editor.data('summernote') || !editor.is(':visible')) {
+                return false;
+            }
+
+            editor.summernote({
+                placeholder: @json($placeholder),
+                tabsize: 2,
+                height: {{ $preset === 'bio' ? 220 : 300 }},
+                toolbar: @json($toolbar),
+                dialogsInBody: true,
+                callbacks: {
+                    onChange: syncEditor,
+                    onChangeCodeview: function() {
+                        syncEditor(editor.summernote('code'));
+                    },
+                    @if ($preset === 'default')
+                    onImageUpload: function(files) {
+                        Array.from(files).forEach(uploadImage);
+                    }
+                    @endif
                 },
-                @if ($preset === 'default')
-                onImageUpload: function(files) {
-                    Array.from(files).forEach(uploadImage);
+            });
+
+            return true;
+        }
+
+        editor.on('rich-editor:init', initializeEditor);
+
+        if (!initializeEditor() && visibilityContainer) {
+            const observer = new MutationObserver(function() {
+                if (initializeEditor()) {
+                    observer.disconnect();
                 }
-                @endif
-            },
-        });
+            });
+
+            observer.observe(visibilityContainer, {
+                attributes: true,
+                attributeFilter: ['class', 'style'],
+            });
+        }
 
         @if ($preset === 'default')
         function uploadImage(file) {

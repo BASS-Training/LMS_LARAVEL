@@ -38,23 +38,24 @@
     }
 }
 
+/* Summernote creates these classes at runtime, so keep them outside Tailwind layers. */
+.note-editor .note-editing-area .note-editable ul {
+    list-style-type: disc;
+    margin: 0.75rem 0;
+    padding-left: 1.5rem;
+}
+
+.note-editor .note-editing-area .note-editable ol {
+    list-style-type: decimal;
+    margin: 0.75rem 0;
+    padding-left: 1.5rem;
+}
+
+.note-editor .note-editing-area .note-editable li {
+    display: list-item;
+}
+
 @layer components {
-    /* Tailwind Preflight removes list markers; restore them inside Summernote. */
-    .note-editor .note-editing-area .note-editable ul {
-        list-style-type: disc;
-        margin: 0.75rem 0;
-        padding-left: 1.5rem;
-    }
-
-    .note-editor .note-editing-area .note-editable ol {
-        list-style-type: decimal;
-        margin: 0.75rem 0;
-        padding-left: 1.5rem;
-    }
-
-    .note-editor .note-editing-area .note-editable li {
-        display: list-item;
-    }
 
     /* ── Navbar ── */
     .nav-link-custom {

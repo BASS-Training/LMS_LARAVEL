@@ -1839,6 +1839,10 @@
                 },
 
                 handleTypeChange(type) {
+                    if (type === 'text') {
+                        requestAnimationFrame(() => $('#body_editor').trigger('rich-editor:init'));
+                    }
+
                     if (type !== 'zoom') {
                         this.content.is_scheduled = false;
                         this.content.scheduled_start = '';
