@@ -19,6 +19,19 @@
         @apply max-w-full;
     }
 
+    /* Preflight menghapus bullet/nomor; kembalikan untuk konten rich text */
+    .note-editable ul,
+    .prose ul {
+        list-style-type: disc;
+        padding-left: 1.5rem;
+    }
+
+    .note-editable ol,
+    .prose ol {
+        list-style-type: decimal;
+        padding-left: 1.5rem;
+    }
+
     input[type='checkbox'],
     input[type='radio'] {
         @apply text-bass-red focus:ring-bass-red;
