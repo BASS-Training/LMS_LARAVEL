@@ -1183,9 +1183,11 @@ class ContentController extends Controller
                     'essay_questions_count' => $finalContent->essayQuestions()->count()
                 ]);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
-            Log::error('Essay save failed', [
+            Log::error('Content save failed', [
+                'type' => $request->input('type'),
+                'lesson_id' => $lesson->id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);

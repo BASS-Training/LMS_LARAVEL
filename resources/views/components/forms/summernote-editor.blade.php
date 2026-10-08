@@ -1,5 +1,24 @@
 @props(['id', 'name', 'value' => '', 'preset' => 'default', 'placeholder' => 'Tuliskan konten Anda di sini...'])
 
+@php
+    $toolbar = $preset === 'bio'
+        ? [
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'clear']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['insert', ['link']],
+        ]
+        : [
+            ['style', ['style']],
+            ['font', ['bold', 'underline', 'clear']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture', 'video']],
+            ['view', ['fullscreen', 'codeview', 'help']],
+        ];
+@endphp
+
 <div wire:ignore>
     <textarea
         id="{{ $id }}"
@@ -15,20 +34,7 @@
             placeholder: @json($placeholder),
             tabsize: 2,
             height: {{ $preset === 'bio' ? 220 : 300 }},
-            toolbar: @json($preset === 'bio' ? [
-                ['style', ['style']],
-                ['font', ['bold', 'italic', 'underline', 'clear']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['insert', ['link']],
-            ] : [
-                ['style', ['style']],
-                ['font', ['bold', 'underline', 'clear']],
-                ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['table', ['table']],
-                ['insert', ['link', 'picture', 'video']],
-                ['view', ['fullscreen', 'codeview', 'help']]
-            ]),
+            toolbar: @json($toolbar),
             @if ($preset !== 'bio')
             callbacks: {
                 onImageUpload: function(files) {
