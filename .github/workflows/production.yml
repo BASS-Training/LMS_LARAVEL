@@ -36,6 +36,9 @@ jobs:
       - name: Build frontend
         run: npm ci && npm run build
       - name: Run application tests
+        env:
+          BROADCAST_CONNECTION: log
+          MIDTRANS_SERVER_KEY: ci-test-key
         run: php artisan test --exclude-group quarantine
 
   deploy:
