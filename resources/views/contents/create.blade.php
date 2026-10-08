@@ -703,25 +703,12 @@
                 field.classList.add('hidden');
             });
 
-            // Destroy existing Summernote editor
-            if ($('#body_text').hasClass('note-editor')) {
-                $('#body_text').summernote('destroy');
-            }
-
             updateProgressStep(2);
 
             if (type === 'text') {
                 document.getElementById('body_field').classList.remove('hidden');
                  document.getElementById('body_label').textContent = 'Isi Konten';
                 document.getElementById('body_hint').textContent = 'Gunakan editor untuk memformat teks dengan rich content';
-
-                // Initialize summernote for text with File Manager
-                setTimeout(() => {
-                    initSummernoteWithFileManager('#body_text', {
-                        height: 300,
-                        placeholder: 'Tulis konten pembelajaran di sini...'
-                    });
-                }, 100);
 
             } else if (type === 'essay') {
                 // Show essay questions field instead of body field
