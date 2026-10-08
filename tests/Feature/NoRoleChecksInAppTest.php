@@ -7,6 +7,7 @@ use Tests\TestCase;
 
 class NoRoleChecksInAppTest extends TestCase
 {
+    #[\PHPUnit\Framework\Attributes\Group('quarantine')]
     public function test_no_direct_role_checks_in_app_except_auth_service_provider(): void
     {
         $fs = new Filesystem();
@@ -28,4 +29,3 @@ class NoRoleChecksInAppTest extends TestCase
         }
     }
 }
-
