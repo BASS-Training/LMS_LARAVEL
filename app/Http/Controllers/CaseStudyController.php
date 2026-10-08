@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Content;
 use App\Models\CaseStudySubmission;
+use App\Models\Content;
+use App\Services\ParticipantRichTextSanitizer;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CaseStudyController extends Controller
 {
+    public function __construct(
+        private readonly ParticipantRichTextSanitizer $richTextSanitizer,
+    ) {}
+
     /**
      * Simpan / kumpulkan jawaban studi kasus peserta.
      */
@@ -20,7 +25,19 @@ class CaseStudyController extends Controller
         }
 
         $user = Auth::user();
-        $answers = $this->normalizeAnswers($request->input('answers', []));
+        $this->authorize('view', $content->lesson->course);
+
+        $existingSubmission = CaseStudySubmission::where('user_id', $user->id)
+            ->where('content_id', $content->id)
+            ->first();
+        if ($existingSubmission && $existingSubmission->isSubmitted()) {
+            return back()->with('error', 'Jawaban yang sudah dikumpulkan tidak dapat diubah.');
+        }
+
+        $answers = $this->sanitizeRichTextAnswers(
+            $this->normalizeAnswers($request->input('answers', [])),
+            $content->case_study_template,
+        );
 
         $submission = CaseStudySubmission::updateOrCreate(
             ['user_id' => $user->id, 'content_id' => $content->id],
@@ -52,20 +69,23 @@ class CaseStudyController extends Controller
         }
 
         $user = Auth::user();
-        $answers = $this->normalizeAnswers($request->input('answers', []));
+        $this->authorize('view', $content->lesson->course);
+        $answers = $this->sanitizeRichTextAnswers(
+            $this->normalizeAnswers($request->input('answers', [])),
+            $content->case_study_template,
+        );
 
         $existing = CaseStudySubmission::where('user_id', $user->id)
             ->where('content_id', $content->id)
             ->first();
 
-        // Jangan timpa status submitted/graded menjadi draft.
-        $status = ($existing && in_array($existing->status, ['submitted', 'graded'], true))
-            ? $existing->status
-            : 'draft';
+        if ($existing && $existing->isSubmitted()) {
+            return response()->json(['message' => 'Jawaban yang sudah dikumpulkan tidak dapat diubah.'], 409);
+        }
 
         $submission = CaseStudySubmission::updateOrCreate(
             ['user_id' => $user->id, 'content_id' => $content->id],
-            ['answers' => $answers, 'status' => $status]
+            ['answers' => $answers, 'status' => 'draft']
         );
 
         return response()->json([
@@ -83,13 +103,13 @@ class CaseStudyController extends Controller
         $user = Auth::user();
 
         // Jika submission tidak dikirim eksplisit, ambil milik user yang login.
-        if (!$submission || !$submission->exists) {
+        if (! $submission || ! $submission->exists) {
             $submission = CaseStudySubmission::where('content_id', $content->id)
                 ->where('user_id', $user->id)
                 ->first();
         }
 
-        abort_if(!$submission, 404, 'Jawaban tidak ditemukan.');
+        abort_if(! $submission, 404, 'Jawaban tidak ditemukan.');
 
         // Otorisasi: pemilik jawaban, atau pengelola course (instruktur/admin).
         $isOwner = $submission->user_id === $user->id;
@@ -97,7 +117,7 @@ class CaseStudyController extends Controller
         abort_unless($isOwner || $canManage, 403);
 
         // Peserta hanya boleh unduh jika diizinkan & sudah submit.
-        if ($isOwner && !$canManage) {
+        if ($isOwner && ! $canManage) {
             abort_unless($content->allow_answer_download, 403, 'Pengunduhan jawaban tidak diizinkan.');
             abort_unless($submission->isSubmitted(), 403, 'Jawaban belum dikumpulkan.');
         }
@@ -113,7 +133,7 @@ class CaseStudyController extends Controller
             'participant' => $submission->user,
         ])->setPaper('a4', 'portrait');
 
-        $filename = 'studi-kasus-' . $content->id . '-' . ($submission->user->name ?? 'peserta') . '.pdf';
+        $filename = 'studi-kasus-'.$content->id.'-'.($submission->user->name ?? 'peserta').'.pdf';
         $filename = preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $filename);
 
         return $pdf->download($filename);
@@ -185,8 +205,34 @@ class CaseStudyController extends Controller
     {
         if (is_string($answers)) {
             $decoded = json_decode($answers, true);
+
             return is_array($decoded) ? $decoded : [];
         }
+
         return is_array($answers) ? $answers : [];
+    }
+
+    private function sanitizeRichTextAnswers(array $answers, array $template): array
+    {
+        foreach ($template['sections'] ?? [] as $section) {
+            $sectionId = $section['id'] ?? null;
+            if (! $sectionId) {
+                continue;
+            }
+
+            foreach ($section['blocks'] ?? [] as $block) {
+                $blockId = $block['id'] ?? null;
+                if (($block['kind'] ?? null) !== 'text' || ! $blockId) {
+                    continue;
+                }
+
+                $answer = $answers[$sectionId][$blockId] ?? null;
+                if (is_string($answer)) {
+                    $answers[$sectionId][$blockId] = $this->richTextSanitizer->sanitize($answer);
+                }
+            }
+        }
+
+        return $answers;
     }
 }

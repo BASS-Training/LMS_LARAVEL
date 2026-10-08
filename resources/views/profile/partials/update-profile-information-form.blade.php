@@ -25,7 +25,7 @@
                 @else
                     <span class="flex h-20 w-20 items-center justify-center rounded-full bg-navy text-xl font-bold text-white">{{ Str::upper(Str::substr($user->name, 0, 2)) }}</span>
                 @endif
-                <input id="avatar" name="avatar" type="file" accept="image/jpeg,image/png,image/webp" class="block w-full text-sm text-gray-600 file:mr-4 file:rounded-md file:border-0 file:bg-navy file:px-4 file:py-2 file:font-semibold file:text-white hover:file:bg-navy/90">
+                <input id="avatar" name="avatar" type="file" accept="image/jpeg,image/png,image/webp" class="block w-full cursor-pointer text-sm text-gray-600 file:mr-4 file:cursor-pointer file:rounded-md file:border-0 file:bg-bass-red file:px-4 file:py-2 file:font-semibold file:text-white file:shadow-sm hover:file:bg-bass-red-hover">
             </div>
             <p class="mt-1 text-xs text-gray-500">JPG, PNG, atau WebP. Maksimal 2 MB dan 4000 x 4000 piksel.</p>
             @if ($user->avatar)

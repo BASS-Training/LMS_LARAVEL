@@ -35,7 +35,7 @@
                                     <p class="text-sm font-medium text-gray-700">{{ $block['label'] }}</p>
                                 @endif
                                 <div class="prose max-w-none border border-gray-200 rounded-lg p-3 bg-gray-50">
-                                    {!! $answerFor($sid, $bid) ?: '<span class="text-gray-400 italic">(kosong)</span>' !!}
+                                    {!! $answerFor($sid, $bid) ? app(\App\Services\ParticipantRichTextSanitizer::class)->sanitize($answerFor($sid, $bid)) : '<span class="text-gray-400 italic">(kosong)</span>' !!}
                                 </div>
                             @elseif(($block['kind'] ?? '') === 'table')
                                 @php $table = $block['table'] ?? ['cells' => []]; @endphp

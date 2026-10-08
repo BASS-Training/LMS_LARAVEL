@@ -76,7 +76,7 @@
                 </div>
             @endif
 
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden"
+            <div class="bg-white rounded-2xl shadow-xl"
                  x-data="contentFormManager({
                      content: @js(array_merge($content->toArray(), [
                          'scoring_enabled' => old('scoring_enabled', $content->scoring_enabled ?? true)
@@ -405,8 +405,7 @@
                             </h3>
                         </div>
 
-                        {{-- ✅ FIX: Untuk TEXT type only - jangan render untuk essay type --}}
-                        @if(!$content->exists || $content->type !== 'essay')
+                        {{-- Tetap render agar editor tersedia ketika tipe konten diubah menjadi teks. --}}
                         <div x-show="isType('text')" x-cloak class="animate-fadeIn">
                             <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
                                 <label for="body_editor" class="block text-sm font-semibold text-xl text-gray-700 mb-3">
@@ -424,7 +423,6 @@
                                 @enderror
                             </div>
                         </div>
-                        @endif
 
                         <div x-show="isType('essay')" x-cloak class="animate-fadeIn" x-data="essayQuestionsManager()">
                             <div class="space-y-6">
@@ -1841,13 +1839,6 @@
                 },
 
                 handleTypeChange(type) {
-                    // Cukup pastikan editor Summernote dihancurkan jika tidak diperlukan
-                    if (type !== 'text' && type !== 'essay') {
-                         if ($('#body_editor').hasClass('note-editor')) {
-                            $('#body_editor').summernote('destroy');
-                        }
-                    }
-                    
                     if (type !== 'zoom') {
                         this.content.is_scheduled = false;
                         this.content.scheduled_start = '';
@@ -1929,6 +1920,9 @@
                                 }
                             } catch (_) {}
                         })();
+                        if (this.isType('text') && $('#body_editor').data('summernote')) {
+                            $('#body_editor').val($('#body_editor').summernote('code'));
+                        }
                         form.submit();
                     } else {
                         this.formHasErrors = true;

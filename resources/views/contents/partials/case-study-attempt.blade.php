@@ -108,13 +108,14 @@
                                         @php $editorId = 'cs_'.preg_replace('/[^a-zA-Z0-9]/', '', $sid.$bid); @endphp
                                         @if($readOnly)
                                             <div class="prose max-w-none border border-gray-200 rounded-lg p-3 bg-gray-50">
-                                                {!! $answerFor($sid, $bid) ?: '<span class="text-gray-400 italic">(kosong)</span>' !!}
+                                                {!! $answerFor($sid, $bid) ? app(\App\Services\ParticipantRichTextSanitizer::class)->sanitize($answerFor($sid, $bid)) : '<span class="text-gray-400 italic">(kosong)</span>' !!}
                                             </div>
                                         @else
                                             <x-forms.summernote-editor
                                                 :id="$editorId"
                                                 :name="'answers['.$sid.']['.$bid.']'"
-                                                :value="$answerFor($sid, $bid)" />
+                                                :value="$answerFor($sid, $bid)"
+                                                preset="participant" />
                                         @endif
                                     </div>
 
@@ -229,7 +230,13 @@
                 method: 'POST',
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
                 body: fd,
-            }).then(r => r.json()).then(() => {
+            }).then(async response => {
+                if (!response.ok) {
+                    throw new Error((await response.json()).message || 'Autosave gagal');
+                }
+
+                return response.json();
+            }).then(() => {
                 if (statusEl) statusEl.textContent = 'Tersimpan otomatis ✓';
             }).catch(() => {
                 if (statusEl) statusEl.textContent = 'Gagal menyimpan draft';
@@ -242,8 +249,6 @@
         }
 
         form.addEventListener('input', scheduleAutosave);
-        // Summernote tidak memicu 'input' pada form; pakai event delegasi sederhana.
-        document.addEventListener('summernote.change', scheduleAutosave);
     })();
 </script>
 @endpush

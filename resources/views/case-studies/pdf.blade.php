@@ -74,7 +74,7 @@
                         <div style="font-weight:bold;margin-top:6px;">{{ $block['label'] }}</div>
                     @endif
                     <div class="answer">
-                        {!! $answerFor($sid, $bid) ?: '<span class="empty">(kosong)</span>' !!}
+                        {!! $answerFor($sid, $bid) ? app(\App\Services\ParticipantRichTextSanitizer::class)->sanitize($answerFor($sid, $bid)) : '<span class="empty">(kosong)</span>' !!}
                     </div>
                 @elseif(($block['kind'] ?? '') === 'table')
                     @php

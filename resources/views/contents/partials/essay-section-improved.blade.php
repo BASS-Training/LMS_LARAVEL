@@ -99,7 +99,7 @@
                     @csrf
                     <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Tulis Jawaban Anda:</h3>
 
-                    <x-forms.summernote-editor id="essay_editor" name="essay_content" />
+                    <x-forms.summernote-editor id="essay_editor" name="essay_content" preset="participant" />
 
                     <div class="mt-4">
                         <x-primary-button>{{ __('Kirim Jawaban') }}</x-primary-button>
