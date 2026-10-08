@@ -13,7 +13,7 @@ Rilis pertama membawa workflow `.github/workflows/production.yml`, skrip deploy,
 
 Catat host, port, user deploy, path absolut aplikasi, dan fingerprint SSH dari panel VPS BASS LMS. Buat kunci SSH khusus deploy; pasang public key pada `authorized_keys` user VPS dan simpan private key hanya di secret GitHub. Jangan mengirim private key melalui chat atau commit.
 
-Pastikan checkout aplikasi berada di branch `main`, bersih, memiliki `.env`, dan dapat `git fetch origin main` tanpa interaksi. Siapkan PHP, Composer, Node/npm, `mysqldump`, `gzip`, worker queue, serta program Supervisor `lms-reverb-server`. User deploy perlu izin `sudo -n supervisorctl restart lms-reverb-server`. Periksa kapasitas disk untuk backup di `storage/app/backups` dan kebijakan retensinya.
+Pastikan checkout aplikasi berada di branch `main`, bersih, memiliki `.env`, dan dapat `git fetch origin main` tanpa interaksi. Siapkan PHP 8.4 atau lebih baru sesuai composer.lock, Composer, Node/npm, `mysqldump`, `gzip`, worker queue, serta program Supervisor `lms-reverb-server`. User deploy perlu izin `sudo -n supervisorctl restart lms-reverb-server`. Periksa kapasitas disk untuk backup di `storage/app/backups` dan kebijakan retensinya.
 
 ## Uji rilis pertama
 
