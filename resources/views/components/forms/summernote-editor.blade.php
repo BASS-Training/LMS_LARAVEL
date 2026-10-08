@@ -33,6 +33,7 @@
         $('#{{ $id }}').summernote({
             placeholder: @json($placeholder),
             tabsize: 2,
+            dialogsInBody: true,
             height: {{ $preset === 'bio' ? 220 : 300 }},
             toolbar: @json($toolbar),
             @if ($preset !== 'bio')
