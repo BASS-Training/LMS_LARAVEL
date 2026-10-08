@@ -73,9 +73,15 @@ jobs:
           [[ "$SSH_USER" =~ ^[A-Za-z0-9_-]+$ ]] || { echo 'Invalid SSH_USER'; exit 1; }
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          printf '%s\n' "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
+          printf '%s\n' "$SSH_KNOWN_HOSTS" | tr -d '\r' > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
+          head -n1 ~/.ssh/id_ed25519 | grep -q '^-----BEGIN .*PRIVATE KEY-----$' \
+            || { echo 'SSH_PRIVATE_KEY: baris pertama bukan "-----BEGIN ... PRIVATE KEY-----" (secret salah/terpotong)'; exit 1; }
+          tail -n1 ~/.ssh/id_ed25519 | grep -q '^-----END .*PRIVATE KEY-----$' \
+            || { echo 'SSH_PRIVATE_KEY: baris terakhir bukan "-----END ... PRIVATE KEY-----" (secret terpotong)'; exit 1; }
+          ssh-keygen -y -P '' -f ~/.ssh/id_ed25519 > /dev/null \
+            || { echo 'SSH_PRIVATE_KEY tidak bisa dibaca: format rusak atau key memakai passphrase'; exit 1; }
       - name: Deploy tested commit to VPS
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
