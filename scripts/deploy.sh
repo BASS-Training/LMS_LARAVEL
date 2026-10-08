@@ -42,7 +42,7 @@ trap cleanup EXIT
 
 database_name="$(php "$db_settings_script" "$mysql_options")"
 echo "Backing up production database to $backup_file"
-mysqldump --defaults-extra-file="$mysql_options" --single-transaction --quick --routines --triggers -- "$database_name" | gzip > "$backup_file"
+mysqldump --defaults-extra-file="$mysql_options" --no-tablespaces --single-transaction --quick --routines --triggers -- "$database_name" | gzip > "$backup_file"
 test -s "$backup_file"
 gzip -t "$backup_file"
 
