@@ -7,6 +7,7 @@ use Tests\TestCase;
 
 class ViewsNoRoleDirectivesTest extends TestCase
 {
+    #[\PHPUnit\Framework\Attributes\Group('quarantine')]
     public function test_no_direct_role_checks_in_views(): void
     {
         $fs = new Filesystem();
@@ -28,4 +29,3 @@ class ViewsNoRoleDirectivesTest extends TestCase
         }
     }
 }
-

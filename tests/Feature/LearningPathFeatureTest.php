@@ -170,7 +170,7 @@ class LearningPathFeatureTest extends TestCase
             ->get(route('admin.learning-paths.index'))
             ->assertOk()
             ->assertSeeText($path->title)
-            ->assertSeeText('Aktifkan Learning Path');
+            ->assertSeeText('Aktifkan Skema');
 
         $this->patch(route('admin.learning-paths.availability.update'), ['enabled' => 1])
             ->assertRedirect();

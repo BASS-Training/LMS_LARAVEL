@@ -351,6 +351,10 @@ class RefundFlowTest extends TestCase
 
     public function test_order_history_only_shows_cancel_action_for_pending_orders(): void
     {
+        Http::fake([
+            'api.sandbox.midtrans.com/*' => Http::response(['transaction_status' => 'pending'], 200),
+        ]);
+
         $participant = User::factory()->create();
         $course = $this->course();
         $pending = Order::create([

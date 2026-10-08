@@ -1,0 +1,107 @@
+name: Production CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: gd, intl, zip, pdo_sqlite, pdo_mysql, bcmath, exif
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - name: Install PHP dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+      - name: Prepare test environment
+        run: cp .env.example .env && php artisan key:generate
+      - name: Build frontend
+        run: npm ci && npm run build
+      - name: Run application tests
+        env:
+          BROADCAST_CONNECTION: log
+          MIDTRANS_SERVER_KEY: ci-test-key
+        run: php artisan test --exclude-group quarantine
+
+  deploy:
+    needs: test
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.event_name != 'pull_request' &&
+      (github.event_name == 'workflow_dispatch' || vars.PRODUCTION_DEPLOY_ENABLED == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate SSH configuration
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          for value in SSH_HOST SSH_USER SSH_PRIVATE_KEY SSH_KNOWN_HOSTS DEPLOY_PATH; do
+            if [ -z "${!value:-}" ]; then echo "Missing $value"; exit 1; fi
+          done
+          [[ "$DEPLOY_PATH" =~ ^/[A-Za-z0-9_./-]+$ ]] || { echo 'DEPLOY_PATH must be an absolute path without spaces'; exit 1; }
+          [[ "${SSH_PORT:-22}" =~ ^[0-9]+$ ]] || { echo 'SSH_PORT must be numeric'; exit 1; }
+          [[ "$SSH_HOST" =~ ^[A-Za-z0-9.:-]+$ ]] || { echo 'Invalid SSH_HOST'; exit 1; }
+          [[ "$SSH_USER" =~ ^[A-Za-z0-9_-]+$ ]] || { echo 'Invalid SSH_USER'; exit 1; }
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
+      - name: Deploy tested commit to VPS
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          target="$SSH_USER@$SSH_HOST"
+          ssh_options=(-o BatchMode=yes -o StrictHostKeyChecking=yes -i ~/.ssh/id_ed25519 -p "${SSH_PORT:-22}")
+          remote_dir="$(ssh "${ssh_options[@]}" "$target" 'mktemp -d -t lms-deploy.XXXXXXXX')"
+          [[ "$remote_dir" =~ ^/tmp/lms-deploy\.[A-Za-z0-9]+$ ]] || { echo 'Unexpected remote temporary directory'; exit 1; }
+          cleanup() {
+            ssh "${ssh_options[@]}" "$target" "rm -f -- '$remote_dir/deploy.sh' '$remote_dir/deploy-db-settings.php' && rmdir -- '$remote_dir'" || true
+          }
+          trap cleanup EXIT
+          scp -o BatchMode=yes -o StrictHostKeyChecking=yes -i ~/.ssh/id_ed25519 -P "${SSH_PORT:-22}" \
+            scripts/deploy.sh scripts/deploy-db-settings.php "$target:$remote_dir/"
+          ssh "${ssh_options[@]}" "$target" \
+            "bash '$remote_dir/deploy.sh' '$DEPLOY_PATH' '$GITHUB_SHA' '$remote_dir/deploy-db-settings.php'"
+      - name: Health check
+        run: |
+          for attempt in 1 2 3 4 5; do
+            if curl --fail --silent --show-error --max-time 15 https://lms.basstrainingacademy.com/katalog -o /dev/null; then
+              echo 'Production health check passed'; exit 0
+            fi
+            sleep 10
+          done
+          echo 'Production health check failed'; exit 1
