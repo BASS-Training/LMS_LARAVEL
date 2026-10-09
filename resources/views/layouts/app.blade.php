@@ -1,6 +1,6 @@
 @inject('features', 'App\Services\FeatureAvailability')
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth" data-page-transitions>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -14,7 +14,55 @@
             margin: 0;
             background-color: #f9fafb;
         }
+
+        [x-cloak],
+        .admin-sidebar-desktop {
+            display: none;
+        }
+
+        @media (min-width: 1024px) {
+            .admin-sidebar-desktop {
+                display: flex;
+                width: 18rem;
+            }
+
+            .admin-sidebar-brand {
+                height: 10rem;
+            }
+
+            .admin-sidebar-logo {
+                max-height: 7rem;
+                max-width: 16rem;
+            }
+
+            html.admin-sidebar-collapsed .admin-sidebar-desktop {
+                width: 5rem;
+            }
+
+            html.admin-sidebar-collapsed .admin-sidebar-brand {
+                height: 5rem;
+            }
+
+            html.admin-sidebar-collapsed .admin-sidebar-logo {
+                max-height: 3rem;
+                max-width: 3.5rem;
+            }
+
+            html.admin-sidebar-collapsed .admin-sidebar-desktop [x-show="!adminSidebarCollapsed"] {
+                display: none !important;
+            }
+        }
     </style>
+
+    <script>
+        try {
+            if (localStorage.getItem('admin-sidebar-collapsed') === 'true') {
+                document.documentElement.classList.add('admin-sidebar-collapsed');
+            }
+        } catch (error) {
+            // localStorage can be unavailable in restricted browser contexts.
+        }
+    </script>
 
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any" type="image/x-icon">
     <link rel="alternate icon" href="{{ asset('images/favicon.ico') }}" type="image/x-icon">
@@ -26,10 +74,6 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    @can('admin-only')
-        @include('layouts.partials.admin-view-transitions')
-    @endcan
 
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
     <style>
@@ -71,10 +115,15 @@
 <div x-data="{
         mobileOpen: false,
         adminSidebarOpen: false,
-        adminSidebarCollapsed: localStorage.getItem('admin-sidebar-collapsed') === 'true',
+        adminSidebarCollapsed: document.documentElement.classList.contains('admin-sidebar-collapsed'),
         toggleAdminSidebar() {
             this.adminSidebarCollapsed = !this.adminSidebarCollapsed;
-            localStorage.setItem('admin-sidebar-collapsed', this.adminSidebarCollapsed);
+            document.documentElement.classList.toggle('admin-sidebar-collapsed', this.adminSidebarCollapsed);
+            try {
+                localStorage.setItem('admin-sidebar-collapsed', this.adminSidebarCollapsed);
+            } catch (error) {
+                // Keep the sidebar functional when storage access is restricted.
+            }
         }
      }"
      class="min-h-screen flex flex-col">
@@ -93,6 +142,8 @@
                     <a href="{{ Auth::check() ? route('dashboard') : route('shop.index') }}" class="flex-shrink-0 mr-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bass-red rounded-md" aria-label="Beranda">
                         <img src="{{ asset('images/logo.png') }}"
                              alt="{{ config('app.name') }} Logo"
+                             width="85"
+                             height="48"
                              class="h-12 w-auto"
                              loading="eager">
                     </a>
@@ -376,7 +427,7 @@
     @endif
 
     {{-- ══════════════ MAIN CONTENT ══════════════ --}}
-    <main class="admin-page-content flex-1 min-w-0">
+    <main class="page-transition-content flex-1 min-w-0">
         @hasSection('content')
             @yield('content')
         @else
