@@ -54,6 +54,7 @@ composer install --no-dev --prefer-dist --no-interaction --no-progress --optimiz
 npm ci
 npm run build
 php artisan migrate --force
+php artisan optimize:clear
 php artisan optimize
 php artisan storage:link || true
 
