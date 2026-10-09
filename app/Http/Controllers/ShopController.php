@@ -117,6 +117,7 @@ class ShopController extends Controller
         $course->load([
             'instructors:id,name,avatar,instructor_bio',
             'salesProfile',
+            'previews:id,course_id,content_id,sort_order',
             'categories' => fn ($query) => $query->active()->ordered()->select('categories.id', 'name', 'slug'),
             'tags' => fn ($query) => $query->active()->orderBy('name')->select('tags.id', 'name', 'slug'),
             'lessons' => fn ($q) => $q->select('id', 'course_id', 'title', 'order')->orderBy('order'),
@@ -150,6 +151,7 @@ class ShopController extends Controller
             'methodsEnabled' => $methodsEnabled,
             'feeLabel' => $fee->label(),
             'learningPaths' => $learningPaths,
+            'previewContentIds' => $course->previews->pluck('content_id'),
         ]);
     }
 

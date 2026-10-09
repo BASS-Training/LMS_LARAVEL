@@ -126,6 +126,12 @@ erDiagram
         string sales_status
         timestamp published_at
     }
+    COURSE_PREVIEWS {
+        bigint id PK
+        bigint course_id FK
+        bigint content_id FK
+        integer sort_order
+    }
     CATEGORIES {
         bigint id PK
         bigint parent_id FK
@@ -236,6 +242,8 @@ erDiagram
 
     CERTIFICATE_TEMPLATES o|--o{ COURSES : default_template
     COURSES ||--o| COURSE_SALES_PROFILES : marketed_as
+    COURSES ||--o{ COURSE_PREVIEWS : exposes
+    CONTENTS ||--o{ COURSE_PREVIEWS : previewed_as
     COURSES ||--o{ LESSONS : contains
     LESSONS o|--o{ LESSONS : prerequisite
     LESSONS ||--o{ CONTENTS : contains

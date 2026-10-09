@@ -1,8 +1,8 @@
 # Mobile Catalog API
 
 Dokumen ini menjelaskan cara aplikasi mobile mengonsumsi API catalog kursus.
-Scope dokumen hanya mencakup daftar catalog, preview detail catalog, dan
-pendaftaran course gratis dari catalog.
+Scope dokumen mencakup daftar catalog, detail catalog, materi preview terpilih,
+dan pendaftaran course gratis dari catalog.
 
 ## Ringkasan Endpoint
 
@@ -10,10 +10,11 @@ pendaftaran course gratis dari catalog.
 |---|---|---|
 | `GET` | `/api/mobile/catalog` | Mengambil daftar course catalog |
 | `GET` | `/api/mobile/catalog/{courseId}` | Mengambil preview course catalog |
+| `GET` | `/api/mobile/catalog/{courseId}/preview/{contentId}` | Membuka materi preview terpilih |
 | `POST` | `/api/mobile/catalog/{courseId}/daftar-gratis` | Mendaftar ke course gratis |
 
-Endpoint daftar dan preview dapat diakses tanpa login. Bearer token bersifat
-opsional pada kedua endpoint tersebut dan digunakan untuk mengisi status
+Endpoint daftar, detail, dan materi preview dapat diakses tanpa login. Bearer token bersifat
+opsional pada endpoint katalog tersebut dan digunakan untuk mengisi status
 `isEnrolled` serta menentukan akses ke program khusus:
 
 ```http
@@ -150,12 +151,16 @@ GET /api/mobile/catalog/12
           {
             "id": "101",
             "title": "Mengenal Bagian Bass",
-            "type": "video"
+            "type": "video",
+            "isPreview": true,
+            "previewUrl": "https://example.com/api/mobile/catalog/12/preview/101"
           },
           {
             "id": "102",
             "title": "Posisi Bermain",
-            "type": "text"
+            "type": "text",
+            "isPreview": false,
+            "previewUrl": null
           }
         ]
       }
@@ -167,14 +172,54 @@ GET /api/mobile/catalog/12
 }
 ```
 
-Detail catalog hanya berisi preview kurikulum. Field `lessons` di dalam setiap
-section hanya berisi ID, judul, dan tipe konten. Body materi, file, soal, dan
-media pembelajaran tidak dikirim melalui endpoint catalog.
+Detail catalog hanya berisi outline kurikulum. Field `lessons` di dalam setiap
+section memuat ID, judul, tipe, `isPreview`, dan `previewUrl`. Body materi dan
+media tidak dikirim melalui endpoint detail. Aplikasi hanya mengambil isi materi
+melalui `previewUrl` ketika `isPreview` bernilai `true`.
 
 Field `description` dapat mengandung HTML. Mobile harus menampilkannya dengan
 renderer HTML yang aman atau mengubahnya menjadi plain text.
 
-## 3. Daftar Course Gratis
+## 3. Materi Preview Terpilih
+
+Endpoint ini hanya tersedia untuk materi `text`, `video`, atau `image` yang
+dipilih admin dan berasal dari course yang masih tampil di katalog.
+
+```http
+GET /api/mobile/catalog/{courseId}/preview/{contentId}
+Accept: application/json
+```
+
+Contoh respons content text:
+
+```json
+{
+  "status": "success",
+  "message": "Berhasil mengambil preview materi",
+  "data": {
+    "courseId": "12",
+    "courseTitle": "Dasar Bass Elektrik",
+    "contentId": "102",
+    "lessonTitle": "Pengenalan Bass",
+    "title": "Posisi Bermain",
+    "type": "text",
+    "descriptionHtml": "<p>Pelajari posisi yang ergonomis.</p>",
+    "bodyHtml": "<p>Isi materi preview.</p>"
+  }
+}
+```
+
+Field khusus berdasarkan tipe:
+
+- `text`: `bodyHtml`.
+- `video`: `videoUrl`, `embedUrl`, dan `thumbnailUrl`.
+- `image`: array `images` berisi URL gambar.
+
+Endpoint tidak mengembalikan soal, jawaban, submission, diskusi, scoring, atau
+data progress. Course non-katalog, content yang tidak dipilih, dan tipe yang
+tidak didukung menghasilkan `404 Not Found`.
+
+## 4. Daftar Course Gratis
 
 Endpoint ini hanya digunakan ketika `isFree` bernilai `true`.
 

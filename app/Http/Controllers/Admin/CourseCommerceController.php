@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CourseCommerceRequest;
 use App\Models\ActivityLog;
 use App\Models\Course;
+use App\Models\CoursePreview;
 use App\Models\CourseSalesProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -48,7 +49,13 @@ class CourseCommerceController extends Controller
     public function edit(Course $course)
     {
         abort_unless($course->isRegularProgram(), 404);
-        $course->load('salesProfile');
+        $course->load([
+            'salesProfile',
+            'previews:id,course_id,content_id,sort_order',
+            'lessons.contents' => fn ($query) => $query
+                ->whereIn('type', CoursePreview::PREVIEWABLE_TYPES)
+                ->orderBy('order'),
+        ]);
 
         return view('admin.course-commerce.edit', compact('course'));
     }
@@ -57,7 +64,11 @@ class CourseCommerceController extends Controller
     {
         $validated = $request->validated();
         $profileData = $validated['sales_profile'];
+        $previewContentIds = collect($validated['preview_content_ids'] ?? [])
+            ->map(fn ($id) => (int) $id)
+            ->values();
         unset($validated['sales_profile']);
+        unset($validated['preview_content_ids']);
 
         if ($validated['visibility'] !== 'catalog') {
             $validated['visibility'] = 'private';
@@ -69,10 +80,12 @@ class CourseCommerceController extends Controller
             $validated['price'] = (int) ($validated['price'] ?? 0);
         }
 
-        DB::transaction(function () use ($course, $validated, $profileData) {
+        DB::transaction(function () use ($course, $validated, $profileData, $previewContentIds) {
             $before = $course->only(['visibility', 'price', 'short_description', 'requires_payment_verification']);
+            $beforePreviewIds = $course->previews()->pluck('content_id')->all();
             $course->update($validated);
             $this->syncSalesProfile($course, $profileData);
+            $this->syncPreviews($course, $previewContentIds->all());
 
             ActivityLog::log('course_commerce_updated', [
                 'description' => 'Memperbarui penjualan course: '.$course->title,
@@ -81,6 +94,8 @@ class CourseCommerceController extends Controller
                     'before' => $before,
                     'after' => $course->only(array_keys($before)),
                     'sales_status' => $profileData['sales_status'],
+                    'preview_content_ids_before' => $beforePreviewIds,
+                    'preview_content_ids_after' => $previewContentIds->all(),
                 ],
             ]);
         });
@@ -108,6 +123,22 @@ class CourseCommerceController extends Controller
             : $existing?->published_at;
 
         $course->salesProfile()->updateOrCreate([], $data);
+    }
+
+    private function syncPreviews(Course $course, array $contentIds): void
+    {
+        $course->previews()->delete();
+
+        if ($contentIds === []) {
+            return;
+        }
+
+        $course->previews()->createMany(
+            collect($contentIds)->values()->map(fn (int $contentId, int $index) => [
+                'content_id' => $contentId,
+                'sort_order' => $index,
+            ])->all()
+        );
     }
 
     private function uniqueSlug(string $title, ?int $ignoreId = null): string

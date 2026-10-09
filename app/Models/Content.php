@@ -147,6 +147,11 @@ class Content extends Model
         return $this->belongsTo(Lesson::class);
     }
 
+    public function coursePreviews()
+    {
+        return $this->hasMany(CoursePreview::class);
+    }
+
     /**
      * Multiple images attached to this content (for type === 'image').
      */

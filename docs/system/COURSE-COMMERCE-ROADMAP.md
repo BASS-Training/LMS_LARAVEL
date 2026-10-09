@@ -162,6 +162,8 @@ Halaman katalog minimal menampilkan:
 
 ### 5.4 Preview Content
 
+**Status: Laravel MVP direalisasikan 9 Oktober 2026.** Admin memilih materi melalui pengaturan Penjualan Course. Preview publik tersedia di web dan API mobile untuk content bertipe `text`, `video`, dan `image`; aktivitas preview tidak membuat progress. Quiz, tugas, feedback, Zoom, dan dokumen tetap terkunci.
+
 Preview dibuat sebagai konfigurasi tambahan tanpa mengubah completion peserta.
 
 ```text

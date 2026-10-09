@@ -82,13 +82,13 @@
             </section>
         @endif
 
-        <section>
+        <section id="kurikulum">
             <div class="flex flex-col justify-between gap-2 sm:flex-row sm:items-end"><h2 class="text-3xl font-extrabold [font-family:Fraunces,serif]">Kurikulum</h2>@unless ($isEnrolled)<p class="text-xs text-slate-500">Isi materi terbuka setelah Anda terdaftar.</p>@endunless</div>
             <div class="mt-5 space-y-3">
                 @forelse ($course->lessons as $i => $lesson)
                     <details class="group rounded-xl border-2 border-navy bg-[#fffdf7] px-5" @if ($i === 0) open @endif>
                         <summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-4"><span class="flex min-w-0 items-center gap-3"><span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-navy text-xs font-bold">{{ $i + 1 }}</span><strong class="truncate text-lg [font-family:Fraunces,serif]">{{ $lesson->title }}</strong></span><span class="text-xs text-slate-500">{{ $lesson->contents->count() }} materi</span></summary>
-                        <div class="border-t border-dashed border-navy/20 pb-3 pt-2">@foreach ($lesson->contents as $content)<div class="flex items-center gap-3 py-2 pl-11 text-sm text-slate-600"><span class="h-2 w-2 shrink-0 rounded-full bg-bass-red"></span><span class="truncate">{{ $content->title }}</span><span class="ml-auto shrink-0 text-xs capitalize text-slate-400">{{ $content->type }}</span></div>@endforeach</div>
+                        <div class="border-t border-dashed border-navy/20 pb-3 pt-2">@foreach ($lesson->contents as $content)<div class="flex items-center gap-3 py-2 pl-11 text-sm text-slate-600"><span class="h-2 w-2 shrink-0 rounded-full bg-bass-red"></span><span class="truncate">{{ $content->title }}</span>@if ($previewContentIds->contains($content->id))<a href="{{ route('shop.preview', [$course, $content]) }}" class="ml-auto shrink-0 rounded-full border border-bass-red px-2.5 py-1 text-xs font-bold text-bass-red hover:bg-bass-red hover:text-white">Preview</a>@else<span class="ml-auto shrink-0 text-xs capitalize text-slate-400">{{ $content->type }}</span>@endif</div>@endforeach</div>
                     </details>
                 @empty
                     <div class="rounded-xl border-2 border-dashed border-navy bg-[#fffdf7] px-6 py-10 text-center text-sm text-slate-500">Kurikulum belum tersedia.</div>
