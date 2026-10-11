@@ -1,6 +1,6 @@
 @inject('features', 'App\Services\FeatureAvailability')
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="public-layout scroll-smooth" data-page-transitions>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -8,6 +8,19 @@
     <meta name="description" content="@yield('meta_description', 'Pelatihan profesional BASS untuk meningkatkan kompetensi dan kesiapan karier Anda.')">
     <meta name="theme-color" content="#F7F3EA">
     <title>{{ config('app.name', 'BASS Academy') }}@hasSection('title') - @yield('title')@endif</title>
+
+    {{-- Critical paint: keep the browser canvas consistent while assets load. --}}
+    <style>
+        html, body {
+            min-height: 100%;
+            margin: 0;
+            background-color: #f7f3ea;
+        }
+
+        [x-cloak] {
+            display: none;
+        }
+    </style>
 
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -20,7 +33,7 @@
         <header class="sticky top-0 z-40 border-b-2 border-navy bg-[#f7f3ea]/95 backdrop-blur">
             <nav class="mx-auto flex h-16 w-full max-w-7xl items-center gap-5 px-4 sm:px-6 lg:px-8" aria-label="Navigasi utama">
                 <a href="{{ route('welcome') }}" class="flex shrink-0 items-center" aria-label="BASS Academy beranda">
-                    <img src="{{ asset('images/logo.png') }}" alt="BASS Academy" class="h-11 w-auto">
+                    <img src="{{ asset('images/logo.png') }}" alt="BASS Academy" width="78" height="44" class="h-11 w-auto">
                 </a>
 
                 <div class="ml-auto hidden items-center gap-5 lg:flex">
@@ -68,13 +81,13 @@
             </div>
         </header>
 
-        <main class="flex-1">
+        <main class="page-transition-content flex-1">
             @yield('content')
         </main>
 
         <footer class="border-t-2 border-navy bg-[#f7f3ea]">
             <div class="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[1.3fr_1fr_1fr] lg:px-8">
-                <div><img src="{{ asset('images/logo.png') }}" alt="BASS Academy" class="h-12 w-auto"><p class="mt-4 max-w-sm text-sm leading-6 text-slate-600">Platform pelatihan profesional untuk membangun kompetensi yang relevan dan terukur.</p></div>
+                <div><img src="{{ asset('images/logo.png') }}" alt="BASS Academy" width="85" height="48" class="h-12 w-auto"><p class="mt-4 max-w-sm text-sm leading-6 text-slate-600">Platform pelatihan profesional untuk membangun kompetensi yang relevan dan terukur.</p></div>
                 <div><h2 class="font-bold">Jelajahi</h2><div class="mt-3 space-y-2 text-sm text-slate-600"><a href="{{ route('shop.index') }}" class="block hover:text-bass-red">Course</a>@if ($features->bundlesEnabled())<a href="{{ route('bundles.index') }}" class="block hover:text-bass-red">Bundle</a>@endif @if ($features->learningPathsEnabled())<a href="{{ route('learning-paths.index') }}" class="block hover:text-bass-red">Learning Path</a>@endif</div></div>
                 <div><h2 class="font-bold">Akun</h2><div class="mt-3 space-y-2 text-sm text-slate-600">@auth<a href="{{ route('dashboard') }}" class="block hover:text-bass-red">Dashboard</a><a href="{{ route('checkout.index') }}" class="block hover:text-bass-red">Pesanan Saya</a>@else<a href="{{ route('login') }}" class="block hover:text-bass-red">Masuk</a><a href="{{ route('register') }}" class="block hover:text-bass-red">Daftar</a>@endauth</div></div>
             </div>

@@ -20,7 +20,7 @@
        class="fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-navy text-white shadow-2xl lg:hidden">
     <div class="flex min-h-28 items-center justify-between border-b border-white/10 bg-white px-4">
         <a href="{{ route('dashboard') }}" class="flex min-w-0 items-center rounded-lg focus-visible:ring-2 focus-visible:ring-bass-red" aria-label="Dashboard admin">
-            <img src="{{ asset('images/logo.png') }}" alt="{{ config('app.name') }}" class="max-h-20 w-auto">
+            <img src="{{ asset('images/logo.png') }}" alt="{{ config('app.name') }}" width="142" height="80" class="max-h-20 w-auto">
         </a>
         <button type="button" @click="adminSidebarOpen = false" class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-navy hover:bg-gray-100" aria-label="Tutup menu admin">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 18 6M6 6l12 12"/></svg>
@@ -32,11 +32,10 @@
 </aside>
 
 <aside data-admin-sidebar
-       class="admin-sidebar-desktop sticky top-0 hidden h-screen shrink-0 flex-col bg-navy text-white transition-[width] duration-200 lg:flex"
-       :class="adminSidebarCollapsed ? 'w-20' : 'w-72'">
-    <div class="relative flex items-center justify-center border-b border-gray-200 bg-white px-3 transition-[height] duration-200" :class="adminSidebarCollapsed ? 'h-20' : 'h-40'">
+       class="admin-sidebar-desktop sticky top-0 hidden h-screen shrink-0 flex-col bg-navy text-white transition-[width] duration-200 lg:flex">
+    <div class="admin-sidebar-brand relative flex items-center justify-center border-b border-gray-200 bg-white px-3 transition-[height] duration-200">
         <a href="{{ route('dashboard') }}" class="flex min-w-0 items-center justify-center rounded-lg focus-visible:ring-2 focus-visible:ring-bass-red" aria-label="Dashboard admin">
-            <img src="{{ asset('images/logo.png') }}" alt="{{ config('app.name') }}" class="w-auto transition-all" :class="adminSidebarCollapsed ? 'max-h-12 max-w-14' : 'max-h-28 max-w-64'">
+            <img src="{{ asset('images/logo.png') }}" alt="{{ config('app.name') }}" width="199" height="112" class="admin-sidebar-logo w-auto transition-all">
         </a>
         <button type="button" @click="toggleAdminSidebar" class="absolute -right-3 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-navy shadow-md hover:bg-gray-50" :aria-label="adminSidebarCollapsed ? 'Perluas sidebar admin' : 'Ciutkan sidebar admin'">
             <svg class="h-5 w-5 transition-transform" :class="adminSidebarCollapsed ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 18-6-6 6-6"/></svg>

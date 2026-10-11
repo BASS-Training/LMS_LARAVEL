@@ -22,7 +22,10 @@ class AdminSidebarTest extends TestCase
             ->get(route('dashboard'))
             ->assertOk()
             ->assertSee('data-admin-sidebar', false)
-            ->assertSee('@view-transition', false)
+            ->assertSee('data-page-transitions', false)
+            ->assertSee('.admin-sidebar-desktop {', false)
+            ->assertSee("localStorage.getItem('admin-sidebar-collapsed')", false)
+            ->assertSee("classList.add('admin-sidebar-collapsed')", false)
             ->assertSeeText('Dashboard Admin')
             ->assertSeeText('Landing Page')
             ->assertSeeText('Katalog Course')
@@ -43,7 +46,7 @@ class AdminSidebarTest extends TestCase
             ->get(route('dashboard'))
             ->assertOk()
             ->assertDontSee('data-admin-sidebar', false)
-            ->assertDontSee('@view-transition', false);
+            ->assertSee('data-page-transitions', false);
 
         $eventOrganizer = User::factory()->create();
         $eventOrganizer->givePermissionTo('view progress reports');

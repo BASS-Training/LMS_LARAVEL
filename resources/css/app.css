@@ -5,6 +5,54 @@
 /* Alpine.js: hide elements with x-cloak until Alpine initializes */
 [x-cloak] { display: none !important; }
 
+.page-transition-content {
+    animation: page-content-enter 180ms ease-out both;
+}
+
+@keyframes page-content-enter {
+    from {
+        transform: translateY(3px);
+    }
+}
+
+@media (min-width: 1024px) {
+    .admin-sidebar-desktop {
+        width: 18rem;
+    }
+
+    .admin-sidebar-brand {
+        height: 10rem;
+    }
+
+    .admin-sidebar-logo {
+        max-height: 7rem;
+        max-width: 16rem;
+    }
+
+    html.admin-sidebar-collapsed .admin-sidebar-desktop {
+        width: 5rem;
+    }
+
+    html.admin-sidebar-collapsed .admin-sidebar-brand {
+        height: 5rem;
+    }
+
+    html.admin-sidebar-collapsed .admin-sidebar-logo {
+        max-height: 3rem;
+        max-width: 3.5rem;
+    }
+
+    html.admin-sidebar-collapsed .admin-sidebar-desktop [x-show="!adminSidebarCollapsed"] {
+        display: none !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page-transition-content {
+        animation: none;
+    }
+}
+
 @layer base {
     html {
         -webkit-tap-highlight-color: transparent;
