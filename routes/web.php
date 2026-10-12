@@ -23,6 +23,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\CourseClassController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\CoursePreviewController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EnrollmentCodeController;
 use App\Http\Controllers\EssayQuestionController;
@@ -58,7 +59,7 @@ Route::get('/certificates/download/{code}', [CertificateController::class, 'publ
 /*
 | Etalase kursus (katalog) — sengaja PUBLIK supaya link-nya bisa dibagikan
 | dan terindeks mesin pencari. Hanya course published+catalog yang tampil,
-| dan hanya judul kurikulum yang dibuka — isi konten tetap terkunci.
+| Outline hanya membuka judul; isi hanya tersedia untuk materi preview pilihan.
 */
 Route::get('/katalog', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/kebijakan-refund', [ShopController::class, 'refundPolicy'])->name('shop.refund-policy');
@@ -71,6 +72,7 @@ Route::middleware('feature:learning-paths')->group(function () {
     Route::get('/learning-paths/{learningPath}', [LearningPathController::class, 'show'])->name('learning-paths.show');
 });
 Route::get('/katalog/{course}', [ShopController::class, 'show'])->name('shop.show');
+Route::get('/katalog/{course}/preview/{content}', [CoursePreviewController::class, 'show'])->name('shop.preview');
 Route::post('/katalog/{course}/daftar-gratis', [ShopController::class, 'enrollFree'])->name('shop.enroll-free');
 
 /*

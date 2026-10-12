@@ -135,6 +135,7 @@ class ShopApiController extends Controller
         $course->load([
             'instructors:id,name,avatar,instructor_bio',
             'salesProfile',
+            'previews:id,course_id,content_id,sort_order',
             'categories' => fn ($query) => $query->active()->ordered()->select('categories.id', 'name', 'slug'),
             'tags' => fn ($query) => $query->active()->orderBy('name')->select('tags.id', 'name', 'slug'),
             'lessons' => fn ($q) => $q->select('id', 'course_id', 'title', 'order')->orderBy('order'),
@@ -159,18 +160,27 @@ class ShopApiController extends Controller
             'faq' => $course->salesProfile->faq ?? [],
         ] : null;
         $data['totalContents'] = $course->lessons->sum(fn ($lesson) => $lesson->contents->count());
-        $data['sections'] = $course->lessons->values()->map(function ($lesson, $index) {
+        $previewIds = $course->previews->pluck('content_id');
+        $data['sections'] = $course->lessons->values()->map(function ($lesson, $index) use ($course, $previewIds) {
             return [
                 'id' => (string) $lesson->id,
                 'sectionNumber' => $index + 1,
                 'title' => $lesson->title,
                 // Judul + tipe saja. Tidak ada body/file — kurikulum digembok
                 // sampai user benar-benar ter-enroll.
-                'lessons' => $lesson->contents->values()->map(fn ($content) => [
-                    'id' => (string) $content->id,
-                    'title' => $content->title,
-                    'type' => $content->type ?? 'text',
-                ])->values(),
+                'lessons' => $lesson->contents->values()->map(function ($content) use ($course, $previewIds) {
+                    $isPreview = $previewIds->contains($content->id);
+
+                    return [
+                        'id' => (string) $content->id,
+                        'title' => $content->title,
+                        'type' => $content->type ?? 'text',
+                        'isPreview' => $isPreview,
+                        'previewUrl' => $isPreview
+                            ? route('api.mobile.catalog.preview', [$course, $content])
+                            : null,
+                    ];
+                })->values(),
             ];
         })->values();
 
