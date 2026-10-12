@@ -39,4 +39,10 @@ return [
         'google_form_url' => env('AVPN_GOOGLE_FORM_URL'),
     ],
 
+    'telegram' => [
+        'payment_alerts_enabled' => env('TELEGRAM_PAYMENT_ALERTS_ENABLED', false),
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'payment_chat_id' => env('TELEGRAM_PAYMENT_CHAT_ID'),
+    ],
+
 ];

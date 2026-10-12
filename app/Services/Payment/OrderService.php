@@ -4,6 +4,7 @@ namespace App\Services\Payment;
 
 use App\Enums\RefundStatus;
 use App\Jobs\PrepareSnapTransaction;
+use App\Jobs\SendPaymentVerificationTelegram;
 use App\Models\Bundle;
 use App\Models\Course;
 use App\Models\Order;
@@ -625,6 +626,7 @@ class OrderService
                 $locked->save();
 
                 $locked->user->notify(new PaymentStatusNotification($locked, PaymentStatusNotification::AWAITING_VERIFICATION));
+                SendPaymentVerificationTelegram::dispatch($locked->id)->afterCommit();
 
                 Log::info('Pembayaran dikonfirmasi — menunggu verifikasi manual', [
                     'order_code' => $locked->order_code,

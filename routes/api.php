@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\PersonalAgendaApiController;
 use App\Http\Controllers\Api\ProfileApiController;
 use App\Http\Controllers\Api\QuizApiController;
 use App\Http\Controllers\Api\ShopApiController;
+use App\Http\Controllers\CoursePreviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/mobile/auth/login', [AuthApiController::class, 'login'])
@@ -48,6 +49,8 @@ Route::middleware(['mobile.api.user:optional', 'throttle:mobile-api', 'force.jso
         Route::get('/mobile/bundles/{bundle}', [BundleApiController::class, 'show']);
     });
     Route::get('/mobile/catalog', [ShopApiController::class, 'index']);
+    Route::get('/mobile/catalog/{course}/preview/{content}', [CoursePreviewController::class, 'apiShow'])
+        ->name('api.mobile.catalog.preview');
     Route::get('/mobile/catalog/{course}', [ShopApiController::class, 'show']);
 });
 

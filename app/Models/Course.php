@@ -78,6 +78,19 @@ class Course extends Model
         return $this->hasOne(CourseSalesProfile::class);
     }
 
+    public function previews()
+    {
+        return $this->hasMany(CoursePreview::class)->orderBy('sort_order');
+    }
+
+    public function previewContents()
+    {
+        return $this->belongsToMany(Content::class, 'course_previews')
+            ->withPivot('sort_order')
+            ->withTimestamps()
+            ->orderByPivot('sort_order');
+    }
+
     public function bundles()
     {
         return $this->belongsToMany(Bundle::class)

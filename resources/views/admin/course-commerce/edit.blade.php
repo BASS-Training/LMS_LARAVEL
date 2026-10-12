@@ -35,6 +35,39 @@
             </div>
         </section>
 
+        @php
+            $selectedPreviewIds = collect(old('preview_content_ids', $course->previews->pluck('content_id')->all()))
+                ->map(fn ($id) => (int) $id);
+        @endphp
+        <section>
+            <div class="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900">Preview Materi</h2>
+                    <p class="mt-1 text-sm text-gray-500">Pilih materi teks, video, atau gambar yang dapat dibuka calon peserta tanpa membuat progress.</p>
+                </div>
+                <span class="text-xs font-semibold text-gray-400">Urutan mengikuti kurikulum</span>
+            </div>
+            <div class="mt-4 space-y-4 rounded-xl border border-gray-200 p-5">
+                @forelse ($course->lessons->filter(fn ($lesson) => $lesson->contents->isNotEmpty()) as $lesson)
+                    <fieldset>
+                        <legend class="text-sm font-bold text-navy">{{ $lesson->title }}</legend>
+                        <div class="mt-2 grid gap-2 sm:grid-cols-2">
+                            @foreach ($lesson->contents as $content)
+                                <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 p-3 hover:border-bass-red/50 hover:bg-bass-red-soft/30">
+                                    <input type="checkbox" name="preview_content_ids[]" value="{{ $content->id }}" @checked($selectedPreviewIds->contains($content->id)) class="mt-0.5 rounded border-gray-300 text-bass-red focus:ring-bass-red">
+                                    <span class="min-w-0"><strong class="block truncate text-sm text-gray-900">{{ $content->title }}</strong><span class="text-xs capitalize text-gray-500">{{ $content->type }}</span></span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </fieldset>
+                @empty
+                    <p class="text-sm text-gray-500">Belum ada materi teks, video, atau gambar yang dapat dijadikan preview.</p>
+                @endforelse
+                @error('preview_content_ids')<p class="text-sm text-error">{{ $message }}</p>@enderror
+                @error('preview_content_ids.*')<p class="text-sm text-error">{{ $message }}</p>@enderror
+            </div>
+        </section>
+
         @include('admin.course-commerce.partials.sales-profile-fields')
 
         <div class="flex justify-end gap-3"><a href="{{ route('admin.course-commerce.index') }}" class="rounded-lg border border-gray-300 px-5 py-2.5 font-semibold text-gray-700">Batal</a><button class="rounded-lg bg-bass-red px-5 py-2.5 font-semibold text-white hover:bg-bass-red-hover">Simpan Penjualan</button></div>

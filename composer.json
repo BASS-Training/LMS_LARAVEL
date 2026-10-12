@@ -17,6 +17,7 @@
         "laravel/tinker": "^2.10.1",
         "maatwebsite/excel": "*",
         "phpoffice/phpspreadsheet": "^1.30",
+        "predis/predis": "^3.6",
         "spatie/browsershot": "^5.0",
         "spatie/laravel-permission": "^6.20",
         "symfony/html-sanitizer": "^7.4"
