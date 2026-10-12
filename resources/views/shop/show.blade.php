@@ -128,10 +128,10 @@
 
                 @if ($course->salesProfile?->promo_video_url)<a href="{{ $course->salesProfile->promo_video_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex w-full items-center justify-center rounded-xl border-2 border-navy px-4 py-3 text-sm font-bold hover:bg-white">Tonton Video Promosi</a>@endif
                 <ul class="border-t border-dashed border-navy/20 pt-3 text-sm">
-                    @if ($course->salesProfile?->level)<li class="py-1.5">Level: {{ ['beginner' => 'Pemula', 'intermediate' => 'Menengah', 'advanced' => 'Mahir', 'all_levels' => 'Semua Level'][$course->salesProfile->level] ?? $course->salesProfile->level }}</li>@endif
-                    @if ($course->salesProfile?->language)<li class="py-1.5">Bahasa: {{ $course->salesProfile->language }}</li>@endif
-                    @if ($course->salesProfile?->estimated_duration_minutes)<li class="py-1.5">Estimasi durasi: {{ intdiv($course->salesProfile->estimated_duration_minutes, 60) > 0 ? intdiv($course->salesProfile->estimated_duration_minutes, 60).' jam ' : '' }}{{ $course->salesProfile->estimated_duration_minutes % 60 ? ($course->salesProfile->estimated_duration_minutes % 60).' menit' : '' }}</li>@endif
-                    <li class="py-1.5">Akses pembelajaran setelah terdaftar</li><li class="py-1.5">Dapat dibuka melalui web dan mobile</li><li class="py-1.5">Sertifikat sesuai persyaratan course</li>
+                    @if ($course->salesProfile?->level)<li class="pt-1.5 font-bold text-xl">Level: {{ ['beginner' => 'Pemula', 'intermediate' => 'Menengah', 'advanced' => 'Mahir', 'all_levels' => 'Semua Level'][$course->salesProfile->level] ?? $course->salesProfile->level }}</li>@endif
+                    @if ($course->salesProfile?->language)<li class="py-1.5 font-bold text-xl">Bahasa: {{ $course->salesProfile->language }}</li>@endif
+                    @if ($course->salesProfile?->estimated_duration_minutes)<li class="pt-1.5 pb-4 font-bold text-xl">Estimasi durasi: {{ intdiv($course->salesProfile->estimated_duration_minutes, 60) > 0 ? intdiv($course->salesProfile->estimated_duration_minutes, 60).' jam ' : '' }}{{ $course->salesProfile->estimated_duration_minutes % 60 ? ($course->salesProfile->estimated_duration_minutes % 60).' menit' : '' }}</li>@endif
+                    <li class="py-1 font-semibold">Akses pembelajaran setelah terdaftar</li><li class="py-1 font-semibold">Dapat dibuka melalui web dan mobile</li><li class="py-1 font-semibold">Sertifikat sesuai persyaratan course</li>
                 </ul>
             </div>
         </div>
