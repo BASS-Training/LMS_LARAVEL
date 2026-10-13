@@ -36,6 +36,7 @@ use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\LearningPathController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PrivacyPolicyController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\RefundController;
@@ -50,6 +51,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', LandingPageController::class)->name('welcome');
+Route::get('/kebijakan-privasi', PrivacyPolicyController::class)->name('privacy-policy');
+Route::view('/customer-service', 'support.customer-service')->name('customer-service');
 
 Route::get('/certificates/verify/{code}', [CertificateController::class, 'verify'])->name('certificates.verify');
 

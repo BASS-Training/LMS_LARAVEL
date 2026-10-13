@@ -406,10 +406,8 @@
         <!-- Footer Info -->
         <div class="mt-8 text-center">
             <p class="text-sm text-gray-500">
-                Dengan mendaftar, Anda menyetujui
-                <a href="#" class="text-bass-red hover:underline font-medium">Syarat & Ketentuan</a>
-                dan
-                <a href="#" class="text-bass-red hover:underline font-medium">Kebijakan Privasi</a>
+                Informasi tentang penggunaan data pribadi Anda tersedia dalam
+                <a href="{{ route('privacy-policy') }}" target="_blank" rel="noopener noreferrer" class="text-bass-red hover:underline font-medium">Kebijakan Privasi / Privacy Policy</a>.
             </p>
         </div>
     </div>

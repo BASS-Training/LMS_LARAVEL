@@ -1,6 +1,6 @@
 @inject('features', 'App\Services\FeatureAvailability')
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="public-layout scroll-smooth" data-page-transitions>
+<html lang="@yield('page_language', str_replace('_', '-', app()->getLocale()))" class="public-layout scroll-smooth" data-page-transitions>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -91,7 +91,13 @@
                 <div><h2 class="font-bold">Jelajahi</h2><div class="mt-3 space-y-2 text-sm text-slate-600"><a href="{{ route('shop.index') }}" class="block hover:text-bass-red">Course</a>@if ($features->bundlesEnabled())<a href="{{ route('bundles.index') }}" class="block hover:text-bass-red">Bundle</a>@endif @if ($features->learningPathsEnabled())<a href="{{ route('learning-paths.index') }}" class="block hover:text-bass-red">Learning Path</a>@endif</div></div>
                 <div><h2 class="font-bold">Akun</h2><div class="mt-3 space-y-2 text-sm text-slate-600">@auth<a href="{{ route('dashboard') }}" class="block hover:text-bass-red">Dashboard</a><a href="{{ route('checkout.index') }}" class="block hover:text-bass-red">Pesanan Saya</a>@else<a href="{{ route('login') }}" class="block hover:text-bass-red">Masuk</a><a href="{{ route('register') }}" class="block hover:text-bass-red">Daftar</a>@endauth</div></div>
             </div>
-            <div class="border-t border-navy/20 px-4 py-5 text-center text-xs text-slate-500">&copy; {{ date('Y') }} PT Bintang Anugrah Surya Semesta · BASS Learning &amp; Development</div>
+            <div class="border-t border-navy/20 px-4 py-5 text-center text-xs text-slate-500">
+                <div class="mb-3 flex flex-wrap justify-center gap-x-6 gap-y-3">
+                    <a href="{{ route('customer-service') }}" class="font-semibold hover:text-bass-red">Customer Service</a>
+                    <a href="{{ route('privacy-policy') }}" class="font-semibold hover:text-bass-red">Kebijakan Privasi / Privacy Policy</a>
+                </div>
+                <p>&copy; {{ date('Y') }} PT Bintang Anugrah Surya Semesta · BASS Learning &amp; Development</p>
+            </div>
         </footer>
     </div>
     @stack('scripts')
