@@ -71,6 +71,18 @@
         </div>
 
         <div>
+            <x-input-label for="phone" :value="__('Nomor HP (opsional)')" />
+            <x-text-input id="phone" name="phone" type="tel" class="mt-1 block w-full" :value="old('phone', $user->phone)" maxlength="32" autocomplete="tel" placeholder="081234567890 atau +6281234567890" />
+            <x-input-error class="mt-2" :messages="$errors->get('phone')" />
+        </div>
+
+        <div>
+            <x-input-label for="address" :value="__('Alamat (opsional)')" />
+            <textarea id="address" name="address" rows="3" maxlength="2000" autocomplete="street-address" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-bass-red focus:ring-bass-red">{{ old('address', $user->address) }}</textarea>
+            <x-input-error class="mt-2" :messages="$errors->get('address')" />
+        </div>
+
+        <div>
             <x-input-label for="date_of_birth" :value="__('Tanggal Lahir')" />
             <x-text-input
                 id="date_of_birth"

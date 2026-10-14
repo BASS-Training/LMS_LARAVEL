@@ -25,9 +25,9 @@ class LogActivityJob implements ShouldQueue
 
     public function handle(): void
     {
-        // Skip pure participants — same rule as ActivityLog::log()
+        // Skip pure participants except successful logins — same rule as ActivityLog::log()
         $roles = collect($this->userRoles);
-        if ($roles->count() === 1 && $roles->contains('participant')) {
+        if ($this->action !== 'auth.login' && $roles->count() === 1 && $roles->contains('participant')) {
             return;
         }
 

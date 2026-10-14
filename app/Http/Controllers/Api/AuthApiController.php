@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\Concerns\PresentsMobileUser;
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\EmailOtp;
 use App\Models\User;
 use App\Services\OtpService;
@@ -37,6 +38,11 @@ class AuthApiController extends Controller
         }
 
         $token = $this->issueToken($user);
+
+        ActivityLog::log('auth.login', [
+            'description' => 'Login berhasil melalui mobile.',
+            'metadata' => ['source' => 'mobile'],
+        ], $user);
 
         return response()->json([
             'status' => 'success',

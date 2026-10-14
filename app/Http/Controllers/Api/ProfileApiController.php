@@ -30,6 +30,8 @@ class ProfileApiController extends Controller
             'gender' => ['required', Rule::in(['male', 'female'])],
             'institution_name' => ['required', 'string', 'max:255'],
             'occupation' => ['required', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:32', 'regex:/^\+?[0-9][0-9\s().-]*$/'],
+            'address' => ['nullable', 'string', 'max:2000'],
             'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048', 'dimensions:max_width=4000,max_height=4000'],
             'remove_avatar' => ['nullable', 'boolean'],
             'instructor_bio' => [
@@ -45,6 +47,12 @@ class ProfileApiController extends Controller
         $user->gender = $data['gender'];
         $user->institution_name = $data['institution_name'];
         $user->occupation = $data['occupation'];
+
+        foreach (['phone', 'address'] as $field) {
+            if (array_key_exists($field, $data)) {
+                $user->{$field} = $data[$field];
+            }
+        }
 
         if ($user->can('manage own courses') && array_key_exists('instructor_bio', $data)) {
             $user->instructor_bio = $bioSanitizer->sanitize($data['instructor_bio']);
