@@ -114,23 +114,23 @@ class ActivityLog extends Model
 
     /**
      * Static method to log activity
-     * Only logs for Admin, EO, and Instructor roles (not Participant)
+     * Participant activity is excluded except successful logins.
      */
-    public static function log($action, $data = [])
+    public static function log($action, $data = [], ?User $actor = null)
     {
         // Check if user is authenticated
-        if (!auth()->check()) {
+        if ($actor === null && !auth()->check()) {
             return null;
         }
 
         // Get user
-        $user = auth()->user();
+        $user = $actor ?? auth()->user();
 
-        // Log all roles except pure Participant
+        // Log all roles; pure participants are limited to successful logins.
         try {
             $roles = $user->getRoleNames();
-            // If user has only the 'participant' role (and no others), skip logging
-            if ($roles->count() === 1 && $roles->contains('participant')) {
+            // Skip other activity for users with only the participant role.
+            if ($action !== 'auth.login' && $roles->count() === 1 && $roles->contains('participant')) {
                 return null;
             }
             // If user has no roles assigned, treat as elevated (log) to avoid missing admin-like users

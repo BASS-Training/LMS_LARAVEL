@@ -24,8 +24,14 @@ use App\Http\Controllers\Api\PersonalAgendaApiController;
 use App\Http\Controllers\Api\ProfileApiController;
 use App\Http\Controllers\Api\QuizApiController;
 use App\Http\Controllers\Api\ShopApiController;
+use App\Http\Controllers\Api\SupportApiController;
 use App\Http\Controllers\CoursePreviewController;
 use Illuminate\Support\Facades\Route;
+
+Route::middleware(['throttle:mobile-api', 'force.json'])->group(function () {
+    Route::get('/mobile/privacy-policy', [SupportApiController::class, 'privacyPolicy']);
+    Route::get('/mobile/customer-service', [SupportApiController::class, 'customerService']);
+});
 
 Route::post('/mobile/auth/login', [AuthApiController::class, 'login'])
     ->middleware('throttle:mobile-login');
@@ -78,6 +84,8 @@ Route::middleware(['mobile.api.user', 'throttle:mobile-api'])->group(function ()
     // Update profil (data dasar + foto). POST karena multipart upload file.
     Route::post('/mobile/profile', [ProfileApiController::class, 'update'])
         ->middleware('throttle:mobile-upload');
+    Route::delete('/mobile/profile', [ProfileApiController::class, 'destroy'])
+        ->middleware(['force.json', 'throttle:mobile-account-delete']);
 
     Route::get('/mobile/courses', [CourseApiController::class, 'index']);
     // Saved courses (bookmark) — mobile-only. Letakkan sebelum route {course}

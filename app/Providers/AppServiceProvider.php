@@ -215,6 +215,10 @@ class AppServiceProvider extends ServiceProvider
             ->by($userKey($request))
             ->response($tooManyRequests));
 
+        RateLimiter::for('mobile-account-delete', static fn (Request $request): Limit => Limit::perMinute(5)
+            ->by($userKey($request))
+            ->response($tooManyRequests));
+
         RateLimiter::for('mobile-certificate', static function (Request $request) use ($tooManyRequests, $userKey): Limit {
             $course = $request->route('course');
             $courseKey = is_object($course) && method_exists($course, 'getRouteKey')

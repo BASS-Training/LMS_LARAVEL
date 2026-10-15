@@ -25,7 +25,7 @@ class LogActivity
                             $preModels[] = [
                                 'class' => get_class($param),
                                 'id' => $param->getKey(),
-                                'before' => $param->getAttributes(),
+                                'before' => collect($param->getAttributes())->except(['phone'])->all(),
                             ];
                         }
                     }
@@ -58,7 +58,7 @@ class LogActivity
 
             // Filter sensitive inputs — exclude file uploads (UploadedFile cannot be serialized in queue jobs)
             $input = collect($request->input())->except([
-                '_token', 'password', 'password_confirmation', 'current_password', 'new_password', 'new_password_confirmation'
+                '_token', 'password', 'password_confirmation', 'current_password', 'new_password', 'new_password_confirmation', 'phone'
             ])->toArray();
 
             // Append file metadata (name + size only, not the file object itself).
@@ -101,7 +101,7 @@ class LogActivity
                     try {
                         $fresh = (new $cls)->find($id);
                         if ($fresh) {
-                            $after = $fresh->getAttributes();
+                            $after = collect($fresh->getAttributes())->except(['phone'])->all();
                             $state = 'updated';
                         }
                     } catch (\Throwable $e) {}

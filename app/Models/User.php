@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Casts\EncryptedPhone;
 use App\Notifications\CustomResetPasswordNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -37,6 +38,7 @@ class User extends Authenticatable
         'avatar',
         'instructor_bio',
         'phone',
+        'address',
         'monthly_income',
         'learning_reminder_email_enabled',
     ];
@@ -49,6 +51,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'phone',
     ];
 
     /**
@@ -66,6 +69,7 @@ class User extends Authenticatable
             'learning_reminder_email_enabled' => 'boolean',
             'password' => 'hashed',
             'date_of_birth' => 'date',
+            'phone' => EncryptedPhone::class,
         ];
     }
 

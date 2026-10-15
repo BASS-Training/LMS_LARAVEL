@@ -38,6 +38,8 @@ trait PresentsMobileUser
             'gender' => $user->gender,
             'institution_name' => $user->institution_name,
             'occupation' => $user->occupation,
+            'phone' => $user->phone,
+            'address' => $user->address,
             'avatar_url' => $user->avatar ? asset('storage/'.$user->avatar) : null,
             'instructor_bio' => $user->instructor_bio,
             'created_at' => optional($user->created_at)?->toISOString(),

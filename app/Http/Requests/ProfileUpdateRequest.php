@@ -29,6 +29,8 @@ class ProfileUpdateRequest extends FormRequest
             'gender' => ['required', 'in:male,female'],
             'institution_name' => ['required', 'string', 'max:255'],
             'occupation' => ['required', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:32', 'regex:/^\+?[0-9][0-9\s().-]*$/'],
+            'address' => ['nullable', 'string', 'max:2000'],
             'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048', 'dimensions:max_width=4000,max_height=4000'],
             'remove_avatar' => ['nullable', 'boolean'],
             'instructor_bio' => [

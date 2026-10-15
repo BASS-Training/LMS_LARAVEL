@@ -19,6 +19,9 @@ class ActivityLogController extends Controller
         $category = $request->query('category');
         if ($category) {
             switch ($category) {
+                case 'auth':
+                    $query->where('action', 'auth.login');
+                    break;
                 case 'http':
                     $query->where('action', 'like', 'http_%');
                     break;
@@ -72,10 +75,10 @@ class ActivityLogController extends Controller
         // Order by latest first
         $logs = $query->orderBy('created_at', 'desc')->paginate(50);
 
-        // Get only Admin, EO, and Instructor users for filter dropdown
+        // Include participants so their successful logins can be filtered.
         $users = User::whereHas('roles', function($q) {
-            $q->whereIn('name', ['super-admin', 'admin', 'event-organizer', 'instructor']);
-        })->select('id', 'name')->orderBy('name')->get();
+            $q->whereIn('name', ['super-admin', 'admin', 'event-organizer', 'instructor', 'participant']);
+        })->orWhere('role', 'participant')->select('id', 'name')->orderBy('name')->get();
 
         // Get unique actions for filter
         $actions = ActivityLog::select('action')
@@ -85,6 +88,7 @@ class ActivityLogController extends Controller
 
         // Categories available for quick filtering
         $categories = [
+            'auth' => 'Logins',
             'http' => 'HTTP Requests',
             'model' => 'Model Changes',
             'instructor' => 'Instructors',
