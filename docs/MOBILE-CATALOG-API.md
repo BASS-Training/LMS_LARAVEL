@@ -4,6 +4,9 @@ Dokumen ini menjelaskan cara aplikasi mobile mengonsumsi API catalog kursus.
 Scope dokumen mencakup daftar catalog, detail catalog, materi preview terpilih,
 dan pendaftaran course gratis dari catalog.
 
+Panduan model Dart, request Dio, dan widget sales profile pada detail course:
+[Implementasi Sales Profile di Flutter](FLUTTER-COURSE-SALES-PROFILE.md).
+
 ## Ringkasan Endpoint
 
 | Method | Endpoint | Fungsi |
@@ -179,6 +182,14 @@ melalui `previewUrl` ketika `isPreview` bernilai `true`.
 
 Field `description` dapat mengandung HTML. Mobile harus menampilkannya dengan
 renderer HTML yang aman atau mengubahnya menjadi plain text.
+
+Detail juga mengirim `salesProfile` (nullable) yang berisi `slug`, `headline`,
+`targetAudience`, `learningBenefits`, `requirements`, `level`,
+`estimatedDurationMinutes`, `language`, `promoVideoUrl`, dan `faq` (array
+`question`/`answer`). Teks sales profile berupa plain text; field selain FAQ dapat
+kosong/null. `instructors[]` berisi `id`, `name`, `avatarUrl`, dan `bioHtml`.
+Gunakan field tersebut untuk profil pengajar. Field tujuan pembelajaran
+`objectives`/`objectivesHtml` belum tersedia pada respons detail ini.
 
 ## 3. Materi Preview Terpilih
 

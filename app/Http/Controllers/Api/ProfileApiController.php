@@ -6,12 +6,40 @@ use App\Http\Controllers\Api\Concerns\PresentsMobileUser;
 use App\Http\Controllers\Controller;
 use App\Services\InstructorBioSanitizer;
 use App\Services\UserAvatarService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class ProfileApiController extends Controller
 {
     use PresentsMobileUser;
+
+    public function destroy(Request $request): JsonResponse
+    {
+        $data = $request->validate(['password' => ['required', 'string']]);
+        $user = $request->user();
+
+        // Mobile auth uses a request resolver, not the session guard.
+        if (! Hash::check($data['password'], $user->password)) {
+            throw ValidationException::withMessages([
+                'password' => ['Kata sandi tidak sesuai.'],
+            ]);
+        }
+
+        DB::transaction(function () use ($user): void {
+            DB::table('sessions')->where('user_id', $user->id)->delete();
+            DB::table('password_reset_tokens')->where('email', $user->email)->delete();
+            $user->delete();
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Akun Anda berhasil dihapus.',
+        ]);
+    }
 
     /**
      * Update the authenticated user's profile (mobile). Accepts the same fields
