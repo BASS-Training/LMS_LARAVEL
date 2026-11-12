@@ -46,7 +46,7 @@ class CheckoutController extends Controller
      */
     public function choose(Course $course)
     {
-        abort_unless($course->isInCatalog(), 404);
+        abort_unless($course->isInCatalog() && ! $course->usesWhatsappSales(), 404);
 
         $user = Auth::user();
 
@@ -209,7 +209,7 @@ class CheckoutController extends Controller
 
     public function applyCoupon(Request $request, Course $course)
     {
-        abort_unless($course->isInCatalog() && ! $course->isFree(), 404);
+        abort_unless($course->isInCatalog() && ! $course->usesWhatsappSales() && ! $course->isFree(), 404);
 
         $validated = $request->validate([
             'coupon_code' => ['required', 'string', 'max:50'],
@@ -234,7 +234,7 @@ class CheckoutController extends Controller
 
     public function removeCoupon(Course $course)
     {
-        abort_unless($course->isInCatalog() && ! $course->isFree(), 404);
+        abort_unless($course->isInCatalog() && ! $course->usesWhatsappSales() && ! $course->isFree(), 404);
         session()->forget($this->couponSessionKey($course));
 
         return redirect()->route('checkout.choose', $course)
@@ -247,7 +247,7 @@ class CheckoutController extends Controller
      */
     public function store(Course $course, Request $request)
     {
-        abort_unless($course->isInCatalog(), 404);
+        abort_unless($course->isInCatalog() && ! $course->usesWhatsappSales(), 404);
         $this->validateRefundConsent($request);
 
         $methodKey = null;

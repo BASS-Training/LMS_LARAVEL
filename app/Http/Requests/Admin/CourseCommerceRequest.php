@@ -21,10 +21,14 @@ class CourseCommerceRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $salesProfile = $this->input('sales_profile', []);
+        $salesProfile['sales_method'] = $salesProfile['sales_method'] ?? 'checkout';
+
         $this->merge([
             'visibility' => $this->input('visibility', 'private'),
             'requires_payment_verification' => $this->boolean('requires_payment_verification'),
             'preview_content_ids' => $this->input('preview_content_ids', []),
+            'sales_profile' => $salesProfile,
         ]);
     }
 
@@ -35,7 +39,7 @@ class CourseCommerceRequest extends FormRequest
 
         return [
             'visibility' => ['required', Rule::in(['private', 'catalog'])],
-            'price' => ['nullable', 'integer', 'min:0', 'max:1000000000'],
+            'price' => ['exclude_if:sales_profile.sales_method,whatsapp', 'nullable', 'integer', 'min:0', 'max:1000000000'],
             'requires_payment_verification' => ['required', 'boolean'],
             'short_description' => ['nullable', 'string', 'max:255'],
             'preview_content_ids' => ['array'],
@@ -66,6 +70,7 @@ class CourseCommerceRequest extends FormRequest
             'sales_profile.seo_title' => ['nullable', 'string', 'max:255'],
             'sales_profile.seo_description' => ['nullable', 'string', 'max:500'],
             'sales_profile.sales_status' => ['required', Rule::in(['draft', 'published', 'hidden'])],
+            'sales_profile.sales_method' => ['required', Rule::in(['checkout', 'whatsapp'])],
         ];
     }
 

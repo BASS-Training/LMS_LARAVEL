@@ -22,15 +22,26 @@
             $shopPrice = old('price', $course->price);
             $shopShortDesc = old('short_description', $course->short_description);
             $shopRequiresVerif = (bool) old('requires_payment_verification', $course->requires_payment_verification);
+            $shopSalesMethod = old('sales_profile.sales_method', $course->salesProfile?->sales_method ?? 'checkout');
         @endphp
-        <section x-data="{ inCatalog: @js($shopVisibility === 'catalog') }">
+        <section x-data="{ inCatalog: @js($shopVisibility === 'catalog'), salesMethod: @js($shopSalesMethod) }">
             <h2 class="text-lg font-semibold text-gray-900">Status dan Harga</h2>
             <div class="mt-4 space-y-5 rounded-xl border border-gray-200 p-5">
                 <label class="flex items-start gap-3"><input type="hidden" name="visibility" value="private"><input type="checkbox" name="visibility" value="catalog" x-model="inCatalog" @checked($shopVisibility === 'catalog') class="mt-1 rounded border-gray-300 text-bass-red focus:ring-bass-red"><span><strong class="block text-gray-900">Aktifkan di katalog publik</strong><span class="text-sm text-gray-500">Course harus berstatus akademik Published dan sales profile berstatus Published agar tampil.</span></span></label>
                 <div x-show="inCatalog" x-collapse class="grid gap-5 md:grid-cols-2">
-                    <div><label class="block text-sm font-semibold text-gray-700">Harga (Rp)</label><input type="number" min="0" step="1000" name="price" value="{{ $shopPrice }}" class="mt-1.5 w-full rounded-lg border-gray-300 focus:border-bass-red focus:ring-bass-red"><p class="mt-1 text-xs text-gray-500">Isi 0 untuk course gratis.</p>@error('price')<p class="mt-1 text-sm text-error">{{ $message }}</p>@enderror</div>
+                    <div class="md:col-span-2">
+                        <label for="sales_method" class="block text-sm font-semibold text-gray-700">Metode Penjualan *</label>
+                        <select id="sales_method" name="sales_profile[sales_method]" x-model="salesMethod" required class="mt-1.5 w-full rounded-lg border-gray-300 focus:border-bass-red focus:ring-bass-red">
+                            <option value="checkout">Harga &amp; Checkout</option>
+                            <option value="whatsapp">Langsung WhatsApp</option>
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500">Pilih checkout untuk menampilkan harga, atau WhatsApp untuk konsultasi langsung tanpa harga.</p>
+                        @error('sales_profile.sales_method')<p class="mt-1 text-sm text-error">{{ $message }}</p>@enderror
+                    </div>
+                    <div x-show="salesMethod === 'checkout'" x-collapse><label class="block text-sm font-semibold text-gray-700">Harga (Rp)</label><input type="number" min="0" step="1000" name="price" value="{{ $shopPrice }}" :disabled="salesMethod !== 'checkout'" class="mt-1.5 w-full rounded-lg border-gray-300 focus:border-bass-red focus:ring-bass-red"><p class="mt-1 text-xs text-gray-500">Isi 0 untuk course gratis.</p>@error('price')<p class="mt-1 text-sm text-error">{{ $message }}</p>@enderror</div>
+                    <div x-show="salesMethod === 'whatsapp'" x-collapse class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"><strong class="block">Penjualan melalui WhatsApp</strong><span class="mt-1 block text-xs">Harga tidak ditampilkan. Calon peserta akan diarahkan langsung ke WhatsApp BASS.</span></div>
                     <div><label class="block text-sm font-semibold text-gray-700">Deskripsi kartu katalog</label><input type="text" maxlength="255" name="short_description" value="{{ $shopShortDesc }}" class="mt-1.5 w-full rounded-lg border-gray-300 focus:border-bass-red focus:ring-bass-red">@error('short_description')<p class="mt-1 text-sm text-error">{{ $message }}</p>@enderror</div>
-                    <label class="flex items-start gap-3 md:col-span-2"><input type="hidden" name="requires_payment_verification" value="0"><input type="checkbox" name="requires_payment_verification" value="1" @checked($shopRequiresVerif) class="mt-1 rounded border-gray-300 text-bass-red focus:ring-bass-red"><span><strong class="block text-sm text-gray-900">Butuh verifikasi pembayaran manual</strong><span class="text-xs text-gray-500">Akses ditahan sampai pembayaran disetujui admin.</span></span></label>
+                    <label x-show="salesMethod === 'checkout'" x-collapse class="flex items-start gap-3 md:col-span-2"><input type="hidden" name="requires_payment_verification" value="0" :disabled="salesMethod !== 'checkout'"><input type="checkbox" name="requires_payment_verification" value="1" :disabled="salesMethod !== 'checkout'" @checked($shopRequiresVerif) class="mt-1 rounded border-gray-300 text-bass-red focus:ring-bass-red"><span><strong class="block text-sm text-gray-900">Butuh verifikasi pembayaran manual</strong><span class="text-xs text-gray-500">Akses ditahan sampai pembayaran disetujui admin.</span></span></label>
                 </div>
             </div>
         </section>

@@ -73,7 +73,7 @@
                 @include('layouts.partials.admin-sidebar-link', ['href' => route('admin.bundles.index'), 'label' => 'Manajemen Bundle', 'active' => request()->routeIs('admin.bundles.*'), 'badge' => 0, 'icon' => 'M21 8 12 3 3 8l9 5 9-5ZM3 12l9 5 9-5M3 16l9 5 9-5'])
             @endcan
             @can('manage learning paths')
-                @include('layouts.partials.admin-sidebar-link', ['href' => route('admin.learning-paths.index'), 'label' => 'Skema', 'active' => request()->routeIs('admin.learning-paths.*'), 'badge' => 0, 'icon' => 'M5 19V8m0 0 4 4M5 8l4-4m10 1v11m0 0-4-4m4 4-4 4M9 12h6'])
+                @include('layouts.partials.admin-sidebar-link', ['href' => route('admin.learning-paths.index'), 'label' => ' ManajemenSkema', 'active' => request()->routeIs('admin.learning-paths.*'), 'badge' => 0, 'icon' => 'M5 19V8m0 0 4 4M5 8l4-4m10 1v11m0 0-4-4m4 4-4 4M9 12h6'])
             @endcan
         </div>
     </section>

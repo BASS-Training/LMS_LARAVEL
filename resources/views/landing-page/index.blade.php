@@ -77,7 +77,14 @@
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><p class="text-xs font-bold uppercase tracking-[0.2em] text-bass-red">Course terbaru</p><h2 class="mt-3 text-4xl font-extrabold [font-family:Fraunces,serif] sm:text-5xl">Mulai dari satu course.</h2><p class="mt-3 max-w-xl text-slate-600">Fokus pada keterampilan yang paling Anda butuhkan sekarang.</p></div><a href="{{ route('shop.index') }}" class="text-sm font-bold text-bass-red">Lihat semua course &rarr;</a></div>
         @if ($courses->isNotEmpty())
-            <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">@foreach ($courses as $course)<a href="{{ route('shop.show', $course) }}" class="group flex flex-col overflow-hidden rounded-xl border-2 border-navy bg-white transition hover:-translate-y-1 hover:shadow-[0_8px_0_-2px_#DA1E1E]"><div class="relative h-32 overflow-hidden bg-navy">@if ($course->thumbnail)<img src="{{ asset('storage/'.$course->thumbnail) }}" alt="{{ $course->title }}" loading="lazy" class="h-full w-full object-cover transition duration-300 group-hover:scale-105">@else<div class="flex h-full items-end justify-between p-4 text-white"><span class="rounded bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-navy">Course BASS</span><strong class="text-7xl leading-none opacity-15 [font-family:Fraunces,serif]">B</strong></div>@endif</div><div class="flex flex-1 flex-col p-4"><p class="text-xs text-slate-500">{{ $course->instructors->pluck('name')->join(', ') ?: 'Instruktur BASS' }}</p><h3 class="mt-2 line-clamp-2 text-lg font-extrabold leading-tight [font-family:Fraunces,serif]">{{ $course->title }}</h3>@if ($course->short_description)<p class="mt-2 line-clamp-2 text-sm text-slate-500">{{ $course->short_description }}</p>@endif<div class="mt-auto flex items-end justify-between gap-3 border-t border-dashed border-navy/20 pt-4 {{ $course->short_description ? 'mt-5' : 'mt-8' }}"><span class="text-xs text-slate-500">{{ $course->lessons_count }} pelajaran</span><span class="text-lg font-extrabold [font-family:Fraunces,serif]">{{ $course->price_label }}</span></div></div></a>@endforeach</div>
+            <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                @foreach ($courses as $course)
+                    <a href="{{ $course->usesWhatsappSales() ? $course->whatsappSalesUrl() : route('shop.show', $course) }}" @if ($course->usesWhatsappSales()) target="_blank" rel="noopener noreferrer" aria-label="Tanyakan {{ $course->title }} melalui WhatsApp" @endif class="group flex flex-col overflow-hidden rounded-xl border-2 border-navy bg-white transition hover:-translate-y-1 hover:shadow-[0_8px_0_-2px_#DA1E1E]">
+                        <div class="relative h-32 overflow-hidden bg-navy">@if ($course->thumbnail)<img src="{{ asset('storage/'.$course->thumbnail) }}" alt="{{ $course->title }}" loading="lazy" class="h-full w-full object-cover transition duration-300 group-hover:scale-105">@else<div class="flex h-full items-end justify-between p-4 text-white"><span class="rounded bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-navy">Course BASS</span><strong class="text-7xl leading-none opacity-15 [font-family:Fraunces,serif]">B</strong></div>@endif</div>
+                        <div class="flex flex-1 flex-col p-4"><p class="text-xs text-slate-500">{{ $course->instructors->pluck('name')->join(', ') ?: 'Instruktur BASS' }}</p><h3 class="mt-2 line-clamp-2 text-lg font-extrabold leading-tight [font-family:Fraunces,serif]">{{ $course->title }}</h3>@if ($course->short_description)<p class="mt-2 line-clamp-2 text-sm text-slate-500">{{ $course->short_description }}</p>@endif<div class="mt-auto flex items-end justify-between gap-3 border-t border-dashed border-navy/20 pt-4 {{ $course->short_description ? 'mt-5' : 'mt-8' }}"><span class="text-xs text-slate-500">{{ $course->lessons_count }} pelajaran</span><span class="text-right text-sm font-extrabold text-bass-red [font-family:Fraunces,serif]">{{ $course->usesWhatsappSales() ? 'Tanya via WhatsApp' : $course->price_label }}</span></div></div>
+                    </a>
+                @endforeach
+            </div>
         @else
             <div class="mt-10 rounded-2xl border-2 border-dashed border-navy bg-white px-6 py-14 text-center"><h3 class="text-xl font-extrabold [font-family:Fraunces,serif]">Program sedang dipersiapkan</h3><p class="mt-2 text-sm text-slate-500">Course terbaru akan segera tersedia di katalog.</p></div>
         @endif
@@ -91,7 +98,7 @@
 <section id="aplikasi" class="overflow-hidden border-y-2 border-navy bg-bass-red text-white">
     <div class="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1fr_.8fr] lg:px-8">
         <div>
-            <p class="text-xs font-bold uppercase tracking-[0.2em] text-bass-gold">BASS Academy di Ponsel</p>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-bass-gold">BASS Learning Hub di Ponsel</p>
             <h2 class="mt-3 max-w-2xl text-4xl font-extrabold leading-tight [font-family:Fraunces,serif] sm:text-5xl">Belajar tetap jalan,<br>di mana pun Anda berada.</h2>
             <p class="mt-5 max-w-xl text-base leading-7 text-white/75">Akses course, lanjutkan materi, pantau progres, dan ikuti aktivitas belajar langsung dari ponsel Anda.</p>
             <div class="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold text-white/90">
@@ -106,10 +113,12 @@
                    class="inline-block rounded-lg shadow-[5px_5px_0_#F6C945] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#F6C945]">
                     <img src="{{ asset('google.png') }}" alt="Dapatkan di Google Play" class="h-14 w-auto sm:h-16">
                 </a>
-                <div class="flex flex-col items-center gap-1.5" aria-label="BASS Academy untuk App Store segera hadir">
+                <a href="https://apps.apple.com/id/app/bass-learning-hub/id6821841999?l=id"
+                   target="_blank" rel="noopener noreferrer"
+                   aria-label="Download BASS Learning Hub di App Store"
+                   class="inline-block rounded-lg shadow-[5px_5px_0_#F6C945] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#F6C945]">
                     <img src="{{ asset('apple.png') }}" alt="Download di App Store" class="h-14 w-auto sm:h-16">
-                    <span class="text-[10px] font-bold uppercase tracking-[0.16em] text-white/80">Segera hadir</span>
-                </div>
+                </a>
             </div>
         </div>
 
