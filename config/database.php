@@ -2,6 +2,16 @@
 
 use Illuminate\Support\Str;
 
+// PHP 8.4+ exposes driver-specific PDO constants; the legacy PDO::MYSQL_* ones
+// are deprecated in PHP 8.5. Keep the fallback for older PHP versions.
+$mysqlSslCa = defined('Pdo\Mysql::ATTR_SSL_CA')
+    ? \Pdo\Mysql::ATTR_SSL_CA
+    : PDO::MYSQL_ATTR_SSL_CA;
+
+$mysqlInitCommand = defined('Pdo\Mysql::ATTR_INIT_COMMAND')
+    ? \Pdo\Mysql::ATTR_INIT_COMMAND
+    : PDO::MYSQL_ATTR_INIT_COMMAND;
+
 return [
 
     /*
@@ -58,8 +68,8 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-                PDO::MYSQL_ATTR_INIT_COMMAND => "SET time_zone='+07:00'",
+                $mysqlSslCa => env('MYSQL_ATTR_SSL_CA'),
+                $mysqlInitCommand => "SET time_zone='+07:00'",
             ]) : [],
         ],
 
@@ -79,7 +89,7 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                $mysqlSslCa => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
 
@@ -148,7 +158,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 

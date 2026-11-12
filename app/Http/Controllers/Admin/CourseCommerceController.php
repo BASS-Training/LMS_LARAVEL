@@ -76,6 +76,9 @@ class CourseCommerceController extends Controller
             $validated['short_description'] = null;
             $validated['requires_payment_verification'] = false;
             $profileData['sales_status'] = 'hidden';
+        } elseif ($profileData['sales_method'] === CourseSalesProfile::SALES_METHOD_WHATSAPP) {
+            $validated['price'] = null;
+            $validated['requires_payment_verification'] = false;
         } else {
             $validated['price'] = (int) ($validated['price'] ?? 0);
         }
@@ -94,6 +97,7 @@ class CourseCommerceController extends Controller
                     'before' => $before,
                     'after' => $course->only(array_keys($before)),
                     'sales_status' => $profileData['sales_status'],
+                    'sales_method' => $profileData['sales_method'],
                     'preview_content_ids_before' => $beforePreviewIds,
                     'preview_content_ids_after' => $previewContentIds->all(),
                 ],

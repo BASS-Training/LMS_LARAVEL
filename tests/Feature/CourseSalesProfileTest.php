@@ -93,6 +93,57 @@ class CourseSalesProfileTest extends TestCase
         $this->get(route('shop.show', $hiddenCourse))->assertNotFound();
     }
 
+    public function test_whatsapp_sales_method_hides_price_and_bypasses_checkout(): void
+    {
+        $manager = $this->manager();
+        $course = Course::factory()->create([
+            'title' => 'Pelatihan Tatap Muka',
+            'status' => 'published',
+            'visibility' => 'catalog',
+            'price' => 750000,
+        ]);
+
+        $this->actingAs($manager)->put(route('admin.course-commerce.update', $course), [
+            'visibility' => 'catalog',
+            'requires_payment_verification' => 0,
+            'sales_profile' => [
+                'sales_status' => 'published',
+                'sales_method' => 'whatsapp',
+            ],
+        ])->assertRedirect(route('admin.course-commerce.index'));
+
+        $course->refresh()->load('salesProfile');
+        $this->assertTrue($course->usesWhatsappSales());
+        $this->assertNull($course->price);
+        $this->assertFalse($course->requiresPaymentVerification());
+        $this->assertSame(
+            'https://wa.me/6282112798728?text='.rawurlencode('Halo BASS, saya tertarik dengan course Pelatihan Tatap Muka. Mohon informasi lebih lanjut.'),
+            $course->whatsappSalesUrl(),
+        );
+
+        auth()->logout();
+
+        $this->get(route('welcome'))
+            ->assertOk()
+            ->assertSeeText('Tanya via WhatsApp')
+            ->assertDontSeeText('Rp 750.000');
+
+        $this->get(route('shop.index'))
+            ->assertOk()
+            ->assertSeeText('Tanya via WhatsApp')
+            ->assertDontSeeText('Rp 750.000');
+
+        $this->get(route('shop.show', $course))
+            ->assertOk()
+            ->assertSeeText('Hubungi untuk informasi')
+            ->assertSeeText('Tanya via WhatsApp')
+            ->assertDontSeeText('Rp 750.000');
+
+        $this->actingAs(User::factory()->create())
+            ->get(route('checkout.choose', $course))
+            ->assertNotFound();
+    }
+
     public function test_public_course_detail_displays_instructor_profile(): void
     {
         $course = Course::factory()->create([

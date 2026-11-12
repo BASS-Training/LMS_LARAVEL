@@ -14,7 +14,7 @@ class LandingPageController extends Controller
     public function __invoke(FeatureAvailability $features): View
     {
         $courses = Course::inCatalog()
-            ->with('instructors:id,name')
+            ->with(['instructors:id,name', 'salesProfile'])
             ->withCount('lessons')
             ->latest()
             ->limit(8)

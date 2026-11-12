@@ -12,7 +12,7 @@
         <h1 class="mt-3 max-w-4xl text-4xl font-extrabold leading-[1.03] tracking-[-0.035em] [font-family:Fraunces,serif] sm:text-6xl">{{ $course->title }}</h1>
         @if ($course->salesProfile?->headline || $course->short_description)<p class="mt-5 max-w-3xl text-lg leading-8 text-white/75">{{ $course->salesProfile?->headline ?: $course->short_description }}</p>@endif
         <div class="mt-6 flex flex-wrap gap-2 text-xs font-semibold">
-            <span class="rounded-full border-2 border-bass-gold bg-bass-gold px-3 py-1.5 text-navy">{{ $course->price_label }}</span>
+            <span class="rounded-full border-2 border-bass-gold bg-bass-gold px-3 py-1.5 text-navy">{{ $course->usesWhatsappSales() ? 'Hubungi untuk informasi' : $course->price_label }}</span>
             <span class="rounded-full border border-white/60 px-3 py-1.5">{{ $course->lessons->count() }} pelajaran</span>
             <span class="rounded-full border border-white/60 px-3 py-1.5">{{ $totalContents }} materi</span>
             <span class="rounded-full border border-white/60 px-3 py-1.5">{{ $course->instructors->pluck('name')->join(', ') ?: 'Instruktur BASS' }}</span>
@@ -101,7 +101,9 @@
         <div class="sticky top-24 overflow-hidden rounded-2xl border-2 border-navy bg-[#fffdf7] shadow-[8px_8px_0_#F6C945]">
             <div class="aspect-video bg-navy">@if ($course->thumbnail)<img src="{{ asset('storage/'.$course->thumbnail) }}" alt="{{ $course->title }}" class="h-full w-full object-cover">@else<div class="flex h-full items-center justify-center text-7xl font-extrabold text-white/20 [font-family:Fraunces,serif]">BASS</div>@endif</div>
             <div class="space-y-4 p-6">
-                @if ($breakdown && $breakdown['fee'] > 0 && ($methodsEnabled ?? false))
+                @if ($course->usesWhatsappSales())
+                    <div><p class="text-3xl font-extrabold [font-family:Fraunces,serif]">Tertarik course ini?</p><p class="mt-2 text-sm leading-6 text-slate-600">Hubungi tim BASS untuk informasi harga, jadwal, dan pendaftaran.</p></div>
+                @elseif ($breakdown && $breakdown['fee'] > 0 && ($methodsEnabled ?? false))
                     <p class="text-4xl font-extrabold [font-family:Fraunces,serif]">Rp {{ number_format($breakdown['base'], 0, ',', '.') }}</p>
                 @elseif ($breakdown && $breakdown['fee'] > 0)
                     <div><p class="text-4xl font-extrabold [font-family:Fraunces,serif]">Rp {{ number_format($breakdown['total'], 0, ',', '.') }}</p><p class="mt-1 text-xs text-slate-500">Sudah termasuk {{ strtolower($feeLabel) }}</p><dl class="mt-4 space-y-2 border-t border-dashed border-navy/20 pt-3 text-sm"><div class="flex justify-between"><dt>Harga course</dt><dd>Rp {{ number_format($breakdown['base'], 0, ',', '.') }}</dd></div><div class="flex justify-between"><dt>{{ $feeLabel }}</dt><dd>Rp {{ number_format($breakdown['fee'], 0, ',', '.') }}</dd></div></dl></div>
@@ -109,12 +111,15 @@
                     <p class="text-4xl font-extrabold {{ $course->isFree() ? 'text-success' : '' }} [font-family:Fraunces,serif]">{{ $course->price_label }}</p>
                 @endif
 
-                @guest
-                    <a href="{{ route('login') }}" class="inline-flex min-h-12 w-full items-center justify-center rounded-xl border-2 border-navy bg-bass-red px-5 font-bold text-white shadow-[4px_4px_0_#17243A]">Masuk untuk {{ $course->isFree() ? 'Mendaftar' : 'Membeli' }}</a><p class="text-center text-xs text-slate-500">Belum punya akun? <a href="{{ route('register') }}" class="font-bold text-bass-red">Daftar gratis</a></p>
-                @elseif ($isEnrolled)
+                @if (auth()->check() && $isEnrolled)
                     <a href="{{ route('courses.show', $course) }}" class="inline-flex min-h-12 w-full items-center justify-center rounded-xl border-2 border-navy bg-bass-red px-5 font-bold text-white shadow-[4px_4px_0_#17243A]">Lanjutkan Belajar</a><p class="text-center text-xs text-slate-500">Anda sudah terdaftar di course ini.</p>
-                @elseif ($isManager)
+                @elseif (auth()->check() && $isManager)
                     <a href="{{ route('courses.show', $course) }}" class="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-navy px-5 font-bold text-white">Kelola Course</a><p class="text-center text-xs text-slate-500">Pengelola dapat membuka seluruh materi tanpa membeli.</p>
+                @elseif ($course->usesWhatsappSales())
+                    <a href="{{ $course->whatsappSalesUrl() }}" target="_blank" rel="noopener noreferrer" class="inline-flex min-h-12 w-full items-center justify-center rounded-xl border-2 border-navy bg-bass-red px-5 font-bold text-white shadow-[4px_4px_0_#17243A]">Tanya via WhatsApp</a>
+                    <p class="text-center text-xs text-slate-500">WhatsApp terbuka tanpa perlu masuk atau checkout.</p>
+                @elseif (auth()->guest())
+                    <a href="{{ route('login') }}" class="inline-flex min-h-12 w-full items-center justify-center rounded-xl border-2 border-navy bg-bass-red px-5 font-bold text-white shadow-[4px_4px_0_#17243A]">Masuk untuk {{ $course->isFree() ? 'Mendaftar' : 'Membeli' }}</a><p class="text-center text-xs text-slate-500">Belum punya akun? <a href="{{ route('register') }}" class="font-bold text-bass-red">Daftar gratis</a></p>
                 @elseif ($course->isFree())
                     <form method="POST" action="{{ route('shop.enroll-free', $course) }}">@csrf<button class="inline-flex min-h-12 w-full items-center justify-center rounded-xl border-2 border-navy bg-bass-red px-5 font-bold text-white shadow-[4px_4px_0_#17243A]">Daftar Gratis</button></form><p class="text-center text-xs text-slate-500">Langsung bisa diakses setelah mendaftar.</p>
                 @else
@@ -124,7 +129,7 @@
                         <button type="submit" class="inline-flex min-h-12 w-full items-center justify-center rounded-xl border-2 border-navy bg-bass-red px-5 font-bold text-white shadow-[4px_4px_0_#17243A]">Beli Sekarang</button>
                     </form>
                     <p class="text-center text-xs text-slate-500">Pilih QRIS, e-wallet, transfer bank, atau kartu.</p>
-                @endguest
+                @endif
 
                 @if ($course->salesProfile?->promo_video_url)<a href="{{ $course->salesProfile->promo_video_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex w-full items-center justify-center rounded-xl border-2 border-navy px-4 py-3 text-sm font-bold hover:bg-white">Tonton Video Promosi</a>@endif
                 <ul class="border-t border-dashed border-navy/20 pt-3 text-sm">

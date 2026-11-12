@@ -11,6 +11,8 @@ class Course extends Model
 {
     use Duplicateable, HasFactory; // Gunakan Trait
 
+    private const SALES_WHATSAPP_NUMBER = '6282112798728';
+
     protected $fillable = [
         'title',
         'description',
@@ -547,6 +549,22 @@ class Course extends Model
     public function isPaid(): bool
     {
         return ! $this->isFree();
+    }
+
+    public function usesWhatsappSales(): bool
+    {
+        $salesProfile = $this->relationLoaded('salesProfile')
+            ? $this->salesProfile
+            : $this->salesProfile()->first();
+
+        return $salesProfile?->usesWhatsappSales() ?? false;
+    }
+
+    public function whatsappSalesUrl(): string
+    {
+        $message = rawurlencode('Halo BASS, saya tertarik dengan course '.$this->title.'. Mohon informasi lebih lanjut.');
+
+        return 'https://wa.me/'.self::SALES_WHATSAPP_NUMBER.'?text='.$message;
     }
 
     /**

@@ -9,6 +9,10 @@ class CourseSalesProfile extends Model
 {
     use HasFactory;
 
+    public const SALES_METHOD_CHECKOUT = 'checkout';
+
+    public const SALES_METHOD_WHATSAPP = 'whatsapp';
+
     protected $fillable = [
         'slug',
         'headline',
@@ -23,6 +27,7 @@ class CourseSalesProfile extends Model
         'seo_title',
         'seo_description',
         'sales_status',
+        'sales_method',
         'published_at',
     ];
 
@@ -40,5 +45,10 @@ class CourseSalesProfile extends Model
     public function isPublished(): bool
     {
         return $this->sales_status === 'published';
+    }
+
+    public function usesWhatsappSales(): bool
+    {
+        return $this->sales_method === self::SALES_METHOD_WHATSAPP;
     }
 }

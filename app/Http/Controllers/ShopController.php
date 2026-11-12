@@ -137,8 +137,8 @@ class ShopController extends Controller
         // Rincian harga hanya relevan untuk kursus berbayar. Saat pemilihan
         // metode aktif, biaya layanan berbeda per metode → tampilkan estimasi
         // TERMURAH ("mulai dari"); rincian persis muncul di halaman pilih metode.
-        $methodsEnabled = $course->isPaid() && $fee->methodsEnabled();
-        $breakdown = $course->isPaid()
+        $methodsEnabled = ! $course->usesWhatsappSales() && $course->isPaid() && $fee->methodsEnabled();
+        $breakdown = ! $course->usesWhatsappSales() && $course->isPaid()
             ? ($methodsEnabled ? $fee->cheapest((int) $course->price) : $fee->forBase((int) $course->price))
             : null;
 

@@ -31,7 +31,7 @@
                 <div class="flex flex-col gap-4 px-5 py-4 md:flex-row md:items-center">
                     <div class="min-w-0 flex-1">
                         <h2 class="font-semibold text-gray-900">{{ $course->title }}</h2>
-                        <p class="mt-1 text-sm text-gray-500">{{ $course->price_label }} &middot; {{ $course->salesProfile?->headline ?: 'Headline belum diisi' }}</p>
+                        <p class="mt-1 text-sm text-gray-500">{{ $course->usesWhatsappSales() ? 'Langsung WhatsApp' : $course->price_label }} &middot; {{ $course->salesProfile?->headline ?: 'Headline belum diisi' }}</p>
                     </div>
                     <span class="w-fit rounded-full px-3 py-1 text-xs font-semibold {{ $salesStatus === 'published' ? 'bg-success-soft text-success' : ($salesStatus === 'private' ? 'bg-gray-100 text-gray-600' : 'bg-warning-soft text-warning') }}">{{ ['private' => 'Belum dijual', 'draft' => 'Draft', 'published' => 'Published', 'hidden' => 'Hidden'][$salesStatus] }}</span>
                     <a href="{{ route('admin.course-commerce.edit', $course) }}" class="inline-flex min-h-10 items-center justify-center rounded-lg border border-gray-300 px-4 text-sm font-semibold text-gray-700 hover:border-navy hover:text-navy">Kelola Penjualan</a>

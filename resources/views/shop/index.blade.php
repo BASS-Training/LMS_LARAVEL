@@ -73,8 +73,13 @@
                                 <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500"><span>{{ $course->instructors->pluck('name')->join(', ') ?: 'Instruktur BASS' }}</span><span>{{ $course->lessons_count }} pelajaran</span>@foreach ($course->tags->take(2) as $tag)<span>#{{ $tag->name }}</span>@endforeach</div>
                             </a>
                             <div class="flex items-center justify-between gap-4 border-t-2 border-dashed border-navy/20 p-4 sm:w-48 sm:flex-col sm:items-end sm:justify-center sm:border-l-2 sm:border-t-0">
-                                <strong class="text-xl font-extrabold {{ $course->isFree() ? 'text-success' : 'text-navy' }} [font-family:Fraunces,serif]">{{ $course->price_label }}</strong>
-                                <a href="{{ route('shop.show', $course) }}" class="rounded-lg bg-navy px-4 py-2 text-xs font-bold text-white">Lihat Detail</a>
+                                @if ($course->usesWhatsappSales())
+                                    <strong class="text-sm font-extrabold text-bass-red [font-family:Fraunces,serif]">Hubungi Kami</strong>
+                                    <a href="{{ $course->whatsappSalesUrl() }}" target="_blank" rel="noopener noreferrer" class="rounded-lg bg-navy px-4 py-2 text-center text-xs font-bold text-white" aria-label="Tanyakan {{ $course->title }} melalui WhatsApp">Tanya via WhatsApp</a>
+                                @else
+                                    <strong class="text-xl font-extrabold {{ $course->isFree() ? 'text-success' : 'text-navy' }} [font-family:Fraunces,serif]">{{ $course->price_label }}</strong>
+                                    <a href="{{ route('shop.show', $course) }}" class="rounded-lg bg-navy px-4 py-2 text-xs font-bold text-white">Lihat Detail</a>
+                                @endif
                             </div>
                         </article>
                     @endforeach
