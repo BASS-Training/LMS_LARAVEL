@@ -55,7 +55,16 @@ class OtpService
             'expires_at' => now()->addMinutes(self::EXPIRES_MINUTES),
         ]);
 
-        Mail::to($email)->send(new OtpMail($code, $purpose, $name, self::EXPIRES_MINUTES));
+        try {
+            Mail::to($email)->send(
+                new OtpMail($code, $purpose, $name, self::EXPIRES_MINUTES)
+            );
+        } catch (\Throwable $e) {
+            // Jika gagal kirim email, hapus OTP yang baru dibuat.
+            EmailOtp::where('email', $email)->where('purpose', $purpose)->delete();
+
+            throw $e;
+        }
 
         return null;
     }

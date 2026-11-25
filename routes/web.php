@@ -584,6 +584,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update')->middleware('permission:manage users');
         Route::get('/users/{user}/reset-password', [UserController::class, 'resetPasswordForm'])->name('users.reset-password-form')->middleware('permission:manage users');
         Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password')->middleware('permission:manage users');
+        Route::post('/users/{user}/verify-email', [UserController::class, 'verifyEmail'])
+            ->name('users.verify-email')
+            ->middleware(['permission:manage users', 'can:super-admin-only']);
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy')->middleware('permission:manage users');
 
         // Bulk Import User

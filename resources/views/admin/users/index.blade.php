@@ -26,6 +26,9 @@
                     @if (session('error'))
                         <div class="mb-4 p-4 text-sm text-error bg-error-soft rounded-lg" role="alert">{{ session('error') }}</div>
                     @endif
+                    @if (session('info'))
+                        <div class="mb-4 p-4 text-sm text-navy bg-info-soft rounded-lg" role="alert">{{ session('info') }}</div>
+                    @endif
 
                     {{-- PERUBAHAN: Formulir Pencarian dan Filter --}}
                     <form action="{{ route('admin.users.index') }}" method="GET" class="mb-6">
@@ -56,6 +59,7 @@
                                 <tr>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Email</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Peran</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                 </tr>
@@ -65,6 +69,13 @@
                                     <tr>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $user->name }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->email }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @if($user->isEmailVerified())
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-success-soft text-success">Terverifikasi</span>
+                                            @else
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-warning-soft text-warning">Belum terverifikasi</span>
+                                            @endif
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             @foreach ($user->getRoleNames() as $roleName)
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-success-soft text-success">{{ $roleName }}</span>
@@ -76,6 +87,17 @@
                                                     <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
                                                     Edit
                                                 </a>
+                                                @can('super-admin-only')
+                                                    @if(! $user->isEmailVerified())
+                                                        <form action="{{ route('admin.users.verify-email', $user) }}" method="POST" class="contents" onsubmit="return confirm('Pastikan identitas atau permintaan pengguna sudah diperiksa. Verifikasi email ini secara manual?');">
+                                                            @csrf
+                                                            <button type="submit" class="inline-flex items-center gap-1 h-7 px-2.5 shrink-0 whitespace-nowrap border border-transparent text-xs font-medium text-success bg-success-soft rounded-lg hover:bg-success/20 transition-colors">
+                                                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                                Verifikasi Email
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                @endcan
                                                 @if(auth()->user()->id !== $user->id)
                                                     <a href="{{ route('admin.users.reset-password-form', $user) }}" class="inline-flex items-center gap-1 h-7 px-2.5 shrink-0 whitespace-nowrap border border-transparent text-xs font-medium text-warning bg-warning-soft rounded-lg hover:bg-warning/20 transition-colors">
                                                         <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
@@ -95,7 +117,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
                                             Tidak ada pengguna yang cocok dengan kriteria Anda.
                                         </td>
                                     </tr>

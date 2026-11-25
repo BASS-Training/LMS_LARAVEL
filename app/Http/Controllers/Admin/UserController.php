@@ -213,6 +213,34 @@ class UserController extends Controller
     }
 
     /**
+     * Mark a user's current email address as verified after manual admin checks.
+     */
+    public function verifyEmail(User $user)
+    {
+        if ($user->isEmailVerified()) {
+            return redirect()->route('admin.users.index')
+                ->with('info', "Email {$user->email} sudah terverifikasi.");
+        }
+
+        $user->forceFill([
+            'email_verified_at' => now(),
+        ])->save();
+
+        \App\Models\ActivityLog::log('user_email_verified_manually', [
+            'description' => "Manually verified email for user: {$user->name}",
+            'metadata' => [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'user_email' => $user->email,
+                'verified_by' => Auth::id(),
+            ],
+        ]);
+
+        return redirect()->route('admin.users.index')
+            ->with('success', "Email {$user->email} berhasil diverifikasi secara manual.");
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(User $user)
