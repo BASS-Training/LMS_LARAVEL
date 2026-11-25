@@ -16,7 +16,7 @@
                     </div>
                 </div>
                 <p class="text-sm text-gray-600 max-w-2xl">
-                    Fokus pada penilaian esai dan pemberian feedback komprehensif. Untuk melihat nilai quiz, gunakan menu "Lihat Nilai" di halaman kursus.
+                    Kelola penilaian esai, pengumpulan dokumen, nilai quiz, dan feedback peserta dalam satu tempat.
                 </p>
             </div>
             <a href="javascript:void(0)" onclick="window.history.back()" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg font-medium text-sm text-gray-700 hover:bg-gray-50 hover:shadow-md transition-all duration-200 shadow-sm">
@@ -69,6 +69,7 @@
                     <div class="space-y-4">
                         @include('partials.class-filter', ['classOptions' => $classOptions, 'selectedClassId' => $selectedClassId])
                         <form action="{{ route('courses.gradebook', $course) }}" method="GET" class="space-y-2">
+                            <input type="hidden" name="tab" value="{{ $activeTab }}">
                             @if(!empty($selectedClassId))<input type="hidden" name="class_id" value="{{ $selectedClassId }}">@endif
                             <label for="search" class="flex items-center text-sm font-semibold text-gray-700">
                                 <svg class="w-4 h-4 mr-2 text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -100,7 +101,7 @@
                 </div>
             </div>
 
-            <div x-data="{ activeTab: 'essays' }" class="bg-white overflow-hidden shadow-lg rounded-2xl border border-gray-200">
+            <div x-data="{ activeTab: '{{ $activeTab }}' }" class="bg-white overflow-hidden shadow-lg rounded-2xl border border-gray-200">
                 {{-- Enhanced Tab Navigation --}}
                 <div class="border-b border-gray-200 bg-gray-50">
                     <nav class="flex px-4 sm:px-6 overflow-x-auto" aria-label="Tabs">
@@ -110,6 +111,18 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
                                 <span>Penilaian Esai</span>
+                            </div>
+                        </button>
+                        <button type="button" @click="activeTab = 'documents'" :aria-selected="activeTab === 'documents'" :class="{'border-bass-red text-bass-red bg-white': activeTab === 'documents', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'documents'}" class="relative whitespace-nowrap py-4 px-4 sm:px-6 border-b-2 font-semibold text-sm transition-all duration-200 rounded-t-lg">
+                            <div class="flex items-center space-x-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                <span>Pengumpulan Dokumen</span>
+                            </div>
+                        </button>
+                        <button type="button" @click="activeTab = 'quizzes'" :aria-selected="activeTab === 'quizzes'" :class="{'border-bass-red text-bass-red bg-white': activeTab === 'quizzes', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'quizzes'}" class="relative whitespace-nowrap py-4 px-4 sm:px-6 border-b-2 font-semibold text-sm transition-all duration-200 rounded-t-lg">
+                            <div class="flex items-center space-x-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m0-8v4m0 0v4m0-4h4m-4 0H8"/></svg>
+                                <span>Nilai Quiz</span>
                             </div>
                         </button>
                         <button type="button" @click="activeTab = 'feedback'" :aria-selected="activeTab === 'feedback'" :class="{'border-bass-red text-bass-red bg-white': activeTab === 'feedback', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'feedback'}" class="relative whitespace-nowrap py-4 px-4 sm:px-6 border-b-2 font-semibold text-sm transition-all duration-200 rounded-t-lg">
@@ -377,6 +390,82 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div x-show="activeTab === 'documents'" x-cloak class="p-4 sm:p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900">Pengumpulan Dokumen</h3>
+                            <p class="text-sm text-gray-500 mt-1">Pilih tugas untuk melihat file peserta dan memberi penilaian.</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        @forelse($documentContents as $content)
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border border-gray-200 rounded-xl p-5">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">{{ $content->lesson->title }}</p>
+                                    <h4 class="font-semibold text-gray-900 mt-1">{{ $content->title }}</h4>
+                                    <p class="text-sm text-gray-500 mt-1">{{ $content->document_submission_count }} pengumpulan · {{ $content->pending_document_submission_count }} menunggu penilaian</p>
+                                </div>
+                                <a href="{{ route('document-submissions.index', $content) }}" class="inline-flex items-center justify-center px-4 py-2 bg-bass-red text-white text-sm font-medium rounded-lg hover:bg-bass-red-hover">
+                                    Lihat & Nilai
+                                </a>
+                            </div>
+                        @empty
+                            <p class="py-10 text-center text-gray-500">Belum ada materi pengumpulan dokumen pada kursus ini.</p>
+                        @endforelse
+                    </div>
+                </div>
+
+                <div x-show="activeTab === 'quizzes'" x-cloak class="p-4 sm:p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900">Nilai Quiz</h3>
+                            <p class="text-sm text-gray-500 mt-1">Menampilkan attempt terbaru setiap peserta untuk setiap quiz.</p>
+                        </div>
+                    </div>
+
+                    @if($quizContents->isNotEmpty())
+                        <div class="overflow-x-auto border border-gray-200 rounded-xl">
+                            <table class="min-w-full text-sm">
+                                <thead class="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                    <tr>
+                                        <th class="px-4 py-3">Peserta</th>
+                                        @foreach($quizContents as $content)
+                                            <th class="px-4 py-3 min-w-44">{{ $content->title }}</th>
+                                        @endforeach
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    @forelse($participants as $participant)
+                                        <tr>
+                                            <td class="px-4 py-3 align-top">
+                                                <p class="font-medium text-gray-900">{{ $participant->name }}</p>
+                                                <p class="text-xs text-gray-500">{{ $participant->email }}</p>
+                                            </td>
+                                            @foreach($quizContents as $content)
+                                                @php $attempt = $quizResults->get($participant->id)?->get($content->quiz_id); @endphp
+                                                <td class="px-4 py-3 align-top">
+                                                    @if($attempt)
+                                                        <p class="font-semibold {{ $attempt->passed ? 'text-success' : 'text-error' }}">{{ number_format($attempt->percentage, 1) }}% · {{ $attempt->passed ? 'Lulus' : 'Belum lulus' }}</p>
+                                                        <p class="text-xs text-gray-500 mt-1">{{ $attempt->score }} poin · {{ $attempt->completed_at?->format('d M Y H:i') }}</p>
+                                                        <a href="{{ route('quizzes.result', ['quiz' => $content->quiz_id, 'attempt' => $attempt->id]) }}" class="inline-block mt-2 text-xs font-medium text-bass-red hover:underline">Lihat jawaban</a>
+                                                    @else
+                                                        <span class="text-gray-400">Belum dikerjakan</span>
+                                                    @endif
+                                                </td>
+                                            @endforeach
+                                        </tr>
+                                    @empty
+                                        <tr><td colspan="{{ $quizContents->count() + 1 }}" class="px-4 py-10 text-center text-gray-500">Tidak ada peserta yang sesuai filter.</td></tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <p class="py-10 text-center text-gray-500">Belum ada quiz pada kursus ini.</p>
+                    @endif
                 </div>
 
                 {{-- Enhanced Feedback Tab Content --}}

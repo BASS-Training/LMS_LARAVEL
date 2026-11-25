@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Content;
 use App\Models\Course;
-use App\Models\User;
-use App\Models\EssaySubmission;
-use App\Models\Feedback;
-use App\Models\Certificate; // <-- TAMBAHKAN USE STATEMENT
-use App\Models\QuizAttempt;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log; // <-- TAMBAHKAN USE STATEMENT
-use Illuminate\Support\Facades\Storage; // <-- TAMBAHKAN USE STATEMENT
 use App\Models\DiscussionReply;
 use App\Models\EssayAnswer;
-use PDF;
+use App\Models\EssaySubmission;
+// <-- TAMBAHKAN USE STATEMENT
+use App\Models\Feedback;
+use App\Models\QuizAttempt;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth; // <-- TAMBAHKAN USE STATEMENT
+// <-- TAMBAHKAN USE STATEMENT
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class GradebookController extends Controller
 {
@@ -25,13 +25,11 @@ class GradebookController extends Controller
     public function index(Request $request, Course $course)
     {
         $activeTab = $request->query('tab', 'essays');
-        
-        // Redirect scores tab to dedicated quiz scores page
-        if ($activeTab === 'scores') {
-            return redirect()->route('courses.scores', $course)
-                ->with('info', 'Halaman nilai quiz telah dipindahkan. Gunakan menu "Lihat Nilai" di halaman kursus untuk akses cepat.');
-        }
-        
+        $activeTab = $activeTab === 'scores' ? 'quizzes' : $activeTab;
+        $activeTab = in_array($activeTab, ['essays', 'documents', 'quizzes', 'feedback'], true)
+            ? $activeTab
+            : 'essays';
+
         $this->authorize('viewGradebook', $course);
         $user = Auth::user();
 
@@ -47,12 +45,12 @@ class GradebookController extends Controller
         }
 
         // If user is instructor, only show participants from periods they are assigned to
-        if ($user->isInstructorFor($course) && !$user->can('manage all courses') && !$user->isEventOrganizerFor($course)) {
+        if ($user->isInstructorFor($course) && ! $user->can('manage all courses') && ! $user->isEventOrganizerFor($course)) {
             // Get periods where this instructor is assigned for this course
             $instructorPeriods = $user->instructorPeriods()
                 ->where('course_id', $course->id)
                 ->pluck('course_classes.id');
-            
+
             if ($instructorPeriods->isNotEmpty()) {
                 // Get participants only from instructor's assigned periods
                 $participantsQuery = User::whereHas('participantPeriods', function ($query) use ($instructorPeriods) {
@@ -74,31 +72,68 @@ class GradebookController extends Controller
         if ($request->has('search') && $request->search != '') {
             $searchTerm = $request->search;
             $participantsQuery->where(function ($query) use ($searchTerm) {
-                $query->where('name', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('email', 'like', '%' . $searchTerm . '%');
+                $query->where('name', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('email', 'like', '%'.$searchTerm.'%');
             });
         }
         $participants = $participantsQuery->with(['feedback' => function ($query) use ($course) {
             $query->where('course_id', $course->id);
         }])->get();
 
+        $participantIds = $participants->pluck('id');
+
+        $documentContents = Content::query()
+            ->whereHas('lesson', fn ($query) => $query->where('course_id', $course->id))
+            ->where('type', 'document')
+            ->where('collect_submission', true)
+            ->with('lesson')
+            ->withCount([
+                'documentSubmissions as document_submission_count' => fn ($query) => $query
+                    ->whereIn('user_id', $participantIds)
+                    ->where('status', '!=', 'draft'),
+                'documentSubmissions as pending_document_submission_count' => fn ($query) => $query
+                    ->whereIn('user_id', $participantIds)
+                    ->where('status', 'submitted'),
+            ])
+            ->orderBy('lesson_id')
+            ->orderBy('order')
+            ->get();
+
+        $quizContents = Content::query()
+            ->whereHas('lesson', fn ($query) => $query->where('course_id', $course->id))
+            ->where('type', 'quiz')
+            ->whereNotNull('quiz_id')
+            ->with(['lesson', 'quiz.questions'])
+            ->orderBy('lesson_id')
+            ->orderBy('order')
+            ->get();
+
+        $quizResults = QuizAttempt::query()
+            ->whereIn('user_id', $participantIds)
+            ->whereIn('quiz_id', $quizContents->pluck('quiz_id'))
+            ->whereNotNull('completed_at')
+            ->with('quiz.questions')
+            ->latest('completed_at')
+            ->get()
+            ->groupBy('user_id')
+            ->map(fn ($attempts) => $attempts->unique('quiz_id')->keyBy('quiz_id'));
 
         $essayContentIds = $course->lessons()->with('contents')
             ->get()->pluck('contents')->flatten()->where('type', 'essay')->pluck('id');
 
         // Apply same filtering logic for participants with essays
-        if ($user->isInstructorFor($course) && !$user->can('manage all courses') && !$user->isEventOrganizerFor($course)) {
+        if ($user->isInstructorFor($course) && ! $user->can('manage all courses') && ! $user->isEventOrganizerFor($course)) {
             if ($instructorPeriods->isNotEmpty()) {
                 $participantsWithEssaysQuery = User::whereHas('participantPeriods', function ($query) use ($instructorPeriods) {
                     $query->whereIn('course_classes.id', $instructorPeriods);
-                })->whereHas('essaySubmissions', fn($q) => $q->whereIn('content_id', $essayContentIds));
+                })->whereHas('essaySubmissions', fn ($q) => $q->whereIn('content_id', $essayContentIds));
             } else {
                 $participantsWithEssaysQuery = $course->enrolledUsers()
-                    ->whereHas('essaySubmissions', fn($q) => $q->whereIn('content_id', $essayContentIds));
+                    ->whereHas('essaySubmissions', fn ($q) => $q->whereIn('content_id', $essayContentIds));
             }
         } else {
             $participantsWithEssaysQuery = $course->enrolledUsers()
-                ->whereHas('essaySubmissions', fn($q) => $q->whereIn('content_id', $essayContentIds));
+                ->whereHas('essaySubmissions', fn ($q) => $q->whereIn('content_id', $essayContentIds));
         }
 
         \App\Support\ClassFilter::apply($participantsWithEssaysQuery, $selectedClassId);
@@ -106,17 +141,20 @@ class GradebookController extends Controller
         if ($request->has('search') && $request->search != '') {
             $searchTerm = $request->input('search');
             $participantsWithEssaysQuery->where(function ($query) use ($searchTerm) {
-                $query->where('name', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('email', 'like', '%' . $searchTerm . '%');
+                $query->where('name', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('email', 'like', '%'.$searchTerm.'%');
             });
         }
         $participantsWithEssays = $participantsWithEssaysQuery->get();
-
 
         return view('gradebook.index', compact(
             'course',
             'participants',
             'participantsWithEssays',
+            'documentContents',
+            'quizContents',
+            'quizResults',
+            'activeTab',
             'allCoursesForFilter',
             'essayContentIds',
             'classOptions',
@@ -151,7 +189,7 @@ class GradebookController extends Controller
         $this->authorize('grade', $submission->content->lesson->course);
 
         // Cek apakah essay memerlukan scoring
-        if (!$submission->content->scoring_enabled) {
+        if (! $submission->content->scoring_enabled) {
             // Untuk essay tanpa scoring, hanya simpan feedback
             $validated = $request->validate([
                 'feedback' => 'nullable|string',
@@ -164,8 +202,8 @@ class GradebookController extends Controller
 
             return redirect()->route('gradebook.user_essays', [
                 'course' => $submission->content->lesson->course->id,
-                'user' => $submission->user_id
-            ])->with('success', 'Catatan untuk ' . $submission->user->name . ' berhasil disimpan.');
+                'user' => $submission->user_id,
+            ])->with('success', 'Catatan untuk '.$submission->user->name.' berhasil disimpan.');
         }
 
         // Untuk essay dengan scoring
@@ -186,8 +224,8 @@ class GradebookController extends Controller
 
         return redirect()->route('gradebook.user_essays', [
             'course' => $submission->content->lesson->course->id,
-            'user' => $submission->user_id
-        ])->with('success', 'Nilai untuk ' . $submission->user->name . ' berhasil disimpan.');
+            'user' => $submission->user_id,
+        ])->with('success', 'Nilai untuk '.$submission->user->name.' berhasil disimpan.');
     }
 
     /**
@@ -204,48 +242,48 @@ class GradebookController extends Controller
             ['feedback' => $request->feedback, 'instructor_id' => auth()->id()]
         );
 
-        return redirect()->back()->with('success', 'Feedback untuk ' . $user->name . ' berhasil disimpan.');
+        return redirect()->back()->with('success', 'Feedback untuk '.$user->name.' berhasil disimpan.');
     }
 
     public function storeMultiQuestionGrade(Request $request, EssaySubmission $submission)
     {
         $this->authorize('grade', $submission->content->lesson->course);
-        
+
         $content = $submission->content;
 
-        if (!$content->scoring_enabled) {
+        if (! $content->scoring_enabled) {
             // Handle feedback only for non-scoring essays
             $feedbacks = $request->input('feedback', []);
-            
+
             DB::transaction(function () use ($feedbacks, $submission, $content) {
                 $processedCount = 0;
-                
+
                 foreach ($feedbacks as $answerId => $feedback) {
                     $answer = \App\Models\EssayAnswer::where('id', $answerId)
                         ->where('submission_id', $submission->id)
                         ->first();
 
-                    if ($answer && !empty(trim($feedback))) {
+                    if ($answer && ! empty(trim($feedback))) {
                         $answer->update(['feedback' => $feedback]);
                         $processedCount++;
                     }
                 }
-                
+
                 // Check completion berdasarkan grading mode
                 $totalQuestions = $content->essayQuestions()->count();
                 $answersWithFeedback = $submission->answers()->whereNotNull('feedback')->count();
-                
+
                 $shouldMarkComplete = false;
                 if ($content->grading_mode === 'overall') {
                     $shouldMarkComplete = $answersWithFeedback > 0;
                 } else {
                     $shouldMarkComplete = $answersWithFeedback >= $totalQuestions;
                 }
-                
+
                 if ($shouldMarkComplete) {
                     $submission->update([
                         'graded_at' => now(),
-                        'status' => 'reviewed'
+                        'status' => 'reviewed',
                     ]);
                 }
             });
@@ -275,7 +313,7 @@ class GradebookController extends Controller
 
                 if ($answer) {
                     $updateData = ['feedback' => $feedback];
-                    
+
                     if (isset($scores[$answerId]) && $scores[$answerId] !== null && $scores[$answerId] !== '') {
                         $updateData['score'] = (int) $scores[$answerId];
                         $gradedCount++;
@@ -292,12 +330,13 @@ class GradebookController extends Controller
             if ($currentGradedAnswers >= $totalQuestions) {
                 $submission->update([
                     'graded_at' => now(),
-                    'status' => 'graded'
+                    'status' => 'graded',
                 ]);
             }
         });
 
         $message = "Berhasil menyimpan {$gradedCount} nilai individual.";
+
         return redirect()->back()->with('success', $message);
     }
 
@@ -306,7 +345,7 @@ class GradebookController extends Controller
         $this->authorize('grade', $submission->content->lesson->course);
 
         $totalMaxScore = $submission->content->essayQuestions()->sum('max_score');
-        
+
         $validated = $request->validate([
             'overall_score' => "required|integer|min:0|max:{$totalMaxScore}",
             'overall_feedback' => 'nullable|string',
@@ -316,7 +355,7 @@ class GradebookController extends Controller
             DB::transaction(function () use ($validated, $submission) {
                 // PERBAIKAN: Update semua answers untuk overall grading
                 $allAnswers = $submission->answers;
-                
+
                 if ($allAnswers->count() > 0) {
                     // Set score dan feedback ke answer pertama
                     $firstAnswer = $allAnswers->first();
@@ -324,7 +363,7 @@ class GradebookController extends Controller
                         'score' => $validated['overall_score'],
                         'feedback' => $validated['overall_feedback'],
                     ]);
-                    
+
                     // PENTING: Untuk answers lainnya, set score ke 0 dan feedback ke info overall
                     foreach ($allAnswers->skip(1) as $answer) {
                         $answer->update([
@@ -336,14 +375,15 @@ class GradebookController extends Controller
 
                 $submission->update([
                     'graded_at' => now(),
-                    'status' => 'graded'
+                    'status' => 'graded',
                 ]);
             });
 
             return redirect()->back()->with('success', 'Penilaian keseluruhan berhasil disimpan!');
-            
+
         } catch (\Exception $e) {
-            Log::error('Overall grading error: ' . $e->getMessage());
+            Log::error('Overall grading error: '.$e->getMessage());
+
             return redirect()->back()->with('error', 'Gagal menyimpan penilaian.');
         }
     }
@@ -359,14 +399,14 @@ class GradebookController extends Controller
         try {
             DB::transaction(function () use ($validated, $submission) {
                 $allAnswers = $submission->answers;
-                
+
                 if ($allAnswers->count() > 0) {
                     // Set feedback ke answer pertama
                     $firstAnswer = $allAnswers->first();
                     $firstAnswer->update([
                         'feedback' => $validated['overall_feedback'],
                     ]);
-                    
+
                     // Untuk answers lainnya, set feedback ke info overall
                     foreach ($allAnswers->skip(1) as $answer) {
                         $answer->update([
@@ -377,14 +417,15 @@ class GradebookController extends Controller
 
                 $submission->update([
                     'graded_at' => now(),
-                    'status' => 'reviewed'
+                    'status' => 'reviewed',
                 ]);
             });
 
             return redirect()->back()->with('success', 'Feedback berhasil disimpan!');
-            
+
         } catch (\Exception $e) {
-            Log::error('Overall feedback error: ' . $e->getMessage());
+            Log::error('Overall feedback error: '.$e->getMessage());
+
             return redirect()->back()->with('error', 'Gagal menyimpan feedback.');
         }
     }
@@ -392,22 +433,22 @@ class GradebookController extends Controller
     public function storeEssayFeedbackOnly(Request $request, EssaySubmission $submission)
     {
         $this->authorize('grade', $submission->content->lesson->course);
-        
+
         $content = $submission->content;
-        
+
         if ($content->scoring_enabled) {
             return redirect()->back()->with('error', 'Essay ini memerlukan penilaian dengan scoring.');
         }
-        
+
         $validated = $request->validate([
             'feedback' => 'required|string',
         ]);
-        
+
         try {
             DB::transaction(function () use ($validated, $submission, $content) {
                 if ($content->grading_mode === 'overall') {
                     $answer = $submission->answers()->first();
-                    if (!$answer) {
+                    if (! $answer) {
                         $answer = $submission->answers()->create([
                             'question_id' => null,
                             'answer' => 'Overall feedback submission',
@@ -416,24 +457,25 @@ class GradebookController extends Controller
                     } else {
                         $answer->update(['feedback' => $validated['feedback']]);
                     }
-                    
+
                     $submission->answers()->where('id', '!=', $answer->id)->update(['feedback' => null]);
                 } else {
                     foreach ($submission->answers as $answer) {
                         $answer->update(['feedback' => $validated['feedback']]);
                     }
                 }
-                
+
                 $submission->update([
                     'status' => 'reviewed',
-                    'graded_at' => now() // TAMBAH ini untuk marking as completed
+                    'graded_at' => now(), // TAMBAH ini untuk marking as completed
                 ]);
             });
-            
+
             return redirect()->back()->with('success', 'Feedback berhasil disimpan!');
-            
+
         } catch (\Exception $e) {
-            Log::error('Essay feedback error: ' . $e->getMessage());
+            Log::error('Essay feedback error: '.$e->getMessage());
+
             return redirect()->back()->with('error', 'Gagal menyimpan feedback.');
         }
     }
@@ -447,12 +489,12 @@ class GradebookController extends Controller
                 $query->orderBy('order');
             },
             'answers.question',
-            'user'
+            'user',
         ]);
 
         $gradingMode = $submission->content->grading_mode ?? 'individual';
         $scoringEnabled = $submission->content->scoring_enabled ?? true;
-        
+
         return view('gradebook.essay_detail', compact('submission', 'gradingMode', 'scoringEnabled'));
     }
 
@@ -463,7 +505,7 @@ class GradebookController extends Controller
     public function instructorAnalytics(Request $request)
     {
         // Authorization by permissions (EO or higher)
-        if (!Auth::user()->can('view instructor analytics') && !Auth::user()->can('view progress reports')) {
+        if (! Auth::user()->can('view instructor analytics')) {
             abort(403, 'Unauthorized');
         }
 
@@ -471,7 +513,7 @@ class GradebookController extends Controller
         $dateTo = $request->get('date_to', now()->toDateString());
 
         // Get all users who teach at least one course
-        $instructors = User::whereHas('instructorCourses')->with(['instructorCourses' => function($query) {
+        $instructors = User::whereHas('instructorCourses')->with(['instructorCourses' => function ($query) {
             $query->select('courses.id', 'courses.title');
         }])->get();
 
@@ -504,31 +546,31 @@ class GradebookController extends Controller
 
                         $periodDiscussionReplies = DiscussionReply::where('user_id', $instructor->id)
                             ->whereBetween('created_at', [$dateFrom, $dateTo])
-                            ->whereHas('discussion.content.lesson', function($query) use ($period) {
+                            ->whereHas('discussion.content.lesson', function ($query) use ($period) {
                                 $query->where('course_id', $period->course_id);
                             })
-                            ->whereHas('discussion', function($query) use ($periodParticipantIds) {
+                            ->whereHas('discussion', function ($query) use ($periodParticipantIds) {
                                 $query->whereIn('user_id', $periodParticipantIds);
                             })->count();
 
-                        $periodEssayGraded = EssayAnswer::whereHas('submission', function($query) use ($periodParticipantIds, $period) {
-                                $query->whereIn('user_id', $periodParticipantIds)
-                                    ->whereHas('content.lesson', function($subQuery) use ($period) {
-                                        $subQuery->where('course_id', $period->course_id);
-                                    });
-                            })
-                            ->where(function($query) {
+                        $periodEssayGraded = EssayAnswer::whereHas('submission', function ($query) use ($periodParticipantIds, $period) {
+                            $query->whereIn('user_id', $periodParticipantIds)
+                                ->whereHas('content.lesson', function ($subQuery) use ($period) {
+                                    $subQuery->where('course_id', $period->course_id);
+                                });
+                        })
+                            ->where(function ($query) {
                                 $query->whereNotNull('score')->orWhereNotNull('feedback');
                             })
                             ->whereBetween('updated_at', [$dateFrom, $dateTo])
                             ->count();
 
                         $periodEssayPending = EssaySubmission::whereIn('user_id', $periodParticipantIds)
-                            ->whereHas('content.lesson', function($query) use ($period) {
+                            ->whereHas('content.lesson', function ($query) use ($period) {
                                 $query->where('course_id', $period->course_id);
                             })
-                            ->where(function($query) {
-                                $query->whereDoesntHave('answers', function($subQuery) {
+                            ->where(function ($query) {
+                                $query->whereDoesntHave('answers', function ($subQuery) {
                                     $subQuery->whereNotNull('score')->orWhereNotNull('feedback');
                                 });
                             })
@@ -536,20 +578,20 @@ class GradebookController extends Controller
 
                         $periodRecentDiscussions = DiscussionReply::where('user_id', $instructor->id)
                             ->whereBetween('created_at', [now()->subDays(7), now()])
-                            ->whereHas('discussion.content.lesson', function($query) use ($period) {
+                            ->whereHas('discussion.content.lesson', function ($query) use ($period) {
                                 $query->where('course_id', $period->course_id);
                             })
-                            ->whereHas('discussion', function($query) use ($periodParticipantIds) {
+                            ->whereHas('discussion', function ($query) use ($periodParticipantIds) {
                                 $query->whereIn('user_id', $periodParticipantIds);
                             })->count();
 
-                        $periodRecentGrading = EssayAnswer::whereHas('submission', function($query) use ($periodParticipantIds, $period) {
-                                $query->whereIn('user_id', $periodParticipantIds)
-                                    ->whereHas('content.lesson', function($subQuery) use ($period) {
-                                        $subQuery->where('course_id', $period->course_id);
-                                    });
-                            })
-                            ->where(function($query) {
+                        $periodRecentGrading = EssayAnswer::whereHas('submission', function ($query) use ($periodParticipantIds, $period) {
+                            $query->whereIn('user_id', $periodParticipantIds)
+                                ->whereHas('content.lesson', function ($subQuery) use ($period) {
+                                    $subQuery->where('course_id', $period->course_id);
+                                });
+                        })
+                            ->where(function ($query) {
                                 $query->whereNotNull('score')->orWhereNotNull('feedback');
                             })
                             ->whereBetween('updated_at', [now()->subDays(7), now()])
@@ -580,31 +622,31 @@ class GradebookController extends Controller
 
                     $courseDiscussionReplies = DiscussionReply::where('user_id', $instructor->id)
                         ->whereBetween('created_at', [$dateFrom, $dateTo])
-                        ->whereHas('discussion.content.lesson', function($query) use ($course) {
+                        ->whereHas('discussion.content.lesson', function ($query) use ($course) {
                             $query->where('course_id', $course->id);
                         })
-                        ->whereHas('discussion', function($query) use ($courseParticipantIds) {
+                        ->whereHas('discussion', function ($query) use ($courseParticipantIds) {
                             $query->whereIn('user_id', $courseParticipantIds);
                         })->count();
 
-                    $courseEssayGraded = EssayAnswer::whereHas('submission', function($query) use ($courseParticipantIds, $course) {
-                            $query->whereIn('user_id', $courseParticipantIds)
-                                ->whereHas('content.lesson', function($subQuery) use ($course) {
-                                    $subQuery->where('course_id', $course->id);
-                                });
-                        })
-                        ->where(function($query) {
+                    $courseEssayGraded = EssayAnswer::whereHas('submission', function ($query) use ($courseParticipantIds, $course) {
+                        $query->whereIn('user_id', $courseParticipantIds)
+                            ->whereHas('content.lesson', function ($subQuery) use ($course) {
+                                $subQuery->where('course_id', $course->id);
+                            });
+                    })
+                        ->where(function ($query) {
                             $query->whereNotNull('score')->orWhereNotNull('feedback');
                         })
                         ->whereBetween('updated_at', [$dateFrom, $dateTo])
                         ->count();
 
                     $courseEssayPending = EssaySubmission::whereIn('user_id', $courseParticipantIds)
-                        ->whereHas('content.lesson', function($query) use ($course) {
+                        ->whereHas('content.lesson', function ($query) use ($course) {
                             $query->where('course_id', $course->id);
                         })
-                        ->where(function($query) {
-                            $query->whereDoesntHave('answers', function($subQuery) {
+                        ->where(function ($query) {
+                            $query->whereDoesntHave('answers', function ($subQuery) {
                                 $subQuery->whereNotNull('score')->orWhereNotNull('feedback');
                             });
                         })
@@ -612,20 +654,20 @@ class GradebookController extends Controller
 
                     $courseRecentDiscussions = DiscussionReply::where('user_id', $instructor->id)
                         ->whereBetween('created_at', [now()->subDays(7), now()])
-                        ->whereHas('discussion.content.lesson', function($query) use ($course) {
+                        ->whereHas('discussion.content.lesson', function ($query) use ($course) {
                             $query->where('course_id', $course->id);
                         })
-                        ->whereHas('discussion', function($query) use ($courseParticipantIds) {
+                        ->whereHas('discussion', function ($query) use ($courseParticipantIds) {
                             $query->whereIn('user_id', $courseParticipantIds);
                         })->count();
 
-                    $courseRecentGrading = EssayAnswer::whereHas('submission', function($query) use ($courseParticipantIds, $course) {
-                            $query->whereIn('user_id', $courseParticipantIds)
-                                ->whereHas('content.lesson', function($subQuery) use ($course) {
-                                    $subQuery->where('course_id', $course->id);
-                                });
-                        })
-                        ->where(function($query) {
+                    $courseRecentGrading = EssayAnswer::whereHas('submission', function ($query) use ($courseParticipantIds, $course) {
+                        $query->whereIn('user_id', $courseParticipantIds)
+                            ->whereHas('content.lesson', function ($subQuery) use ($course) {
+                                $subQuery->where('course_id', $course->id);
+                            });
+                    })
+                        ->where(function ($query) {
                             $query->whereNotNull('score')->orWhereNotNull('feedback');
                         })
                         ->whereBetween('updated_at', [now()->subDays(7), now()])
@@ -668,7 +710,7 @@ class GradebookController extends Controller
         }
 
         // Sort by total activity
-        usort($instructorStats, function($a, $b) {
+        usort($instructorStats, function ($a, $b) {
             return $b['total_activity'] <=> $a['total_activity'];
         });
 
@@ -696,12 +738,12 @@ class GradebookController extends Controller
     public function instructorDetail(Request $request, User $user)
     {
         // Authorization by permissions (EO or higher)
-        if (!Auth::user()->can('view instructor analytics') && !Auth::user()->can('view progress reports')) {
+        if (! Auth::user()->can('view instructor analytics')) {
             abort(403, 'Unauthorized');
         }
 
         // Pastikan user punya course yang diajar
-        if (!$user->instructorCourses()->exists()) {
+        if (! $user->instructorCourses()->exists()) {
             abort(404, 'Instructor not found');
         }
 
@@ -743,10 +785,10 @@ class GradebookController extends Controller
         // Discussion activity with details - only from assigned period participants
         $discussionReplies = DiscussionReply::where('user_id', $user->id)
             ->whereBetween('created_at', [$dateFrom, $dateTo])
-            ->whereHas('discussion.content.lesson', function($query) use ($courseIds) {
+            ->whereHas('discussion.content.lesson', function ($query) use ($courseIds) {
                 $query->whereIn('course_id', $courseIds);
             })
-            ->whereHas('discussion', function($query) use ($allParticipantIds) {
+            ->whereHas('discussion', function ($query) use ($allParticipantIds) {
                 $query->whereIn('user_id', $allParticipantIds);
             })
             ->with(['discussion.content.lesson.course', 'discussion.user'])
@@ -754,13 +796,13 @@ class GradebookController extends Controller
             ->get();
 
         // Essay grading activity with details - only from assigned period participants
-        $essayGrading = EssayAnswer::whereHas('submission', function($query) use ($allParticipantIds, $courseIds) {
-                $query->whereIn('user_id', $allParticipantIds)
-                    ->whereHas('content.lesson', function($subQuery) use ($courseIds) {
-                        $subQuery->whereIn('course_id', $courseIds);
-                    });
-            })
-            ->where(function($query) {
+        $essayGrading = EssayAnswer::whereHas('submission', function ($query) use ($allParticipantIds, $courseIds) {
+            $query->whereIn('user_id', $allParticipantIds)
+                ->whereHas('content.lesson', function ($subQuery) use ($courseIds) {
+                    $subQuery->whereIn('course_id', $courseIds);
+                });
+        })
+            ->where(function ($query) {
                 $query->whereNotNull('score')->orWhereNotNull('feedback');
             })
             ->whereBetween('updated_at', [$dateFrom, $dateTo])
@@ -780,20 +822,20 @@ class GradebookController extends Controller
 
             $discussions = DiscussionReply::where('user_id', $user->id)
                 ->whereBetween('created_at', [$monthStart, $monthEnd])
-                ->whereHas('discussion.content.lesson', function($query) use ($courseIds) {
+                ->whereHas('discussion.content.lesson', function ($query) use ($courseIds) {
                     $query->whereIn('course_id', $courseIds);
                 })
-                ->whereHas('discussion', function($query) use ($allParticipantIds) {
+                ->whereHas('discussion', function ($query) use ($allParticipantIds) {
                     $query->whereIn('user_id', $allParticipantIds);
                 })->count();
 
-            $grading = EssayAnswer::whereHas('submission', function($query) use ($allParticipantIds, $courseIds) {
-                    $query->whereIn('user_id', $allParticipantIds)
-                        ->whereHas('content.lesson', function($subQuery) use ($courseIds) {
-                            $subQuery->whereIn('course_id', $courseIds);
-                        });
-                })
-                ->where(function($query) {
+            $grading = EssayAnswer::whereHas('submission', function ($query) use ($allParticipantIds, $courseIds) {
+                $query->whereIn('user_id', $allParticipantIds)
+                    ->whereHas('content.lesson', function ($subQuery) use ($courseIds) {
+                        $subQuery->whereIn('course_id', $courseIds);
+                    });
+            })
+                ->where(function ($query) {
                     $query->whereNotNull('score')->orWhereNotNull('feedback');
                 })
                 ->whereBetween('updated_at', [$monthStart, $monthEnd])
@@ -803,7 +845,7 @@ class GradebookController extends Controller
                 'month' => $currentDate->format('M Y'),
                 'discussions' => $discussions,
                 'grading' => $grading,
-                'total' => $discussions + $grading
+                'total' => $discussions + $grading,
             ];
 
             $currentDate->addMonth();
@@ -822,20 +864,20 @@ class GradebookController extends Controller
 
                     $discussions = DiscussionReply::where('user_id', $user->id)
                         ->whereBetween('created_at', [$dateFrom, $dateTo])
-                        ->whereHas('discussion.content.lesson', function($query) use ($period) {
+                        ->whereHas('discussion.content.lesson', function ($query) use ($period) {
                             $query->where('course_id', $period->course_id);
                         })
-                        ->whereHas('discussion', function($query) use ($periodParticipantIds) {
+                        ->whereHas('discussion', function ($query) use ($periodParticipantIds) {
                             $query->whereIn('user_id', $periodParticipantIds);
                         })->count();
 
-                    $grading = EssayAnswer::whereHas('submission', function($query) use ($periodParticipantIds, $period) {
-                            $query->whereIn('user_id', $periodParticipantIds)
-                                ->whereHas('content.lesson', function($subQuery) use ($period) {
-                                    $subQuery->where('course_id', $period->course_id);
-                                });
-                        })
-                        ->where(function($query) {
+                    $grading = EssayAnswer::whereHas('submission', function ($query) use ($periodParticipantIds, $period) {
+                        $query->whereIn('user_id', $periodParticipantIds)
+                            ->whereHas('content.lesson', function ($subQuery) use ($period) {
+                                $subQuery->where('course_id', $period->course_id);
+                            });
+                    })
+                        ->where(function ($query) {
                             $query->whereNotNull('score')->orWhereNotNull('feedback');
                         })
                         ->whereBetween('updated_at', [$dateFrom, $dateTo])
@@ -848,7 +890,7 @@ class GradebookController extends Controller
                         'participants_count' => $period->participants()->count(),
                         'discussions' => $discussions,
                         'grading' => $grading,
-                        'total' => $discussions + $grading
+                        'total' => $discussions + $grading,
                     ];
                 }
             } else {
@@ -857,20 +899,20 @@ class GradebookController extends Controller
 
                 $discussions = DiscussionReply::where('user_id', $user->id)
                     ->whereBetween('created_at', [$dateFrom, $dateTo])
-                    ->whereHas('discussion.content.lesson', function($query) use ($course) {
+                    ->whereHas('discussion.content.lesson', function ($query) use ($course) {
                         $query->where('course_id', $course->id);
                     })
-                    ->whereHas('discussion', function($query) use ($courseParticipantIds) {
+                    ->whereHas('discussion', function ($query) use ($courseParticipantIds) {
                         $query->whereIn('user_id', $courseParticipantIds);
                     })->count();
 
-                $grading = EssayAnswer::whereHas('submission', function($query) use ($courseParticipantIds, $course) {
-                        $query->whereIn('user_id', $courseParticipantIds)
-                            ->whereHas('content.lesson', function($subQuery) use ($course) {
-                                $subQuery->where('course_id', $course->id);
-                            });
-                    })
-                    ->where(function($query) {
+                $grading = EssayAnswer::whereHas('submission', function ($query) use ($courseParticipantIds, $course) {
+                    $query->whereIn('user_id', $courseParticipantIds)
+                        ->whereHas('content.lesson', function ($subQuery) use ($course) {
+                            $subQuery->where('course_id', $course->id);
+                        });
+                })
+                    ->where(function ($query) {
                         $query->whereNotNull('score')->orWhereNotNull('feedback');
                     })
                     ->whereBetween('updated_at', [$dateFrom, $dateTo])
@@ -883,7 +925,7 @@ class GradebookController extends Controller
                     'participants_count' => $courseParticipantIds->count(),
                     'discussions' => $discussions,
                     'grading' => $grading,
-                    'total' => $discussions + $grading
+                    'total' => $discussions + $grading,
                 ];
             }
         }
@@ -915,7 +957,7 @@ class GradebookController extends Controller
     public function instructorCompare(Request $request)
     {
         // Authorization by permissions (EO or higher)
-        if (!Auth::user()->can('view instructor analytics') && !Auth::user()->can('view progress reports')) {
+        if (! Auth::user()->can('view instructor analytics')) {
             abort(403, 'Unauthorized');
         }
 
@@ -924,7 +966,7 @@ class GradebookController extends Controller
         $dateTo = $request->get('date_to', now()->toDateString());
 
         $allInstructors = User::whereHas('instructorCourses')->orderBy('name')->get();
-        
+
         if (empty($instructorIds)) {
             return view('instructor-analytics.compare', compact('allInstructors', 'dateFrom', 'dateTo'));
         }
@@ -932,20 +974,22 @@ class GradebookController extends Controller
         $compareData = [];
         foreach ($instructorIds as $instructorId) {
             $instructor = User::find($instructorId);
-            if (!$instructor || !$instructor->instructorCourses()->exists()) continue;
+            if (! $instructor || ! $instructor->instructorCourses()->exists()) {
+                continue;
+            }
 
             $courseIds = $instructor->instructorCourses->pluck('id');
 
             $discussions = DiscussionReply::where('user_id', $instructor->id)
                 ->whereBetween('created_at', [$dateFrom, $dateTo])
-                ->whereHas('discussion.content.lesson', function($query) use ($courseIds) {
+                ->whereHas('discussion.content.lesson', function ($query) use ($courseIds) {
                     $query->whereIn('course_id', $courseIds);
                 })->count();
 
-            $grading = EssayAnswer::whereHas('submission.content.lesson', function($query) use ($courseIds) {
-                    $query->whereIn('course_id', $courseIds);
-                })
-                ->where(function($query) {
+            $grading = EssayAnswer::whereHas('submission.content.lesson', function ($query) use ($courseIds) {
+                $query->whereIn('course_id', $courseIds);
+            })
+                ->where(function ($query) {
                     $query->whereNotNull('score')->orWhereNotNull('feedback');
                 })
                 ->whereBetween('updated_at', [$dateFrom, $dateTo])

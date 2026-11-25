@@ -382,6 +382,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('permission:manage essay questions');
 
     // Route untuk Forum Diskusi
+    Route::get('/discussions/manage', [App\Http\Controllers\DiscussionController::class, 'chooseCourse'])
+        ->name('discussions.choose-course')
+        ->middleware('permission:view discussions');
     Route::get('/courses/{course}/discussions', [App\Http\Controllers\DiscussionController::class, 'index'])->name('courses.discussions.index')->middleware('permission:view discussions');
     Route::post('/contents/{content}/discussions', [App\Http\Controllers\DiscussionController::class, 'store'])->name('discussions.store')->middleware('permission:create discussions');
     Route::post('/discussions/{discussion}/replies', [App\Http\Controllers\DiscussionController::class, 'storeReply'])->name('discussions.replies.store')->middleware('permission:reply discussions');
@@ -733,7 +736,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Instructor Analytics Routes
-    Route::middleware(['permission:view instructor analytics|view progress reports'])->prefix('instructor-analytics')->name('instructor-analytics.')->group(function () {
+    Route::middleware(['permission:view instructor analytics'])->prefix('instructor-analytics')->name('instructor-analytics.')->group(function () {
         Route::get('/', [GradebookController::class, 'instructorAnalytics'])->name('index');
         Route::get('/instructor/{user}', [GradebookController::class, 'instructorDetail'])->name('detail');
         Route::get('/compare', [GradebookController::class, 'instructorCompare'])->name('compare');

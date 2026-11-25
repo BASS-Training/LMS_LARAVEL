@@ -20,7 +20,7 @@ class LandingPageController extends Controller
             ->limit(8)
             ->get();
 
-        $bundles = $features->bundlesEnabled()
+        $bundles = ($features->showCatalogExtras() && $features->bundlesEnabled())
             ? Bundle::inCatalog()
                 ->visibleTo(Auth::user())
                 ->with('courses:id,title,thumbnail,price')
@@ -29,7 +29,7 @@ class LandingPageController extends Controller
                 ->get()
             : collect();
 
-        $learningPaths = $features->learningPathsEnabled()
+        $learningPaths = ($features->showCatalogExtras() && $features->learningPathsEnabled())
             ? LearningPath::inCatalog()
                 ->visibleTo(Auth::user())
                 ->with('courses:id,title')
@@ -42,8 +42,8 @@ class LandingPageController extends Controller
             'courses' => $courses,
             'bundles' => $bundles,
             'learningPaths' => $learningPaths,
-            'bundlesEnabled' => $features->bundlesEnabled(),
-            'learningPathsEnabled' => $features->learningPathsEnabled(),
+            'bundlesEnabled' => ($features->showCatalogExtras() && $features->bundlesEnabled()),
+            'learningPathsEnabled' => ($features->showCatalogExtras() && $features->learningPathsEnabled()),
         ]);
     }
 }
