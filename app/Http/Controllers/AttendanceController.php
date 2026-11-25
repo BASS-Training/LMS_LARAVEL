@@ -35,6 +35,11 @@ class AttendanceController extends Controller
                 $query->where('content_id', $contentId);
             }]);
 
+        // Filter per kelas (opsional)
+        $classOptions = \App\Support\ClassFilter::options(auth()->user(), $course);
+        $selectedClassId = \App\Support\ClassFilter::selected($request, $classOptions);
+        \App\Support\ClassFilter::apply($participantsQuery, $selectedClassId);
+
         // Apply search filter if provided
         if ($search) {
             $participantsQuery->where(function($query) use ($search) {
@@ -44,12 +49,12 @@ class AttendanceController extends Controller
         }
 
         // Paginate participants (50 per page for 1000+ participants)
-        $participants = $participantsQuery->paginate(50)->appends(['search' => $search]);
+        $participants = $participantsQuery->paginate(50)->appends(['search' => $search, 'class_id' => $selectedClassId]);
 
         // Get stats (from all participants, not just current page)
-        $stats = $content->getAttendanceStats();
+        $stats = $content->getAttendanceStats(\App\Support\ClassFilter::participantIds($selectedClassId));
 
-        return view('attendance.index', compact('content', 'course', 'participants', 'stats', 'search'));
+        return view('attendance.index', compact('content', 'course', 'participants', 'stats', 'search', 'classOptions', 'selectedClassId'));
     }
 
     /**
@@ -303,7 +308,7 @@ class AttendanceController extends Controller
     /**
      * View course-level attendance report
      */
-    public function courseReport($courseId)
+    public function courseReport(Request $request, $courseId)
     {
         $course = Course::with(['lessons.contents' => function($query) {
             $query->where('attendance_required', true);
@@ -315,8 +320,18 @@ class AttendanceController extends Controller
             $attendanceContents = $attendanceContents->merge($lesson->contents);
         }
 
-        $participants = $course->participants()->with('attendances')->get();
+        // Filter per kelas (opsional)
+        $classOptions = \App\Support\ClassFilter::options(auth()->user(), $course);
+        $selectedClassId = \App\Support\ClassFilter::selected($request, $classOptions);
 
-        return view('attendance.course-report', compact('course', 'attendanceContents', 'participants'));
+        $participantsQuery = $course->participants()->with('attendances');
+        \App\Support\ClassFilter::apply($participantsQuery, $selectedClassId);
+        $participants = $participantsQuery->get();
+
+        // View memakai $course->participants; samakan dengan hasil filter
+        $course->setRelation('participants', $participants);
+        $participantIds = $selectedClassId ? $participants->pluck('id') : null;
+
+        return view('attendance.course-report', compact('course', 'attendanceContents', 'participants', 'classOptions', 'selectedClassId', 'participantIds'));
     }
 }

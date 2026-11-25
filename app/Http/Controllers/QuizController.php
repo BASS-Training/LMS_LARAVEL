@@ -719,11 +719,24 @@ class QuizController extends Controller
     {
         $user = Auth::user();
 
-        if ($attempt->user_id !== $user->id || $attempt->quiz_id !== $quiz->id) {
+        if ($attempt->quiz_id !== $quiz->id) {
             abort(403, 'Akses ditolak.');
         }
 
+        // Pemilik attempt = peserta. Admin/instruktur course boleh mereview jawaban peserta (read-only).
+        $isReviewer = false;
+        if ($attempt->user_id !== $user->id) {
+            $reviewCourse = $quiz->lesson?->course;
+            if (!$reviewCourse || !$user->can('viewProgress', $reviewCourse)) {
+                abort(403, 'Akses ditolak.');
+            }
+            $isReviewer = true;
+        }
+
         if (!$attempt->completed_at) {
+            if ($isReviewer) {
+                return back()->with('error', 'Peserta belum menyelesaikan percobaan kuis ini.');
+            }
             return redirect()->route('quizzes.start_attempt', $quiz)->with('error', 'Percobaan kuis belum selesai.');
         }
         
@@ -796,7 +809,7 @@ class QuizController extends Controller
         }
 
         // Cek apakah pengguna PERNAH lulus kuis ini sebelumnya dari semua attempt
-        $hasPassedQuizBefore = $user->quizAttempts()
+        $hasPassedQuizBefore = $attempt->user->quizAttempts()
                                     ->where('quiz_id', $quiz->id)
                                     ->where('passed', true) // Cek kolom 'passed' yang sudah ada
                                     ->exists();
@@ -814,7 +827,8 @@ class QuizController extends Controller
             'total_marks',
             'score_percentage',
             'isPassed',
-            'hasPassedQuizBefore' // Variabel baru untuk view
+            'hasPassedQuizBefore', // Variabel baru untuk view
+            'isReviewer'
         ));
         
         // =================================================================

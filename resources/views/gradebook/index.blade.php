@@ -67,7 +67,9 @@
                     </div>
 
                     <div class="space-y-4">
+                        @include('partials.class-filter', ['classOptions' => $classOptions, 'selectedClassId' => $selectedClassId])
                         <form action="{{ route('courses.gradebook', $course) }}" method="GET" class="space-y-2">
+                            @if(!empty($selectedClassId))<input type="hidden" name="class_id" value="{{ $selectedClassId }}">@endif
                             <label for="search" class="flex items-center text-sm font-semibold text-gray-700">
                                 <svg class="w-4 h-4 mr-2 text-bass-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -85,7 +87,7 @@
                                     Cari
                                 </x-primary-button>
                                 @if(request('search'))
-                                    <a href="{{ route('courses.gradebook', $course) }}" class="inline-flex items-center px-4 py-3 text-sm text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200">
+                                    <a href="{{ route('courses.gradebook', array_filter(['course' => $course, 'class_id' => $selectedClassId ?? null])) }}" class="inline-flex items-center px-4 py-3 text-sm text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200">
                                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                         </svg>

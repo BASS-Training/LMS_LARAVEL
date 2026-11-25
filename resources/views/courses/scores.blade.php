@@ -59,7 +59,9 @@
                             @endforeach
                         </select>
                     </div>
+                    @include('partials.class-filter', ['classOptions' => $classOptions, 'selectedClassId' => $selectedClassId])
                     <form action="{{ route('courses.scores', $course) }}" method="GET" class="space-y-2">
+                        @if(!empty($selectedClassId))<input type="hidden" name="class_id" value="{{ $selectedClassId }}">@endif
                         <label for="search" class="flex items-center text-sm font-semibold text-gray-700">
                             <svg class="w-4 h-4 mr-2 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -225,6 +227,9 @@
                                                                             <span class="text-xs text-gray-500">
                                                                                 {{ $attempt['completed_at'] ? $attempt['completed_at']->format('d/m H:i') : '-' }}
                                                                             </span>
+                                                                            @if($attempt['completed'])
+                                                                                <a href="{{ route('quizzes.result', ['quiz' => $quizData['quiz_id'], 'attempt' => $attempt['attempt_id']]) }}" class="px-2.5 py-1 text-xs bg-info-soft text-navy hover:bg-info-soft/80 rounded-lg">Lihat Jawaban</a>
+                                                                            @endif
                                                                         </div>
                                                                     </div>
                                                                 @endforeach

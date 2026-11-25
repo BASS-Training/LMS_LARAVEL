@@ -25,6 +25,10 @@
                         </div>
                     </div>
 
+                    <div class="mb-4">
+                        @include('partials.class-filter', ['classOptions' => $classOptions, 'selectedClassId' => $selectedClassId])
+                    </div>
+
                     <!-- Content List with Attendance Requirement -->
                     @if($attendanceContents->count() > 0)
                         <!-- Overall Statistics -->
@@ -47,7 +51,7 @@
                                             $totalRate = 0;
                                             $count = 0;
                                             foreach($attendanceContents as $content) {
-                                                $stats = $content->getAttendanceStats();
+                                                $stats = $content->getAttendanceStats($participantIds ?? null);
                                                 $totalPart = $course->participants->count();
                                                 if ($totalPart > 0) {
                                                     $totalRate += ($stats['present'] / $totalPart) * 100;
@@ -89,7 +93,7 @@
                             <div class="grid gap-4">
                                 @foreach($attendanceContents as $content)
                                     @php
-                                        $stats = $content->getAttendanceStats();
+                                        $stats = $content->getAttendanceStats($participantIds ?? null);
                                         $totalParticipants = $course->participants->count();
                                         $attendanceRate = $totalParticipants > 0
                                             ? round(($stats['present'] / $totalParticipants) * 100, 1)

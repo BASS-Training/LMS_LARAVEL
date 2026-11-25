@@ -67,6 +67,10 @@ class GradebookController extends Controller
             $participantsQuery = $course->enrolledUsers();
         }
 
+        $classOptions = \App\Support\ClassFilter::options($user, $course);
+        $selectedClassId = \App\Support\ClassFilter::selected($request, $classOptions);
+        \App\Support\ClassFilter::apply($participantsQuery, $selectedClassId);
+
         if ($request->has('search') && $request->search != '') {
             $searchTerm = $request->search;
             $participantsQuery->where(function ($query) use ($searchTerm) {
@@ -97,6 +101,8 @@ class GradebookController extends Controller
                 ->whereHas('essaySubmissions', fn($q) => $q->whereIn('content_id', $essayContentIds));
         }
 
+        \App\Support\ClassFilter::apply($participantsWithEssaysQuery, $selectedClassId);
+
         if ($request->has('search') && $request->search != '') {
             $searchTerm = $request->input('search');
             $participantsWithEssaysQuery->where(function ($query) use ($searchTerm) {
@@ -112,7 +118,9 @@ class GradebookController extends Controller
             'participants',
             'participantsWithEssays',
             'allCoursesForFilter',
-            'essayContentIds'
+            'essayContentIds',
+            'classOptions',
+            'selectedClassId'
         ));
     }
 
