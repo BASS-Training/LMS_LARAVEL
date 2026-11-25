@@ -39,8 +39,8 @@
                 <div class="ml-auto hidden items-center gap-5 lg:flex">
                     <a href="{{ route('welcome') }}" class="text-sm font-semibold hover:text-bass-red {{ request()->routeIs('welcome') ? 'text-bass-red' : '' }}">Beranda</a>
                     <a href="{{ route('shop.index') }}" class="text-sm font-semibold hover:text-bass-red {{ request()->routeIs('shop.*') ? 'text-bass-red' : '' }}">Course</a>
-                    @if ($features->learningPathsEnabled())<a href="{{ route('learning-paths.index') }}" class="text-sm font-semibold hover:text-bass-red {{ request()->routeIs('learning-paths.*') ? 'text-bass-red' : '' }}">Learning Path</a>@endif
-                    @if ($features->bundlesEnabled())<a href="{{ route('bundles.index') }}" class="rounded-full px-4 py-1.5 text-sm font-bold {{ request()->routeIs('bundles.*') ? 'bg-bass-red text-white' : 'hover:text-bass-red' }}">Bundle</a>@endif
+                    @if (($features->showCatalogExtras() && $features->learningPathsEnabled()))<a href="{{ route('learning-paths.index') }}" class="text-sm font-semibold hover:text-bass-red {{ request()->routeIs('learning-paths.*') ? 'text-bass-red' : '' }}">Learning Path</a>@endif
+                    @if (($features->showCatalogExtras() && $features->bundlesEnabled()))<a href="{{ route('bundles.index') }}" class="rounded-full px-4 py-1.5 text-sm font-bold {{ request()->routeIs('bundles.*') ? 'bg-bass-red text-white' : 'hover:text-bass-red' }}">Bundle</a>@endif
                     <a href="{{ route('welcome') }}#cara-belajar" class="text-sm font-semibold hover:text-bass-red">Cara Belajar</a>
                     <a href="{{ route('welcome') }}#kontak" class="text-sm font-semibold hover:text-bass-red">Kontak</a>
                 </div>
@@ -65,8 +65,8 @@
                 <div class="grid gap-1 text-sm font-semibold">
                     <a href="{{ route('welcome') }}" class="rounded-lg px-3 py-2.5 hover:bg-white">Beranda</a>
                     <a href="{{ route('shop.index') }}" class="rounded-lg px-3 py-2.5 hover:bg-white">Course</a>
-                    @if ($features->learningPathsEnabled())<a href="{{ route('learning-paths.index') }}" class="rounded-lg px-3 py-2.5 hover:bg-white">Learning Path</a>@endif
-                    @if ($features->bundlesEnabled())<a href="{{ route('bundles.index') }}" class="rounded-lg px-3 py-2.5 text-bass-red hover:bg-white">Bundle</a>@endif
+                    @if (($features->showCatalogExtras() && $features->learningPathsEnabled()))<a href="{{ route('learning-paths.index') }}" class="rounded-lg px-3 py-2.5 hover:bg-white">Learning Path</a>@endif
+                    @if (($features->showCatalogExtras() && $features->bundlesEnabled()))<a href="{{ route('bundles.index') }}" class="rounded-lg px-3 py-2.5 text-bass-red hover:bg-white">Bundle</a>@endif
                     <a href="{{ route('welcome') }}#cara-belajar" class="rounded-lg px-3 py-2.5 hover:bg-white">Cara Belajar</a>
                     <a href="{{ route('welcome') }}#kontak" class="rounded-lg px-3 py-2.5 hover:bg-white">Kontak</a>
                 </div>
@@ -88,7 +88,7 @@
         <footer class="border-t-2 border-navy bg-[#f7f3ea]">
             <div class="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[1.3fr_1fr_1fr] lg:px-8">
                 <div><img src="{{ asset('images/logo.png') }}" alt="BASS Academy" width="85" height="48" class="h-12 w-auto"><p class="mt-4 max-w-sm text-sm leading-6 text-slate-600">Platform pelatihan profesional untuk membangun kompetensi yang relevan dan terukur.</p></div>
-                <div><h2 class="font-bold">Jelajahi</h2><div class="mt-3 space-y-2 text-sm text-slate-600"><a href="{{ route('shop.index') }}" class="block hover:text-bass-red">Course</a>@if ($features->bundlesEnabled())<a href="{{ route('bundles.index') }}" class="block hover:text-bass-red">Bundle</a>@endif @if ($features->learningPathsEnabled())<a href="{{ route('learning-paths.index') }}" class="block hover:text-bass-red">Learning Path</a>@endif</div></div>
+                <div><h2 class="font-bold">Jelajahi</h2><div class="mt-3 space-y-2 text-sm text-slate-600"><a href="{{ route('shop.index') }}" class="block hover:text-bass-red">Course</a>@if (($features->showCatalogExtras() && $features->bundlesEnabled()))<a href="{{ route('bundles.index') }}" class="block hover:text-bass-red">Bundle</a>@endif @if (($features->showCatalogExtras() && $features->learningPathsEnabled()))<a href="{{ route('learning-paths.index') }}" class="block hover:text-bass-red">Learning Path</a>@endif</div></div>
                 <div><h2 class="font-bold">Akun</h2><div class="mt-3 space-y-2 text-sm text-slate-600">@auth<a href="{{ route('dashboard') }}" class="block hover:text-bass-red">Dashboard</a><a href="{{ route('checkout.index') }}" class="block hover:text-bass-red">Pesanan Saya</a>@else<a href="{{ route('login') }}" class="block hover:text-bass-red">Masuk</a><a href="{{ route('register') }}" class="block hover:text-bass-red">Daftar</a>@endauth</div></div>
             </div>
             <div class="border-t border-navy/20 px-4 py-5 text-center text-xs text-slate-500">

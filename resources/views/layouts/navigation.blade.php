@@ -51,7 +51,7 @@
                         </a>
                     @endcan
 
-                    @can('view progress reports')
+                    @can('view instructor analytics')
                         <a href="{{ route('instructor-analytics.index') }}"
                            class="inline-flex items-center px-1 pt-1 border-b-2 text-base font-semibold leading-5 transition duration-150 ease-in-out
                                   {{ request()->routeIs('instructor-analytics.*')
@@ -209,7 +209,7 @@
                 </a>
             @endcan
 
-            @can('view progress reports')
+            @can('view instructor analytics')
                 <a href="{{ route('instructor-analytics.index') }}"
                    class="block pl-3 pr-4 py-2 border-l-4 text-base font-semibold transition duration-150 ease-in-out
                           {{ request()->routeIs('instructor-analytics.*')

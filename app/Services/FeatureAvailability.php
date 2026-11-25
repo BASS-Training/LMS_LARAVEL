@@ -9,6 +9,11 @@ class FeatureAvailability
 {
     private ?FeatureSetting $settings = null;
 
+    public function showCatalogExtras(): bool
+    {
+        return ! auth()->user()?->hasAnyRole(['instructor', 'participant', 'user']);
+    }
+
     public function bundlesEnabled(): bool
     {
         return $this->settings()->bundles_enabled;

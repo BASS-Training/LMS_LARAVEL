@@ -171,18 +171,20 @@
 
                         {{-- Etalase kursus — terbuka untuk semua, termasuk tamu. --}}
                         @cannot('admin-only')
+                        @if(!auth()->check() || (!auth()->user()->can('manage own courses') && !auth()->user()->can('attempt quizzes')))
                         <a href="{{ route('shop.index') }}"
                            class="nav-link-custom {{ request()->routeIs('shop.*') ? 'active' : '' }}">
                              Katalog
                         </a>
+                        @endif
                         @endcannot
-                        @if ($features->bundlesEnabled())
+                        @if (($features->showCatalogExtras() && $features->bundlesEnabled()))
                         <a href="{{ route('bundles.index') }}"
                            class="nav-link-custom {{ request()->routeIs('bundles.*') ? 'active' : '' }}">
                             Bundle
                         </a>
                         @endif
-                        @if ($features->learningPathsEnabled())
+                        @if (($features->showCatalogExtras() && $features->learningPathsEnabled()))
                         <a href="{{ route('learning-paths.index') }}"
                            class="nav-link-custom {{ request()->routeIs('learning-paths.*') ? 'active' : '' }}">
                             Learning Path
@@ -195,6 +197,8 @@
                            class="nav-link-custom {{ request()->routeIs('eo.*') ? 'active' : '' }}">
                             Pemantauan
                         </a>
+                        @endcan
+                        @can('view instructor analytics')
                         <a href="{{ route('instructor-analytics.index') }}"
                            class="nav-link-custom {{ request()->routeIs('instructor-analytics.*') ? 'active' : '' }}">
                             Analytics
@@ -338,19 +342,21 @@
                 @endcannot
 
                 @cannot('admin-only')
+                @if(!auth()->check() || (!auth()->user()->can('manage own courses') && !auth()->user()->can('attempt quizzes')))
                 <a href="{{ route('shop.index') }}"
                    class="responsive-nav-link-custom {{ request()->routeIs('shop.*') ? 'active' : '' }}">
                     <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                     Katalog Kursus
                 </a>
+                @endif
                 @endcannot
-                @if ($features->bundlesEnabled())
+                @if (($features->showCatalogExtras() && $features->bundlesEnabled()))
                 <a href="{{ route('bundles.index') }}"
                    class="responsive-nav-link-custom {{ request()->routeIs('bundles.*') ? 'active' : '' }}">
                     Bundle
                 </a>
                 @endif
-                @if ($features->learningPathsEnabled())
+                @if (($features->showCatalogExtras() && $features->learningPathsEnabled()))
                 <a href="{{ route('learning-paths.index') }}"
                    class="responsive-nav-link-custom {{ request()->routeIs('learning-paths.*') ? 'active' : '' }}">
                     Learning Path
@@ -364,6 +370,8 @@
                     <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                     Pemantauan Kursus
                 </a>
+                @endcan
+                @can('view instructor analytics')
                 <a href="{{ route('instructor-analytics.index') }}"
                    class="responsive-nav-link-custom {{ request()->routeIs('instructor-analytics.*') ? 'active' : '' }}">
                     <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>

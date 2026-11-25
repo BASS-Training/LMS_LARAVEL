@@ -11,6 +11,16 @@ use Illuminate\Support\Facades\Auth;
 
 class DiscussionController extends Controller
 {
+    public function chooseCourse()
+    {
+        $user = Auth::user();
+        abort_unless($user->can('view discussions'), 403);
+
+        $courses = $user->taughtCourses()->orderBy('title')->get();
+
+        return view('discussions.choose-course', compact('courses'));
+    }
+
     public function index(Request $request, Course $course)
     {
         // ✅ FIX: Use proper discussion authorization instead of course update

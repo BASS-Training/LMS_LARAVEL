@@ -22,7 +22,7 @@
                 'badge' => 0,
                 'icon' => 'M16 11V7a4 4 0 0 0-8 0v4M5 9h14l1 12H4L5 9Z',
             ])
-            @if ($features->bundlesEnabled())
+            @if (($features->showCatalogExtras() && $features->bundlesEnabled()))
                 @include('layouts.partials.admin-sidebar-link', [
                     'href' => route('bundles.index'),
                     'label' => 'Bundle',
@@ -31,7 +31,7 @@
                     'icon' => 'M21 8 12 3 3 8l9 5 9-5ZM3 12l9 5 9-5M3 16l9 5 9-5',
                 ])
             @endif
-            @if ($features->learningPathsEnabled())
+            @if (($features->showCatalogExtras() && $features->learningPathsEnabled()))
                 @include('layouts.partials.admin-sidebar-link', [
                     'href' => route('learning-paths.index'),
                     'label' => 'Skema',
@@ -62,9 +62,9 @@
             @can('view progress reports')
                 @include('layouts.partials.admin-sidebar-link', ['href' => route('eo.courses.index'), 'label' => 'Pemantauan Kursus', 'active' => request()->routeIs('eo.*'), 'badge' => 0, 'icon' => 'M4 19V9m5 10V5m5 14v-7m5 7V3'])
             @endcan
-            @canany(['view instructor analytics', 'view progress reports'])
+            @can('view instructor analytics')
                 @include('layouts.partials.admin-sidebar-link', ['href' => route('instructor-analytics.index'), 'label' => 'Analytics Instruktur', 'active' => request()->routeIs('instructor-analytics.*'), 'badge' => 0, 'icon' => 'M3 3v18h18M7 16l4-5 3 2 5-7'])
-            @endcanany
+            @endcan
             @can('manage course taxonomy')
                 @include('layouts.partials.admin-sidebar-link', ['href' => route('admin.categories.index'), 'label' => 'Kategori Course', 'active' => request()->routeIs('admin.categories.*'), 'badge' => 0, 'icon' => 'M4 4h6v6H4V4Zm10 0h6v6h-6V4ZM4 14h6v6H4v-6Zm10 0h6v6h-6v-6Z'])
                 @include('layouts.partials.admin-sidebar-link', ['href' => route('admin.tags.index'), 'label' => 'Tag Course', 'active' => request()->routeIs('admin.tags.*'), 'badge' => 0, 'icon' => 'M20 13 13 20l-9-9V4h7l9 9ZM8.5 8.5h.01'])
