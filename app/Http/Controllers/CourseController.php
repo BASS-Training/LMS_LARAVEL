@@ -694,6 +694,11 @@ class CourseController extends Controller
             $baseQuery = $course->enrolledUsers();
         }
 
+        // Filter per kelas (juga memengaruhi analytics)
+        $classOptions = \App\Support\ClassFilter::options($user, $course);
+        $selectedClassId = \App\Support\ClassFilter::selected($request, $classOptions);
+        \App\Support\ClassFilter::apply($baseQuery, $selectedClassId);
+
         // Clone base query untuk table (dengan search & pagination)
         $enrolledUsersQuery = clone $baseQuery;
 
@@ -776,6 +781,8 @@ class CourseController extends Controller
         $analytics = $this->calculateProgressAnalytics($course, $baseQuery);
 
         return view('courses.progress', [
+            'classOptions' => $classOptions,
+            'selectedClassId' => $selectedClassId,
             'course' => $course,
             'instructorCourses' => $instructorCourses,
             'participantsProgress' => $participantsProgress,
@@ -1264,11 +1271,19 @@ class CourseController extends Controller
         return back()->with('success', 'Instruktur berhasil dihapus.');
     }
 
-    public function downloadProgressPdf(Course $course)
+    public function downloadProgressPdf(Course $course, Request $request)
     {
         $this->authorize('viewProgress', $course);
 
         $course->load('lessons.contents', 'enrolledUsers');
+
+        // Filter per kelas (opsional)
+        $pdfClassOptions = \App\Support\ClassFilter::options(Auth::user(), $course);
+        $pdfClassId = \App\Support\ClassFilter::selected($request, $pdfClassOptions);
+        if ($pdfClassId) {
+            $pdfClassUserIds = \App\Support\ClassFilter::participantIds($pdfClassId);
+            $course->setRelation('enrolledUsers', $course->enrolledUsers->whereIn('id', $pdfClassUserIds)->values());
+        }
 
         // Get all contents for this course
         $allContents = $course->lessons->flatMap(fn ($l) => $l->contents);
@@ -1383,6 +1398,10 @@ class CourseController extends Controller
             $participantsQuery = $course->enrolledUsers();
         }
 
+        $classOptions = \App\Support\ClassFilter::options($user, $course);
+        $selectedClassId = \App\Support\ClassFilter::selected($request, $classOptions);
+        \App\Support\ClassFilter::apply($participantsQuery, $selectedClassId);
+
         if ($request->filled('search')) {
             $search = $request->input('search');
             $participantsQuery->where(function ($q) use ($search) {
@@ -1451,6 +1470,8 @@ class CourseController extends Controller
                             }
 
                             $attemptsData[] = [
+                                'attempt_id' => $attempt->id,
+                                'completed' => (bool) $attempt->completed_at,
                                 'attempt_number' => $attempts->count() - $index,
                                 'score' => $attempt->score,
                                 'total_marks' => $totalMarks,
@@ -1507,6 +1528,8 @@ class CourseController extends Controller
         });
 
         return view('courses.scores', [
+            'classOptions' => $classOptions,
+            'selectedClassId' => $selectedClassId,
             'course' => $course,
             'courseOptions' => $courseOptions,
             'participantsData' => $participantsData,

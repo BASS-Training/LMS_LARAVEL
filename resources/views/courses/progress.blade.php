@@ -8,7 +8,7 @@
                 <p class="text-gray-600 mt-1">{{ $course->title }}</p>
             </div>
             <div class="flex flex-col sm:flex-row gap-2">
-                <a href="{{ route('courses.progress.pdf', $course) }}" class="inline-flex items-center px-4 py-2 bg-bass-red border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-bass-red-hover focus:bg-bass-red-hover active:bg-bass-red-hover focus:outline-none focus:ring-2 focus:ring-bass-red focus:ring-offset-2 transition ease-in-out duration-150 shadow-lg hover:shadow-xl">
+                <a href="{{ route('courses.progress.pdf', array_filter(['course' => $course, 'class_id' => $selectedClassId ?? null])) }}" class="inline-flex items-center px-4 py-2 bg-bass-red border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-bass-red-hover focus:bg-bass-red-hover active:bg-bass-red-hover focus:outline-none focus:ring-2 focus:ring-bass-red focus:ring-offset-2 transition ease-in-out duration-150 shadow-lg hover:shadow-xl">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
@@ -102,8 +102,10 @@
                                     </select>
                                 </div>
 
+                                @include('partials.class-filter', ['classOptions' => $classOptions, 'selectedClassId' => $selectedClassId])
                                 <!-- Search Form -->
                                 <form action="{{ route('courses.progress', $course) }}" method="GET">
+                                    @if(!empty($selectedClassId))<input type="hidden" name="class_id" value="{{ $selectedClassId }}">@endif
                                     <div>
                                         <label for="search" class="block text-sm font-semibold text-gray-700 mb-2">
                                             Cari Peserta
@@ -121,7 +123,7 @@
                                                 Cari
                                             </button>
                                             @if(request('search'))
-                                                <a href="{{ route('courses.progress', $course) }}" class="px-3 py-2.5 text-sm text-gray-600 hover:text-gray-900 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 transition">
+                                                <a href="{{ route('courses.progress', array_filter(['course' => $course, 'class_id' => $selectedClassId ?? null])) }}" class="px-3 py-2.5 text-sm text-gray-600 hover:text-gray-900 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 transition">
                                                     Reset
                                                 </a>
                                             @endif

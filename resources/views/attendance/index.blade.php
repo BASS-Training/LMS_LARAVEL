@@ -58,7 +58,9 @@
 
             <!-- Search Form & Selection Info -->
             <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
+                @include('partials.class-filter', ['classOptions' => $classOptions, 'selectedClassId' => $selectedClassId])
                 <form method="GET" action="{{ route('attendance.index', $content->id) }}" class="flex gap-2 mb-3">
+                    @if(!empty($selectedClassId))<input type="hidden" name="class_id" value="{{ $selectedClassId }}">@endif
                     <input type="text"
                            name="search"
                            value="{{ $search ?? '' }}"

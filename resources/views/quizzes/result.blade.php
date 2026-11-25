@@ -4,7 +4,7 @@
             <div class="px-6">
                 <div class="flex items-center space-x-3 mb-2">
                     <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 3h6v4H9V3zm1 10l2 2 4-4" /></svg>
-                    <h2 class="text-3xl font-bold">Hasil Kuis</h2>
+                    <h2 class="text-3xl font-bold">Hasil Kuis{{ $isReviewer ? ' - '.$attempt->user->name : '' }}</h2>
                 </div>
                 <p class="text-white/80 text-lg">{{ $quiz->title }}</p>
             </div>
@@ -96,10 +96,10 @@
 
                 <div class="{{ $isPassed ? 'status-success' : 'status-fail' }} text-white p-6 text-center">
                     <div class="flex items-center justify-center space-x-3 mb-3">
-                        <h2 class="text-2xl font-bold">{{ $isPassed ? 'Selamat! Anda Lulus' : 'Tidak Lulus' }}</h2>
+                        <h2 class="text-2xl font-bold">{{ $isReviewer ? ($isPassed ? 'Peserta Lulus' : 'Peserta Tidak Lulus') : ($isPassed ? 'Selamat! Anda Lulus' : 'Tidak Lulus') }}</h2>
                     </div>
                     <p class="{{ $isPassed ? 'text-white/90' : 'text-white/90' }}">
-                        {{ $isPassed ? 'Excellent work! Keep up the great progress!' : 'Jangan menyerah! Terus belajar dan coba lagi' }}
+                        {{ $isReviewer ? 'Mode tinjauan instruktur/admin (hanya lihat)' : ($isPassed ? 'Excellent work! Keep up the great progress!' : 'Jangan menyerah! Terus belajar dan coba lagi') }}
                     </p>
                 </div>
 
@@ -110,7 +110,7 @@
                             <div class="score-circle" style="background: conic-gradient({{ $isPassed ? '#168A50' : '#B91C1C' }} 0deg {{ $percentage * 3.6 }}deg, #e5e7eb {{ $percentage * 3.6 }}deg 360deg);">
                                 <div class="score-text text-center">
                                     <div class="text-xl font-bold text-gray-800">{{ number_format($percentage, 1) }}%</div>
-                                    <div class="text-sm text-gray-500">Nilai Anda</div>
+                                    <div class="text-sm text-gray-500">{{ $isReviewer ? 'Nilai Peserta' : 'Nilai Anda' }}</div>
                                 </div>
                             </div>
                             <div>
@@ -196,7 +196,7 @@
                     </div>
 
                     <!-- Quiz Answers Detail -->
-                    @if($quiz->show_answers_after_attempt)
+                    @if($quiz->show_answers_after_attempt || $isReviewer)
                         <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
                             <h4 class="font-semibold text-gray-800 mb-4 flex items-center">
                                 Detail Jawaban
@@ -359,6 +359,16 @@
 
                     <!-- Action Buttons -->
                     <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        @if($isReviewer)
+                            <a href="{{ route('courses.scores', $quiz->lesson->course) }}"
+                               class="bg-navy hover:bg-navy-light text-white px-8 py-3 rounded-lg font-semibold btn-hover flex items-center justify-center space-x-2">
+                                <span>Kembali ke Nilai Peserta</span>
+                            </a>
+                            <button onclick="window.print()"
+                                    class="border border-gray-300 hover:bg-gray-50 text-gray-700 px-8 py-3 rounded-lg font-semibold btn-hover flex items-center justify-center space-x-2">
+                                <span>Cetak / Simpan PDF</span>
+                            </button>
+                        @else
                         {{-- [FIX] Kembali ke halaman content --}}
                         <a href="{{ route('contents.show', $content) }}"
                            class="bg-navy hover:bg-navy-light text-white px-8 py-3 rounded-lg font-semibold btn-hover flex items-center justify-center space-x-2">
@@ -385,6 +395,7 @@
                              <a href="{{ route('contents.show', $content->id) }}" class="px-6 py-3 bg-bass-red hover:bg-bass-red-hover text-white font-bold rounded-lg shadow-lg focus:outline-none focus:ring-4 focus:ring-bass-red-soft transition-colors duration-200 flex items-center justify-center space-x-2">
                                 <span>Lanjut Belajar</span>
                             </a>
+                        @endif
                         @endif
                     </div>
                 </div>

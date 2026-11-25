@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 
 class DiscussionController extends Controller
 {
-    public function index(Course $course)
+    public function index(Request $request, Course $course)
     {
         // ✅ FIX: Use proper discussion authorization instead of course update
         $this->authorize('viewCourseDiscussions', [Discussion::class, $course]);
@@ -46,12 +46,20 @@ class DiscussionController extends Controller
             }
         }
 
+        // Filter per kelas: hanya diskusi yang dibuat peserta kelas terpilih
+        $classOptions = \App\Support\ClassFilter::options($user, $course);
+        $selectedClassId = \App\Support\ClassFilter::selected($request, $classOptions);
+        if ($selectedClassId) {
+            $discussionsQuery->whereIn('user_id', \App\Support\ClassFilter::participantIds($selectedClassId));
+        }
+
         // Ambil semua diskusi yang terkait dengan konten-konten tersebut
         $discussions = $discussionsQuery
             ->latest() // Urutkan dari yang terbaru
-            ->paginate(15); // Gunakan paginasi
+            ->paginate(15) // Gunakan paginasi
+            ->withQueryString();
 
-        return view('discussions.index', compact('course', 'discussions'));
+        return view('discussions.index', compact('course', 'discussions', 'classOptions', 'selectedClassId'));
     }
 
     // Method untuk menyimpan topik diskusi baru
