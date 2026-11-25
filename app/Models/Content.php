@@ -203,14 +203,19 @@ class Content extends Model
     /**
      * Get attendance statistics for this content
      */
-    public function getAttendanceStats()
+    public function getAttendanceStats($userIds = null)
     {
+        // $userIds (opsional): batasi statistik ke user tertentu (mis. peserta satu kelas)
+        $base = fn () => $userIds === null
+            ? $this->attendances()
+            : $this->attendances()->whereIn('user_id', $userIds);
+
         return [
-            'total' => $this->attendances()->count(),
-            'present' => $this->attendances()->where('status', 'present')->count(),
-            'absent' => $this->attendances()->where('status', 'absent')->count(),
-            'late' => $this->attendances()->where('status', 'late')->count(),
-            'excused' => $this->attendances()->where('status', 'excused')->count(),
+            'total' => $base()->count(),
+            'present' => $base()->where('status', 'present')->count(),
+            'absent' => $base()->where('status', 'absent')->count(),
+            'late' => $base()->where('status', 'late')->count(),
+            'excused' => $base()->where('status', 'excused')->count(),
         ];
     }
 

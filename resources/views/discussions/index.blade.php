@@ -30,6 +30,9 @@
 
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+                @include('partials.class-filter', ['classOptions' => $classOptions, 'selectedClassId' => $selectedClassId])
+            </div>
             @if (!$discussions->isEmpty())
                 <!-- Statistics Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
